@@ -25,6 +25,11 @@ IF (TINYROS_SUPPORT_TF)
   add_subdirectory(third_party/geometry)
 ENDIF (TINYROS_SUPPORT_TF)
 
+IF (TINYROS_SUPPORT_RVIZ)
+  set(TINYROS_RVIZ_SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/rviz)
+  add_subdirectory(third_party/rviz)
+ENDIF (TINYROS_SUPPORT_RVIZ)
+
 add_subdirectory(core)
 add_subdirectory(tools)
 add_subdirectory(examples)
