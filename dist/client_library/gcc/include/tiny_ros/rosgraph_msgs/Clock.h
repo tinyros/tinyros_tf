@@ -92,11 +92,10 @@ namespace rosgraph_msgs
     virtual std::string getDefinition(){ return "time clock\n"; }
     static std::string getDefinitionStatic(){ return "time clock\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::rosgraph_msgs::Clock> Ptr;
-    typedef std::shared_ptr<tinyros::rosgraph_msgs::Clock const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::rosgraph_msgs::Clock> ClockPtr;
+typedef std::shared_ptr<tinyros::rosgraph_msgs::Clock const> ClockConstPtr;
 
 }
 }

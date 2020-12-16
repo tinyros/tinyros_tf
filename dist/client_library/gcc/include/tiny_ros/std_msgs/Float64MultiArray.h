@@ -145,11 +145,10 @@ namespace std_msgs
     virtual std::string getDefinition(){ return "MultiArrayLayout  layout        \nfloat64[]         data          \n"; }
     static std::string getDefinitionStatic(){ return "MultiArrayLayout  layout        \nfloat64[]         data          \n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::std_msgs::Float64MultiArray> Ptr;
-    typedef std::shared_ptr<tinyros::std_msgs::Float64MultiArray const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::std_msgs::Float64MultiArray> Float64MultiArrayPtr;
+typedef std::shared_ptr<tinyros::std_msgs::Float64MultiArray const> Float64MultiArrayConstPtr;
 
 }
 }

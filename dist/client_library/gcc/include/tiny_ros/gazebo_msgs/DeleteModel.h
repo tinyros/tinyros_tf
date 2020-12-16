@@ -108,11 +108,10 @@ static const char DELETEMODEL[] = "gazebo_msgs/DeleteModel";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::gazebo_msgs::DeleteModelRequest> Ptr;
-    typedef std::shared_ptr<tinyros::gazebo_msgs::DeleteModelRequest const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::gazebo_msgs::DeleteModelRequest> DeleteModelRequestPtr;
+typedef std::shared_ptr<tinyros::gazebo_msgs::DeleteModelRequest const> DeleteModelRequestConstPtr;
 
   class DeleteModelResponse : public tinyros::Msg
   {
@@ -229,11 +228,10 @@ static const char DELETEMODEL[] = "gazebo_msgs/DeleteModel";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::gazebo_msgs::DeleteModelResponse> Ptr;
-    typedef std::shared_ptr<tinyros::gazebo_msgs::DeleteModelResponse const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::gazebo_msgs::DeleteModelResponse> DeleteModelResponsePtr;
+typedef std::shared_ptr<tinyros::gazebo_msgs::DeleteModelResponse const> DeleteModelResponseConstPtr;
 
   class DeleteModel {
     public:

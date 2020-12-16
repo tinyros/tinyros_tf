@@ -292,7 +292,7 @@ public:
                 memcpy(obj->message_in, message_in, total_bytes_);
                 if (subscribers[topic]->topic_ == TINYROS_LOG_TOPIC) {
                   spin_log_thread_pool_.schedule(std::bind(&NodeHandleBase_::spin_task, this, obj));
-                } if (subscribers[topic]->topic_ == TINYROS_TF_TOPIC) {
+                } else if (subscribers[topic]->topic_ == TINYROS_TF_TOPIC) {
                   spin_tf_thread_pool_.schedule(std::bind(&NodeHandleBase_::spin_task, this, obj));
                 } else {
                   if (subscribers[topic]->srv_flag_) {

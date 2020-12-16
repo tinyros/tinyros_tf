@@ -300,11 +300,10 @@ namespace map_msgs
     virtual std::string getDefinition(){ return "string frame_id\nfloat64 x\nfloat64 y\nfloat64 width\nfloat64 height\nfloat64 min_z\nfloat64 max_z\n"; }
     static std::string getDefinitionStatic(){ return "string frame_id\nfloat64 x\nfloat64 y\nfloat64 width\nfloat64 height\nfloat64 min_z\nfloat64 max_z\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::map_msgs::ProjectedMapInfo> Ptr;
-    typedef std::shared_ptr<tinyros::map_msgs::ProjectedMapInfo const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::map_msgs::ProjectedMapInfo> ProjectedMapInfoPtr;
+typedef std::shared_ptr<tinyros::map_msgs::ProjectedMapInfo const> ProjectedMapInfoConstPtr;
 
 }
 }

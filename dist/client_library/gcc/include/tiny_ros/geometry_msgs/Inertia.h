@@ -317,11 +317,10 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "float64 m\ngeometry_msgs/Vector3 com\nfloat64 ixx\nfloat64 ixy\nfloat64 ixz\nfloat64 iyy\nfloat64 iyz\nfloat64 izz\n"; }
     static std::string getDefinitionStatic(){ return "float64 m\ngeometry_msgs/Vector3 com\nfloat64 ixx\nfloat64 ixy\nfloat64 ixz\nfloat64 iyy\nfloat64 iyz\nfloat64 izz\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::geometry_msgs::Inertia> Ptr;
-    typedef std::shared_ptr<tinyros::geometry_msgs::Inertia const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::geometry_msgs::Inertia> InertiaPtr;
+typedef std::shared_ptr<tinyros::geometry_msgs::Inertia const> InertiaConstPtr;
 
 }
 }

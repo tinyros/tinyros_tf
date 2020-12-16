@@ -142,11 +142,10 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "Header header           \nfloat64 illuminance     \nfloat64 variance        \n"; }
     static std::string getDefinitionStatic(){ return "Header header           \nfloat64 illuminance     \nfloat64 variance        \n"; }
     static bool hasHeader(){ return true; }
-
-
-    typedef std::shared_ptr<tinyros::sensor_msgs::Illuminance> Ptr;
-    typedef std::shared_ptr<tinyros::sensor_msgs::Illuminance const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::sensor_msgs::Illuminance> IlluminancePtr;
+typedef std::shared_ptr<tinyros::sensor_msgs::Illuminance const> IlluminanceConstPtr;
 
 }
 }

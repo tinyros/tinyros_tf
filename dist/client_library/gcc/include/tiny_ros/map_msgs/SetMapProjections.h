@@ -81,11 +81,10 @@ static const char SETMAPPROJECTIONS[] = "map_msgs/SetMapProjections";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::map_msgs::SetMapProjectionsRequest> Ptr;
-    typedef std::shared_ptr<tinyros::map_msgs::SetMapProjectionsRequest const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::map_msgs::SetMapProjectionsRequest> SetMapProjectionsRequestPtr;
+typedef std::shared_ptr<tinyros::map_msgs::SetMapProjectionsRequest const> SetMapProjectionsRequestConstPtr;
 
   class SetMapProjectionsResponse : public tinyros::Msg
   {
@@ -202,11 +201,10 @@ static const char SETMAPPROJECTIONS[] = "map_msgs/SetMapProjections";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::map_msgs::SetMapProjectionsResponse> Ptr;
-    typedef std::shared_ptr<tinyros::map_msgs::SetMapProjectionsResponse const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::map_msgs::SetMapProjectionsResponse> SetMapProjectionsResponsePtr;
+typedef std::shared_ptr<tinyros::map_msgs::SetMapProjectionsResponse const> SetMapProjectionsResponseConstPtr;
 
   class SetMapProjections {
     public:

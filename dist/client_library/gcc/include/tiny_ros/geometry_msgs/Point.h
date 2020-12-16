@@ -167,11 +167,10 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "float64 x\nfloat64 y\nfloat64 z\n"; }
     static std::string getDefinitionStatic(){ return "float64 x\nfloat64 y\nfloat64 z\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::geometry_msgs::Point> Ptr;
-    typedef std::shared_ptr<tinyros::geometry_msgs::Point const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::geometry_msgs::Point> PointPtr;
+typedef std::shared_ptr<tinyros::geometry_msgs::Point const> PointConstPtr;
 
 }
 }

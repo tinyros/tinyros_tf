@@ -85,11 +85,10 @@ namespace std_msgs
     virtual std::string getDefinition(){ return "int16 data\n"; }
     static std::string getDefinitionStatic(){ return "int16 data\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::std_msgs::Int16> Ptr;
-    typedef std::shared_ptr<tinyros::std_msgs::Int16 const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::std_msgs::Int16> Int16Ptr;
+typedef std::shared_ptr<tinyros::std_msgs::Int16 const> Int16ConstPtr;
 
 }
 }

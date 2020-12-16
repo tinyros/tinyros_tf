@@ -81,11 +81,10 @@ static const char GETMAP[] = "nav_msgs/GetMap";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::nav_msgs::GetMapRequest> Ptr;
-    typedef std::shared_ptr<tinyros::nav_msgs::GetMapRequest const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::nav_msgs::GetMapRequest> GetMapRequestPtr;
+typedef std::shared_ptr<tinyros::nav_msgs::GetMapRequest const> GetMapRequestConstPtr;
 
   class GetMapResponse : public tinyros::Msg
   {
@@ -162,11 +161,10 @@ static const char GETMAP[] = "nav_msgs/GetMap";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::nav_msgs::GetMapResponse> Ptr;
-    typedef std::shared_ptr<tinyros::nav_msgs::GetMapResponse const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::nav_msgs::GetMapResponse> GetMapResponsePtr;
+typedef std::shared_ptr<tinyros::nav_msgs::GetMapResponse const> GetMapResponseConstPtr;
 
   class GetMap {
     public:

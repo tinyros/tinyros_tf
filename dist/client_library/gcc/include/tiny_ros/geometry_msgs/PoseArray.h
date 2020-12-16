@@ -122,11 +122,10 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Header header\nPose[] poses\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nPose[] poses\n"; }
     static bool hasHeader(){ return true; }
-
-
-    typedef std::shared_ptr<tinyros::geometry_msgs::PoseArray> Ptr;
-    typedef std::shared_ptr<tinyros::geometry_msgs::PoseArray const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::geometry_msgs::PoseArray> PoseArrayPtr;
+typedef std::shared_ptr<tinyros::geometry_msgs::PoseArray const> PoseArrayConstPtr;
 
 }
 }

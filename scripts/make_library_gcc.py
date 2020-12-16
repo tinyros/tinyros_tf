@@ -640,10 +640,9 @@ class Message:
         self._write_has_header(f)
         self._write_getID(f)
         self._write_setID(f)
-        f.write('\n\n')
-        f.write('    typedef std::shared_ptr<tinyros::%s::%s> Ptr;\n' % (self.package, self.name))
-        f.write('    typedef std::shared_ptr<tinyros::%s::%s const> ConstPtr;\n' % (self.package, self.name))
-        f.write('  };\n')
+        f.write('  };\n\n')
+        f.write('typedef std::shared_ptr<tinyros::%s::%s> %sPtr;\n' % (self.package, self.name, self.name))
+        f.write('typedef std::shared_ptr<tinyros::%s::%s const> %sConstPtr;\n' % (self.package, self.name, self.name))
 
     def make_header(self, f):
         f.write('#ifndef _TINYROS_%s_%s_h\n'%(self.package, self.name))
@@ -844,12 +843,12 @@ def messages_generate(path, build, msgs):
     mydir = msgs
     builddir = build
     for d in sorted(os.listdir(mydir)):
-	    try:
-	        MakeLibrary(mydir + "/" + d, d, path, builddir + "/" + d)
-	    except Exception as e:
-	        failed.append(d + " ("+str(e)+")")
-	        print('[%s]: Unable to build messages: %s\n' % (d, str(e)))
-	        print(traceback.format_exc())
+        try:
+            MakeLibrary(mydir + "/" + d, d, path, builddir + "/" + d)
+        except Exception as e:
+            failed.append(d + " ("+str(e)+")")
+            print('[%s]: Unable to build messages: %s\n' % (d, str(e)))
+            print(traceback.format_exc())
 
     print('\n')
     if len(failed) > 0:
@@ -900,9 +899,9 @@ def MakeSubscribers(messages, output_path):
         f.write('};\n\n')
         f.write('static std::map<std::string, tinyros::Subscriber_*> rostopic_subscribers = {\n')
         for s in messages:
-	        pkg = s[0:s.find('/')]
-	        name = s[s.find('/')+1:]
-	        f.write('    {"%s", new EchoSubscriber<tinyros::%s::%s>()},\n' % (s, pkg, name))
+            pkg = s[0:s.find('/')]
+            name = s[s.find('/')+1:]
+            f.write('    {"%s", new EchoSubscriber<tinyros::%s::%s>()},\n' % (s, pkg, name))
         f.write('};\n\n')
         f.write('}\n')
         f.write('#endif\n\n')
@@ -926,14 +925,14 @@ def subscribers_generate(path, msgs):
     messages = list()
     mydir = msgs
     for d in sorted(os.listdir(mydir)):
-	    try:
-		    if os.path.exists(mydir + "/" + d +"/msg"):
-		        for f in os.listdir(mydir + "/" + d +"/msg"):
-		            messages.append(d + "/" + f[0:-4])
-	    except Exception as e:
-	        failed.append(d + " ("+str(e)+")")
-	        print('[%s]: Unable to append messages: %s\n' % (d, str(e)))
-	        print(traceback.format_exc())
+        try:
+            if os.path.exists(mydir + "/" + d +"/msg"):
+                for f in os.listdir(mydir + "/" + d +"/msg"):
+                    messages.append(d + "/" + f[0:-4])
+        except Exception as e:
+            failed.append(d + " ("+str(e)+")")
+            print('[%s]: Unable to append messages: %s\n' % (d, str(e)))
+            print(traceback.format_exc())
 
     MakeSubscribers(messages, sys.argv[3] + "/tools/rostopic")
 
@@ -1003,7 +1002,7 @@ def roslib_copy_examples_files(path):
     f = open(output_path + "CMakeLists.txt", "w")
     f.write('cmake_minimum_required(VERSION 2.6)\n\n')
     f.write('set(EXECUTABLE_OUTPUT_PATH output)\n')
-    f.write('set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -O3")\n\n')
+    f.write('set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 -O3")\n\n')
     f.write('aux_source_directory(include/tiny_ros TINYROS_SRC_LIST)\n\n')
     f.write('include_directories(include)\n\n')
     f.write('add_executable(ExamplePublisher\n')

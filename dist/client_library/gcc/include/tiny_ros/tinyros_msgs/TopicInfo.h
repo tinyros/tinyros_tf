@@ -248,11 +248,10 @@ namespace tinyros_msgs
     virtual std::string getDefinition(){ return "uint32 topic_id\nstring topic_name\nstring message_type\nstring md5sum\nint32 buffer_size\nbool negotiated\nstring node\n"; }
     static std::string getDefinitionStatic(){ return "uint32 topic_id\nstring topic_name\nstring message_type\nstring md5sum\nint32 buffer_size\nbool negotiated\nstring node\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::tinyros_msgs::TopicInfo> Ptr;
-    typedef std::shared_ptr<tinyros::tinyros_msgs::TopicInfo const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::tinyros_msgs::TopicInfo> TopicInfoPtr;
+typedef std::shared_ptr<tinyros::tinyros_msgs::TopicInfo const> TopicInfoConstPtr;
 
 }
 }

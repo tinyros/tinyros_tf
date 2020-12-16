@@ -122,11 +122,10 @@ namespace std_msgs
     virtual std::string getDefinition(){ return "MultiArrayLayout  layout        \nuint16[]            data        \n"; }
     static std::string getDefinitionStatic(){ return "MultiArrayLayout  layout        \nuint16[]            data        \n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::std_msgs::UInt16MultiArray> Ptr;
-    typedef std::shared_ptr<tinyros::std_msgs::UInt16MultiArray const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::std_msgs::UInt16MultiArray> UInt16MultiArrayPtr;
+typedef std::shared_ptr<tinyros::std_msgs::UInt16MultiArray const> UInt16MultiArrayConstPtr;
 
 }
 }

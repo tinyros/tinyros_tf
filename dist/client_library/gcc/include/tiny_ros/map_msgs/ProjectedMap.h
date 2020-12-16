@@ -142,11 +142,10 @@ namespace map_msgs
     virtual std::string getDefinition(){ return "nav_msgs/OccupancyGrid map\nfloat64 min_z\nfloat64 max_z\n"; }
     static std::string getDefinitionStatic(){ return "nav_msgs/OccupancyGrid map\nfloat64 min_z\nfloat64 max_z\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::map_msgs::ProjectedMap> Ptr;
-    typedef std::shared_ptr<tinyros::map_msgs::ProjectedMap const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::map_msgs::ProjectedMap> ProjectedMapPtr;
+typedef std::shared_ptr<tinyros::map_msgs::ProjectedMap const> ProjectedMapConstPtr;
 
 }
 }

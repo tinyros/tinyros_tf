@@ -142,11 +142,10 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "Header header           \nfloat64 temperature     \nfloat64 variance        \n"; }
     static std::string getDefinitionStatic(){ return "Header header           \nfloat64 temperature     \nfloat64 variance        \n"; }
     static bool hasHeader(){ return true; }
-
-
-    typedef std::shared_ptr<tinyros::sensor_msgs::Temperature> Ptr;
-    typedef std::shared_ptr<tinyros::sensor_msgs::Temperature const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::sensor_msgs::Temperature> TemperaturePtr;
+typedef std::shared_ptr<tinyros::sensor_msgs::Temperature const> TemperatureConstPtr;
 
 }
 }

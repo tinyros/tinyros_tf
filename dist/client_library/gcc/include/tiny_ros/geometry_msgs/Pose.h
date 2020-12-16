@@ -82,11 +82,10 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Point position\nQuaternion orientation\n"; }
     static std::string getDefinitionStatic(){ return "Point position\nQuaternion orientation\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::geometry_msgs::Pose> Ptr;
-    typedef std::shared_ptr<tinyros::geometry_msgs::Pose const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::geometry_msgs::Pose> PosePtr;
+typedef std::shared_ptr<tinyros::geometry_msgs::Pose const> PoseConstPtr;
 
 }
 }

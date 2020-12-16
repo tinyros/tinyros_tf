@@ -141,11 +141,10 @@ namespace nav_msgs
     virtual std::string getDefinition(){ return "Header header\nMapMetaData info\nint8[] data\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nMapMetaData info\nint8[] data\n"; }
     static bool hasHeader(){ return true; }
-
-
-    typedef std::shared_ptr<tinyros::nav_msgs::OccupancyGrid> Ptr;
-    typedef std::shared_ptr<tinyros::nav_msgs::OccupancyGrid const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::nav_msgs::OccupancyGrid> OccupancyGridPtr;
+typedef std::shared_ptr<tinyros::nav_msgs::OccupancyGrid const> OccupancyGridConstPtr;
 
 }
 }

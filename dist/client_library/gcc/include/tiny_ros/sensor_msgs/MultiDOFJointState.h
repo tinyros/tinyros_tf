@@ -296,11 +296,10 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "Header header\nstring[] joint_names\ngeometry_msgs/Transform[] transforms\ngeometry_msgs/Twist[] twist\ngeometry_msgs/Wrench[] wrench\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nstring[] joint_names\ngeometry_msgs/Transform[] transforms\ngeometry_msgs/Twist[] twist\ngeometry_msgs/Wrench[] wrench\n"; }
     static bool hasHeader(){ return true; }
-
-
-    typedef std::shared_ptr<tinyros::sensor_msgs::MultiDOFJointState> Ptr;
-    typedef std::shared_ptr<tinyros::sensor_msgs::MultiDOFJointState const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::sensor_msgs::MultiDOFJointState> MultiDOFJointStatePtr;
+typedef std::shared_ptr<tinyros::sensor_msgs::MultiDOFJointState const> MultiDOFJointStateConstPtr;
 
 }
 }

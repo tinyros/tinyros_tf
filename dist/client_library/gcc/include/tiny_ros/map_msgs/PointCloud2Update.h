@@ -100,11 +100,10 @@ namespace map_msgs
     virtual std::string getDefinition(){ return "Header header\nuint32 type          \nsensor_msgs/PointCloud2 points\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nuint32 type          \nsensor_msgs/PointCloud2 points\n"; }
     static bool hasHeader(){ return true; }
-
-
-    typedef std::shared_ptr<tinyros::map_msgs::PointCloud2Update> Ptr;
-    typedef std::shared_ptr<tinyros::map_msgs::PointCloud2Update const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::map_msgs::PointCloud2Update> PointCloud2UpdatePtr;
+typedef std::shared_ptr<tinyros::map_msgs::PointCloud2Update const> PointCloud2UpdateConstPtr;
 
 }
 }

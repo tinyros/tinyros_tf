@@ -12,7 +12,7 @@
 
 2、make 4.3 及以上
 
-3、使用C ++ 11编译器
+3、使用C++ 17编译器
 
 4、默认开启支持Websocket（依赖：sudo apt-get install libuv1-dev libssl-dev zlib1g-dev）
 

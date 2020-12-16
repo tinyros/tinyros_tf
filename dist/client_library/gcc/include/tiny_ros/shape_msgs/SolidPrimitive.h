@@ -157,11 +157,10 @@ namespace shape_msgs
     virtual std::string getDefinition(){ return "uint8 type\nfloat64[] dimensions\n"; }
     static std::string getDefinitionStatic(){ return "uint8 type\nfloat64[] dimensions\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::shape_msgs::SolidPrimitive> Ptr;
-    typedef std::shared_ptr<tinyros::shape_msgs::SolidPrimitive const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::shape_msgs::SolidPrimitive> SolidPrimitivePtr;
+typedef std::shared_ptr<tinyros::shape_msgs::SolidPrimitive const> SolidPrimitiveConstPtr;
 
 }
 }

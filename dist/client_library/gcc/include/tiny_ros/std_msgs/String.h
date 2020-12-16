@@ -90,11 +90,10 @@ namespace std_msgs
     virtual std::string getDefinition(){ return "string data\n"; }
     static std::string getDefinitionStatic(){ return "string data\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::std_msgs::String> Ptr;
-    typedef std::shared_ptr<tinyros::std_msgs::String const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::std_msgs::String> StringPtr;
+typedef std::shared_ptr<tinyros::std_msgs::String const> StringConstPtr;
 
 }
 }

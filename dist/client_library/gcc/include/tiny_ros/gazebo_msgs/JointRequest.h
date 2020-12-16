@@ -108,11 +108,10 @@ static const char JOINTREQUEST[] = "gazebo_msgs/JointRequest";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::gazebo_msgs::JointRequestRequest> Ptr;
-    typedef std::shared_ptr<tinyros::gazebo_msgs::JointRequestRequest const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::gazebo_msgs::JointRequestRequest> JointRequestRequestPtr;
+typedef std::shared_ptr<tinyros::gazebo_msgs::JointRequestRequest const> JointRequestRequestConstPtr;
 
   class JointRequestResponse : public tinyros::Msg
   {
@@ -180,11 +179,10 @@ static const char JOINTREQUEST[] = "gazebo_msgs/JointRequest";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::gazebo_msgs::JointRequestResponse> Ptr;
-    typedef std::shared_ptr<tinyros::gazebo_msgs::JointRequestResponse const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::gazebo_msgs::JointRequestResponse> JointRequestResponsePtr;
+typedef std::shared_ptr<tinyros::gazebo_msgs::JointRequestResponse const> JointRequestResponseConstPtr;
 
   class JointRequest {
     public:

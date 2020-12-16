@@ -216,11 +216,10 @@ static const char APPLYBODYWRENCH[] = "gazebo_msgs/ApplyBodyWrench";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyBodyWrenchRequest> Ptr;
-    typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyBodyWrenchRequest const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyBodyWrenchRequest> ApplyBodyWrenchRequestPtr;
+typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyBodyWrenchRequest const> ApplyBodyWrenchRequestConstPtr;
 
   class ApplyBodyWrenchResponse : public tinyros::Msg
   {
@@ -337,11 +336,10 @@ static const char APPLYBODYWRENCH[] = "gazebo_msgs/ApplyBodyWrench";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyBodyWrenchResponse> Ptr;
-    typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyBodyWrenchResponse const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyBodyWrenchResponse> ApplyBodyWrenchResponsePtr;
+typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyBodyWrenchResponse const> ApplyBodyWrenchResponseConstPtr;
 
   class ApplyBodyWrench {
     public:

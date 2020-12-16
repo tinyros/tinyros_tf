@@ -92,11 +92,10 @@ namespace nav_msgs
     virtual std::string getDefinition(){ return "Header header\nactionlib_msgs/GoalStatus status\nGetMapFeedback feedback\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nactionlib_msgs/GoalStatus status\nGetMapFeedback feedback\n"; }
     static bool hasHeader(){ return true; }
-
-
-    typedef std::shared_ptr<tinyros::nav_msgs::GetMapActionFeedback> Ptr;
-    typedef std::shared_ptr<tinyros::nav_msgs::GetMapActionFeedback const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::nav_msgs::GetMapActionFeedback> GetMapActionFeedbackPtr;
+typedef std::shared_ptr<tinyros::nav_msgs::GetMapActionFeedback const> GetMapActionFeedbackConstPtr;
 
 }
 }

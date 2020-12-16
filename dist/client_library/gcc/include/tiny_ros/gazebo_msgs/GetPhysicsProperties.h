@@ -82,11 +82,10 @@ static const char GETPHYSICSPROPERTIES[] = "gazebo_msgs/GetPhysicsProperties";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::gazebo_msgs::GetPhysicsPropertiesRequest> Ptr;
-    typedef std::shared_ptr<tinyros::gazebo_msgs::GetPhysicsPropertiesRequest const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::gazebo_msgs::GetPhysicsPropertiesRequest> GetPhysicsPropertiesRequestPtr;
+typedef std::shared_ptr<tinyros::gazebo_msgs::GetPhysicsPropertiesRequest const> GetPhysicsPropertiesRequestConstPtr;
 
   class GetPhysicsPropertiesResponse : public tinyros::Msg
   {
@@ -312,11 +311,10 @@ static const char GETPHYSICSPROPERTIES[] = "gazebo_msgs/GetPhysicsProperties";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::gazebo_msgs::GetPhysicsPropertiesResponse> Ptr;
-    typedef std::shared_ptr<tinyros::gazebo_msgs::GetPhysicsPropertiesResponse const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::gazebo_msgs::GetPhysicsPropertiesResponse> GetPhysicsPropertiesResponsePtr;
+typedef std::shared_ptr<tinyros::gazebo_msgs::GetPhysicsPropertiesResponse const> GetPhysicsPropertiesResponseConstPtr;
 
   class GetPhysicsProperties {
     public:

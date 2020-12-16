@@ -161,11 +161,10 @@ namespace nav_msgs
     virtual std::string getDefinition(){ return "time map_load_time\nfloat32 resolution\nuint32 width\nuint32 height\ngeometry_msgs/Pose origin\n"; }
     static std::string getDefinitionStatic(){ return "time map_load_time\nfloat32 resolution\nuint32 width\nuint32 height\ngeometry_msgs/Pose origin\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::nav_msgs::MapMetaData> Ptr;
-    typedef std::shared_ptr<tinyros::nav_msgs::MapMetaData const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::nav_msgs::MapMetaData> MapMetaDataPtr;
+typedef std::shared_ptr<tinyros::nav_msgs::MapMetaData const> MapMetaDataConstPtr;
 
 }
 }

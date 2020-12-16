@@ -130,11 +130,10 @@ static const char PROJECTEDMAPSINFO[] = "map_msgs/ProjectedMapsInfo";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::map_msgs::ProjectedMapsInfoRequest> Ptr;
-    typedef std::shared_ptr<tinyros::map_msgs::ProjectedMapsInfoRequest const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::map_msgs::ProjectedMapsInfoRequest> ProjectedMapsInfoRequestPtr;
+typedef std::shared_ptr<tinyros::map_msgs::ProjectedMapsInfoRequest const> ProjectedMapsInfoRequestConstPtr;
 
   class ProjectedMapsInfoResponse : public tinyros::Msg
   {
@@ -202,11 +201,10 @@ static const char PROJECTEDMAPSINFO[] = "map_msgs/ProjectedMapsInfo";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::map_msgs::ProjectedMapsInfoResponse> Ptr;
-    typedef std::shared_ptr<tinyros::map_msgs::ProjectedMapsInfoResponse const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::map_msgs::ProjectedMapsInfoResponse> ProjectedMapsInfoResponsePtr;
+typedef std::shared_ptr<tinyros::map_msgs::ProjectedMapsInfoResponse const> ProjectedMapsInfoResponseConstPtr;
 
   class ProjectedMapsInfo {
     public:

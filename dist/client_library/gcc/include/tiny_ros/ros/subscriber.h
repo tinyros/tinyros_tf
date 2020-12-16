@@ -24,6 +24,7 @@ public:
   // negotiated_ is set by NodeHandle when we negotiateTopics
   bool negotiated_;
   bool srv_flag_;
+  bool use_constptr_;
 };
 
 /* Bound function subscriber. */
@@ -32,6 +33,7 @@ class Subscriber: public Subscriber_
 {
 public:
   typedef void(ObjT::*CallbackT)(const MsgT&);
+  typedef void(ObjT::*CallbackT1)(const std::shared_ptr<MsgT const>&);
   MsgT msg;
 
   Subscriber(std::string topic_name, CallbackT cb, ObjT* obj, int endpoint = tinyros::tinyros_msgs::TopicInfo::ID_SUBSCRIBER) :
@@ -41,13 +43,33 @@ public:
     topic_ = topic_name;
     negotiated_ = false;
     srv_flag_ = false;
+    use_constptr_ = false;
+  }
+
+  Subscriber(std::string topic_name, CallbackT1 cb, ObjT* obj, int endpoint = tinyros::tinyros_msgs::TopicInfo::ID_SUBSCRIBER) :
+    cb1_(cb),
+    obj_(obj),
+    endpoint_(endpoint) {
+    topic_ = topic_name;
+    negotiated_ = false;
+    srv_flag_ = false;
+    use_constptr_ = true;
   }
 
   virtual void callback(unsigned char* data)
   {
-    MsgT tmsg;
-    tmsg.deserialize(data);
-    (obj_->*cb_)(tmsg);
+    if (use_constptr_) 
+    {
+      std::shared_ptr<MsgT> tmsg = std::shared_ptr<MsgT>(new MsgT);
+      tmsg->deserialize(data);
+      (obj_->*cb1_)(tmsg);
+    } 
+    else
+    {
+      MsgT tmsg;
+      tmsg.deserialize(data);
+      (obj_->*cb_)(tmsg);
+    }
   }
 
   virtual std::string getMsgType()
@@ -65,6 +87,7 @@ public:
 
 private:
   CallbackT cb_;
+  CallbackT1 cb1_;
   ObjT* obj_;
   int endpoint_;
 };
@@ -75,6 +98,7 @@ class Subscriber<MsgT, void>: public Subscriber_
 {
 public:
   typedef void(*CallbackT)(const MsgT&);
+  typedef void(*CallbackT1)(const std::shared_ptr<MsgT const>&);
   MsgT msg;
 
   Subscriber(std::string topic_name, CallbackT cb, int endpoint = tinyros::tinyros_msgs::TopicInfo::ID_SUBSCRIBER) :
@@ -83,13 +107,32 @@ public:
     topic_ = topic_name;
     negotiated_ = false;
     srv_flag_ = false;
+    use_constptr_ = false;
+  }
+
+  Subscriber(std::string topic_name, CallbackT1 cb, int endpoint = tinyros::tinyros_msgs::TopicInfo::ID_SUBSCRIBER) :
+    cb1_(cb),
+    endpoint_(endpoint) {
+    topic_ = topic_name;
+    negotiated_ = false;
+    srv_flag_ = false;
+    use_constptr_ = true;
   }
 
   virtual void callback(unsigned char* data)
   {
-    MsgT tmsg;
-    tmsg.deserialize(data);
-    this->cb_(tmsg);
+    if (use_constptr_) 
+    {
+      std::shared_ptr<MsgT> tmsg = std::shared_ptr<MsgT>(new MsgT);
+      tmsg->deserialize(data);
+      this->cb1_(tmsg);
+    } 
+    else
+    {
+      MsgT tmsg;
+      tmsg.deserialize(data);
+      this->cb_(tmsg);
+    }
   }
 
   virtual std::string getMsgType()
@@ -107,6 +150,7 @@ public:
 
 private:
   CallbackT cb_;
+  CallbackT1 cb1_;
   int endpoint_;
 };
 

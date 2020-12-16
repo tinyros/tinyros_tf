@@ -81,11 +81,10 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Vector3  force\nVector3  torque\n"; }
     static std::string getDefinitionStatic(){ return "Vector3  force\nVector3  torque\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::geometry_msgs::Wrench> Ptr;
-    typedef std::shared_ptr<tinyros::geometry_msgs::Wrench const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::geometry_msgs::Wrench> WrenchPtr;
+typedef std::shared_ptr<tinyros::geometry_msgs::Wrench const> WrenchConstPtr;
 
 }
 }

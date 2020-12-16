@@ -110,11 +110,10 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Header header\nstring child_frame_id \nTransform transform\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nstring child_frame_id \nTransform transform\n"; }
     static bool hasHeader(){ return true; }
-
-
-    typedef std::shared_ptr<tinyros::geometry_msgs::TransformStamped> Ptr;
-    typedef std::shared_ptr<tinyros::geometry_msgs::TransformStamped const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::geometry_msgs::TransformStamped> TransformStampedPtr;
+typedef std::shared_ptr<tinyros::geometry_msgs::TransformStamped const> TransformStampedConstPtr;
 
 }
 }

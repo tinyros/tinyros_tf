@@ -112,11 +112,10 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "JoyFeedback[] array\n"; }
     static std::string getDefinitionStatic(){ return "JoyFeedback[] array\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::sensor_msgs::JoyFeedbackArray> Ptr;
-    typedef std::shared_ptr<tinyros::sensor_msgs::JoyFeedbackArray const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::sensor_msgs::JoyFeedbackArray> JoyFeedbackArrayPtr;
+typedef std::shared_ptr<tinyros::sensor_msgs::JoyFeedbackArray const> JoyFeedbackArrayConstPtr;
 
 }
 }

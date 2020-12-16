@@ -300,11 +300,10 @@ namespace rosgraph_msgs
     virtual std::string getDefinition(){ return "Header header\nbyte level\nstring name \nstring msg \nstring file \nstring function \nuint32 line \nstring[] topics \n"; }
     static std::string getDefinitionStatic(){ return "Header header\nbyte level\nstring name \nstring msg \nstring file \nstring function \nuint32 line \nstring[] topics \n"; }
     static bool hasHeader(){ return true; }
-
-
-    typedef std::shared_ptr<tinyros::rosgraph_msgs::Log> Ptr;
-    typedef std::shared_ptr<tinyros::rosgraph_msgs::Log const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::rosgraph_msgs::Log> LogPtr;
+typedef std::shared_ptr<tinyros::rosgraph_msgs::Log const> LogConstPtr;
 
 }
 }

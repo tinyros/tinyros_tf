@@ -60,7 +60,7 @@ public:
   TransformListener(tinyros::Duration max_cache_time = tinyros::Duration(DEFAULT_CACHE_TIME), std::string prefix = "")
   : Transformer(true, max_cache_time)
   , message_subscriber_tf_("/tf", &TransformListener::subscription_callback, this)
-  , tf_frames_srv_("tf_frames", &TransformListener::getFrames, this)
+  , tf_frames_srv_("/tf_frames", &TransformListener::getFrames, this)
   {
     tinyros::nh()->subscribe(message_subscriber_tf_);
     tinyros::nh()->advertiseService(tf_frames_srv_);
@@ -239,7 +239,17 @@ private:
     {
       StampedTransform trans;
       transformStampedMsgToTF(msg_in.transforms[i], trans);
-      setTransform(trans);
+      try
+      {
+        std::string authority = "no callerid";
+        setTransform(trans);
+      }
+      catch (TransformException& ex)
+      {
+        ///\todo Use error reporting
+        std::string temp = ex.what();
+        tinyros_log_error("Failure to set recieved transform from %s to %s with error: %s\n", msg_in.transforms[i].child_frame_id.c_str(), msg_in.transforms[i].header.frame_id.c_str(), temp.c_str());
+      }
     }
   }
 

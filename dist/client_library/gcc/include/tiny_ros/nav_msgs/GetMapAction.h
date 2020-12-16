@@ -92,11 +92,10 @@ namespace nav_msgs
     virtual std::string getDefinition(){ return "GetMapActionGoal action_goal\nGetMapActionResult action_result\nGetMapActionFeedback action_feedback\n"; }
     static std::string getDefinitionStatic(){ return "GetMapActionGoal action_goal\nGetMapActionResult action_result\nGetMapActionFeedback action_feedback\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::nav_msgs::GetMapAction> Ptr;
-    typedef std::shared_ptr<tinyros::nav_msgs::GetMapAction const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::nav_msgs::GetMapAction> GetMapActionPtr;
+typedef std::shared_ptr<tinyros::nav_msgs::GetMapAction const> GetMapActionConstPtr;
 
 }
 }

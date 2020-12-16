@@ -108,11 +108,10 @@ static const char TEST[] = "tinyros_hello/Test";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::tinyros_hello::TestRequest> Ptr;
-    typedef std::shared_ptr<tinyros::tinyros_hello::TestRequest const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::tinyros_hello::TestRequest> TestRequestPtr;
+typedef std::shared_ptr<tinyros::tinyros_hello::TestRequest const> TestRequestConstPtr;
 
   class TestResponse : public tinyros::Msg
   {
@@ -208,11 +207,10 @@ static const char TEST[] = "tinyros_hello/Test";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::tinyros_hello::TestResponse> Ptr;
-    typedef std::shared_ptr<tinyros::tinyros_hello::TestResponse const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::tinyros_hello::TestResponse> TestResponsePtr;
+typedef std::shared_ptr<tinyros::tinyros_hello::TestResponse const> TestResponseConstPtr;
 
   class Test {
     public:

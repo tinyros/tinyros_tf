@@ -121,11 +121,10 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Twist twist\nfloat64[36] covariance\n"; }
     static std::string getDefinitionStatic(){ return "Twist twist\nfloat64[36] covariance\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::geometry_msgs::TwistWithCovariance> Ptr;
-    typedef std::shared_ptr<tinyros::geometry_msgs::TwistWithCovariance const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::geometry_msgs::TwistWithCovariance> TwistWithCovariancePtr;
+typedef std::shared_ptr<tinyros::geometry_msgs::TwistWithCovariance const> TwistWithCovarianceConstPtr;
 
 }
 }

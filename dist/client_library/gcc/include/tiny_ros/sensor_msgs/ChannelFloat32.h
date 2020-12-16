@@ -155,11 +155,10 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "string name\nfloat32[] values\n"; }
     static std::string getDefinitionStatic(){ return "string name\nfloat32[] values\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::sensor_msgs::ChannelFloat32> Ptr;
-    typedef std::shared_ptr<tinyros::sensor_msgs::ChannelFloat32 const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::sensor_msgs::ChannelFloat32> ChannelFloat32Ptr;
+typedef std::shared_ptr<tinyros::sensor_msgs::ChannelFloat32 const> ChannelFloat32ConstPtr;
 
 }
 }

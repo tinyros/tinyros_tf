@@ -196,11 +196,10 @@ namespace trajectory_msgs
     virtual std::string getDefinition(){ return "Header header\nstring[] joint_names\nMultiDOFJointTrajectoryPoint[] points\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nstring[] joint_names\nMultiDOFJointTrajectoryPoint[] points\n"; }
     static bool hasHeader(){ return true; }
-
-
-    typedef std::shared_ptr<tinyros::trajectory_msgs::MultiDOFJointTrajectory> Ptr;
-    typedef std::shared_ptr<tinyros::trajectory_msgs::MultiDOFJointTrajectory const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::trajectory_msgs::MultiDOFJointTrajectory> MultiDOFJointTrajectoryPtr;
+typedef std::shared_ptr<tinyros::trajectory_msgs::MultiDOFJointTrajectory const> MultiDOFJointTrajectoryConstPtr;
 
 }
 }

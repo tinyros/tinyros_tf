@@ -137,11 +137,10 @@ static const char GETLINKSTATE[] = "gazebo_msgs/GetLinkState";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::gazebo_msgs::GetLinkStateRequest> Ptr;
-    typedef std::shared_ptr<tinyros::gazebo_msgs::GetLinkStateRequest const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::gazebo_msgs::GetLinkStateRequest> GetLinkStateRequestPtr;
+typedef std::shared_ptr<tinyros::gazebo_msgs::GetLinkStateRequest const> GetLinkStateRequestConstPtr;
 
   class GetLinkStateResponse : public tinyros::Msg
   {
@@ -267,11 +266,10 @@ static const char GETLINKSTATE[] = "gazebo_msgs/GetLinkState";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::gazebo_msgs::GetLinkStateResponse> Ptr;
-    typedef std::shared_ptr<tinyros::gazebo_msgs::GetLinkStateResponse const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::gazebo_msgs::GetLinkStateResponse> GetLinkStateResponsePtr;
+typedef std::shared_ptr<tinyros::gazebo_msgs::GetLinkStateResponse const> GetLinkStateResponseConstPtr;
 
   class GetLinkState {
     public:

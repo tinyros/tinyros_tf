@@ -236,11 +236,10 @@ namespace gazebo_msgs
     virtual std::string getDefinition(){ return "string[] name                 \ngeometry_msgs/Pose[] pose     \ngeometry_msgs/Twist[] twist   \n"; }
     static std::string getDefinitionStatic(){ return "string[] name                 \ngeometry_msgs/Pose[] pose     \ngeometry_msgs/Twist[] twist   \n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::gazebo_msgs::ModelStates> Ptr;
-    typedef std::shared_ptr<tinyros::gazebo_msgs::ModelStates const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::gazebo_msgs::ModelStates> ModelStatesPtr;
+typedef std::shared_ptr<tinyros::gazebo_msgs::ModelStates const> ModelStatesConstPtr;
 
 }
 }

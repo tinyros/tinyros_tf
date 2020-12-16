@@ -384,11 +384,10 @@ namespace trajectory_msgs
     virtual std::string getDefinition(){ return "float64[] positions\nfloat64[] velocities\nfloat64[] accelerations\nfloat64[] effort\nduration time_from_start\n"; }
     static std::string getDefinitionStatic(){ return "float64[] positions\nfloat64[] velocities\nfloat64[] accelerations\nfloat64[] effort\nduration time_from_start\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::trajectory_msgs::JointTrajectoryPoint> Ptr;
-    typedef std::shared_ptr<tinyros::trajectory_msgs::JointTrajectoryPoint const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::trajectory_msgs::JointTrajectoryPoint> JointTrajectoryPointPtr;
+typedef std::shared_ptr<tinyros::trajectory_msgs::JointTrajectoryPoint const> JointTrajectoryPointConstPtr;
 
 }
 }

@@ -90,11 +90,10 @@ static const char SETCAMERAINFO[] = "sensor_msgs/SetCameraInfo";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::sensor_msgs::SetCameraInfoRequest> Ptr;
-    typedef std::shared_ptr<tinyros::sensor_msgs::SetCameraInfoRequest const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::sensor_msgs::SetCameraInfoRequest> SetCameraInfoRequestPtr;
+typedef std::shared_ptr<tinyros::sensor_msgs::SetCameraInfoRequest const> SetCameraInfoRequestConstPtr;
 
   class SetCameraInfoResponse : public tinyros::Msg
   {
@@ -211,11 +210,10 @@ static const char SETCAMERAINFO[] = "sensor_msgs/SetCameraInfo";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::sensor_msgs::SetCameraInfoResponse> Ptr;
-    typedef std::shared_ptr<tinyros::sensor_msgs::SetCameraInfoResponse const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::sensor_msgs::SetCameraInfoResponse> SetCameraInfoResponsePtr;
+typedef std::shared_ptr<tinyros::sensor_msgs::SetCameraInfoResponse const> SetCameraInfoResponseConstPtr;
 
   class SetCameraInfo {
     public:

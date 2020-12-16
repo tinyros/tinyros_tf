@@ -83,11 +83,10 @@ namespace std_msgs
     virtual std::string getDefinition(){ return "bool data\n"; }
     static std::string getDefinitionStatic(){ return "bool data\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::std_msgs::Bool> Ptr;
-    typedef std::shared_ptr<tinyros::std_msgs::Bool const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::std_msgs::Bool> BoolPtr;
+typedef std::shared_ptr<tinyros::std_msgs::Bool const> BoolConstPtr;
 
 }
 }

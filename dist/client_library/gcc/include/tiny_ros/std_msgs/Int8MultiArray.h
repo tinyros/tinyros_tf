@@ -131,11 +131,10 @@ namespace std_msgs
     virtual std::string getDefinition(){ return "MultiArrayLayout  layout        \nint8[]            data          \n"; }
     static std::string getDefinitionStatic(){ return "MultiArrayLayout  layout        \nint8[]            data          \n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::std_msgs::Int8MultiArray> Ptr;
-    typedef std::shared_ptr<tinyros::std_msgs::Int8MultiArray const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::std_msgs::Int8MultiArray> Int8MultiArrayPtr;
+typedef std::shared_ptr<tinyros::std_msgs::Int8MultiArray const> Int8MultiArrayConstPtr;
 
 }
 }

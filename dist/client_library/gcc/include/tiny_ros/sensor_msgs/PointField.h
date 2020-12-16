@@ -140,11 +140,10 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "string name      \nuint32 offset    \nuint8  datatype  \nuint32 count     \n"; }
     static std::string getDefinitionStatic(){ return "string name      \nuint32 offset    \nuint8  datatype  \nuint32 count     \n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::sensor_msgs::PointField> Ptr;
-    typedef std::shared_ptr<tinyros::sensor_msgs::PointField const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::sensor_msgs::PointField> PointFieldPtr;
+typedef std::shared_ptr<tinyros::sensor_msgs::PointField const> PointFieldConstPtr;
 
 }
 }

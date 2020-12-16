@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(EXECUTABLE_OUTPUT_PATH output)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 -O3")
 
 aux_source_directory(include/tiny_ros TINYROS_SRC_LIST)
 

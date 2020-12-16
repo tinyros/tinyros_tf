@@ -108,11 +108,10 @@ static const char ADDDIAGNOSTICS[] = "diagnostic_msgs/AddDiagnostics";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::diagnostic_msgs::AddDiagnosticsRequest> Ptr;
-    typedef std::shared_ptr<tinyros::diagnostic_msgs::AddDiagnosticsRequest const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::diagnostic_msgs::AddDiagnosticsRequest> AddDiagnosticsRequestPtr;
+typedef std::shared_ptr<tinyros::diagnostic_msgs::AddDiagnosticsRequest const> AddDiagnosticsRequestConstPtr;
 
   class AddDiagnosticsResponse : public tinyros::Msg
   {
@@ -229,11 +228,10 @@ static const char ADDDIAGNOSTICS[] = "diagnostic_msgs/AddDiagnostics";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::diagnostic_msgs::AddDiagnosticsResponse> Ptr;
-    typedef std::shared_ptr<tinyros::diagnostic_msgs::AddDiagnosticsResponse const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::diagnostic_msgs::AddDiagnosticsResponse> AddDiagnosticsResponsePtr;
+typedef std::shared_ptr<tinyros::diagnostic_msgs::AddDiagnosticsResponse const> AddDiagnosticsResponseConstPtr;
 
   class AddDiagnostics {
     public:

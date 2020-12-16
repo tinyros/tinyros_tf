@@ -97,11 +97,10 @@ namespace std_msgs
     virtual std::string getDefinition(){ return "float64 data\n"; }
     static std::string getDefinitionStatic(){ return "float64 data\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::std_msgs::Float64> Ptr;
-    typedef std::shared_ptr<tinyros::std_msgs::Float64 const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::std_msgs::Float64> Float64Ptr;
+typedef std::shared_ptr<tinyros::std_msgs::Float64 const> Float64ConstPtr;
 
 }
 }

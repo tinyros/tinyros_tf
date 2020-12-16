@@ -82,11 +82,10 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Header header\nWrench wrench\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nWrench wrench\n"; }
     static bool hasHeader(){ return true; }
-
-
-    typedef std::shared_ptr<tinyros::geometry_msgs::WrenchStamped> Ptr;
-    typedef std::shared_ptr<tinyros::geometry_msgs::WrenchStamped const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::geometry_msgs::WrenchStamped> WrenchStampedPtr;
+typedef std::shared_ptr<tinyros::geometry_msgs::WrenchStamped const> WrenchStampedConstPtr;
 
 }
 }

@@ -82,11 +82,10 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Header header\nAccelWithCovariance accel\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nAccelWithCovariance accel\n"; }
     static bool hasHeader(){ return true; }
-
-
-    typedef std::shared_ptr<tinyros::geometry_msgs::AccelWithCovarianceStamped> Ptr;
-    typedef std::shared_ptr<tinyros::geometry_msgs::AccelWithCovarianceStamped const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::geometry_msgs::AccelWithCovarianceStamped> AccelWithCovarianceStampedPtr;
+typedef std::shared_ptr<tinyros::geometry_msgs::AccelWithCovarianceStamped const> AccelWithCovarianceStampedConstPtr;
 
 }
 }

@@ -192,11 +192,10 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "Header header           \nuint8 radiation_type    \nfloat32 field_of_view   \nfloat32 min_range       \nfloat32 max_range       \nfloat32 range           \n"; }
     static std::string getDefinitionStatic(){ return "Header header           \nuint8 radiation_type    \nfloat32 field_of_view   \nfloat32 min_range       \nfloat32 max_range       \nfloat32 range           \n"; }
     static bool hasHeader(){ return true; }
-
-
-    typedef std::shared_ptr<tinyros::sensor_msgs::Range> Ptr;
-    typedef std::shared_ptr<tinyros::sensor_msgs::Range const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::sensor_msgs::Range> RangePtr;
+typedef std::shared_ptr<tinyros::sensor_msgs::Range const> RangeConstPtr;
 
 }
 }

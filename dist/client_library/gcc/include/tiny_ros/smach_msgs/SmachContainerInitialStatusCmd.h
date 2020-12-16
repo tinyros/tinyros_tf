@@ -192,11 +192,10 @@ namespace smach_msgs
     virtual std::string getDefinition(){ return "string path\nstring[] initial_states\nstring local_data\n"; }
     static std::string getDefinitionStatic(){ return "string path\nstring[] initial_states\nstring local_data\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::smach_msgs::SmachContainerInitialStatusCmd> Ptr;
-    typedef std::shared_ptr<tinyros::smach_msgs::SmachContainerInitialStatusCmd const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::smach_msgs::SmachContainerInitialStatusCmd> SmachContainerInitialStatusCmdPtr;
+typedef std::shared_ptr<tinyros::smach_msgs::SmachContainerInitialStatusCmd const> SmachContainerInitialStatusCmdConstPtr;
 
 }
 }

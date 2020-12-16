@@ -72,11 +72,10 @@ namespace nav_msgs
     virtual std::string getDefinition(){ return "nav_msgs/OccupancyGrid map\n"; }
     static std::string getDefinitionStatic(){ return "nav_msgs/OccupancyGrid map\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::nav_msgs::GetMapResult> Ptr;
-    typedef std::shared_ptr<tinyros::nav_msgs::GetMapResult const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::nav_msgs::GetMapResult> GetMapResultPtr;
+typedef std::shared_ptr<tinyros::nav_msgs::GetMapResult const> GetMapResultConstPtr;
 
 }
 }

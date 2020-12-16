@@ -81,11 +81,10 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Vector3  linear\nVector3  angular\n"; }
     static std::string getDefinitionStatic(){ return "Vector3  linear\nVector3  angular\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::geometry_msgs::Accel> Ptr;
-    typedef std::shared_ptr<tinyros::geometry_msgs::Accel const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::geometry_msgs::Accel> AccelPtr;
+typedef std::shared_ptr<tinyros::geometry_msgs::Accel const> AccelConstPtr;
 
 }
 }

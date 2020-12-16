@@ -112,11 +112,10 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Point32[] points\n"; }
     static std::string getDefinitionStatic(){ return "Point32[] points\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::geometry_msgs::Polygon> Ptr;
-    typedef std::shared_ptr<tinyros::geometry_msgs::Polygon const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::geometry_msgs::Polygon> PolygonPtr;
+typedef std::shared_ptr<tinyros::geometry_msgs::Polygon const> PolygonConstPtr;
 
 }
 }

@@ -101,11 +101,10 @@ static const char SETBOOL[] = "std_srvs/SetBool";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::std_srvs::SetBoolRequest> Ptr;
-    typedef std::shared_ptr<tinyros::std_srvs::SetBoolRequest const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::std_srvs::SetBoolRequest> SetBoolRequestPtr;
+typedef std::shared_ptr<tinyros::std_srvs::SetBoolRequest const> SetBoolRequestConstPtr;
 
   class SetBoolResponse : public tinyros::Msg
   {
@@ -222,11 +221,10 @@ static const char SETBOOL[] = "std_srvs/SetBool";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
-
-
-    typedef std::shared_ptr<tinyros::std_srvs::SetBoolResponse> Ptr;
-    typedef std::shared_ptr<tinyros::std_srvs::SetBoolResponse const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::std_srvs::SetBoolResponse> SetBoolResponsePtr;
+typedef std::shared_ptr<tinyros::std_srvs::SetBoolResponse const> SetBoolResponseConstPtr;
 
   class SetBool {
     public:

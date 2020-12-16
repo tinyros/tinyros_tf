@@ -131,11 +131,10 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "Header header                        \ngeometry_msgs/Vector3 magnetic_field \nfloat64[9] magnetic_field_covariance \n"; }
     static std::string getDefinitionStatic(){ return "Header header                        \ngeometry_msgs/Vector3 magnetic_field \nfloat64[9] magnetic_field_covariance \n"; }
     static bool hasHeader(){ return true; }
-
-
-    typedef std::shared_ptr<tinyros::sensor_msgs::MagneticField> Ptr;
-    typedef std::shared_ptr<tinyros::sensor_msgs::MagneticField const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::sensor_msgs::MagneticField> MagneticFieldPtr;
+typedef std::shared_ptr<tinyros::sensor_msgs::MagneticField const> MagneticFieldConstPtr;
 
 }
 }

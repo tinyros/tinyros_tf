@@ -103,11 +103,10 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "int8 status\nuint16 service\n"; }
     static std::string getDefinitionStatic(){ return "int8 status\nuint16 service\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::sensor_msgs::NavSatStatus> Ptr;
-    typedef std::shared_ptr<tinyros::sensor_msgs::NavSatStatus const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::sensor_msgs::NavSatStatus> NavSatStatusPtr;
+typedef std::shared_ptr<tinyros::sensor_msgs::NavSatStatus const> NavSatStatusConstPtr;
 
 }
 }

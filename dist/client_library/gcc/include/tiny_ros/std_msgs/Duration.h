@@ -92,11 +92,10 @@ namespace std_msgs
     virtual std::string getDefinition(){ return "duration data\n"; }
     static std::string getDefinitionStatic(){ return "duration data\n"; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::std_msgs::Duration> Ptr;
-    typedef std::shared_ptr<tinyros::std_msgs::Duration const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::std_msgs::Duration> DurationPtr;
+typedef std::shared_ptr<tinyros::std_msgs::Duration const> DurationConstPtr;
 
 }
 }

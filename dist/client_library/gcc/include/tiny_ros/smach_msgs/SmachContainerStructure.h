@@ -470,11 +470,10 @@ namespace smach_msgs
     virtual std::string getDefinition(){ return "Header header\nstring path\nstring[] children\nstring[] internal_outcomes\nstring[] outcomes_from\nstring[] outcomes_to\nstring[] container_outcomes\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nstring path\nstring[] children\nstring[] internal_outcomes\nstring[] outcomes_from\nstring[] outcomes_to\nstring[] container_outcomes\n"; }
     static bool hasHeader(){ return true; }
-
-
-    typedef std::shared_ptr<tinyros::smach_msgs::SmachContainerStructure> Ptr;
-    typedef std::shared_ptr<tinyros::smach_msgs::SmachContainerStructure const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::smach_msgs::SmachContainerStructure> SmachContainerStructurePtr;
+typedef std::shared_ptr<tinyros::smach_msgs::SmachContainerStructure const> SmachContainerStructureConstPtr;
 
 }
 }

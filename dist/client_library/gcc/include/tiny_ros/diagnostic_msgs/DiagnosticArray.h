@@ -122,11 +122,10 @@ namespace diagnostic_msgs
     virtual std::string getDefinition(){ return "Header header \nDiagnosticStatus[] status \n"; }
     static std::string getDefinitionStatic(){ return "Header header \nDiagnosticStatus[] status \n"; }
     static bool hasHeader(){ return true; }
-
-
-    typedef std::shared_ptr<tinyros::diagnostic_msgs::DiagnosticArray> Ptr;
-    typedef std::shared_ptr<tinyros::diagnostic_msgs::DiagnosticArray const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::diagnostic_msgs::DiagnosticArray> DiagnosticArrayPtr;
+typedef std::shared_ptr<tinyros::diagnostic_msgs::DiagnosticArray const> DiagnosticArrayConstPtr;
 
 }
 }

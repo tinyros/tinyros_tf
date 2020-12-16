@@ -25,8 +25,56 @@ add_executable(tinyros_tf_echo
 	src/tf_echo.cpp
 )
 
+add_executable(tinyros_static_transform_publisher
+	${ROSLIB_PATHS}/ros.cpp
+	${ROSLIB_PATHS}/time.cpp
+	${ROSLIB_PATHS}/duration.cpp
+	${ROSLIB_PATHS}/log.cpp
+	src/static_transform_publisher.cpp
+)
+
+add_executable(tinyros_tf_monitor
+	${ROSLIB_PATHS}/ros.cpp
+	${ROSLIB_PATHS}/time.cpp
+	${ROSLIB_PATHS}/duration.cpp
+	${ROSLIB_PATHS}/log.cpp
+	src/tf_monitor.cpp
+)
+
+add_executable(tinyros_tf_change_notifier
+	${ROSLIB_PATHS}/ros.cpp
+	${ROSLIB_PATHS}/time.cpp
+	${ROSLIB_PATHS}/duration.cpp
+	${ROSLIB_PATHS}/log.cpp
+	src/change_notifier.cpp
+)
+
+add_executable(tinyros_tf_empty_listener
+	${ROSLIB_PATHS}/ros.cpp
+	${ROSLIB_PATHS}/time.cpp
+	${ROSLIB_PATHS}/duration.cpp
+	${ROSLIB_PATHS}/log.cpp
+	src/empty_listener.cpp
+)
+
 IF (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
 target_link_libraries(tinyros_tf_echo
+  libpthread.a
+  ${orocos_kdl_LIBRARIES}
+)
+target_link_libraries(tinyros_static_transform_publisher
+  libpthread.a
+  ${orocos_kdl_LIBRARIES}
+)
+target_link_libraries(tinyros_tf_monitor
+  libpthread.a
+  ${orocos_kdl_LIBRARIES}
+)
+target_link_libraries(tinyros_tf_change_notifier
+  libpthread.a
+  ${orocos_kdl_LIBRARIES}
+)
+target_link_libraries(tinyros_tf_empty_listener
   libpthread.a
   ${orocos_kdl_LIBRARIES}
 )
@@ -34,6 +82,22 @@ ENDIF()
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 target_link_libraries(tinyros_tf_echo
+  libpthread.so
+  ${orocos_kdl_LIBRARIES}
+)
+target_link_libraries(tinyros_static_transform_publisher
+  libpthread.so
+  ${orocos_kdl_LIBRARIES}
+)
+target_link_libraries(tinyros_tf_monitor
+  libpthread.so
+  ${orocos_kdl_LIBRARIES}
+)
+target_link_libraries(tinyros_tf_change_notifier
+  libpthread.so
+  ${orocos_kdl_LIBRARIES}
+)
+target_link_libraries(tinyros_tf_empty_listener
   libpthread.so
   ${orocos_kdl_LIBRARIES}
 )

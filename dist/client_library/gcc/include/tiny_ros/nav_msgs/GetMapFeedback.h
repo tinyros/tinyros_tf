@@ -62,11 +62,10 @@ namespace nav_msgs
     virtual std::string getDefinition(){ return ""; }
     static std::string getDefinitionStatic(){ return ""; }
     static bool hasHeader(){ return false; }
-
-
-    typedef std::shared_ptr<tinyros::nav_msgs::GetMapFeedback> Ptr;
-    typedef std::shared_ptr<tinyros::nav_msgs::GetMapFeedback const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::nav_msgs::GetMapFeedback> GetMapFeedbackPtr;
+typedef std::shared_ptr<tinyros::nav_msgs::GetMapFeedback const> GetMapFeedbackConstPtr;
 
 }
 }

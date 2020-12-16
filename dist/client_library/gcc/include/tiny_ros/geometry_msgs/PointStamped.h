@@ -82,11 +82,10 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Header header\nPoint point\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nPoint point\n"; }
     static bool hasHeader(){ return true; }
-
-
-    typedef std::shared_ptr<tinyros::geometry_msgs::PointStamped> Ptr;
-    typedef std::shared_ptr<tinyros::geometry_msgs::PointStamped const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::geometry_msgs::PointStamped> PointStampedPtr;
+typedef std::shared_ptr<tinyros::geometry_msgs::PointStamped const> PointStampedConstPtr;
 
 }
 }

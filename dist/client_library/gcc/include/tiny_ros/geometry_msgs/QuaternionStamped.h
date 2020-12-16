@@ -82,11 +82,10 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Header header\nQuaternion quaternion\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nQuaternion quaternion\n"; }
     static bool hasHeader(){ return true; }
-
-
-    typedef std::shared_ptr<tinyros::geometry_msgs::QuaternionStamped> Ptr;
-    typedef std::shared_ptr<tinyros::geometry_msgs::QuaternionStamped const> ConstPtr;
   };
+
+typedef std::shared_ptr<tinyros::geometry_msgs::QuaternionStamped> QuaternionStampedPtr;
+typedef std::shared_ptr<tinyros::geometry_msgs::QuaternionStamped const> QuaternionStampedConstPtr;
 
 }
 }
