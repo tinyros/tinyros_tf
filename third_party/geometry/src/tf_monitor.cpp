@@ -42,7 +42,6 @@ public:
   std::string framea_, frameb_;
   bool using_specific_chain_;
   tinyros::Subscriber<tinyros::tf::tfMessage, TFMonitor> subscriber_tf_;
-  tinyros::Subscriber<tinyros::tf::tfMessage, TFMonitor> subscriber_tf_message_;
 
   
   std::vector<std::string> chain_;
@@ -122,8 +121,7 @@ public:
   TFMonitor(bool using_specific_chain, std::string framea  = "", std::string frameb = ""):
     framea_(framea), frameb_(frameb),
     using_specific_chain_(using_specific_chain),
-    subscriber_tf_("/tf", &TFMonitor::callback, this),
-    subscriber_tf_message_("/tf_message", &TFMonitor::callback, this)
+    subscriber_tf_("/tf", &TFMonitor::callback, this)
   {
     
     if (using_specific_chain_)
@@ -142,7 +140,6 @@ public:
       } 
     }
     tinyros::nh()->subscribe(subscriber_tf_);
-    tinyros::nh()->subscribe(subscriber_tf_message_);
   }
 
   std::string outputFrameInfo(const std::map<std::string, std::vector<double> >::iterator& it, const std::string& frame_authority)
