@@ -29,6 +29,7 @@
 
 /** \author Tully Foote */
 
+#include <cstdio>
 #include "tiny_ros/ros.h"
 #include "tiny_ros/tf/tf.h"
 #include "tiny_ros/tf/transform_listener.h"
@@ -57,13 +58,6 @@ public:
   double angular_update_distance_;
 };
 
-bool getFramePairs(std::vector<FramePair>& frame_pairs, double default_translational_update_distance, double default_angular_update_distance)
-{
-  // No frame_pairs parameter provided. Default to base_link->map.
-  frame_pairs.push_back(FramePair("child_link", "base_link", default_translational_update_distance, default_angular_update_distance));
-  return true;
-}
-
 /** This is a program to provide notifications of changes of state within tf 
  * It was written for providing an easy way to on demand update a web graphic of 
  * where the robot is located.  It's not designed or recommended for use in live 
@@ -72,11 +66,34 @@ int main(int argc, char** argv)
 {
   tinyros::init("tinyros_change_notifier");
 
+  if (argc < 3) {
+    printf("A command line utility for manually sending a change.\n");
+    printf("Usage: tinyros_change_notifier source_frame target_frame frequency translational_distance angular_distance\n");
+    printf("Example:\n");
+    printf("tinyros_change_notifier child_link base_link 10.0 0.10 0.10\n");
+    tinyros_log_error("tinyros_change_notifier exited due to not having the right number of arguments");
+    return -1;
+  }
+
   double polling_frequency = 10.0, translational_update_distance = 0.10, angular_update_distance = 0.10;
+  
+  if (argc == 4) {
+    polling_frequency = atof(argv[3]);
+  }
+  
+  if (argc == 5) {
+    polling_frequency = atof(argv[3]);
+    translational_update_distance = atof(argv[4]);
+  }
+  
+  if (argc >= 6) {
+    polling_frequency = atof(argv[3]);
+    translational_update_distance = atof(argv[4]);
+    angular_update_distance = atof(argv[5]);
+  }
 
   std::vector<FramePair> frame_pairs;
-  if (!getFramePairs(frame_pairs, translational_update_distance, angular_update_distance))
-    return 1;
+  frame_pairs.push_back(FramePair(argv[1], argv[2], translational_update_distance, angular_update_distance));
 
   tinyros::tf::TransformListener tfl;
 

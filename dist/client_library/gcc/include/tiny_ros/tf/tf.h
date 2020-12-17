@@ -211,9 +211,6 @@ std::string resolve(const std::string& prefix, const std::string& frame_name)
 
 std::string assert_resolved(const std::string& prefix, const std::string& frame_id)
 {
-  if (frame_id.size() > 0)
-    if (frame_id[0] != '/')
-      tinyros_log_debug("TF operating on not fully resolved frame id %s, resolving using local prefix %s", frame_id.c_str(), prefix.c_str());
   return tinyros::tf::resolve(prefix, frame_id);
 }
 

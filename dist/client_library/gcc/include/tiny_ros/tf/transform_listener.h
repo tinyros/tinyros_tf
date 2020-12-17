@@ -244,7 +244,7 @@ private:
         std::string authority = msg_in.transforms[i].header.frame_id;
         authority += "->";
         authority += msg_in.transforms[i].child_frame_id;
-        setTransform(trans);
+        setTransform(trans, authority);
       }
       catch (TransformException& ex)
       {
