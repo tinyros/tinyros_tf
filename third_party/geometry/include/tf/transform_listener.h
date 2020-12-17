@@ -241,7 +241,9 @@ private:
       transformStampedMsgToTF(msg_in.transforms[i], trans);
       try
       {
-        std::string authority = "no callerid";
+        std::string authority = msg_in.transforms[i].header.frame_id;
+        authority += "->";
+        authority += msg_in.transforms[i].child_frame_id;
         setTransform(trans);
       }
       catch (TransformException& ex)

@@ -1,3 +1,4 @@
 build
+tinyros_logs
 *.si4project
 rostopic_subscribers.cpp

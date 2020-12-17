@@ -61,6 +61,11 @@ public:
     const tinyros::tf::tfMessage& message = *msg_ptr;
     //Lookup the authority 
     std::string authority = "no callerid";
+    if (message.transforms) {
+      authority = message.transforms->header.frame_id;
+      authority += "->";
+      authority += message.transforms->child_frame_id;
+    }
 
     double average_offset = 0;
     std::scoped_lock my_lock(map_lock_);  

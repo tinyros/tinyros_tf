@@ -50,18 +50,11 @@ namespace tf
 class TransformBroadcaster{
 public:
   /** \brief Constructor (needs a ros::Node reference) */
-  TransformBroadcaster()
-  : tf_prefix_("")
+  TransformBroadcaster(std::string prefix = "")
+  : tf_prefix_(prefix)
   , publisher_("/tf", new tinyros::tf::tfMessage())
   {
     tinyros::nh()->advertise(publisher_);
-  }
-  
-  TransformBroadcaster(std::string prefix)
-  : publisher_("/tf", new tinyros::tf::tfMessage())
-  {
-    tinyros::nh()->advertise(publisher_);
-    tf_prefix_ = prefix;
   }
 
   /** \brief Send a StampedTransform 

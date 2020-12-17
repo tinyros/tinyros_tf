@@ -60,7 +60,7 @@ int main(int argc, char ** argv)
 
   if (argc != 3)
   {
-    printf("Usage: tf_echo source_frame target_frame\n\n");
+    printf("Usage: tinyros_tf_echo source_frame target_frame\n\n");
     printf("This will echo the transform from the coordinate frame of the source_frame\n");
     printf("to the coordinate frame of the target_frame. \n");
     printf("Note: This is the transform to get data from target_frame into the source_frame.\n");
@@ -88,7 +88,8 @@ int main(int argc, char ** argv)
         echoListener.tf.lookupTransform(source_frameid, target_frameid, tinyros::Time(), echo_transform);
         std::cout.precision(3);
         std::cout.setf(std::ios::fixed,std::ios::floatfield);
-        std::cout << "At time " << echo_transform.stamp_.toSec() << std::endl;
+        std::cout << "At time " << echo_transform.stamp_.toSec() << " (source: " 
+          << source_frameid.c_str() << ", target:" << target_frameid.c_str() << ")" << std::endl;
         double yaw, pitch, roll;
         echo_transform.getBasis().getRPY(roll, pitch, yaw);
         tinyros::tf::Quaternion q = echo_transform.getRotation();
@@ -96,7 +97,7 @@ int main(int argc, char ** argv)
         std::cout << "- Translation: [" << v.getX() << ", " << v.getY() << ", " << v.getZ() << "]" << std::endl;
         std::cout << "- Rotation: in Quaternion [" << q.getX() << ", " << q.getY() << ", " 
                   << q.getZ() << ", " << q.getW() << "]" << std::endl
-                  << "            in RPY [" <<  roll << ", " << pitch << ", " << yaw << "]" << std::endl;
+                  << "            in RPY [" <<  roll << ", " << pitch << ", " << yaw << "]" << std::endl << std::endl;
 
         //print transform
       }
