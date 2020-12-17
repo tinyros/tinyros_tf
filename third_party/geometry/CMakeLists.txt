@@ -49,14 +49,6 @@ add_executable(tinyros_tf_change_notifier
 	src/change_notifier.cpp
 )
 
-add_executable(tinyros_tf_empty_listener
-	${ROSLIB_PATHS}/ros.cpp
-	${ROSLIB_PATHS}/time.cpp
-	${ROSLIB_PATHS}/duration.cpp
-	${ROSLIB_PATHS}/log.cpp
-	src/empty_listener.cpp
-)
-
 IF (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
 target_link_libraries(tinyros_tf_echo
   libpthread.a
@@ -71,10 +63,6 @@ target_link_libraries(tinyros_tf_monitor
   ${orocos_kdl_LIBRARIES}
 )
 target_link_libraries(tinyros_tf_change_notifier
-  libpthread.a
-  ${orocos_kdl_LIBRARIES}
-)
-target_link_libraries(tinyros_tf_empty_listener
   libpthread.a
   ${orocos_kdl_LIBRARIES}
 )
@@ -94,10 +82,6 @@ target_link_libraries(tinyros_tf_monitor
   ${orocos_kdl_LIBRARIES}
 )
 target_link_libraries(tinyros_tf_change_notifier
-  libpthread.so
-  ${orocos_kdl_LIBRARIES}
-)
-target_link_libraries(tinyros_tf_empty_listener
   libpthread.so
   ${orocos_kdl_LIBRARIES}
 )
