@@ -65,7 +65,7 @@ Time Time::operator+(const Duration &rhs) const
 {
   uint32_t sec_sum  = (int32_t)sec  + (int32_t)rhs.sec;
   uint32_t nsec_sum = (int32_t)nsec + (int32_t)rhs.nsec;
-  normalizeSecNSec(sec_sum, sec_sum);
+  normalizeSecNSec(sec_sum, nsec_sum);
 
   // now, it's safe to downcast back to uint32 bits
   return Time(sec_sum, nsec_sum);
