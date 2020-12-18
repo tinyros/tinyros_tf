@@ -102,11 +102,11 @@ public:
 class TimeCache
 {
  public:
-  static const int MIN_INTERPOLATION_DISTANCE = 5; //!< Number of nano-seconds to not interpolate below.
-  static const unsigned int MAX_LENGTH_LINKED_LIST = 1000000; //!< Maximum length of linked list, to make sure not to be able to use unlimited memory.
-  static const int64_t DEFAULT_MAX_STORAGE_TIME = 1ULL * 1000000000LL; //!< default value of 10 seconds storage
+  static const int MIN_INTERPOLATION_DISTANCE; //!< Number of nano-seconds to not interpolate below.
+  static const unsigned int MAX_LENGTH_LINKED_LIST; //!< Maximum length of linked list, to make sure not to be able to use unlimited memory.
+  static const double DEFAULT_MAX_STORAGE_TIME; //!< default value of 10 seconds storage
 
-  TimeCache(tinyros::Duration max_storage_time = tinyros::Duration().fromNSec(DEFAULT_MAX_STORAGE_TIME))
+  TimeCache(tinyros::Duration max_storage_time = tinyros::Duration(DEFAULT_MAX_STORAGE_TIME))
   : max_storage_time_(max_storage_time) {}
 
   bool getData(tinyros::Time time, TransformStorage & data_out, std::string* error_str = 0)
@@ -157,6 +157,8 @@ class TimeCache
                   storage_.erase(storage_it);
         }
     }
+
+    //printf("insertDatainsertDatainsertDatainsertData\n");
 
     storage_.insert(storage_.end(), new_data);
 
@@ -360,6 +362,11 @@ private:
     }
   }
 };
+
+const int TimeCache::MIN_INTERPOLATION_DISTANCE = 5; //!< Number of nano-seconds to not interpolate below.
+const unsigned int TimeCache::MAX_LENGTH_LINKED_LIST = 1000000; //!< Maximum length of linked list, to make sure not to be able to use unlimited memory.
+const double TimeCache::DEFAULT_MAX_STORAGE_TIME = 10; //!< default value of 10 seconds storage
+
 }
 }
 #endif

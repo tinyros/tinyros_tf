@@ -269,9 +269,9 @@ class Transformer
 {
 public:
   /************* Constants ***********************/
-  static const unsigned int MAX_GRAPH_DEPTH = 100UL;   //!< The maximum number of time to recurse before assuming the tree has a loop.
+  static const unsigned int MAX_GRAPH_DEPTH;   //!< The maximum number of time to recurse before assuming the tree has a loop.
   static const double DEFAULT_CACHE_TIME;  //!< 10.0 is the default amount of time to cache data in seconds, set in cpp file. 
-  static const int64_t DEFAULT_MAX_EXTRAPOLATION_DISTANCE = 0ULL; //!< The default amount of time to extrapolate
+  static const int64_t DEFAULT_MAX_EXTRAPOLATION_DISTANCE; //!< The default amount of time to extrapolate
 
 
   /** Constructor
@@ -891,6 +891,9 @@ public:
 
   /** \brief A way to see what frames have been cached
    * Useful for debugging
+   * Python:
+   * import subprocess
+   * subprocess.Popen('dot -Tpdf frames.gv -o frames.pdf'.split(' ')).communicate()
    */
   std::string allFramesAsDot() const
   {
@@ -907,8 +910,7 @@ public:
 
     mstream.precision(3);
     mstream.setf(std::ios::fixed,std::ios::floatfield);
-      
-     //  for (std::vector< TimeCache*>::iterator  it = frames_.begin(); it != frames_.end(); ++it)
+   
     for (unsigned int counter = 1; counter < frames_.size(); counter ++)//one referenced for 0 is no frame
     {
       unsigned int frame_id_num;
@@ -928,11 +930,11 @@ public:
         double rate = getFrame(counter)->getListLength() / std::max((getFrame(counter)->getLatestTimestamp().toSec() -
                                                                      getFrame(counter)->getOldestTimestamp().toSec() ), 0.0001);
 
-        mstream << std::fixed; //fixed point notation
-        mstream.precision(3); //3 decimal places
+        mstream << std::fixed; // fixed point notation
+        mstream.precision(3); // 3 decimal places
         mstream << "\"" << frameIDs_reverse[frame_id_num] << "\"" << " -> "
                 << "\"" << frameIDs_reverse[counter] << "\"" << "[label=\""
-          //<< "Time: " << current_time.toSec() << "\\n"
+          //    << "Time: " << current_time.toSec() << "\\n"
                 << "Broadcaster: " << authority << "\\n"
                 << "Average rate: " << rate << " Hz\\n"
                 << "Most recent transform: " << (current_time - getFrame(counter)->getLatestTimestamp()).toSec() << " sec old \\n"
@@ -957,7 +959,7 @@ public:
       if(frameIDs_reverse[frame_id_num]=="NO_PARENT")
       {
         mstream << "edge [style=invis];" <<std::endl;
-        mstream << " subgraph cluster_legend { style=bold; color=black; label =\"view_frames Result\";\n"
+        mstream << " subgraph cluster_legend { style=bold; color=black; label =\"Tinyros view_frames Result\";\n"
                 << "\"Recorded at time: " << current_time.toSec() << "\"[ shape=plaintext ] ;\n "
   	      << "}" << "->" << "\"" << frameIDs_reverse[counter]<<"\";" <<std::endl;
       }
@@ -1542,6 +1544,8 @@ protected:
 // Thanks to Rob for pointing out the right way to do this.
 // In C++0x this must be initialized here #5401
 const double Transformer::DEFAULT_CACHE_TIME = 10.0;
+const unsigned int Transformer::MAX_GRAPH_DEPTH = 100UL;
+const int64_t Transformer::DEFAULT_MAX_EXTRAPOLATION_DISTANCE = 0ULL;
 
 }
 }

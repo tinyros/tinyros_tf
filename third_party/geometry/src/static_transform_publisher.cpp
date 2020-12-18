@@ -83,8 +83,7 @@ int main(int argc, char ** argv)
 
     while(tinyros::nh()->ok())
     {
-      tf_sender.send(tinyros::Time::now() + sleeper);
-      tinyros_log_debug("Sending transform from %s with parent %s\n", argv[8], argv[9]);
+      tf_sender.send(tinyros::Time::now()/* + sleeper*/);
       sleeper.sleep();
     }
 
@@ -106,7 +105,7 @@ int main(int argc, char ** argv)
 
     while(tinyros::nh()->ok())
     {
-      tf_sender.send(tinyros::Time::now() + sleeper);
+      tf_sender.send(tinyros::Time::now()/* + sleeper*/);
       sleeper.sleep();
     }
 
