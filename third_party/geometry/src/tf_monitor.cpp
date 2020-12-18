@@ -244,8 +244,7 @@ int main(int argc, char ** argv)
 {
   //Initialize ROS
   tinyros::init("tinyros_tf_monitor");
-
-
+  
   std::string framea, frameb;
   bool using_specific_chain = true;
   if (argc == 3){

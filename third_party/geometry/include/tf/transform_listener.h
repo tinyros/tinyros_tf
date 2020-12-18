@@ -223,7 +223,8 @@ private:
   /// Callback function for ros message subscriptoin
   void subscription_callback(const tinyros::tf::tfMessage& msg)
   {
-    tinyros::Duration tinyros_diff = tinyros::Time::now() - last_update_ros_time_;
+    tinyros::Time time_now = tinyros::Time::now();
+    tinyros::Duration tinyros_diff = time_now - last_update_ros_time_;
     double tinyros_dt = tinyros_diff.toSec();
 
     if (tinyros_dt < 0.0)
@@ -232,7 +233,7 @@ private:
       clear();
     }
 
-    last_update_ros_time_ = tinyros::Time::now();
+    last_update_ros_time_ = time_now;
 
     const tinyros::tf::tfMessage& msg_in = msg;
     for (unsigned int i = 0; i < msg_in.transforms_length; i++)

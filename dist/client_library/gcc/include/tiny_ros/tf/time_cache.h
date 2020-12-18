@@ -145,20 +145,22 @@ class TimeCache
   {
     if (storage_.begin() != storage_.end())
     {
-        // trying to add data that dates back longer than we want to keep history
-        if (storage_.rbegin()->stamp_ > new_data.stamp_ + max_storage_time_)
-          return false;
+      // trying to add data that dates back longer than we want to keep history
+      if (storage_.rbegin()->stamp_ > new_data.stamp_ + max_storage_time_) {
+        tinyros_log_warn("Trying to add data that dates back longer than we want to keep history");
+        return false;
+      }
 
-        // if we already have data at that exact time, delete it to ensure the latest data is stored
-        if (storage_.rbegin()->stamp_ >= new_data.stamp_)
-        {
-           L_TransformStorage::iterator storage_it  = storage_.find(new_data);
-           if (storage_it != storage_.end())
-                  storage_.erase(storage_it);
+      // if we already have data at that exact time, delete it to ensure the latest data is stored
+      if (storage_.rbegin()->stamp_ >= new_data.stamp_)
+      {
+        L_TransformStorage::iterator storage_it  = storage_.find(new_data);
+        if (storage_it != storage_.end()) {
+          tinyros_log_warn("Already have data at that exact time, delete it to ensure the latest data is stored");
+          storage_.erase(storage_it);
         }
+      }
     }
-
-    //printf("insertDatainsertDatainsertDatainsertData\n");
 
     storage_.insert(storage_.end(), new_data);
 
@@ -365,7 +367,7 @@ private:
 
 const int TimeCache::MIN_INTERPOLATION_DISTANCE = 5; //!< Number of nano-seconds to not interpolate below.
 const unsigned int TimeCache::MAX_LENGTH_LINKED_LIST = 1000000; //!< Maximum length of linked list, to make sure not to be able to use unlimited memory.
-const double TimeCache::DEFAULT_MAX_STORAGE_TIME = 10; //!< default value of 10 seconds storage
+const double TimeCache::DEFAULT_MAX_STORAGE_TIME = 10.0; //!< default value of 10 seconds storage
 
 }
 }

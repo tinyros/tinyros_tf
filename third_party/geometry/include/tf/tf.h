@@ -280,8 +280,8 @@ public:
    *
    */
   Transformer(bool interpolating = true,
-              tinyros::Duration cache_time_ = tinyros::Duration(DEFAULT_CACHE_TIME))
-  : cache_time(cache_time)
+              tinyros::Duration cache_time = tinyros::Duration(DEFAULT_CACHE_TIME))
+  : cache_time_(cache_time)
   , interpolating (interpolating)
   , using_dedicated_thread_(false)
   , fall_back_to_wall_time_(false) {
@@ -368,7 +368,7 @@ public:
       TimeCache* frame = getFrame(frame_number);
       if (frame == NULL)
       {
-      	frames_[frame_number] = new TimeCache(cache_time);
+      	frames_[frame_number] = new TimeCache(cache_time_);
       	frame = frames_[frame_number];
       }
 
@@ -1036,7 +1036,7 @@ public:
   }
 
   /**@brief Get the duration over which this transformer will cache */
-  tinyros::Duration getCacheLength() { return cache_time;}
+  tinyros::Duration getCacheLength() { return cache_time_;}
 
   /**
    * \brief Add a callback that happens when a new transform has arrived
@@ -1100,9 +1100,6 @@ protected:
 
   /** \brief A mutex to protect testing and allocating new frames on the above vector. */
   mutable std::recursive_mutex frame_mutex_;
-
-  /// How long to cache transform history
-  tinyros::Duration cache_time;
 
   /// whether or not to interpolate or extrapolate
   bool interpolating;
@@ -1179,7 +1176,7 @@ protected:
     {
       retval = frames_.size();
       frameIDs_[frameid_str] = retval;
-      frames_.push_back( new TimeCache(cache_time));
+      frames_.push_back( new TimeCache(cache_time_));
       frameIDs_reverse.push_back(frameid_str);
     }
     else
