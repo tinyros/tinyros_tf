@@ -76,7 +76,6 @@ public:
       tinyros::geometry_msgs::TransformStamped msgtf;
       transformStampedTFToMsg(*it, msgtf);
       msgtfs.push_back(msgtf);
-
     }
     sendTransform(msgtfs);
   }
@@ -96,13 +95,11 @@ public:
   {
     tinyros::tf::tfMessage message;
     message.transforms_length = msgtf.size();
-    message.transforms = (tinyros::geometry_msgs::TransformStamped*)realloc(message.transforms, message.transforms_length * sizeof(tinyros::geometry_msgs::TransformStamped));
+    message.transforms = new tinyros::geometry_msgs::TransformStamped[message.transforms_length];//(tinyros::geometry_msgs::TransformStamped*)realloc(message.transforms, message.transforms_length * sizeof(tinyros::geometry_msgs::TransformStamped));
     TINYROS_ASSERT(message.transforms);
     for (unsigned int i = 0; i < message.transforms_length; i++)
     {
-      memcpy(&(message.transforms[i]), &(msgtf[i]), sizeof(tinyros::geometry_msgs::TransformStamped));
-      message.transforms[i].header.frame_id = tinyros::tf::resolve(tf_prefix_, message.transforms[i].header.frame_id);
-      message.transforms[i].child_frame_id = tinyros::tf::resolve(tf_prefix_, message.transforms[i].child_frame_id);
+      message.transforms[i] = msgtf[i];
     }
     publisher_.publish(&message);
   }

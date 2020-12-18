@@ -6,7 +6,7 @@ option(TINYROS_SUPPORT_RVIZ "RVIZ support? (ON/OFF)" ON)
 
 set(OUTPUT_PATHS ${PROJECT_SOURCE_DIR}/build/output)
 set(ROSLIB_PATHS ${OUTPUT_PATHS}/client_library/gcc/include/tiny_ros)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 -g -O3")
 
 add_definitions(-DSPDLOG_COMPILED_LIB)
 

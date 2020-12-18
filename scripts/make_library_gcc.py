@@ -303,16 +303,16 @@ class ArrayDataType(PrimitiveDataType):
     def make_deinitializer(self, f, header):
         if self.size == None:
             ty = self.type.replace("[","").replace("]","")
-            f.write('%s      if(%s != NULL)\n' % (header, self.name))
+            f.write('%s      if(this->%s != NULL)\n' % (header, self.name))
             f.write('%s      {\n' % header)
             if not primitiveType(ty):
-                f.write('%s        for( uint32_t i = 0; i < %s_length; i++){\n' % (header, self.name) )
-                f.write('%s          %s[i].deconstructor();\n' % (header, self.name))
+                f.write('%s        for( uint32_t i = 0; i < this->%s_length; i++){\n' % (header, self.name) )
+                f.write('%s          this->%s[i].deconstructor();\n' % (header, self.name))
                 f.write('%s        }\n' % header)
-            f.write('%s        free(%s);\n' % (header, self.name))
+            f.write('%s        delete[] this->%s;\n' % (header, self.name))
             f.write('%s      }\n' % header)
-            f.write('%s      %s = NULL;\n' % (header, self.name))
-            f.write('%s      %s_length = 0;\n' % (header, self.name))
+            f.write('%s      this->%s = NULL;\n' % (header, self.name))
+            f.write('%s      this->%s_length = 0;\n' % (header, self.name))
 
     def make_declaration(self, f):
         if self.size == None:
@@ -349,12 +349,14 @@ class ArrayDataType(PrimitiveDataType):
             f.write('%s      %s_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); \n' % (header, self.name))
             f.write('%s      %s_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); \n' % (header, self.name))
             f.write('%s      offset += sizeof(this->%s_length);\n' % (header, self.name))
-            f.write('%s      if(%s_lengthT > %s_length)\n' % (header, self.name, self.name))
-            f.write('%s        this->%s = (%s*)realloc(this->%s, %s_lengthT * sizeof(%s));\n' % (header, self.name, self.type, self.name, self.name, self.type))
-            f.write('%s      %s_length = %s_lengthT;\n' % (header, self.name, self.name))
+            f.write('%s      if(!this->%s || %s_lengthT > this->%s_length) {\n' % (header, self.name, self.name, self.name))
+            f.write('%s        this->deconstructor();\n' % header)
+            f.write('%s        this->%s = new %s[%s_lengthT];\n' % (header, self.name, self.type, self.name))
+            f.write('%s      }\n' % header)
+            f.write('%s      this->%s_length = %s_lengthT;\n' % (header, self.name, self.name))
             f.write('%s      for( uint32_t i = 0; i < %s_length; i++) {\n' % (header, self.name))
             c.deserialize(f, header + "  ")
-            f.write('%s        memcpy( &(this->%s[i]), &(this->st_%s), sizeof(%s));\n' % (header, self.name, self.name, self.type))
+            f.write('%s        this->%s[i] = this->st_%s;\n' % (header, self.name, self.name))
             f.write('%s      }\n' % header)
         else:
             c = self.cls(self.name+"[i]", self.type, self.bytes)

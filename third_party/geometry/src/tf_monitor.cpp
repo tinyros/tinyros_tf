@@ -214,7 +214,8 @@ public:
         }
         else
           std::cout << outputFrameInfo(it, frame_authority_map[it->first]);
-      }          
+      }
+      std::cerr <<std::endl<< "All FramsAsDot:" << tf_.allFramesAsDot().c_str() << std::endl;
       std::cerr <<std::endl<< "All Broadcasters:" << std::endl;
       std::map<std::string, std::vector<double> >::iterator it1 = authority_map.begin();
       std::map<std::string, std::vector<double> >::iterator it2 = authority_frequency_map.begin();

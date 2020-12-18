@@ -100,12 +100,15 @@ int main(int argc, char** argv)
   // Advertise the service
   tinyros::Publisher pub ("/tf_changes", new tinyros::tf::tfMessage());
   tinyros::nh()->advertise(pub);
-
+  
+  tinyros::tf::tfMessage msg;
+  msg.transforms_length = 0;
+  msg.transforms = new tinyros::geometry_msgs::TransformStamped[frame_pairs.size()];
   while (tinyros::nh()->ok())
   {
     try
     {
-      tinyros::tf::tfMessage msg;
+      msg.transforms_length = 0;
 
       for (std::vector<FramePair>::iterator i = frame_pairs.begin(); i != frame_pairs.end(); i++)
       {
@@ -120,13 +123,11 @@ int main(int argc, char** argv)
             rotation.angle(fp.last_sent_pose_.getRotation()) > fp.angular_update_distance_)
         {
           fp.last_sent_pose_ = fp.pose_out_;
-
           tinyros::tf::StampedTransform stampedTf(tinyros::tf::Transform(rotation, origin), fp.pose_out_.stamp_, "/" + fp.target_frame_, "/" + fp.source_frame_);
           tinyros::geometry_msgs::TransformStamped msgtf;
           tinyros::tf::transformStampedTFToMsg(stampedTf, msgtf);
+          msg.transforms[msg.transforms_length] = msgtf;
           msg.transforms_length += 1;
-          msg.transforms = (tinyros::geometry_msgs::TransformStamped*)realloc(msg.transforms, msg.transforms_length * sizeof(tinyros::geometry_msgs::TransformStamped));
-          memcpy(&(msg.transforms[msg.transforms_length - 1]), &msgtf, sizeof(tinyros::geometry_msgs::TransformStamped));
         }
       }
 
