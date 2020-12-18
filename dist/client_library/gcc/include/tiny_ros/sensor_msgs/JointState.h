@@ -52,30 +52,30 @@ namespace sensor_msgs
 
     void deconstructor()
     {
-      if(name != NULL)
+      if(this->name != NULL)
       {
-        free(name);
+        delete[] this->name;
       }
-      name = NULL;
-      name_length = 0;
-      if(position != NULL)
+      this->name = NULL;
+      this->name_length = 0;
+      if(this->position != NULL)
       {
-        free(position);
+        delete[] this->position;
       }
-      position = NULL;
-      position_length = 0;
-      if(velocity != NULL)
+      this->position = NULL;
+      this->position_length = 0;
+      if(this->velocity != NULL)
       {
-        free(velocity);
+        delete[] this->velocity;
       }
-      velocity = NULL;
-      velocity_length = 0;
-      if(effort != NULL)
+      this->velocity = NULL;
+      this->velocity_length = 0;
+      if(this->effort != NULL)
       {
-        free(effort);
+        delete[] this->effort;
       }
-      effort = NULL;
-      effort_length = 0;
+      this->effort = NULL;
+      this->effort_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -169,9 +169,11 @@ namespace sensor_msgs
       name_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       name_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->name_length);
-      if(name_lengthT > name_length)
-        this->name = (std::string*)realloc(this->name, name_lengthT * sizeof(std::string));
-      name_length = name_lengthT;
+      if(!this->name || name_lengthT > this->name_length) {
+        this->deconstructor();
+        this->name = new std::string[name_lengthT];
+      }
+      this->name_length = name_lengthT;
       for( uint32_t i = 0; i < name_length; i++) {
         uint32_t length_st_name;
         arrToVar(length_st_name, (inbuffer + offset));
@@ -182,16 +184,18 @@ namespace sensor_msgs
         inbuffer[offset+length_st_name-1]=0;
         this->st_name = (char *)(inbuffer + offset-1);
         offset += length_st_name;
-        memcpy( &(this->name[i]), &(this->st_name), sizeof(std::string));
+        this->name[i] = this->st_name;
       }
       uint32_t position_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       position_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       position_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       position_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->position_length);
-      if(position_lengthT > position_length)
-        this->position = (double*)realloc(this->position, position_lengthT * sizeof(double));
-      position_length = position_lengthT;
+      if(!this->position || position_lengthT > this->position_length) {
+        this->deconstructor();
+        this->position = new double[position_lengthT];
+      }
+      this->position_length = position_lengthT;
       for( uint32_t i = 0; i < position_length; i++) {
         union {
           double real;
@@ -208,16 +212,18 @@ namespace sensor_msgs
         u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_position = u_st_position.real;
         offset += sizeof(this->st_position);
-        memcpy( &(this->position[i]), &(this->st_position), sizeof(double));
+        this->position[i] = this->st_position;
       }
       uint32_t velocity_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       velocity_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       velocity_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       velocity_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->velocity_length);
-      if(velocity_lengthT > velocity_length)
-        this->velocity = (double*)realloc(this->velocity, velocity_lengthT * sizeof(double));
-      velocity_length = velocity_lengthT;
+      if(!this->velocity || velocity_lengthT > this->velocity_length) {
+        this->deconstructor();
+        this->velocity = new double[velocity_lengthT];
+      }
+      this->velocity_length = velocity_lengthT;
       for( uint32_t i = 0; i < velocity_length; i++) {
         union {
           double real;
@@ -234,16 +240,18 @@ namespace sensor_msgs
         u_st_velocity.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_velocity = u_st_velocity.real;
         offset += sizeof(this->st_velocity);
-        memcpy( &(this->velocity[i]), &(this->st_velocity), sizeof(double));
+        this->velocity[i] = this->st_velocity;
       }
       uint32_t effort_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       effort_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       effort_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       effort_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->effort_length);
-      if(effort_lengthT > effort_length)
-        this->effort = (double*)realloc(this->effort, effort_lengthT * sizeof(double));
-      effort_length = effort_lengthT;
+      if(!this->effort || effort_lengthT > this->effort_length) {
+        this->deconstructor();
+        this->effort = new double[effort_lengthT];
+      }
+      this->effort_length = effort_lengthT;
       for( uint32_t i = 0; i < effort_length; i++) {
         union {
           double real;
@@ -260,7 +268,7 @@ namespace sensor_msgs
         u_st_effort.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_effort = u_st_effort.real;
         offset += sizeof(this->st_effort);
-        memcpy( &(this->effort[i]), &(this->st_effort), sizeof(double));
+        this->effort[i] = this->st_effort;
       }
       return offset;
     }

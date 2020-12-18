@@ -38,15 +38,15 @@ namespace geometry_msgs
 
     void deconstructor()
     {
-      if(poses != NULL)
+      if(this->poses != NULL)
       {
-        for( uint32_t i = 0; i < poses_length; i++){
-          poses[i].deconstructor();
+        for( uint32_t i = 0; i < this->poses_length; i++){
+          this->poses[i].deconstructor();
         }
-        free(poses);
+        delete[] this->poses;
       }
-      poses = NULL;
-      poses_length = 0;
+      this->poses = NULL;
+      this->poses_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -73,12 +73,14 @@ namespace geometry_msgs
       poses_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       poses_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->poses_length);
-      if(poses_lengthT > poses_length)
-        this->poses = (tinyros::geometry_msgs::Pose*)realloc(this->poses, poses_lengthT * sizeof(tinyros::geometry_msgs::Pose));
-      poses_length = poses_lengthT;
+      if(!this->poses || poses_lengthT > this->poses_length) {
+        this->deconstructor();
+        this->poses = new tinyros::geometry_msgs::Pose[poses_lengthT];
+      }
+      this->poses_length = poses_lengthT;
       for( uint32_t i = 0; i < poses_length; i++) {
         offset += this->st_poses.deserialize(inbuffer + offset);
-        memcpy( &(this->poses[i]), &(this->st_poses), sizeof(tinyros::geometry_msgs::Pose));
+        this->poses[i] = this->st_poses;
       }
       return offset;
     }

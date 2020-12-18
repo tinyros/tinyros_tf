@@ -95,7 +95,7 @@ public:
   {
     tinyros::tf::tfMessage message;
     message.transforms_length = msgtf.size();
-    message.transforms = new tinyros::geometry_msgs::TransformStamped[message.transforms_length];//(tinyros::geometry_msgs::TransformStamped*)realloc(message.transforms, message.transforms_length * sizeof(tinyros::geometry_msgs::TransformStamped));
+    message.transforms = new tinyros::geometry_msgs::TransformStamped[message.transforms_length];
     TINYROS_ASSERT(message.transforms);
     for (unsigned int i = 0; i < message.transforms_length; i++)
     {

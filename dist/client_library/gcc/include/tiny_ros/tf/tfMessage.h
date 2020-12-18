@@ -34,15 +34,15 @@ namespace tf
 
     void deconstructor()
     {
-      if(transforms != NULL)
+      if(this->transforms != NULL)
       {
-        for( uint32_t i = 0; i < transforms_length; i++){
-          transforms[i].deconstructor();
+        for( uint32_t i = 0; i < this->transforms_length; i++){
+          this->transforms[i].deconstructor();
         }
-        free(transforms);
+        delete[] this->transforms;
       }
-      transforms = NULL;
-      transforms_length = 0;
+      this->transforms = NULL;
+      this->transforms_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -67,12 +67,14 @@ namespace tf
       transforms_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       transforms_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->transforms_length);
-      if(transforms_lengthT > transforms_length)
-        this->transforms = (tinyros::geometry_msgs::TransformStamped*)realloc(this->transforms, transforms_lengthT * sizeof(tinyros::geometry_msgs::TransformStamped));
-      transforms_length = transforms_lengthT;
+      if(!this->transforms || transforms_lengthT > this->transforms_length) {
+        this->deconstructor();
+        this->transforms = new tinyros::geometry_msgs::TransformStamped[transforms_lengthT];
+      }
+      this->transforms_length = transforms_lengthT;
       for( uint32_t i = 0; i < transforms_length; i++) {
         offset += this->st_transforms.deserialize(inbuffer + offset);
-        memcpy( &(this->transforms[i]), &(this->st_transforms), sizeof(tinyros::geometry_msgs::TransformStamped));
+        this->transforms[i] = this->st_transforms;
       }
       return offset;
     }

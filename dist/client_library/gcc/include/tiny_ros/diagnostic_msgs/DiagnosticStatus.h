@@ -50,15 +50,15 @@ namespace diagnostic_msgs
 
     void deconstructor()
     {
-      if(values != NULL)
+      if(this->values != NULL)
       {
-        for( uint32_t i = 0; i < values_length; i++){
-          values[i].deconstructor();
+        for( uint32_t i = 0; i < this->values_length; i++){
+          this->values[i].deconstructor();
         }
-        free(values);
+        delete[] this->values;
       }
-      values = NULL;
-      values_length = 0;
+      this->values = NULL;
+      this->values_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -140,12 +140,14 @@ namespace diagnostic_msgs
       values_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       values_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->values_length);
-      if(values_lengthT > values_length)
-        this->values = (tinyros::diagnostic_msgs::KeyValue*)realloc(this->values, values_lengthT * sizeof(tinyros::diagnostic_msgs::KeyValue));
-      values_length = values_lengthT;
+      if(!this->values || values_lengthT > this->values_length) {
+        this->deconstructor();
+        this->values = new tinyros::diagnostic_msgs::KeyValue[values_lengthT];
+      }
+      this->values_length = values_lengthT;
       for( uint32_t i = 0; i < values_length; i++) {
         offset += this->st_values.deserialize(inbuffer + offset);
-        memcpy( &(this->values[i]), &(this->st_values), sizeof(tinyros::diagnostic_msgs::KeyValue));
+        this->values[i] = this->st_values;
       }
       return offset;
     }

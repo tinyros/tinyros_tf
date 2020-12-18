@@ -51,18 +51,18 @@ namespace smach_msgs
 
     void deconstructor()
     {
-      if(initial_states != NULL)
+      if(this->initial_states != NULL)
       {
-        free(initial_states);
+        delete[] this->initial_states;
       }
-      initial_states = NULL;
-      initial_states_length = 0;
-      if(active_states != NULL)
+      this->initial_states = NULL;
+      this->initial_states_length = 0;
+      if(this->active_states != NULL)
       {
-        free(active_states);
+        delete[] this->active_states;
       }
-      active_states = NULL;
-      active_states_length = 0;
+      this->active_states = NULL;
+      this->active_states_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -129,9 +129,11 @@ namespace smach_msgs
       initial_states_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       initial_states_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->initial_states_length);
-      if(initial_states_lengthT > initial_states_length)
-        this->initial_states = (std::string*)realloc(this->initial_states, initial_states_lengthT * sizeof(std::string));
-      initial_states_length = initial_states_lengthT;
+      if(!this->initial_states || initial_states_lengthT > this->initial_states_length) {
+        this->deconstructor();
+        this->initial_states = new std::string[initial_states_lengthT];
+      }
+      this->initial_states_length = initial_states_lengthT;
       for( uint32_t i = 0; i < initial_states_length; i++) {
         uint32_t length_st_initial_states;
         arrToVar(length_st_initial_states, (inbuffer + offset));
@@ -142,16 +144,18 @@ namespace smach_msgs
         inbuffer[offset+length_st_initial_states-1]=0;
         this->st_initial_states = (char *)(inbuffer + offset-1);
         offset += length_st_initial_states;
-        memcpy( &(this->initial_states[i]), &(this->st_initial_states), sizeof(std::string));
+        this->initial_states[i] = this->st_initial_states;
       }
       uint32_t active_states_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       active_states_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       active_states_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       active_states_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->active_states_length);
-      if(active_states_lengthT > active_states_length)
-        this->active_states = (std::string*)realloc(this->active_states, active_states_lengthT * sizeof(std::string));
-      active_states_length = active_states_lengthT;
+      if(!this->active_states || active_states_lengthT > this->active_states_length) {
+        this->deconstructor();
+        this->active_states = new std::string[active_states_lengthT];
+      }
+      this->active_states_length = active_states_lengthT;
       for( uint32_t i = 0; i < active_states_length; i++) {
         uint32_t length_st_active_states;
         arrToVar(length_st_active_states, (inbuffer + offset));
@@ -162,7 +166,7 @@ namespace smach_msgs
         inbuffer[offset+length_st_active_states-1]=0;
         this->st_active_states = (char *)(inbuffer + offset-1);
         offset += length_st_active_states;
-        memcpy( &(this->active_states[i]), &(this->st_active_states), sizeof(std::string));
+        this->active_states[i] = this->st_active_states;
       }
       uint32_t length_local_data;
       arrToVar(length_local_data, (inbuffer + offset));

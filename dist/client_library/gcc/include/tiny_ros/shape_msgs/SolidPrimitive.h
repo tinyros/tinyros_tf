@@ -48,12 +48,12 @@ namespace shape_msgs
 
     void deconstructor()
     {
-      if(dimensions != NULL)
+      if(this->dimensions != NULL)
       {
-        free(dimensions);
+        delete[] this->dimensions;
       }
-      dimensions = NULL;
-      dimensions_length = 0;
+      this->dimensions = NULL;
+      this->dimensions_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -95,9 +95,11 @@ namespace shape_msgs
       dimensions_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       dimensions_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->dimensions_length);
-      if(dimensions_lengthT > dimensions_length)
-        this->dimensions = (double*)realloc(this->dimensions, dimensions_lengthT * sizeof(double));
-      dimensions_length = dimensions_lengthT;
+      if(!this->dimensions || dimensions_lengthT > this->dimensions_length) {
+        this->deconstructor();
+        this->dimensions = new double[dimensions_lengthT];
+      }
+      this->dimensions_length = dimensions_lengthT;
       for( uint32_t i = 0; i < dimensions_length; i++) {
         union {
           double real;
@@ -114,7 +116,7 @@ namespace shape_msgs
         u_st_dimensions.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_dimensions = u_st_dimensions.real;
         offset += sizeof(this->st_dimensions);
-        memcpy( &(this->dimensions[i]), &(this->st_dimensions), sizeof(double));
+        this->dimensions[i] = this->st_dimensions;
       }
       return offset;
     }

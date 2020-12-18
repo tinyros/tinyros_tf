@@ -38,15 +38,15 @@ namespace gazebo_msgs
 
     void deconstructor()
     {
-      if(states != NULL)
+      if(this->states != NULL)
       {
-        for( uint32_t i = 0; i < states_length; i++){
-          states[i].deconstructor();
+        for( uint32_t i = 0; i < this->states_length; i++){
+          this->states[i].deconstructor();
         }
-        free(states);
+        delete[] this->states;
       }
-      states = NULL;
-      states_length = 0;
+      this->states = NULL;
+      this->states_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -73,12 +73,14 @@ namespace gazebo_msgs
       states_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       states_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->states_length);
-      if(states_lengthT > states_length)
-        this->states = (tinyros::gazebo_msgs::ContactState*)realloc(this->states, states_lengthT * sizeof(tinyros::gazebo_msgs::ContactState));
-      states_length = states_lengthT;
+      if(!this->states || states_lengthT > this->states_length) {
+        this->deconstructor();
+        this->states = new tinyros::gazebo_msgs::ContactState[states_lengthT];
+      }
+      this->states_length = states_lengthT;
       for( uint32_t i = 0; i < states_length; i++) {
         offset += this->st_states.deserialize(inbuffer + offset);
-        memcpy( &(this->states[i]), &(this->st_states), sizeof(tinyros::gazebo_msgs::ContactState));
+        this->states[i] = this->st_states;
       }
       return offset;
     }

@@ -50,18 +50,18 @@ static const char SETMODELCONFIGURATION[] = "gazebo_msgs/SetModelConfiguration";
 
     void deconstructor()
     {
-      if(joint_names != NULL)
+      if(this->joint_names != NULL)
       {
-        free(joint_names);
+        delete[] this->joint_names;
       }
-      joint_names = NULL;
-      joint_names_length = 0;
-      if(joint_positions != NULL)
+      this->joint_names = NULL;
+      this->joint_names_length = 0;
+      if(this->joint_positions != NULL)
       {
-        free(joint_positions);
+        delete[] this->joint_positions;
       }
-      joint_positions = NULL;
-      joint_positions_length = 0;
+      this->joint_positions = NULL;
+      this->joint_positions_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -149,9 +149,11 @@ static const char SETMODELCONFIGURATION[] = "gazebo_msgs/SetModelConfiguration";
       joint_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       joint_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->joint_names_length);
-      if(joint_names_lengthT > joint_names_length)
-        this->joint_names = (std::string*)realloc(this->joint_names, joint_names_lengthT * sizeof(std::string));
-      joint_names_length = joint_names_lengthT;
+      if(!this->joint_names || joint_names_lengthT > this->joint_names_length) {
+        this->deconstructor();
+        this->joint_names = new std::string[joint_names_lengthT];
+      }
+      this->joint_names_length = joint_names_lengthT;
       for( uint32_t i = 0; i < joint_names_length; i++) {
         uint32_t length_st_joint_names;
         arrToVar(length_st_joint_names, (inbuffer + offset));
@@ -162,16 +164,18 @@ static const char SETMODELCONFIGURATION[] = "gazebo_msgs/SetModelConfiguration";
         inbuffer[offset+length_st_joint_names-1]=0;
         this->st_joint_names = (char *)(inbuffer + offset-1);
         offset += length_st_joint_names;
-        memcpy( &(this->joint_names[i]), &(this->st_joint_names), sizeof(std::string));
+        this->joint_names[i] = this->st_joint_names;
       }
       uint32_t joint_positions_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       joint_positions_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       joint_positions_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       joint_positions_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->joint_positions_length);
-      if(joint_positions_lengthT > joint_positions_length)
-        this->joint_positions = (double*)realloc(this->joint_positions, joint_positions_lengthT * sizeof(double));
-      joint_positions_length = joint_positions_lengthT;
+      if(!this->joint_positions || joint_positions_lengthT > this->joint_positions_length) {
+        this->deconstructor();
+        this->joint_positions = new double[joint_positions_lengthT];
+      }
+      this->joint_positions_length = joint_positions_lengthT;
       for( uint32_t i = 0; i < joint_positions_length; i++) {
         union {
           double real;
@@ -188,7 +192,7 @@ static const char SETMODELCONFIGURATION[] = "gazebo_msgs/SetModelConfiguration";
         u_st_joint_positions.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_joint_positions = u_st_joint_positions.real;
         offset += sizeof(this->st_joint_positions);
-        memcpy( &(this->joint_positions[i]), &(this->st_joint_positions), sizeof(double));
+        this->joint_positions[i] = this->st_joint_positions;
       }
       return offset;
     }

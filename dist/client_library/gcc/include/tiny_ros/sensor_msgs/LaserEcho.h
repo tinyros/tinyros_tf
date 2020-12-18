@@ -33,12 +33,12 @@ namespace sensor_msgs
 
     void deconstructor()
     {
-      if(echoes != NULL)
+      if(this->echoes != NULL)
       {
-        free(echoes);
+        delete[] this->echoes;
       }
-      echoes = NULL;
-      echoes_length = 0;
+      this->echoes = NULL;
+      this->echoes_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -72,9 +72,11 @@ namespace sensor_msgs
       echoes_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       echoes_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->echoes_length);
-      if(echoes_lengthT > echoes_length)
-        this->echoes = (float*)realloc(this->echoes, echoes_lengthT * sizeof(float));
-      echoes_length = echoes_lengthT;
+      if(!this->echoes || echoes_lengthT > this->echoes_length) {
+        this->deconstructor();
+        this->echoes = new float[echoes_lengthT];
+      }
+      this->echoes_length = echoes_lengthT;
       for( uint32_t i = 0; i < echoes_length; i++) {
         union {
           float real;
@@ -87,7 +89,7 @@ namespace sensor_msgs
         u_st_echoes.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
         this->st_echoes = u_st_echoes.real;
         offset += sizeof(this->st_echoes);
-        memcpy( &(this->echoes[i]), &(this->st_echoes), sizeof(float));
+        this->echoes[i] = this->st_echoes;
       }
       return offset;
     }

@@ -42,18 +42,18 @@ namespace sensor_msgs
 
     void deconstructor()
     {
-      if(axes != NULL)
+      if(this->axes != NULL)
       {
-        free(axes);
+        delete[] this->axes;
       }
-      axes = NULL;
-      axes_length = 0;
-      if(buttons != NULL)
+      this->axes = NULL;
+      this->axes_length = 0;
+      if(this->buttons != NULL)
       {
-        free(buttons);
+        delete[] this->buttons;
       }
-      buttons = NULL;
-      buttons_length = 0;
+      this->buttons = NULL;
+      this->buttons_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -106,9 +106,11 @@ namespace sensor_msgs
       axes_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       axes_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->axes_length);
-      if(axes_lengthT > axes_length)
-        this->axes = (float*)realloc(this->axes, axes_lengthT * sizeof(float));
-      axes_length = axes_lengthT;
+      if(!this->axes || axes_lengthT > this->axes_length) {
+        this->deconstructor();
+        this->axes = new float[axes_lengthT];
+      }
+      this->axes_length = axes_lengthT;
       for( uint32_t i = 0; i < axes_length; i++) {
         union {
           float real;
@@ -121,16 +123,18 @@ namespace sensor_msgs
         u_st_axes.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
         this->st_axes = u_st_axes.real;
         offset += sizeof(this->st_axes);
-        memcpy( &(this->axes[i]), &(this->st_axes), sizeof(float));
+        this->axes[i] = this->st_axes;
       }
       uint32_t buttons_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       buttons_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       buttons_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       buttons_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->buttons_length);
-      if(buttons_lengthT > buttons_length)
-        this->buttons = (int32_t*)realloc(this->buttons, buttons_lengthT * sizeof(int32_t));
-      buttons_length = buttons_lengthT;
+      if(!this->buttons || buttons_lengthT > this->buttons_length) {
+        this->deconstructor();
+        this->buttons = new int32_t[buttons_lengthT];
+      }
+      this->buttons_length = buttons_lengthT;
       for( uint32_t i = 0; i < buttons_length; i++) {
         union {
           int32_t real;
@@ -143,7 +147,7 @@ namespace sensor_msgs
         u_st_buttons.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
         this->st_buttons = u_st_buttons.real;
         offset += sizeof(this->st_buttons);
-        memcpy( &(this->buttons[i]), &(this->st_buttons), sizeof(int32_t));
+        this->buttons[i] = this->st_buttons;
       }
       return offset;
     }

@@ -37,12 +37,12 @@ namespace std_msgs
 
     void deconstructor()
     {
-      if(data != NULL)
+      if(this->data != NULL)
       {
-        free(data);
+        delete[] this->data;
       }
-      data = NULL;
-      data_length = 0;
+      this->data = NULL;
+      this->data_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -78,9 +78,11 @@ namespace std_msgs
       data_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       data_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->data_length);
-      if(data_lengthT > data_length)
-        this->data = (float*)realloc(this->data, data_lengthT * sizeof(float));
-      data_length = data_lengthT;
+      if(!this->data || data_lengthT > this->data_length) {
+        this->deconstructor();
+        this->data = new float[data_lengthT];
+      }
+      this->data_length = data_lengthT;
       for( uint32_t i = 0; i < data_length; i++) {
         union {
           float real;
@@ -93,7 +95,7 @@ namespace std_msgs
         u_st_data.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
         this->st_data = u_st_data.real;
         offset += sizeof(this->st_data);
-        memcpy( &(this->data[i]), &(this->st_data), sizeof(float));
+        this->data[i] = this->st_data;
       }
       return offset;
     }

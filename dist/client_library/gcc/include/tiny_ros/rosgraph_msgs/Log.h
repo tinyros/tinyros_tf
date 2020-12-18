@@ -60,12 +60,12 @@ namespace rosgraph_msgs
 
     void deconstructor()
     {
-      if(topics != NULL)
+      if(this->topics != NULL)
       {
-        free(topics);
+        delete[] this->topics;
       }
-      topics = NULL;
-      topics_length = 0;
+      this->topics = NULL;
+      this->topics_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -177,9 +177,11 @@ namespace rosgraph_msgs
       topics_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       topics_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->topics_length);
-      if(topics_lengthT > topics_length)
-        this->topics = (std::string*)realloc(this->topics, topics_lengthT * sizeof(std::string));
-      topics_length = topics_lengthT;
+      if(!this->topics || topics_lengthT > this->topics_length) {
+        this->deconstructor();
+        this->topics = new std::string[topics_lengthT];
+      }
+      this->topics_length = topics_lengthT;
       for( uint32_t i = 0; i < topics_length; i++) {
         uint32_t length_st_topics;
         arrToVar(length_st_topics, (inbuffer + offset));
@@ -190,7 +192,7 @@ namespace rosgraph_msgs
         inbuffer[offset+length_st_topics-1]=0;
         this->st_topics = (char *)(inbuffer + offset-1);
         offset += length_st_topics;
-        memcpy( &(this->topics[i]), &(this->st_topics), sizeof(std::string));
+        this->topics[i] = this->st_topics;
       }
       return offset;
     }

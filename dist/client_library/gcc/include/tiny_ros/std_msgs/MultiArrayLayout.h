@@ -37,15 +37,15 @@ namespace std_msgs
 
     void deconstructor()
     {
-      if(dim != NULL)
+      if(this->dim != NULL)
       {
-        for( uint32_t i = 0; i < dim_length; i++){
-          dim[i].deconstructor();
+        for( uint32_t i = 0; i < this->dim_length; i++){
+          this->dim[i].deconstructor();
         }
-        free(dim);
+        delete[] this->dim;
       }
-      dim = NULL;
-      dim_length = 0;
+      this->dim = NULL;
+      this->dim_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -75,12 +75,14 @@ namespace std_msgs
       dim_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       dim_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->dim_length);
-      if(dim_lengthT > dim_length)
-        this->dim = (tinyros::std_msgs::MultiArrayDimension*)realloc(this->dim, dim_lengthT * sizeof(tinyros::std_msgs::MultiArrayDimension));
-      dim_length = dim_lengthT;
+      if(!this->dim || dim_lengthT > this->dim_length) {
+        this->deconstructor();
+        this->dim = new tinyros::std_msgs::MultiArrayDimension[dim_lengthT];
+      }
+      this->dim_length = dim_lengthT;
       for( uint32_t i = 0; i < dim_length; i++) {
         offset += this->st_dim.deserialize(inbuffer + offset);
-        memcpy( &(this->dim[i]), &(this->st_dim), sizeof(tinyros::std_msgs::MultiArrayDimension));
+        this->dim[i] = this->st_dim;
       }
       this->data_offset =  ((uint32_t) (*(inbuffer + offset)));
       this->data_offset |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);

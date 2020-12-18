@@ -34,15 +34,15 @@ namespace geometry_msgs
 
     void deconstructor()
     {
-      if(points != NULL)
+      if(this->points != NULL)
       {
-        for( uint32_t i = 0; i < points_length; i++){
-          points[i].deconstructor();
+        for( uint32_t i = 0; i < this->points_length; i++){
+          this->points[i].deconstructor();
         }
-        free(points);
+        delete[] this->points;
       }
-      points = NULL;
-      points_length = 0;
+      this->points = NULL;
+      this->points_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -67,12 +67,14 @@ namespace geometry_msgs
       points_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       points_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->points_length);
-      if(points_lengthT > points_length)
-        this->points = (tinyros::geometry_msgs::Point32*)realloc(this->points, points_lengthT * sizeof(tinyros::geometry_msgs::Point32));
-      points_length = points_lengthT;
+      if(!this->points || points_lengthT > this->points_length) {
+        this->deconstructor();
+        this->points = new tinyros::geometry_msgs::Point32[points_lengthT];
+      }
+      this->points_length = points_lengthT;
       for( uint32_t i = 0; i < points_length; i++) {
         offset += this->st_points.deserialize(inbuffer + offset);
-        memcpy( &(this->points[i]), &(this->st_points), sizeof(tinyros::geometry_msgs::Point32));
+        this->points[i] = this->st_points;
       }
       return offset;
     }

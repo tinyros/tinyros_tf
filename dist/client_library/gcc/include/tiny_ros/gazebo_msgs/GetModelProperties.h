@@ -168,30 +168,30 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetModelPropertiesRequest const> G
 
     void deconstructor()
     {
-      if(body_names != NULL)
+      if(this->body_names != NULL)
       {
-        free(body_names);
+        delete[] this->body_names;
       }
-      body_names = NULL;
-      body_names_length = 0;
-      if(geom_names != NULL)
+      this->body_names = NULL;
+      this->body_names_length = 0;
+      if(this->geom_names != NULL)
       {
-        free(geom_names);
+        delete[] this->geom_names;
       }
-      geom_names = NULL;
-      geom_names_length = 0;
-      if(joint_names != NULL)
+      this->geom_names = NULL;
+      this->geom_names_length = 0;
+      if(this->joint_names != NULL)
       {
-        free(joint_names);
+        delete[] this->joint_names;
       }
-      joint_names = NULL;
-      joint_names_length = 0;
-      if(child_model_names != NULL)
+      this->joint_names = NULL;
+      this->joint_names_length = 0;
+      if(this->child_model_names != NULL)
       {
-        free(child_model_names);
+        delete[] this->child_model_names;
       }
-      child_model_names = NULL;
-      child_model_names_length = 0;
+      this->child_model_names = NULL;
+      this->child_model_names_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -313,9 +313,11 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetModelPropertiesRequest const> G
       body_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       body_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->body_names_length);
-      if(body_names_lengthT > body_names_length)
-        this->body_names = (std::string*)realloc(this->body_names, body_names_lengthT * sizeof(std::string));
-      body_names_length = body_names_lengthT;
+      if(!this->body_names || body_names_lengthT > this->body_names_length) {
+        this->deconstructor();
+        this->body_names = new std::string[body_names_lengthT];
+      }
+      this->body_names_length = body_names_lengthT;
       for( uint32_t i = 0; i < body_names_length; i++) {
         uint32_t length_st_body_names;
         arrToVar(length_st_body_names, (inbuffer + offset));
@@ -326,16 +328,18 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetModelPropertiesRequest const> G
         inbuffer[offset+length_st_body_names-1]=0;
         this->st_body_names = (char *)(inbuffer + offset-1);
         offset += length_st_body_names;
-        memcpy( &(this->body_names[i]), &(this->st_body_names), sizeof(std::string));
+        this->body_names[i] = this->st_body_names;
       }
       uint32_t geom_names_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       geom_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       geom_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       geom_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->geom_names_length);
-      if(geom_names_lengthT > geom_names_length)
-        this->geom_names = (std::string*)realloc(this->geom_names, geom_names_lengthT * sizeof(std::string));
-      geom_names_length = geom_names_lengthT;
+      if(!this->geom_names || geom_names_lengthT > this->geom_names_length) {
+        this->deconstructor();
+        this->geom_names = new std::string[geom_names_lengthT];
+      }
+      this->geom_names_length = geom_names_lengthT;
       for( uint32_t i = 0; i < geom_names_length; i++) {
         uint32_t length_st_geom_names;
         arrToVar(length_st_geom_names, (inbuffer + offset));
@@ -346,16 +350,18 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetModelPropertiesRequest const> G
         inbuffer[offset+length_st_geom_names-1]=0;
         this->st_geom_names = (char *)(inbuffer + offset-1);
         offset += length_st_geom_names;
-        memcpy( &(this->geom_names[i]), &(this->st_geom_names), sizeof(std::string));
+        this->geom_names[i] = this->st_geom_names;
       }
       uint32_t joint_names_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       joint_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       joint_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       joint_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->joint_names_length);
-      if(joint_names_lengthT > joint_names_length)
-        this->joint_names = (std::string*)realloc(this->joint_names, joint_names_lengthT * sizeof(std::string));
-      joint_names_length = joint_names_lengthT;
+      if(!this->joint_names || joint_names_lengthT > this->joint_names_length) {
+        this->deconstructor();
+        this->joint_names = new std::string[joint_names_lengthT];
+      }
+      this->joint_names_length = joint_names_lengthT;
       for( uint32_t i = 0; i < joint_names_length; i++) {
         uint32_t length_st_joint_names;
         arrToVar(length_st_joint_names, (inbuffer + offset));
@@ -366,16 +372,18 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetModelPropertiesRequest const> G
         inbuffer[offset+length_st_joint_names-1]=0;
         this->st_joint_names = (char *)(inbuffer + offset-1);
         offset += length_st_joint_names;
-        memcpy( &(this->joint_names[i]), &(this->st_joint_names), sizeof(std::string));
+        this->joint_names[i] = this->st_joint_names;
       }
       uint32_t child_model_names_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       child_model_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       child_model_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       child_model_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->child_model_names_length);
-      if(child_model_names_lengthT > child_model_names_length)
-        this->child_model_names = (std::string*)realloc(this->child_model_names, child_model_names_lengthT * sizeof(std::string));
-      child_model_names_length = child_model_names_lengthT;
+      if(!this->child_model_names || child_model_names_lengthT > this->child_model_names_length) {
+        this->deconstructor();
+        this->child_model_names = new std::string[child_model_names_lengthT];
+      }
+      this->child_model_names_length = child_model_names_lengthT;
       for( uint32_t i = 0; i < child_model_names_length; i++) {
         uint32_t length_st_child_model_names;
         arrToVar(length_st_child_model_names, (inbuffer + offset));
@@ -386,7 +394,7 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetModelPropertiesRequest const> G
         inbuffer[offset+length_st_child_model_names-1]=0;
         this->st_child_model_names = (char *)(inbuffer + offset-1);
         offset += length_st_child_model_names;
-        memcpy( &(this->child_model_names[i]), &(this->st_child_model_names), sizeof(std::string));
+        this->child_model_names[i] = this->st_child_model_names;
       }
       union {
         bool real;

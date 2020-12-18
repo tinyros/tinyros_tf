@@ -38,15 +38,15 @@ namespace diagnostic_msgs
 
     void deconstructor()
     {
-      if(status != NULL)
+      if(this->status != NULL)
       {
-        for( uint32_t i = 0; i < status_length; i++){
-          status[i].deconstructor();
+        for( uint32_t i = 0; i < this->status_length; i++){
+          this->status[i].deconstructor();
         }
-        free(status);
+        delete[] this->status;
       }
-      status = NULL;
-      status_length = 0;
+      this->status = NULL;
+      this->status_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -73,12 +73,14 @@ namespace diagnostic_msgs
       status_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       status_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->status_length);
-      if(status_lengthT > status_length)
-        this->status = (tinyros::diagnostic_msgs::DiagnosticStatus*)realloc(this->status, status_lengthT * sizeof(tinyros::diagnostic_msgs::DiagnosticStatus));
-      status_length = status_lengthT;
+      if(!this->status || status_lengthT > this->status_length) {
+        this->deconstructor();
+        this->status = new tinyros::diagnostic_msgs::DiagnosticStatus[status_lengthT];
+      }
+      this->status_length = status_lengthT;
       for( uint32_t i = 0; i < status_length; i++) {
         offset += this->st_status.deserialize(inbuffer + offset);
-        memcpy( &(this->status[i]), &(this->st_status), sizeof(tinyros::diagnostic_msgs::DiagnosticStatus));
+        this->status[i] = this->st_status;
       }
       return offset;
     }

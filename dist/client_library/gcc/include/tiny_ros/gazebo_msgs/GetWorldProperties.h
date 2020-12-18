@@ -122,12 +122,12 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesRequest const> G
 
     void deconstructor()
     {
-      if(model_names != NULL)
+      if(this->model_names != NULL)
       {
-        free(model_names);
+        delete[] this->model_names;
       }
-      model_names = NULL;
-      model_names_length = 0;
+      this->model_names = NULL;
+      this->model_names_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -214,9 +214,11 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesRequest const> G
       model_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       model_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->model_names_length);
-      if(model_names_lengthT > model_names_length)
-        this->model_names = (std::string*)realloc(this->model_names, model_names_lengthT * sizeof(std::string));
-      model_names_length = model_names_lengthT;
+      if(!this->model_names || model_names_lengthT > this->model_names_length) {
+        this->deconstructor();
+        this->model_names = new std::string[model_names_lengthT];
+      }
+      this->model_names_length = model_names_lengthT;
       for( uint32_t i = 0; i < model_names_length; i++) {
         uint32_t length_st_model_names;
         arrToVar(length_st_model_names, (inbuffer + offset));
@@ -227,7 +229,7 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesRequest const> G
         inbuffer[offset+length_st_model_names-1]=0;
         this->st_model_names = (char *)(inbuffer + offset-1);
         offset += length_st_model_names;
-        memcpy( &(this->model_names[i]), &(this->st_model_names), sizeof(std::string));
+        this->model_names[i] = this->st_model_names;
       }
       union {
         bool real;

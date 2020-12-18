@@ -40,12 +40,12 @@ namespace sensor_msgs
 
     void deconstructor()
     {
-      if(data != NULL)
+      if(this->data != NULL)
       {
-        free(data);
+        delete[] this->data;
       }
-      data = NULL;
-      data_length = 0;
+      this->data = NULL;
+      this->data_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -87,13 +87,15 @@ namespace sensor_msgs
       data_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       data_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->data_length);
-      if(data_lengthT > data_length)
-        this->data = (uint8_t*)realloc(this->data, data_lengthT * sizeof(uint8_t));
-      data_length = data_lengthT;
+      if(!this->data || data_lengthT > this->data_length) {
+        this->deconstructor();
+        this->data = new uint8_t[data_lengthT];
+      }
+      this->data_length = data_lengthT;
       for( uint32_t i = 0; i < data_length; i++) {
         this->st_data =  ((uint8_t) (*(inbuffer + offset)));
         offset += sizeof(this->st_data);
-        memcpy( &(this->data[i]), &(this->st_data), sizeof(uint8_t));
+        this->data[i] = this->st_data;
       }
       return offset;
     }

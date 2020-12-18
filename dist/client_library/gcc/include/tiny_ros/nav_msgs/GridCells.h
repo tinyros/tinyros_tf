@@ -44,15 +44,15 @@ namespace nav_msgs
 
     void deconstructor()
     {
-      if(cells != NULL)
+      if(this->cells != NULL)
       {
-        for( uint32_t i = 0; i < cells_length; i++){
-          cells[i].deconstructor();
+        for( uint32_t i = 0; i < this->cells_length; i++){
+          this->cells[i].deconstructor();
         }
-        free(cells);
+        delete[] this->cells;
       }
-      cells = NULL;
-      cells_length = 0;
+      this->cells = NULL;
+      this->cells_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -121,12 +121,14 @@ namespace nav_msgs
       cells_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       cells_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->cells_length);
-      if(cells_lengthT > cells_length)
-        this->cells = (tinyros::geometry_msgs::Point*)realloc(this->cells, cells_lengthT * sizeof(tinyros::geometry_msgs::Point));
-      cells_length = cells_lengthT;
+      if(!this->cells || cells_lengthT > this->cells_length) {
+        this->deconstructor();
+        this->cells = new tinyros::geometry_msgs::Point[cells_lengthT];
+      }
+      this->cells_length = cells_lengthT;
       for( uint32_t i = 0; i < cells_length; i++) {
         offset += this->st_cells.deserialize(inbuffer + offset);
-        memcpy( &(this->cells[i]), &(this->st_cells), sizeof(tinyros::geometry_msgs::Point));
+        this->cells[i] = this->st_cells;
       }
       return offset;
     }

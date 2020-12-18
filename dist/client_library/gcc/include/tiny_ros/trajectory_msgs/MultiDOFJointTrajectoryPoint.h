@@ -49,33 +49,33 @@ namespace trajectory_msgs
 
     void deconstructor()
     {
-      if(transforms != NULL)
+      if(this->transforms != NULL)
       {
-        for( uint32_t i = 0; i < transforms_length; i++){
-          transforms[i].deconstructor();
+        for( uint32_t i = 0; i < this->transforms_length; i++){
+          this->transforms[i].deconstructor();
         }
-        free(transforms);
+        delete[] this->transforms;
       }
-      transforms = NULL;
-      transforms_length = 0;
-      if(velocities != NULL)
+      this->transforms = NULL;
+      this->transforms_length = 0;
+      if(this->velocities != NULL)
       {
-        for( uint32_t i = 0; i < velocities_length; i++){
-          velocities[i].deconstructor();
+        for( uint32_t i = 0; i < this->velocities_length; i++){
+          this->velocities[i].deconstructor();
         }
-        free(velocities);
+        delete[] this->velocities;
       }
-      velocities = NULL;
-      velocities_length = 0;
-      if(accelerations != NULL)
+      this->velocities = NULL;
+      this->velocities_length = 0;
+      if(this->accelerations != NULL)
       {
-        for( uint32_t i = 0; i < accelerations_length; i++){
-          accelerations[i].deconstructor();
+        for( uint32_t i = 0; i < this->accelerations_length; i++){
+          this->accelerations[i].deconstructor();
         }
-        free(accelerations);
+        delete[] this->accelerations;
       }
-      accelerations = NULL;
-      accelerations_length = 0;
+      this->accelerations = NULL;
+      this->accelerations_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -126,36 +126,42 @@ namespace trajectory_msgs
       transforms_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       transforms_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->transforms_length);
-      if(transforms_lengthT > transforms_length)
-        this->transforms = (tinyros::geometry_msgs::Transform*)realloc(this->transforms, transforms_lengthT * sizeof(tinyros::geometry_msgs::Transform));
-      transforms_length = transforms_lengthT;
+      if(!this->transforms || transforms_lengthT > this->transforms_length) {
+        this->deconstructor();
+        this->transforms = new tinyros::geometry_msgs::Transform[transforms_lengthT];
+      }
+      this->transforms_length = transforms_lengthT;
       for( uint32_t i = 0; i < transforms_length; i++) {
         offset += this->st_transforms.deserialize(inbuffer + offset);
-        memcpy( &(this->transforms[i]), &(this->st_transforms), sizeof(tinyros::geometry_msgs::Transform));
+        this->transforms[i] = this->st_transforms;
       }
       uint32_t velocities_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       velocities_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       velocities_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       velocities_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->velocities_length);
-      if(velocities_lengthT > velocities_length)
-        this->velocities = (tinyros::geometry_msgs::Twist*)realloc(this->velocities, velocities_lengthT * sizeof(tinyros::geometry_msgs::Twist));
-      velocities_length = velocities_lengthT;
+      if(!this->velocities || velocities_lengthT > this->velocities_length) {
+        this->deconstructor();
+        this->velocities = new tinyros::geometry_msgs::Twist[velocities_lengthT];
+      }
+      this->velocities_length = velocities_lengthT;
       for( uint32_t i = 0; i < velocities_length; i++) {
         offset += this->st_velocities.deserialize(inbuffer + offset);
-        memcpy( &(this->velocities[i]), &(this->st_velocities), sizeof(tinyros::geometry_msgs::Twist));
+        this->velocities[i] = this->st_velocities;
       }
       uint32_t accelerations_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       accelerations_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       accelerations_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       accelerations_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->accelerations_length);
-      if(accelerations_lengthT > accelerations_length)
-        this->accelerations = (tinyros::geometry_msgs::Twist*)realloc(this->accelerations, accelerations_lengthT * sizeof(tinyros::geometry_msgs::Twist));
-      accelerations_length = accelerations_lengthT;
+      if(!this->accelerations || accelerations_lengthT > this->accelerations_length) {
+        this->deconstructor();
+        this->accelerations = new tinyros::geometry_msgs::Twist[accelerations_lengthT];
+      }
+      this->accelerations_length = accelerations_lengthT;
       for( uint32_t i = 0; i < accelerations_length; i++) {
         offset += this->st_accelerations.deserialize(inbuffer + offset);
-        memcpy( &(this->accelerations[i]), &(this->st_accelerations), sizeof(tinyros::geometry_msgs::Twist));
+        this->accelerations[i] = this->st_accelerations;
       }
       this->time_from_start.sec =  ((uint32_t) (*(inbuffer + offset)));
       this->time_from_start.sec |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);

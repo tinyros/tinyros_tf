@@ -44,24 +44,24 @@ namespace sensor_msgs
 
     void deconstructor()
     {
-      if(points != NULL)
+      if(this->points != NULL)
       {
-        for( uint32_t i = 0; i < points_length; i++){
-          points[i].deconstructor();
+        for( uint32_t i = 0; i < this->points_length; i++){
+          this->points[i].deconstructor();
         }
-        free(points);
+        delete[] this->points;
       }
-      points = NULL;
-      points_length = 0;
-      if(channels != NULL)
+      this->points = NULL;
+      this->points_length = 0;
+      if(this->channels != NULL)
       {
-        for( uint32_t i = 0; i < channels_length; i++){
-          channels[i].deconstructor();
+        for( uint32_t i = 0; i < this->channels_length; i++){
+          this->channels[i].deconstructor();
         }
-        free(channels);
+        delete[] this->channels;
       }
-      channels = NULL;
-      channels_length = 0;
+      this->channels = NULL;
+      this->channels_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -96,24 +96,28 @@ namespace sensor_msgs
       points_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       points_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->points_length);
-      if(points_lengthT > points_length)
-        this->points = (tinyros::geometry_msgs::Point32*)realloc(this->points, points_lengthT * sizeof(tinyros::geometry_msgs::Point32));
-      points_length = points_lengthT;
+      if(!this->points || points_lengthT > this->points_length) {
+        this->deconstructor();
+        this->points = new tinyros::geometry_msgs::Point32[points_lengthT];
+      }
+      this->points_length = points_lengthT;
       for( uint32_t i = 0; i < points_length; i++) {
         offset += this->st_points.deserialize(inbuffer + offset);
-        memcpy( &(this->points[i]), &(this->st_points), sizeof(tinyros::geometry_msgs::Point32));
+        this->points[i] = this->st_points;
       }
       uint32_t channels_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       channels_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       channels_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       channels_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->channels_length);
-      if(channels_lengthT > channels_length)
-        this->channels = (tinyros::sensor_msgs::ChannelFloat32*)realloc(this->channels, channels_lengthT * sizeof(tinyros::sensor_msgs::ChannelFloat32));
-      channels_length = channels_lengthT;
+      if(!this->channels || channels_lengthT > this->channels_length) {
+        this->deconstructor();
+        this->channels = new tinyros::sensor_msgs::ChannelFloat32[channels_lengthT];
+      }
+      this->channels_length = channels_lengthT;
       for( uint32_t i = 0; i < channels_length; i++) {
         offset += this->st_channels.deserialize(inbuffer + offset);
-        memcpy( &(this->channels[i]), &(this->st_channels), sizeof(tinyros::sensor_msgs::ChannelFloat32));
+        this->channels[i] = this->st_channels;
       }
       return offset;
     }

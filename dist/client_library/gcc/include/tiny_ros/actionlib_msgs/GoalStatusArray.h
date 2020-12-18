@@ -38,15 +38,15 @@ namespace actionlib_msgs
 
     void deconstructor()
     {
-      if(status_list != NULL)
+      if(this->status_list != NULL)
       {
-        for( uint32_t i = 0; i < status_list_length; i++){
-          status_list[i].deconstructor();
+        for( uint32_t i = 0; i < this->status_list_length; i++){
+          this->status_list[i].deconstructor();
         }
-        free(status_list);
+        delete[] this->status_list;
       }
-      status_list = NULL;
-      status_list_length = 0;
+      this->status_list = NULL;
+      this->status_list_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -73,12 +73,14 @@ namespace actionlib_msgs
       status_list_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       status_list_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->status_list_length);
-      if(status_list_lengthT > status_list_length)
-        this->status_list = (tinyros::actionlib_msgs::GoalStatus*)realloc(this->status_list, status_list_lengthT * sizeof(tinyros::actionlib_msgs::GoalStatus));
-      status_list_length = status_list_lengthT;
+      if(!this->status_list || status_list_lengthT > this->status_list_length) {
+        this->deconstructor();
+        this->status_list = new tinyros::actionlib_msgs::GoalStatus[status_list_lengthT];
+      }
+      this->status_list_length = status_list_lengthT;
       for( uint32_t i = 0; i < status_list_length; i++) {
         offset += this->st_status_list.deserialize(inbuffer + offset);
-        memcpy( &(this->status_list[i]), &(this->st_status_list), sizeof(tinyros::actionlib_msgs::GoalStatus));
+        this->status_list[i] = this->st_status_list;
       }
       return offset;
     }

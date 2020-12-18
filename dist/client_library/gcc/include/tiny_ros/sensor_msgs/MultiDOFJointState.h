@@ -55,39 +55,39 @@ namespace sensor_msgs
 
     void deconstructor()
     {
-      if(joint_names != NULL)
+      if(this->joint_names != NULL)
       {
-        free(joint_names);
+        delete[] this->joint_names;
       }
-      joint_names = NULL;
-      joint_names_length = 0;
-      if(transforms != NULL)
+      this->joint_names = NULL;
+      this->joint_names_length = 0;
+      if(this->transforms != NULL)
       {
-        for( uint32_t i = 0; i < transforms_length; i++){
-          transforms[i].deconstructor();
+        for( uint32_t i = 0; i < this->transforms_length; i++){
+          this->transforms[i].deconstructor();
         }
-        free(transforms);
+        delete[] this->transforms;
       }
-      transforms = NULL;
-      transforms_length = 0;
-      if(twist != NULL)
+      this->transforms = NULL;
+      this->transforms_length = 0;
+      if(this->twist != NULL)
       {
-        for( uint32_t i = 0; i < twist_length; i++){
-          twist[i].deconstructor();
+        for( uint32_t i = 0; i < this->twist_length; i++){
+          this->twist[i].deconstructor();
         }
-        free(twist);
+        delete[] this->twist;
       }
-      twist = NULL;
-      twist_length = 0;
-      if(wrench != NULL)
+      this->twist = NULL;
+      this->twist_length = 0;
+      if(this->wrench != NULL)
       {
-        for( uint32_t i = 0; i < wrench_length; i++){
-          wrench[i].deconstructor();
+        for( uint32_t i = 0; i < this->wrench_length; i++){
+          this->wrench[i].deconstructor();
         }
-        free(wrench);
+        delete[] this->wrench;
       }
-      wrench = NULL;
-      wrench_length = 0;
+      this->wrench = NULL;
+      this->wrench_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -142,9 +142,11 @@ namespace sensor_msgs
       joint_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       joint_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->joint_names_length);
-      if(joint_names_lengthT > joint_names_length)
-        this->joint_names = (std::string*)realloc(this->joint_names, joint_names_lengthT * sizeof(std::string));
-      joint_names_length = joint_names_lengthT;
+      if(!this->joint_names || joint_names_lengthT > this->joint_names_length) {
+        this->deconstructor();
+        this->joint_names = new std::string[joint_names_lengthT];
+      }
+      this->joint_names_length = joint_names_lengthT;
       for( uint32_t i = 0; i < joint_names_length; i++) {
         uint32_t length_st_joint_names;
         arrToVar(length_st_joint_names, (inbuffer + offset));
@@ -155,43 +157,49 @@ namespace sensor_msgs
         inbuffer[offset+length_st_joint_names-1]=0;
         this->st_joint_names = (char *)(inbuffer + offset-1);
         offset += length_st_joint_names;
-        memcpy( &(this->joint_names[i]), &(this->st_joint_names), sizeof(std::string));
+        this->joint_names[i] = this->st_joint_names;
       }
       uint32_t transforms_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       transforms_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       transforms_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       transforms_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->transforms_length);
-      if(transforms_lengthT > transforms_length)
-        this->transforms = (tinyros::geometry_msgs::Transform*)realloc(this->transforms, transforms_lengthT * sizeof(tinyros::geometry_msgs::Transform));
-      transforms_length = transforms_lengthT;
+      if(!this->transforms || transforms_lengthT > this->transforms_length) {
+        this->deconstructor();
+        this->transforms = new tinyros::geometry_msgs::Transform[transforms_lengthT];
+      }
+      this->transforms_length = transforms_lengthT;
       for( uint32_t i = 0; i < transforms_length; i++) {
         offset += this->st_transforms.deserialize(inbuffer + offset);
-        memcpy( &(this->transforms[i]), &(this->st_transforms), sizeof(tinyros::geometry_msgs::Transform));
+        this->transforms[i] = this->st_transforms;
       }
       uint32_t twist_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       twist_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       twist_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       twist_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->twist_length);
-      if(twist_lengthT > twist_length)
-        this->twist = (tinyros::geometry_msgs::Twist*)realloc(this->twist, twist_lengthT * sizeof(tinyros::geometry_msgs::Twist));
-      twist_length = twist_lengthT;
+      if(!this->twist || twist_lengthT > this->twist_length) {
+        this->deconstructor();
+        this->twist = new tinyros::geometry_msgs::Twist[twist_lengthT];
+      }
+      this->twist_length = twist_lengthT;
       for( uint32_t i = 0; i < twist_length; i++) {
         offset += this->st_twist.deserialize(inbuffer + offset);
-        memcpy( &(this->twist[i]), &(this->st_twist), sizeof(tinyros::geometry_msgs::Twist));
+        this->twist[i] = this->st_twist;
       }
       uint32_t wrench_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       wrench_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       wrench_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       wrench_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->wrench_length);
-      if(wrench_lengthT > wrench_length)
-        this->wrench = (tinyros::geometry_msgs::Wrench*)realloc(this->wrench, wrench_lengthT * sizeof(tinyros::geometry_msgs::Wrench));
-      wrench_length = wrench_lengthT;
+      if(!this->wrench || wrench_lengthT > this->wrench_length) {
+        this->deconstructor();
+        this->wrench = new tinyros::geometry_msgs::Wrench[wrench_lengthT];
+      }
+      this->wrench_length = wrench_lengthT;
       for( uint32_t i = 0; i < wrench_length; i++) {
         offset += this->st_wrench.deserialize(inbuffer + offset);
-        memcpy( &(this->wrench[i]), &(this->st_wrench), sizeof(tinyros::geometry_msgs::Wrench));
+        this->wrench[i] = this->st_wrench;
       }
       return offset;
     }

@@ -62,39 +62,39 @@ namespace gazebo_msgs
 
     void deconstructor()
     {
-      if(wrenches != NULL)
+      if(this->wrenches != NULL)
       {
-        for( uint32_t i = 0; i < wrenches_length; i++){
-          wrenches[i].deconstructor();
+        for( uint32_t i = 0; i < this->wrenches_length; i++){
+          this->wrenches[i].deconstructor();
         }
-        free(wrenches);
+        delete[] this->wrenches;
       }
-      wrenches = NULL;
-      wrenches_length = 0;
-      if(contact_positions != NULL)
+      this->wrenches = NULL;
+      this->wrenches_length = 0;
+      if(this->contact_positions != NULL)
       {
-        for( uint32_t i = 0; i < contact_positions_length; i++){
-          contact_positions[i].deconstructor();
+        for( uint32_t i = 0; i < this->contact_positions_length; i++){
+          this->contact_positions[i].deconstructor();
         }
-        free(contact_positions);
+        delete[] this->contact_positions;
       }
-      contact_positions = NULL;
-      contact_positions_length = 0;
-      if(contact_normals != NULL)
+      this->contact_positions = NULL;
+      this->contact_positions_length = 0;
+      if(this->contact_normals != NULL)
       {
-        for( uint32_t i = 0; i < contact_normals_length; i++){
-          contact_normals[i].deconstructor();
+        for( uint32_t i = 0; i < this->contact_normals_length; i++){
+          this->contact_normals[i].deconstructor();
         }
-        free(contact_normals);
+        delete[] this->contact_normals;
       }
-      contact_normals = NULL;
-      contact_normals_length = 0;
-      if(depths != NULL)
+      this->contact_normals = NULL;
+      this->contact_normals_length = 0;
+      if(this->depths != NULL)
       {
-        free(depths);
+        delete[] this->depths;
       }
-      depths = NULL;
-      depths_length = 0;
+      this->depths = NULL;
+      this->depths_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -199,12 +199,14 @@ namespace gazebo_msgs
       wrenches_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       wrenches_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->wrenches_length);
-      if(wrenches_lengthT > wrenches_length)
-        this->wrenches = (tinyros::geometry_msgs::Wrench*)realloc(this->wrenches, wrenches_lengthT * sizeof(tinyros::geometry_msgs::Wrench));
-      wrenches_length = wrenches_lengthT;
+      if(!this->wrenches || wrenches_lengthT > this->wrenches_length) {
+        this->deconstructor();
+        this->wrenches = new tinyros::geometry_msgs::Wrench[wrenches_lengthT];
+      }
+      this->wrenches_length = wrenches_lengthT;
       for( uint32_t i = 0; i < wrenches_length; i++) {
         offset += this->st_wrenches.deserialize(inbuffer + offset);
-        memcpy( &(this->wrenches[i]), &(this->st_wrenches), sizeof(tinyros::geometry_msgs::Wrench));
+        this->wrenches[i] = this->st_wrenches;
       }
       offset += this->total_wrench.deserialize(inbuffer + offset);
       uint32_t contact_positions_lengthT = ((uint32_t) (*(inbuffer + offset))); 
@@ -212,33 +214,39 @@ namespace gazebo_msgs
       contact_positions_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       contact_positions_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->contact_positions_length);
-      if(contact_positions_lengthT > contact_positions_length)
-        this->contact_positions = (tinyros::geometry_msgs::Vector3*)realloc(this->contact_positions, contact_positions_lengthT * sizeof(tinyros::geometry_msgs::Vector3));
-      contact_positions_length = contact_positions_lengthT;
+      if(!this->contact_positions || contact_positions_lengthT > this->contact_positions_length) {
+        this->deconstructor();
+        this->contact_positions = new tinyros::geometry_msgs::Vector3[contact_positions_lengthT];
+      }
+      this->contact_positions_length = contact_positions_lengthT;
       for( uint32_t i = 0; i < contact_positions_length; i++) {
         offset += this->st_contact_positions.deserialize(inbuffer + offset);
-        memcpy( &(this->contact_positions[i]), &(this->st_contact_positions), sizeof(tinyros::geometry_msgs::Vector3));
+        this->contact_positions[i] = this->st_contact_positions;
       }
       uint32_t contact_normals_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       contact_normals_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       contact_normals_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       contact_normals_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->contact_normals_length);
-      if(contact_normals_lengthT > contact_normals_length)
-        this->contact_normals = (tinyros::geometry_msgs::Vector3*)realloc(this->contact_normals, contact_normals_lengthT * sizeof(tinyros::geometry_msgs::Vector3));
-      contact_normals_length = contact_normals_lengthT;
+      if(!this->contact_normals || contact_normals_lengthT > this->contact_normals_length) {
+        this->deconstructor();
+        this->contact_normals = new tinyros::geometry_msgs::Vector3[contact_normals_lengthT];
+      }
+      this->contact_normals_length = contact_normals_lengthT;
       for( uint32_t i = 0; i < contact_normals_length; i++) {
         offset += this->st_contact_normals.deserialize(inbuffer + offset);
-        memcpy( &(this->contact_normals[i]), &(this->st_contact_normals), sizeof(tinyros::geometry_msgs::Vector3));
+        this->contact_normals[i] = this->st_contact_normals;
       }
       uint32_t depths_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       depths_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       depths_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       depths_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->depths_length);
-      if(depths_lengthT > depths_length)
-        this->depths = (double*)realloc(this->depths, depths_lengthT * sizeof(double));
-      depths_length = depths_lengthT;
+      if(!this->depths || depths_lengthT > this->depths_length) {
+        this->deconstructor();
+        this->depths = new double[depths_lengthT];
+      }
+      this->depths_length = depths_lengthT;
       for( uint32_t i = 0; i < depths_length; i++) {
         union {
           double real;
@@ -255,7 +263,7 @@ namespace gazebo_msgs
         u_st_depths.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_depths = u_st_depths.real;
         offset += sizeof(this->st_depths);
-        memcpy( &(this->depths[i]), &(this->st_depths), sizeof(double));
+        this->depths[i] = this->st_depths;
       }
       return offset;
     }

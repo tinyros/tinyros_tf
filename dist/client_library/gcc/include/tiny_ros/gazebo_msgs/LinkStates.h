@@ -45,30 +45,30 @@ namespace gazebo_msgs
 
     void deconstructor()
     {
-      if(name != NULL)
+      if(this->name != NULL)
       {
-        free(name);
+        delete[] this->name;
       }
-      name = NULL;
-      name_length = 0;
-      if(pose != NULL)
+      this->name = NULL;
+      this->name_length = 0;
+      if(this->pose != NULL)
       {
-        for( uint32_t i = 0; i < pose_length; i++){
-          pose[i].deconstructor();
+        for( uint32_t i = 0; i < this->pose_length; i++){
+          this->pose[i].deconstructor();
         }
-        free(pose);
+        delete[] this->pose;
       }
-      pose = NULL;
-      pose_length = 0;
-      if(twist != NULL)
+      this->pose = NULL;
+      this->pose_length = 0;
+      if(this->twist != NULL)
       {
-        for( uint32_t i = 0; i < twist_length; i++){
-          twist[i].deconstructor();
+        for( uint32_t i = 0; i < this->twist_length; i++){
+          this->twist[i].deconstructor();
         }
-        free(twist);
+        delete[] this->twist;
       }
-      twist = NULL;
-      twist_length = 0;
+      this->twist = NULL;
+      this->twist_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -113,9 +113,11 @@ namespace gazebo_msgs
       name_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       name_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->name_length);
-      if(name_lengthT > name_length)
-        this->name = (std::string*)realloc(this->name, name_lengthT * sizeof(std::string));
-      name_length = name_lengthT;
+      if(!this->name || name_lengthT > this->name_length) {
+        this->deconstructor();
+        this->name = new std::string[name_lengthT];
+      }
+      this->name_length = name_lengthT;
       for( uint32_t i = 0; i < name_length; i++) {
         uint32_t length_st_name;
         arrToVar(length_st_name, (inbuffer + offset));
@@ -126,31 +128,35 @@ namespace gazebo_msgs
         inbuffer[offset+length_st_name-1]=0;
         this->st_name = (char *)(inbuffer + offset-1);
         offset += length_st_name;
-        memcpy( &(this->name[i]), &(this->st_name), sizeof(std::string));
+        this->name[i] = this->st_name;
       }
       uint32_t pose_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       pose_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       pose_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       pose_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->pose_length);
-      if(pose_lengthT > pose_length)
-        this->pose = (tinyros::geometry_msgs::Pose*)realloc(this->pose, pose_lengthT * sizeof(tinyros::geometry_msgs::Pose));
-      pose_length = pose_lengthT;
+      if(!this->pose || pose_lengthT > this->pose_length) {
+        this->deconstructor();
+        this->pose = new tinyros::geometry_msgs::Pose[pose_lengthT];
+      }
+      this->pose_length = pose_lengthT;
       for( uint32_t i = 0; i < pose_length; i++) {
         offset += this->st_pose.deserialize(inbuffer + offset);
-        memcpy( &(this->pose[i]), &(this->st_pose), sizeof(tinyros::geometry_msgs::Pose));
+        this->pose[i] = this->st_pose;
       }
       uint32_t twist_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       twist_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       twist_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       twist_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->twist_length);
-      if(twist_lengthT > twist_length)
-        this->twist = (tinyros::geometry_msgs::Twist*)realloc(this->twist, twist_lengthT * sizeof(tinyros::geometry_msgs::Twist));
-      twist_length = twist_lengthT;
+      if(!this->twist || twist_lengthT > this->twist_length) {
+        this->deconstructor();
+        this->twist = new tinyros::geometry_msgs::Twist[twist_lengthT];
+      }
+      this->twist_length = twist_lengthT;
       for( uint32_t i = 0; i < twist_length; i++) {
         offset += this->st_twist.deserialize(inbuffer + offset);
-        memcpy( &(this->twist[i]), &(this->st_twist), sizeof(tinyros::geometry_msgs::Twist));
+        this->twist[i] = this->st_twist;
       }
       return offset;
     }

@@ -34,15 +34,15 @@ namespace sensor_msgs
 
     void deconstructor()
     {
-      if(array != NULL)
+      if(this->array != NULL)
       {
-        for( uint32_t i = 0; i < array_length; i++){
-          array[i].deconstructor();
+        for( uint32_t i = 0; i < this->array_length; i++){
+          this->array[i].deconstructor();
         }
-        free(array);
+        delete[] this->array;
       }
-      array = NULL;
-      array_length = 0;
+      this->array = NULL;
+      this->array_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -67,12 +67,14 @@ namespace sensor_msgs
       array_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       array_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->array_length);
-      if(array_lengthT > array_length)
-        this->array = (tinyros::sensor_msgs::JoyFeedback*)realloc(this->array, array_lengthT * sizeof(tinyros::sensor_msgs::JoyFeedback));
-      array_length = array_lengthT;
+      if(!this->array || array_lengthT > this->array_length) {
+        this->deconstructor();
+        this->array = new tinyros::sensor_msgs::JoyFeedback[array_lengthT];
+      }
+      this->array_length = array_lengthT;
       for( uint32_t i = 0; i < array_length; i++) {
         offset += this->st_array.deserialize(inbuffer + offset);
-        memcpy( &(this->array[i]), &(this->st_array), sizeof(tinyros::sensor_msgs::JoyFeedback));
+        this->array[i] = this->st_array;
       }
       return offset;
     }

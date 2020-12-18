@@ -111,15 +111,15 @@ typedef std::shared_ptr<tinyros::map_msgs::SetMapProjectionsRequest const> SetMa
 
     void deconstructor()
     {
-      if(projected_maps_info != NULL)
+      if(this->projected_maps_info != NULL)
       {
-        for( uint32_t i = 0; i < projected_maps_info_length; i++){
-          projected_maps_info[i].deconstructor();
+        for( uint32_t i = 0; i < this->projected_maps_info_length; i++){
+          this->projected_maps_info[i].deconstructor();
         }
-        free(projected_maps_info);
+        delete[] this->projected_maps_info;
       }
-      projected_maps_info = NULL;
-      projected_maps_info_length = 0;
+      this->projected_maps_info = NULL;
+      this->projected_maps_info_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -154,12 +154,14 @@ typedef std::shared_ptr<tinyros::map_msgs::SetMapProjectionsRequest const> SetMa
       projected_maps_info_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       projected_maps_info_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->projected_maps_info_length);
-      if(projected_maps_info_lengthT > projected_maps_info_length)
-        this->projected_maps_info = (tinyros::map_msgs::ProjectedMapInfo*)realloc(this->projected_maps_info, projected_maps_info_lengthT * sizeof(tinyros::map_msgs::ProjectedMapInfo));
-      projected_maps_info_length = projected_maps_info_lengthT;
+      if(!this->projected_maps_info || projected_maps_info_lengthT > this->projected_maps_info_length) {
+        this->deconstructor();
+        this->projected_maps_info = new tinyros::map_msgs::ProjectedMapInfo[projected_maps_info_lengthT];
+      }
+      this->projected_maps_info_length = projected_maps_info_lengthT;
       for( uint32_t i = 0; i < projected_maps_info_length; i++) {
         offset += this->st_projected_maps_info.deserialize(inbuffer + offset);
-        memcpy( &(this->projected_maps_info[i]), &(this->st_projected_maps_info), sizeof(tinyros::map_msgs::ProjectedMapInfo));
+        this->projected_maps_info[i] = this->st_projected_maps_info;
       }
       return offset;
     }

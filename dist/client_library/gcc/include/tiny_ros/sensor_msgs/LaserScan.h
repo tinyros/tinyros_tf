@@ -63,18 +63,18 @@ namespace sensor_msgs
 
     void deconstructor()
     {
-      if(ranges != NULL)
+      if(this->ranges != NULL)
       {
-        free(ranges);
+        delete[] this->ranges;
       }
-      ranges = NULL;
-      ranges_length = 0;
-      if(intensities != NULL)
+      this->ranges = NULL;
+      this->ranges_length = 0;
+      if(this->intensities != NULL)
       {
-        free(intensities);
+        delete[] this->intensities;
       }
-      intensities = NULL;
-      intensities_length = 0;
+      this->intensities = NULL;
+      this->intensities_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -274,9 +274,11 @@ namespace sensor_msgs
       ranges_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       ranges_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->ranges_length);
-      if(ranges_lengthT > ranges_length)
-        this->ranges = (float*)realloc(this->ranges, ranges_lengthT * sizeof(float));
-      ranges_length = ranges_lengthT;
+      if(!this->ranges || ranges_lengthT > this->ranges_length) {
+        this->deconstructor();
+        this->ranges = new float[ranges_lengthT];
+      }
+      this->ranges_length = ranges_lengthT;
       for( uint32_t i = 0; i < ranges_length; i++) {
         union {
           float real;
@@ -289,16 +291,18 @@ namespace sensor_msgs
         u_st_ranges.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
         this->st_ranges = u_st_ranges.real;
         offset += sizeof(this->st_ranges);
-        memcpy( &(this->ranges[i]), &(this->st_ranges), sizeof(float));
+        this->ranges[i] = this->st_ranges;
       }
       uint32_t intensities_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       intensities_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       intensities_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       intensities_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->intensities_length);
-      if(intensities_lengthT > intensities_length)
-        this->intensities = (float*)realloc(this->intensities, intensities_lengthT * sizeof(float));
-      intensities_length = intensities_lengthT;
+      if(!this->intensities || intensities_lengthT > this->intensities_length) {
+        this->deconstructor();
+        this->intensities = new float[intensities_lengthT];
+      }
+      this->intensities_length = intensities_lengthT;
       for( uint32_t i = 0; i < intensities_length; i++) {
         union {
           float real;
@@ -311,7 +315,7 @@ namespace sensor_msgs
         u_st_intensities.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
         this->st_intensities = u_st_intensities.real;
         offset += sizeof(this->st_intensities);
-        memcpy( &(this->intensities[i]), &(this->st_intensities), sizeof(float));
+        this->intensities[i] = this->st_intensities;
       }
       return offset;
     }

@@ -78,66 +78,66 @@ namespace gazebo_msgs
 
     void deconstructor()
     {
-      if(damping != NULL)
+      if(this->damping != NULL)
       {
-        free(damping);
+        delete[] this->damping;
       }
-      damping = NULL;
-      damping_length = 0;
-      if(hiStop != NULL)
+      this->damping = NULL;
+      this->damping_length = 0;
+      if(this->hiStop != NULL)
       {
-        free(hiStop);
+        delete[] this->hiStop;
       }
-      hiStop = NULL;
-      hiStop_length = 0;
-      if(loStop != NULL)
+      this->hiStop = NULL;
+      this->hiStop_length = 0;
+      if(this->loStop != NULL)
       {
-        free(loStop);
+        delete[] this->loStop;
       }
-      loStop = NULL;
-      loStop_length = 0;
-      if(erp != NULL)
+      this->loStop = NULL;
+      this->loStop_length = 0;
+      if(this->erp != NULL)
       {
-        free(erp);
+        delete[] this->erp;
       }
-      erp = NULL;
-      erp_length = 0;
-      if(cfm != NULL)
+      this->erp = NULL;
+      this->erp_length = 0;
+      if(this->cfm != NULL)
       {
-        free(cfm);
+        delete[] this->cfm;
       }
-      cfm = NULL;
-      cfm_length = 0;
-      if(stop_erp != NULL)
+      this->cfm = NULL;
+      this->cfm_length = 0;
+      if(this->stop_erp != NULL)
       {
-        free(stop_erp);
+        delete[] this->stop_erp;
       }
-      stop_erp = NULL;
-      stop_erp_length = 0;
-      if(stop_cfm != NULL)
+      this->stop_erp = NULL;
+      this->stop_erp_length = 0;
+      if(this->stop_cfm != NULL)
       {
-        free(stop_cfm);
+        delete[] this->stop_cfm;
       }
-      stop_cfm = NULL;
-      stop_cfm_length = 0;
-      if(fudge_factor != NULL)
+      this->stop_cfm = NULL;
+      this->stop_cfm_length = 0;
+      if(this->fudge_factor != NULL)
       {
-        free(fudge_factor);
+        delete[] this->fudge_factor;
       }
-      fudge_factor = NULL;
-      fudge_factor_length = 0;
-      if(fmax != NULL)
+      this->fudge_factor = NULL;
+      this->fudge_factor_length = 0;
+      if(this->fmax != NULL)
       {
-        free(fmax);
+        delete[] this->fmax;
       }
-      fmax = NULL;
-      fmax_length = 0;
-      if(vel != NULL)
+      this->fmax = NULL;
+      this->fmax_length = 0;
+      if(this->vel != NULL)
       {
-        free(vel);
+        delete[] this->vel;
       }
-      vel = NULL;
-      vel_length = 0;
+      this->vel = NULL;
+      this->vel_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -364,9 +364,11 @@ namespace gazebo_msgs
       damping_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       damping_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->damping_length);
-      if(damping_lengthT > damping_length)
-        this->damping = (double*)realloc(this->damping, damping_lengthT * sizeof(double));
-      damping_length = damping_lengthT;
+      if(!this->damping || damping_lengthT > this->damping_length) {
+        this->deconstructor();
+        this->damping = new double[damping_lengthT];
+      }
+      this->damping_length = damping_lengthT;
       for( uint32_t i = 0; i < damping_length; i++) {
         union {
           double real;
@@ -383,16 +385,18 @@ namespace gazebo_msgs
         u_st_damping.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_damping = u_st_damping.real;
         offset += sizeof(this->st_damping);
-        memcpy( &(this->damping[i]), &(this->st_damping), sizeof(double));
+        this->damping[i] = this->st_damping;
       }
       uint32_t hiStop_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       hiStop_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       hiStop_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       hiStop_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->hiStop_length);
-      if(hiStop_lengthT > hiStop_length)
-        this->hiStop = (double*)realloc(this->hiStop, hiStop_lengthT * sizeof(double));
-      hiStop_length = hiStop_lengthT;
+      if(!this->hiStop || hiStop_lengthT > this->hiStop_length) {
+        this->deconstructor();
+        this->hiStop = new double[hiStop_lengthT];
+      }
+      this->hiStop_length = hiStop_lengthT;
       for( uint32_t i = 0; i < hiStop_length; i++) {
         union {
           double real;
@@ -409,16 +413,18 @@ namespace gazebo_msgs
         u_st_hiStop.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_hiStop = u_st_hiStop.real;
         offset += sizeof(this->st_hiStop);
-        memcpy( &(this->hiStop[i]), &(this->st_hiStop), sizeof(double));
+        this->hiStop[i] = this->st_hiStop;
       }
       uint32_t loStop_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       loStop_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       loStop_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       loStop_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->loStop_length);
-      if(loStop_lengthT > loStop_length)
-        this->loStop = (double*)realloc(this->loStop, loStop_lengthT * sizeof(double));
-      loStop_length = loStop_lengthT;
+      if(!this->loStop || loStop_lengthT > this->loStop_length) {
+        this->deconstructor();
+        this->loStop = new double[loStop_lengthT];
+      }
+      this->loStop_length = loStop_lengthT;
       for( uint32_t i = 0; i < loStop_length; i++) {
         union {
           double real;
@@ -435,16 +441,18 @@ namespace gazebo_msgs
         u_st_loStop.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_loStop = u_st_loStop.real;
         offset += sizeof(this->st_loStop);
-        memcpy( &(this->loStop[i]), &(this->st_loStop), sizeof(double));
+        this->loStop[i] = this->st_loStop;
       }
       uint32_t erp_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       erp_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       erp_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       erp_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->erp_length);
-      if(erp_lengthT > erp_length)
-        this->erp = (double*)realloc(this->erp, erp_lengthT * sizeof(double));
-      erp_length = erp_lengthT;
+      if(!this->erp || erp_lengthT > this->erp_length) {
+        this->deconstructor();
+        this->erp = new double[erp_lengthT];
+      }
+      this->erp_length = erp_lengthT;
       for( uint32_t i = 0; i < erp_length; i++) {
         union {
           double real;
@@ -461,16 +469,18 @@ namespace gazebo_msgs
         u_st_erp.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_erp = u_st_erp.real;
         offset += sizeof(this->st_erp);
-        memcpy( &(this->erp[i]), &(this->st_erp), sizeof(double));
+        this->erp[i] = this->st_erp;
       }
       uint32_t cfm_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       cfm_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       cfm_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       cfm_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->cfm_length);
-      if(cfm_lengthT > cfm_length)
-        this->cfm = (double*)realloc(this->cfm, cfm_lengthT * sizeof(double));
-      cfm_length = cfm_lengthT;
+      if(!this->cfm || cfm_lengthT > this->cfm_length) {
+        this->deconstructor();
+        this->cfm = new double[cfm_lengthT];
+      }
+      this->cfm_length = cfm_lengthT;
       for( uint32_t i = 0; i < cfm_length; i++) {
         union {
           double real;
@@ -487,16 +497,18 @@ namespace gazebo_msgs
         u_st_cfm.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_cfm = u_st_cfm.real;
         offset += sizeof(this->st_cfm);
-        memcpy( &(this->cfm[i]), &(this->st_cfm), sizeof(double));
+        this->cfm[i] = this->st_cfm;
       }
       uint32_t stop_erp_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       stop_erp_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       stop_erp_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       stop_erp_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->stop_erp_length);
-      if(stop_erp_lengthT > stop_erp_length)
-        this->stop_erp = (double*)realloc(this->stop_erp, stop_erp_lengthT * sizeof(double));
-      stop_erp_length = stop_erp_lengthT;
+      if(!this->stop_erp || stop_erp_lengthT > this->stop_erp_length) {
+        this->deconstructor();
+        this->stop_erp = new double[stop_erp_lengthT];
+      }
+      this->stop_erp_length = stop_erp_lengthT;
       for( uint32_t i = 0; i < stop_erp_length; i++) {
         union {
           double real;
@@ -513,16 +525,18 @@ namespace gazebo_msgs
         u_st_stop_erp.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_stop_erp = u_st_stop_erp.real;
         offset += sizeof(this->st_stop_erp);
-        memcpy( &(this->stop_erp[i]), &(this->st_stop_erp), sizeof(double));
+        this->stop_erp[i] = this->st_stop_erp;
       }
       uint32_t stop_cfm_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       stop_cfm_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       stop_cfm_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       stop_cfm_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->stop_cfm_length);
-      if(stop_cfm_lengthT > stop_cfm_length)
-        this->stop_cfm = (double*)realloc(this->stop_cfm, stop_cfm_lengthT * sizeof(double));
-      stop_cfm_length = stop_cfm_lengthT;
+      if(!this->stop_cfm || stop_cfm_lengthT > this->stop_cfm_length) {
+        this->deconstructor();
+        this->stop_cfm = new double[stop_cfm_lengthT];
+      }
+      this->stop_cfm_length = stop_cfm_lengthT;
       for( uint32_t i = 0; i < stop_cfm_length; i++) {
         union {
           double real;
@@ -539,16 +553,18 @@ namespace gazebo_msgs
         u_st_stop_cfm.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_stop_cfm = u_st_stop_cfm.real;
         offset += sizeof(this->st_stop_cfm);
-        memcpy( &(this->stop_cfm[i]), &(this->st_stop_cfm), sizeof(double));
+        this->stop_cfm[i] = this->st_stop_cfm;
       }
       uint32_t fudge_factor_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       fudge_factor_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       fudge_factor_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       fudge_factor_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->fudge_factor_length);
-      if(fudge_factor_lengthT > fudge_factor_length)
-        this->fudge_factor = (double*)realloc(this->fudge_factor, fudge_factor_lengthT * sizeof(double));
-      fudge_factor_length = fudge_factor_lengthT;
+      if(!this->fudge_factor || fudge_factor_lengthT > this->fudge_factor_length) {
+        this->deconstructor();
+        this->fudge_factor = new double[fudge_factor_lengthT];
+      }
+      this->fudge_factor_length = fudge_factor_lengthT;
       for( uint32_t i = 0; i < fudge_factor_length; i++) {
         union {
           double real;
@@ -565,16 +581,18 @@ namespace gazebo_msgs
         u_st_fudge_factor.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_fudge_factor = u_st_fudge_factor.real;
         offset += sizeof(this->st_fudge_factor);
-        memcpy( &(this->fudge_factor[i]), &(this->st_fudge_factor), sizeof(double));
+        this->fudge_factor[i] = this->st_fudge_factor;
       }
       uint32_t fmax_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       fmax_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       fmax_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       fmax_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->fmax_length);
-      if(fmax_lengthT > fmax_length)
-        this->fmax = (double*)realloc(this->fmax, fmax_lengthT * sizeof(double));
-      fmax_length = fmax_lengthT;
+      if(!this->fmax || fmax_lengthT > this->fmax_length) {
+        this->deconstructor();
+        this->fmax = new double[fmax_lengthT];
+      }
+      this->fmax_length = fmax_lengthT;
       for( uint32_t i = 0; i < fmax_length; i++) {
         union {
           double real;
@@ -591,16 +609,18 @@ namespace gazebo_msgs
         u_st_fmax.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_fmax = u_st_fmax.real;
         offset += sizeof(this->st_fmax);
-        memcpy( &(this->fmax[i]), &(this->st_fmax), sizeof(double));
+        this->fmax[i] = this->st_fmax;
       }
       uint32_t vel_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       vel_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       vel_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       vel_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->vel_length);
-      if(vel_lengthT > vel_length)
-        this->vel = (double*)realloc(this->vel, vel_lengthT * sizeof(double));
-      vel_length = vel_lengthT;
+      if(!this->vel || vel_lengthT > this->vel_length) {
+        this->deconstructor();
+        this->vel = new double[vel_lengthT];
+      }
+      this->vel_length = vel_lengthT;
       for( uint32_t i = 0; i < vel_length; i++) {
         union {
           double real;
@@ -617,7 +637,7 @@ namespace gazebo_msgs
         u_st_vel.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_vel = u_st_vel.real;
         offset += sizeof(this->st_vel);
-        memcpy( &(this->vel[i]), &(this->st_vel), sizeof(double));
+        this->vel[i] = this->st_vel;
       }
       return offset;
     }

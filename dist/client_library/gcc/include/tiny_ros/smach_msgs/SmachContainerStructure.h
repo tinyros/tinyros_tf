@@ -60,36 +60,36 @@ namespace smach_msgs
 
     void deconstructor()
     {
-      if(children != NULL)
+      if(this->children != NULL)
       {
-        free(children);
+        delete[] this->children;
       }
-      children = NULL;
-      children_length = 0;
-      if(internal_outcomes != NULL)
+      this->children = NULL;
+      this->children_length = 0;
+      if(this->internal_outcomes != NULL)
       {
-        free(internal_outcomes);
+        delete[] this->internal_outcomes;
       }
-      internal_outcomes = NULL;
-      internal_outcomes_length = 0;
-      if(outcomes_from != NULL)
+      this->internal_outcomes = NULL;
+      this->internal_outcomes_length = 0;
+      if(this->outcomes_from != NULL)
       {
-        free(outcomes_from);
+        delete[] this->outcomes_from;
       }
-      outcomes_from = NULL;
-      outcomes_from_length = 0;
-      if(outcomes_to != NULL)
+      this->outcomes_from = NULL;
+      this->outcomes_from_length = 0;
+      if(this->outcomes_to != NULL)
       {
-        free(outcomes_to);
+        delete[] this->outcomes_to;
       }
-      outcomes_to = NULL;
-      outcomes_to_length = 0;
-      if(container_outcomes != NULL)
+      this->outcomes_to = NULL;
+      this->outcomes_to_length = 0;
+      if(this->container_outcomes != NULL)
       {
-        free(container_outcomes);
+        delete[] this->container_outcomes;
       }
-      container_outcomes = NULL;
-      container_outcomes_length = 0;
+      this->container_outcomes = NULL;
+      this->container_outcomes_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -182,9 +182,11 @@ namespace smach_msgs
       children_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       children_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->children_length);
-      if(children_lengthT > children_length)
-        this->children = (std::string*)realloc(this->children, children_lengthT * sizeof(std::string));
-      children_length = children_lengthT;
+      if(!this->children || children_lengthT > this->children_length) {
+        this->deconstructor();
+        this->children = new std::string[children_lengthT];
+      }
+      this->children_length = children_lengthT;
       for( uint32_t i = 0; i < children_length; i++) {
         uint32_t length_st_children;
         arrToVar(length_st_children, (inbuffer + offset));
@@ -195,16 +197,18 @@ namespace smach_msgs
         inbuffer[offset+length_st_children-1]=0;
         this->st_children = (char *)(inbuffer + offset-1);
         offset += length_st_children;
-        memcpy( &(this->children[i]), &(this->st_children), sizeof(std::string));
+        this->children[i] = this->st_children;
       }
       uint32_t internal_outcomes_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       internal_outcomes_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       internal_outcomes_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       internal_outcomes_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->internal_outcomes_length);
-      if(internal_outcomes_lengthT > internal_outcomes_length)
-        this->internal_outcomes = (std::string*)realloc(this->internal_outcomes, internal_outcomes_lengthT * sizeof(std::string));
-      internal_outcomes_length = internal_outcomes_lengthT;
+      if(!this->internal_outcomes || internal_outcomes_lengthT > this->internal_outcomes_length) {
+        this->deconstructor();
+        this->internal_outcomes = new std::string[internal_outcomes_lengthT];
+      }
+      this->internal_outcomes_length = internal_outcomes_lengthT;
       for( uint32_t i = 0; i < internal_outcomes_length; i++) {
         uint32_t length_st_internal_outcomes;
         arrToVar(length_st_internal_outcomes, (inbuffer + offset));
@@ -215,16 +219,18 @@ namespace smach_msgs
         inbuffer[offset+length_st_internal_outcomes-1]=0;
         this->st_internal_outcomes = (char *)(inbuffer + offset-1);
         offset += length_st_internal_outcomes;
-        memcpy( &(this->internal_outcomes[i]), &(this->st_internal_outcomes), sizeof(std::string));
+        this->internal_outcomes[i] = this->st_internal_outcomes;
       }
       uint32_t outcomes_from_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       outcomes_from_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       outcomes_from_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       outcomes_from_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->outcomes_from_length);
-      if(outcomes_from_lengthT > outcomes_from_length)
-        this->outcomes_from = (std::string*)realloc(this->outcomes_from, outcomes_from_lengthT * sizeof(std::string));
-      outcomes_from_length = outcomes_from_lengthT;
+      if(!this->outcomes_from || outcomes_from_lengthT > this->outcomes_from_length) {
+        this->deconstructor();
+        this->outcomes_from = new std::string[outcomes_from_lengthT];
+      }
+      this->outcomes_from_length = outcomes_from_lengthT;
       for( uint32_t i = 0; i < outcomes_from_length; i++) {
         uint32_t length_st_outcomes_from;
         arrToVar(length_st_outcomes_from, (inbuffer + offset));
@@ -235,16 +241,18 @@ namespace smach_msgs
         inbuffer[offset+length_st_outcomes_from-1]=0;
         this->st_outcomes_from = (char *)(inbuffer + offset-1);
         offset += length_st_outcomes_from;
-        memcpy( &(this->outcomes_from[i]), &(this->st_outcomes_from), sizeof(std::string));
+        this->outcomes_from[i] = this->st_outcomes_from;
       }
       uint32_t outcomes_to_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       outcomes_to_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       outcomes_to_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       outcomes_to_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->outcomes_to_length);
-      if(outcomes_to_lengthT > outcomes_to_length)
-        this->outcomes_to = (std::string*)realloc(this->outcomes_to, outcomes_to_lengthT * sizeof(std::string));
-      outcomes_to_length = outcomes_to_lengthT;
+      if(!this->outcomes_to || outcomes_to_lengthT > this->outcomes_to_length) {
+        this->deconstructor();
+        this->outcomes_to = new std::string[outcomes_to_lengthT];
+      }
+      this->outcomes_to_length = outcomes_to_lengthT;
       for( uint32_t i = 0; i < outcomes_to_length; i++) {
         uint32_t length_st_outcomes_to;
         arrToVar(length_st_outcomes_to, (inbuffer + offset));
@@ -255,16 +263,18 @@ namespace smach_msgs
         inbuffer[offset+length_st_outcomes_to-1]=0;
         this->st_outcomes_to = (char *)(inbuffer + offset-1);
         offset += length_st_outcomes_to;
-        memcpy( &(this->outcomes_to[i]), &(this->st_outcomes_to), sizeof(std::string));
+        this->outcomes_to[i] = this->st_outcomes_to;
       }
       uint32_t container_outcomes_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       container_outcomes_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       container_outcomes_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       container_outcomes_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->container_outcomes_length);
-      if(container_outcomes_lengthT > container_outcomes_length)
-        this->container_outcomes = (std::string*)realloc(this->container_outcomes, container_outcomes_lengthT * sizeof(std::string));
-      container_outcomes_length = container_outcomes_lengthT;
+      if(!this->container_outcomes || container_outcomes_lengthT > this->container_outcomes_length) {
+        this->deconstructor();
+        this->container_outcomes = new std::string[container_outcomes_lengthT];
+      }
+      this->container_outcomes_length = container_outcomes_lengthT;
       for( uint32_t i = 0; i < container_outcomes_length; i++) {
         uint32_t length_st_container_outcomes;
         arrToVar(length_st_container_outcomes, (inbuffer + offset));
@@ -275,7 +285,7 @@ namespace smach_msgs
         inbuffer[offset+length_st_container_outcomes-1]=0;
         this->st_container_outcomes = (char *)(inbuffer + offset-1);
         offset += length_st_container_outcomes;
-        memcpy( &(this->container_outcomes[i]), &(this->st_container_outcomes), sizeof(std::string));
+        this->container_outcomes[i] = this->st_container_outcomes;
       }
       return offset;
     }

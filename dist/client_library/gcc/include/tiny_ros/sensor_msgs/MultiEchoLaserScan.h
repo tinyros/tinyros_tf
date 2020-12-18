@@ -64,24 +64,24 @@ namespace sensor_msgs
 
     void deconstructor()
     {
-      if(ranges != NULL)
+      if(this->ranges != NULL)
       {
-        for( uint32_t i = 0; i < ranges_length; i++){
-          ranges[i].deconstructor();
+        for( uint32_t i = 0; i < this->ranges_length; i++){
+          this->ranges[i].deconstructor();
         }
-        free(ranges);
+        delete[] this->ranges;
       }
-      ranges = NULL;
-      ranges_length = 0;
-      if(intensities != NULL)
+      this->ranges = NULL;
+      this->ranges_length = 0;
+      if(this->intensities != NULL)
       {
-        for( uint32_t i = 0; i < intensities_length; i++){
-          intensities[i].deconstructor();
+        for( uint32_t i = 0; i < this->intensities_length; i++){
+          this->intensities[i].deconstructor();
         }
-        free(intensities);
+        delete[] this->intensities;
       }
-      intensities = NULL;
-      intensities_length = 0;
+      this->intensities = NULL;
+      this->intensities_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -263,24 +263,28 @@ namespace sensor_msgs
       ranges_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       ranges_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->ranges_length);
-      if(ranges_lengthT > ranges_length)
-        this->ranges = (tinyros::sensor_msgs::LaserEcho*)realloc(this->ranges, ranges_lengthT * sizeof(tinyros::sensor_msgs::LaserEcho));
-      ranges_length = ranges_lengthT;
+      if(!this->ranges || ranges_lengthT > this->ranges_length) {
+        this->deconstructor();
+        this->ranges = new tinyros::sensor_msgs::LaserEcho[ranges_lengthT];
+      }
+      this->ranges_length = ranges_lengthT;
       for( uint32_t i = 0; i < ranges_length; i++) {
         offset += this->st_ranges.deserialize(inbuffer + offset);
-        memcpy( &(this->ranges[i]), &(this->st_ranges), sizeof(tinyros::sensor_msgs::LaserEcho));
+        this->ranges[i] = this->st_ranges;
       }
       uint32_t intensities_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       intensities_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       intensities_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       intensities_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->intensities_length);
-      if(intensities_lengthT > intensities_length)
-        this->intensities = (tinyros::sensor_msgs::LaserEcho*)realloc(this->intensities, intensities_lengthT * sizeof(tinyros::sensor_msgs::LaserEcho));
-      intensities_length = intensities_lengthT;
+      if(!this->intensities || intensities_lengthT > this->intensities_length) {
+        this->deconstructor();
+        this->intensities = new tinyros::sensor_msgs::LaserEcho[intensities_lengthT];
+      }
+      this->intensities_length = intensities_lengthT;
       for( uint32_t i = 0; i < intensities_length; i++) {
         offset += this->st_intensities.deserialize(inbuffer + offset);
-        memcpy( &(this->intensities[i]), &(this->st_intensities), sizeof(tinyros::sensor_msgs::LaserEcho));
+        this->intensities[i] = this->st_intensities;
       }
       return offset;
     }

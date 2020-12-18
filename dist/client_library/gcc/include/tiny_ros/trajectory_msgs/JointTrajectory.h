@@ -43,21 +43,21 @@ namespace trajectory_msgs
 
     void deconstructor()
     {
-      if(joint_names != NULL)
+      if(this->joint_names != NULL)
       {
-        free(joint_names);
+        delete[] this->joint_names;
       }
-      joint_names = NULL;
-      joint_names_length = 0;
-      if(points != NULL)
+      this->joint_names = NULL;
+      this->joint_names_length = 0;
+      if(this->points != NULL)
       {
-        for( uint32_t i = 0; i < points_length; i++){
-          points[i].deconstructor();
+        for( uint32_t i = 0; i < this->points_length; i++){
+          this->points[i].deconstructor();
         }
-        free(points);
+        delete[] this->points;
       }
-      points = NULL;
-      points_length = 0;
+      this->points = NULL;
+      this->points_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -96,9 +96,11 @@ namespace trajectory_msgs
       joint_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       joint_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->joint_names_length);
-      if(joint_names_lengthT > joint_names_length)
-        this->joint_names = (std::string*)realloc(this->joint_names, joint_names_lengthT * sizeof(std::string));
-      joint_names_length = joint_names_lengthT;
+      if(!this->joint_names || joint_names_lengthT > this->joint_names_length) {
+        this->deconstructor();
+        this->joint_names = new std::string[joint_names_lengthT];
+      }
+      this->joint_names_length = joint_names_lengthT;
       for( uint32_t i = 0; i < joint_names_length; i++) {
         uint32_t length_st_joint_names;
         arrToVar(length_st_joint_names, (inbuffer + offset));
@@ -109,19 +111,21 @@ namespace trajectory_msgs
         inbuffer[offset+length_st_joint_names-1]=0;
         this->st_joint_names = (char *)(inbuffer + offset-1);
         offset += length_st_joint_names;
-        memcpy( &(this->joint_names[i]), &(this->st_joint_names), sizeof(std::string));
+        this->joint_names[i] = this->st_joint_names;
       }
       uint32_t points_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       points_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       points_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       points_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->points_length);
-      if(points_lengthT > points_length)
-        this->points = (tinyros::trajectory_msgs::JointTrajectoryPoint*)realloc(this->points, points_lengthT * sizeof(tinyros::trajectory_msgs::JointTrajectoryPoint));
-      points_length = points_lengthT;
+      if(!this->points || points_lengthT > this->points_length) {
+        this->deconstructor();
+        this->points = new tinyros::trajectory_msgs::JointTrajectoryPoint[points_lengthT];
+      }
+      this->points_length = points_lengthT;
       for( uint32_t i = 0; i < points_length; i++) {
         offset += this->st_points.deserialize(inbuffer + offset);
-        memcpy( &(this->points[i]), &(this->st_points), sizeof(tinyros::trajectory_msgs::JointTrajectoryPoint));
+        this->points[i] = this->st_points;
       }
       return offset;
     }

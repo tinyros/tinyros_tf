@@ -52,30 +52,30 @@ namespace trajectory_msgs
 
     void deconstructor()
     {
-      if(positions != NULL)
+      if(this->positions != NULL)
       {
-        free(positions);
+        delete[] this->positions;
       }
-      positions = NULL;
-      positions_length = 0;
-      if(velocities != NULL)
+      this->positions = NULL;
+      this->positions_length = 0;
+      if(this->velocities != NULL)
       {
-        free(velocities);
+        delete[] this->velocities;
       }
-      velocities = NULL;
-      velocities_length = 0;
-      if(accelerations != NULL)
+      this->velocities = NULL;
+      this->velocities_length = 0;
+      if(this->accelerations != NULL)
       {
-        free(accelerations);
+        delete[] this->accelerations;
       }
-      accelerations = NULL;
-      accelerations_length = 0;
-      if(effort != NULL)
+      this->accelerations = NULL;
+      this->accelerations_length = 0;
+      if(this->effort != NULL)
       {
-        free(effort);
+        delete[] this->effort;
       }
-      effort = NULL;
-      effort_length = 0;
+      this->effort = NULL;
+      this->effort_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -186,9 +186,11 @@ namespace trajectory_msgs
       positions_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       positions_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->positions_length);
-      if(positions_lengthT > positions_length)
-        this->positions = (double*)realloc(this->positions, positions_lengthT * sizeof(double));
-      positions_length = positions_lengthT;
+      if(!this->positions || positions_lengthT > this->positions_length) {
+        this->deconstructor();
+        this->positions = new double[positions_lengthT];
+      }
+      this->positions_length = positions_lengthT;
       for( uint32_t i = 0; i < positions_length; i++) {
         union {
           double real;
@@ -205,16 +207,18 @@ namespace trajectory_msgs
         u_st_positions.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_positions = u_st_positions.real;
         offset += sizeof(this->st_positions);
-        memcpy( &(this->positions[i]), &(this->st_positions), sizeof(double));
+        this->positions[i] = this->st_positions;
       }
       uint32_t velocities_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       velocities_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       velocities_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       velocities_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->velocities_length);
-      if(velocities_lengthT > velocities_length)
-        this->velocities = (double*)realloc(this->velocities, velocities_lengthT * sizeof(double));
-      velocities_length = velocities_lengthT;
+      if(!this->velocities || velocities_lengthT > this->velocities_length) {
+        this->deconstructor();
+        this->velocities = new double[velocities_lengthT];
+      }
+      this->velocities_length = velocities_lengthT;
       for( uint32_t i = 0; i < velocities_length; i++) {
         union {
           double real;
@@ -231,16 +235,18 @@ namespace trajectory_msgs
         u_st_velocities.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_velocities = u_st_velocities.real;
         offset += sizeof(this->st_velocities);
-        memcpy( &(this->velocities[i]), &(this->st_velocities), sizeof(double));
+        this->velocities[i] = this->st_velocities;
       }
       uint32_t accelerations_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       accelerations_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       accelerations_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       accelerations_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->accelerations_length);
-      if(accelerations_lengthT > accelerations_length)
-        this->accelerations = (double*)realloc(this->accelerations, accelerations_lengthT * sizeof(double));
-      accelerations_length = accelerations_lengthT;
+      if(!this->accelerations || accelerations_lengthT > this->accelerations_length) {
+        this->deconstructor();
+        this->accelerations = new double[accelerations_lengthT];
+      }
+      this->accelerations_length = accelerations_lengthT;
       for( uint32_t i = 0; i < accelerations_length; i++) {
         union {
           double real;
@@ -257,16 +263,18 @@ namespace trajectory_msgs
         u_st_accelerations.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_accelerations = u_st_accelerations.real;
         offset += sizeof(this->st_accelerations);
-        memcpy( &(this->accelerations[i]), &(this->st_accelerations), sizeof(double));
+        this->accelerations[i] = this->st_accelerations;
       }
       uint32_t effort_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       effort_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       effort_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       effort_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->effort_length);
-      if(effort_lengthT > effort_length)
-        this->effort = (double*)realloc(this->effort, effort_lengthT * sizeof(double));
-      effort_length = effort_lengthT;
+      if(!this->effort || effort_lengthT > this->effort_length) {
+        this->deconstructor();
+        this->effort = new double[effort_lengthT];
+      }
+      this->effort_length = effort_lengthT;
       for( uint32_t i = 0; i < effort_length; i++) {
         union {
           double real;
@@ -283,7 +291,7 @@ namespace trajectory_msgs
         u_st_effort.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_effort = u_st_effort.real;
         offset += sizeof(this->st_effort);
-        memcpy( &(this->effort[i]), &(this->st_effort), sizeof(double));
+        this->effort[i] = this->st_effort;
       }
       this->time_from_start.sec =  ((uint32_t) (*(inbuffer + offset)));
       this->time_from_start.sec |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);

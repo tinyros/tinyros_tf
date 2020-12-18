@@ -163,24 +163,24 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetJointPropertiesRequest const> G
 
     void deconstructor()
     {
-      if(damping != NULL)
+      if(this->damping != NULL)
       {
-        free(damping);
+        delete[] this->damping;
       }
-      damping = NULL;
-      damping_length = 0;
-      if(position != NULL)
+      this->damping = NULL;
+      this->damping_length = 0;
+      if(this->position != NULL)
       {
-        free(position);
+        delete[] this->position;
       }
-      position = NULL;
-      position_length = 0;
-      if(rate != NULL)
+      this->position = NULL;
+      this->position_length = 0;
+      if(this->rate != NULL)
       {
-        free(rate);
+        delete[] this->rate;
       }
-      rate = NULL;
-      rate_length = 0;
+      this->rate = NULL;
+      this->rate_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -286,9 +286,11 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetJointPropertiesRequest const> G
       damping_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       damping_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->damping_length);
-      if(damping_lengthT > damping_length)
-        this->damping = (double*)realloc(this->damping, damping_lengthT * sizeof(double));
-      damping_length = damping_lengthT;
+      if(!this->damping || damping_lengthT > this->damping_length) {
+        this->deconstructor();
+        this->damping = new double[damping_lengthT];
+      }
+      this->damping_length = damping_lengthT;
       for( uint32_t i = 0; i < damping_length; i++) {
         union {
           double real;
@@ -305,16 +307,18 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetJointPropertiesRequest const> G
         u_st_damping.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_damping = u_st_damping.real;
         offset += sizeof(this->st_damping);
-        memcpy( &(this->damping[i]), &(this->st_damping), sizeof(double));
+        this->damping[i] = this->st_damping;
       }
       uint32_t position_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       position_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       position_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       position_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->position_length);
-      if(position_lengthT > position_length)
-        this->position = (double*)realloc(this->position, position_lengthT * sizeof(double));
-      position_length = position_lengthT;
+      if(!this->position || position_lengthT > this->position_length) {
+        this->deconstructor();
+        this->position = new double[position_lengthT];
+      }
+      this->position_length = position_lengthT;
       for( uint32_t i = 0; i < position_length; i++) {
         union {
           double real;
@@ -331,16 +335,18 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetJointPropertiesRequest const> G
         u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_position = u_st_position.real;
         offset += sizeof(this->st_position);
-        memcpy( &(this->position[i]), &(this->st_position), sizeof(double));
+        this->position[i] = this->st_position;
       }
       uint32_t rate_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       rate_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       rate_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       rate_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->rate_length);
-      if(rate_lengthT > rate_length)
-        this->rate = (double*)realloc(this->rate, rate_lengthT * sizeof(double));
-      rate_length = rate_lengthT;
+      if(!this->rate || rate_lengthT > this->rate_length) {
+        this->deconstructor();
+        this->rate = new double[rate_lengthT];
+      }
+      this->rate_length = rate_lengthT;
       for( uint32_t i = 0; i < rate_length; i++) {
         union {
           double real;
@@ -357,7 +363,7 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetJointPropertiesRequest const> G
         u_st_rate.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
         this->st_rate = u_st_rate.real;
         offset += sizeof(this->st_rate);
-        memcpy( &(this->rate[i]), &(this->st_rate), sizeof(double));
+        this->rate[i] = this->st_rate;
       }
       union {
         bool real;

@@ -94,12 +94,12 @@ namespace sensor_msgs
 
     void deconstructor()
     {
-      if(cell_voltage != NULL)
+      if(this->cell_voltage != NULL)
       {
-        free(cell_voltage);
+        delete[] this->cell_voltage;
       }
-      cell_voltage = NULL;
-      cell_voltage_length = 0;
+      this->cell_voltage = NULL;
+      this->cell_voltage_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -298,9 +298,11 @@ namespace sensor_msgs
       cell_voltage_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
       cell_voltage_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
       offset += sizeof(this->cell_voltage_length);
-      if(cell_voltage_lengthT > cell_voltage_length)
-        this->cell_voltage = (float*)realloc(this->cell_voltage, cell_voltage_lengthT * sizeof(float));
-      cell_voltage_length = cell_voltage_lengthT;
+      if(!this->cell_voltage || cell_voltage_lengthT > this->cell_voltage_length) {
+        this->deconstructor();
+        this->cell_voltage = new float[cell_voltage_lengthT];
+      }
+      this->cell_voltage_length = cell_voltage_lengthT;
       for( uint32_t i = 0; i < cell_voltage_length; i++) {
         union {
           float real;
@@ -313,7 +315,7 @@ namespace sensor_msgs
         u_st_cell_voltage.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
         this->st_cell_voltage = u_st_cell_voltage.real;
         offset += sizeof(this->st_cell_voltage);
-        memcpy( &(this->cell_voltage[i]), &(this->st_cell_voltage), sizeof(float));
+        this->cell_voltage[i] = this->st_cell_voltage;
       }
       uint32_t length_location;
       arrToVar(length_location, (inbuffer + offset));
