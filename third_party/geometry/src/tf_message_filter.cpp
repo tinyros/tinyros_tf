@@ -74,15 +74,15 @@ static void TEST_preexistingTransforms()
   tinyros::tf::MessageFilter<tinyros::geometry_msgs::PointStamped> filter(tf_client, "frame1", 1);
   filter.registerCallback(std::bind(&Notification::notify, &n, std::placeholders::_1));
 
-	tinyros::Time stamp = tinyros::Time::now();
-	tinyros::tf::StampedTransform transform(tinyros::tf::Transform(tinyros::tf::Quaternion(0,0,0,1), tinyros::tf::Vector3(1,2,3)), stamp, "frame1", "frame2");
-	tf_client.setTransform(transform);
+  tinyros::Time stamp = tinyros::Time::now();
+  tinyros::tf::StampedTransform transform(tinyros::tf::Transform(tinyros::tf::Quaternion(0,0,0,1), tinyros::tf::Vector3(1,2,3)), stamp, "frame1", "frame2");
+  tf_client.setTransform(transform);
 
-	tinyros::geometry_msgs::PointStampedPtr msg(new tinyros::geometry_msgs::PointStamped);
-	msg->header.stamp = stamp;
-	msg->header.frame_id = "/frame2";
+  tinyros::geometry_msgs::PointStampedPtr msg(new tinyros::geometry_msgs::PointStamped);
+  msg->header.stamp = stamp;
+  msg->header.frame_id = "/frame2";
 
-	filter.add(msg);
+  filter.add(msg);
 
   EXPECT_EQ(1, n.count_, __FUNCTION__, __LINE__);
 }
@@ -94,9 +94,9 @@ static void TEST_postTransforms()
   tinyros::tf::MessageFilter<tinyros::geometry_msgs::PointStamped> filter(tf_client, "frame1", 1);
   filter.registerCallback(std::bind(&Notification::notify, &n, std::placeholders::_1));
 
-	tinyros::Time stamp = tinyros::Time::now();
+  tinyros::Time stamp = tinyros::Time::now();
 
-	tinyros::geometry_msgs::PointStampedPtr msg(new tinyros::geometry_msgs::PointStamped);
+  tinyros::geometry_msgs::PointStampedPtr msg(new tinyros::geometry_msgs::PointStamped);
   msg->header.stamp = stamp;
   msg->header.frame_id = "/frame2";
 
@@ -104,10 +104,10 @@ static void TEST_postTransforms()
 
   EXPECT_EQ(0, n.count_, __FUNCTION__, __LINE__);
 
-	tinyros::tf::StampedTransform transform(tinyros::tf::Transform(tinyros::tf::Quaternion(0,0,0,1), tinyros::tf::Vector3(1,2,3)), stamp, "frame1", "frame2");
-	tf_client.setTransform(transform);
+  tinyros::tf::StampedTransform transform(tinyros::tf::Transform(tinyros::tf::Quaternion(0,0,0,1), tinyros::tf::Vector3(1,2,3)), stamp, "frame1", "frame2");
+  tf_client.setTransform(transform);
 
-	tinyros::Duration(0.1).sleep(); 
+  tinyros::Duration(0.1).sleep(); 
 
   EXPECT_EQ(1, n.count_, __FUNCTION__, __LINE__);
 }
@@ -120,24 +120,24 @@ static void TEST_queueSize()
   filter.registerCallback(std::bind(&Notification::notify, &n, std::placeholders::_1));
   filter.registerFailureCallback(std::bind(&Notification::failure, &n, std::placeholders::_1, std::placeholders::_2));
 
-	tinyros::Time stamp = tinyros::Time::now();
+  tinyros::Time stamp = tinyros::Time::now();
 
-	for (int i = 0; i < 20; ++i)
-	{
-	  tinyros::geometry_msgs::PointStampedPtr msg(new tinyros::geometry_msgs::PointStamped);
+  for (int i = 0; i < 20; ++i)
+  {
+    tinyros::geometry_msgs::PointStampedPtr msg(new tinyros::geometry_msgs::PointStamped);
     msg->header.stamp = stamp;
     msg->header.frame_id = "/frame2";
 
     filter.add(msg);
-	}
+  }
 
   EXPECT_EQ(0, n.count_, __FUNCTION__, __LINE__);
   EXPECT_EQ(10, n.failure_count_, __FUNCTION__, __LINE__);
   
-	tinyros::tf::StampedTransform transform(tinyros::tf::Transform(tinyros::tf::Quaternion(0,0,0,1), tinyros::tf::Vector3(1,2,3)), stamp, "frame1", "frame2");
-	tf_client.setTransform(transform);
+  tinyros::tf::StampedTransform transform(tinyros::tf::Transform(tinyros::tf::Quaternion(0,0,0,1), tinyros::tf::Vector3(1,2,3)), stamp, "frame1", "frame2");
+  tf_client.setTransform(transform);
 
-	tinyros::Duration(0.1).sleep(); 
+  tinyros::Duration(0.1).sleep(); 
   
   EXPECT_EQ(10, n.count_, __FUNCTION__, __LINE__);
 }
@@ -148,9 +148,9 @@ static void TEST_setTargetFrame()
   Notification n(1);
   tinyros::tf::MessageFilter<tinyros::geometry_msgs::PointStamped> filter(tf_client, "frame1", 1);
   filter.registerCallback(std::bind(&Notification::notify, &n, std::placeholders::_1));
-	filter.setTargetFrame("frame1000");
+  filter.setTargetFrame("frame1000");
 
-	tinyros::Time stamp = tinyros::Time::now();
+  tinyros::Time stamp = tinyros::Time::now();
   tinyros::tf::StampedTransform transform(tinyros::tf::Transform(tinyros::tf::Quaternion(0,0,0,1), tinyros::tf::Vector3(1,2,3)), stamp, "frame1000", "frame2");
   tf_client.setTransform(transform);
 
@@ -158,7 +158,7 @@ static void TEST_setTargetFrame()
   msg->header.stamp = stamp;
   msg->header.frame_id = "/frame2";
 
-	filter.add(msg); 
+  filter.add(msg); 
 
   EXPECT_EQ(1, n.count_, __FUNCTION__, __LINE__);
 }
@@ -173,9 +173,9 @@ static void TEST_multipleTargetFrames()
   std::vector<std::string> target_frames;
   target_frames.push_back("frame1");
   target_frames.push_back("frame2");
-	filter.setTargetFrames(target_frames);
+  filter.setTargetFrames(target_frames);
 
-	tinyros::Time stamp = tinyros::Time::now();
+  tinyros::Time stamp = tinyros::Time::now();
   tinyros::tf::StampedTransform transform(tinyros::tf::Transform(tinyros::tf::Quaternion(0,0,0,1), tinyros::tf::Vector3(1,2,3)), stamp, "frame1", "frame3");
   tf_client.setTransform(transform);
 
@@ -186,14 +186,14 @@ static void TEST_multipleTargetFrames()
 
   tinyros::Duration(0.1).sleep();
 
-	EXPECT_EQ(0, n.count_, __FUNCTION__, __LINE__); // frame1->frame3 exists, frame2->frame3 does not (yet)
+  EXPECT_EQ(0, n.count_, __FUNCTION__, __LINE__); // frame1->frame3 exists, frame2->frame3 does not (yet)
 
-	transform.child_frame_id_ = "frame2";
-	tf_client.setTransform(transform);
+  transform.child_frame_id_ = "frame2";
+  tf_client.setTransform(transform);
 
-	tinyros::Duration(0.1).sleep();
+  tinyros::Duration(0.1).sleep();
 
-	EXPECT_EQ(1, n.count_, __FUNCTION__, __LINE__);  // frame2->frame3 now exists
+  EXPECT_EQ(1, n.count_, __FUNCTION__, __LINE__);  // frame2->frame3 now exists
 }
 
 static void TEST_tolerance()
@@ -205,7 +205,7 @@ static void TEST_tolerance()
   filter.registerCallback(std::bind(&Notification::notify, &n, std::placeholders::_1));
   filter.setTolerance(offset);
 
-	tinyros::Time stamp = tinyros::Time::now();
+  tinyros::Time stamp = tinyros::Time::now();
   tinyros::tf::StampedTransform transform(tinyros::tf::Transform(tinyros::tf::Quaternion(0,0,0,1), tinyros::tf::Vector3(1,2,3)), stamp, "frame1", "frame2");
   tf_client.setTransform(transform);
 
@@ -214,19 +214,19 @@ static void TEST_tolerance()
   msg->header.frame_id = "/frame2";
   filter.add(msg);
 
-	EXPECT_EQ(0, n.count_, __FUNCTION__, __LINE__); //No return due to lack of space for offset
+  EXPECT_EQ(0, n.count_, __FUNCTION__, __LINE__); //No return due to lack of space for offset
 
-	transform.stamp_ += offset*1.1;
-	tf_client.setTransform(transform);
+  transform.stamp_ += offset*1.1;
+  tf_client.setTransform(transform);
 
-	tinyros::Duration(0.1).sleep();
+  tinyros::Duration(0.1).sleep();
 
-	EXPECT_EQ(1, n.count_, __FUNCTION__, __LINE__); // Now have data for the message published earlier
+  EXPECT_EQ(1, n.count_, __FUNCTION__, __LINE__); // Now have data for the message published earlier
 
-	msg->header.stamp = stamp + offset;
-	filter.add(msg);
+  msg->header.stamp = stamp + offset;
+  filter.add(msg);
 
-	EXPECT_EQ(1, n.count_, __FUNCTION__, __LINE__); // Latest message is off the end of the offset
+  EXPECT_EQ(1, n.count_, __FUNCTION__, __LINE__); // Latest message is off the end of the offset
 }
 
 

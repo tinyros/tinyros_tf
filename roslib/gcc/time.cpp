@@ -11,12 +11,12 @@
 namespace tinyros
 {
 std::mutex Time::mutex_;
-
 int64_t Time::time_start_ = 0;
-
 int64_t Time::time_last_ = 0;
-
 int64_t Time::time_dds_ = 0;
+std::mutex Time::sim_time_mutex_;
+TimeType Time::use_time_type_ = SYS_TIME;
+Time Time::sim_time_ = Time(0, 0);
 
 void normalizeSecNSec(uint32_t& sec, uint32_t& nsec)
 {
@@ -137,7 +137,8 @@ Time Time::dds() {
 
 Time Time::now()
 {
-  Time time;
+  if (Time::use_time_type_ == SYS_TIME) {
+    Time time;
 #ifndef WIN32
 #if HAS_CLOCK_GETTIME
     timespec start;
@@ -190,9 +191,20 @@ Time Time::now()
     time.nsec = nsec_sum;
 #endif
     return time;
+  } else if (Time::use_time_type_ == SIM_TIME) { 
+    std::unique_lock<std::mutex> lock(Time::sim_time_mutex_);
+    return Time::sim_time_;
+  } else if (Time::use_time_type_ == DDS_TIME) {
+    return Time::dds();
+  }
 }
 
-void setNow(Time & new_now) {
-
+bool Time::useTime(TimeType type, Time now) {
+  Time::use_time_type_ = type;
+  if (Time::use_time_type_ == SIM_TIME) {
+    std::unique_lock<std::mutex> lock(Time::sim_time_mutex_);
+    Time::sim_time_ = now;
+  }
 }
+
 }

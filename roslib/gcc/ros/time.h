@@ -11,6 +11,8 @@ namespace tinyros
 void normalizeSecNSec(uint32_t &sec, uint32_t &nsec);
 void normalizeSecNSecUnsigned(int64_t& sec, int64_t& nsec);
 
+enum TimeType { SYS_TIME, SIM_TIME, DDS_TIME };
+
 class Time
 {
 public:
@@ -64,9 +66,12 @@ public:
   static int64_t time_start_;
   static int64_t time_last_;
   static int64_t time_dds_;
+  static std::mutex sim_time_mutex_;
+  static TimeType use_time_type_;
+  static Time sim_time_;
   static Time dds();
   static Time now();
-  static void setNow(Time & new_now);
+  static bool useTime(TimeType type, Time now = Time(0, 0));
 };
 
 }
