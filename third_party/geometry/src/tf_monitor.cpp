@@ -213,10 +213,6 @@ public:
             std::cout << outputFrameInfo(it, frame_authority_map[it->first]);
         }
 
-        // Python:
-        // import subprocess
-        // subprocess.Popen('dot -Tpdf frames.gv -o frames.pdf'.split(' ')).communicate()
-        std::cerr <<std::endl<< "All FramsAsDot:" << tf_.allFramesAsDot().c_str() << std::endl;
         std::cerr <<std::endl<< "All Broadcasters:" << std::endl;
         std::map<std::string, std::vector<double> >::iterator it1 = authority_map.begin();
         std::map<std::string, std::vector<double> >::iterator it2 = authority_frequency_map.begin();
@@ -234,6 +230,11 @@ public:
           std::cout << "Node: " <<it1->first << " " << frequency_out <<" Hz, Average Delay: " << average_delay << " Max Delay: " << max_delay << std::endl;
         }
         
+        // Python:
+        // import subprocess
+        // subprocess.Popen('dot -Tpdf frames.gv -o frames.pdf'.split(' ')).communicate()
+        std::cerr <<std::endl<< "All FramsAsDot:"  << std::endl;
+        std::cout << tf_.allFramesAsDot().c_str() << std::endl;
       }
     }
   }
