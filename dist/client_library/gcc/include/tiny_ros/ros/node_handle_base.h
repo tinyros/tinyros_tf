@@ -34,7 +34,6 @@ const int SPIN_ERR = -1;
 const int SYNC_TIME_SCOPE = 10;  // milliseconds
 
 #define TINYROS_LOG_TOPIC "/tinyrosout"
-#define TINYROS_TF_TOPIC "/tf"
 
 class SpinObject {
 public:

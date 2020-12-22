@@ -31,7 +31,6 @@ protected:
   
   ThreadPool spin_thread_pool_;
   ThreadPool spin_log_thread_pool_;
-  ThreadPool spin_tf_thread_pool_;
   ThreadPool spin_srv_thread_pool_;
   
   std::mutex mutex_;
@@ -85,7 +84,6 @@ public:
     , loghd_thread_pool_(1)
     , spin_thread_pool_(3)
     , spin_log_thread_pool_(1)
-    , spin_tf_thread_pool_(1)
     , spin_srv_thread_pool_(3)
     , topic_list("")
     , service_list("") {
@@ -130,7 +128,6 @@ public:
     loghd_keepalive_ = false;
     spin_thread_pool_.shutdown();
     spin_log_thread_pool_.shutdown();
-    spin_tf_thread_pool_.shutdown();
     spin_srv_thread_pool_.shutdown();
     loghd_thread_pool_.shutdown();
     
@@ -292,8 +289,6 @@ public:
                 memcpy(obj->message_in, message_in, total_bytes_);
                 if (subscribers[topic]->topic_ == TINYROS_LOG_TOPIC) {
                   spin_log_thread_pool_.schedule(std::bind(&NodeHandleBase_::spin_task, this, obj));
-                } else if (subscribers[topic]->topic_ == TINYROS_TF_TOPIC) {
-                  spin_tf_thread_pool_.schedule(std::bind(&NodeHandleBase_::spin_task, this, obj));
                 } else {
                   if (subscribers[topic]->srv_flag_) {
                     spin_srv_thread_pool_.schedule(std::bind(&NodeHandleBase_::spin_task, this, obj));

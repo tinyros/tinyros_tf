@@ -22,7 +22,6 @@ private:
 
   bool spin_;
   ThreadPool spin_thread_pool_;
-  ThreadPool spin_tf_pool_;
   
   bool negotiate_keepalive_;
   ThreadPool negotiate_thread_pool_;
@@ -128,7 +127,6 @@ private:
 public:
   NodeHandleUdp()
     : spin_thread_pool_(3)
-    , spin_tf_pool_(1)
     , negotiate_thread_pool_(1) {
   }
   
@@ -150,7 +148,6 @@ public:
   virtual void exit() {
     spin_ = false;
     spin_thread_pool_.shutdown();
-    spin_tf_pool_.shutdown();
     hardware_.close();
   }
     
@@ -260,12 +257,7 @@ public:
               obj->id = topic;
               obj->message_in = (uint8_t*)calloc(total_bytes, sizeof(uint8_t));
               memcpy(obj->message_in, message_in + index, total_bytes);
-              
-              if (subscribers_[topic]->topic_ == TINYROS_TF_TOPIC) {
-                spin_tf_pool_.schedule(std::bind(&NodeHandleBase_::spin_task, this, obj));
-              } else {
-                spin_thread_pool_.schedule(std::bind(&NodeHandleBase_::spin_task, this, obj));
-              }
+              spin_thread_pool_.schedule(std::bind(&NodeHandleBase_::spin_task, this, obj));
             }
           }
         } while(0);
