@@ -1,4 +1,4 @@
-from .JointTrajectoryPoint import *
 from .MultiDOFJointTrajectory import *
-from .MultiDOFJointTrajectoryPoint import *
+from .JointTrajectoryPoint import *
 from .JointTrajectory import *
+from .MultiDOFJointTrajectoryPoint import *

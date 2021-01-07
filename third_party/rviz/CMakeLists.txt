@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 2.6)
 
 set(EXECUTABLE_OUTPUT_PATH ${OUTPUT_PATHS}/bin)
 set(LIBRARY_OUTPUT_PATH ${OUTPUT_PATHS}/lib)

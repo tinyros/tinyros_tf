@@ -67,7 +67,7 @@ public:
     }
 
     double average_offset = 0;
-    std::scoped_lock my_lock(map_lock_);  
+    std::unique_lock<std::mutex> my_lock(map_lock_);  
     for (unsigned int i = 0; i < message.transforms_length; i++)
     {
       frame_authority_map[message.transforms[i].child_frame_id] = authority;
@@ -194,7 +194,7 @@ public:
         }
         else
           std::cout <<std::endl<< std::endl<< std::endl<< "RESULTS: for all Frames" <<std::endl;
-        std::scoped_lock lock(map_lock_);  
+        std::unique_lock<std::mutex> lock(map_lock_);  
         std::cout <<std::endl << "Frames:" <<std::endl;
         std::map<std::string, std::vector<double> >::iterator it = delay_map.begin();
         for ( ; it != delay_map.end() ; ++it)

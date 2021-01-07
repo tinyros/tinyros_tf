@@ -1,12 +1,16 @@
 cmake_minimum_required(VERSION 2.6)
 
+# sudo apt-get install libuv1-dev libssl-dev zlib1g-dev
 option(TINYROS_SUPPORT_WEBSOCKETS "WebSockets support? (ON/OFF)" ON)
+
+# sudo apt-get install liborocos-kdl-dev libeigen3-dev libbullet-dev
 option(TINYROS_SUPPORT_TF "Tf support? (ON/OFF)" ON)
-option(TINYROS_SUPPORT_RVIZ "RVIZ support? (ON/OFF)" ON)
+
+option(TINYROS_SUPPORT_RVIZ "RVIZ support? (ON/OFF)" OFF)
 
 set(OUTPUT_PATHS ${PROJECT_SOURCE_DIR}/build/output)
 set(ROSLIB_PATHS ${OUTPUT_PATHS}/client_library/gcc/include/tiny_ros)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -O3")
 
 add_definitions(-DSPDLOG_COMPILED_LIB)
 

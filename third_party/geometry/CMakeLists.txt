@@ -7,15 +7,18 @@ execute_process(
   COMMAND cp -a ${TINYROS_TF_SOURCE_DIR}/include/tf/. ${ROSLIB_PATHS}/tf
 )
 
-# sudo apt-get install liborocos-kdl-dev libeigen3-dev libbullet-dev
 find_package(orocos_kdl REQUIRED)
-find_package(Eigen3 REQUIRED)
 find_package(Bullet REQUIRED)
+find_package(Eigen 3 QUIET)
+if(NOT Eigen_FOUND)
+  include(${PROJECT_SOURCE_DIR}/config/FindEigen3.cmake)
+  set(Eigen_INCLUDE_DIR "${EIGEN3_INCLUDE_DIR}")
+endif()
 
-include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
 include_directories(SYSTEM ${BULLET_INCLUDE_DIRS})
 include_directories(${orocos_kdl_INCLUDE_DIRS})
 link_directories(${orocos_kdl_LIBRARY_DIRS})
+include_directories(${Eigen_INCLUDE_DIR})
 
 add_executable(tinyros_tf_echo
 	${ROSLIB_PATHS}/ros.cpp

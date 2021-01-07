@@ -1,4 +1,4 @@
-from .MeshTriangle import *
 from .SolidPrimitive import *
-from .Mesh import *
+from .MeshTriangle import *
 from .Plane import *
+from .Mesh import *

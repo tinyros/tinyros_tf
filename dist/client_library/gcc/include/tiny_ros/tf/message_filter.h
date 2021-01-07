@@ -201,8 +201,8 @@ public:
    */
   void setTargetFrames(const std::vector<std::string>& target_frames)
   {
-    std::scoped_lock list_lock(messages_mutex_);
-    std::scoped_lock string_lock(target_frames_string_mutex_);
+    std::unique_lock<std::mutex> list_lock(messages_mutex_);
+    std::unique_lock<std::mutex> string_lock(target_frames_string_mutex_);
 
     target_frames_ = target_frames;
 
@@ -219,7 +219,7 @@ public:
    */
   std::string getTargetFramesString()
   {
-    std::scoped_lock lock(target_frames_string_mutex_);
+    std::unique_lock<std::mutex> lock(target_frames_string_mutex_);
     return target_frames_string_;
   };
 
@@ -236,7 +236,7 @@ public:
    */
   void clear()
   {
-    std::scoped_lock lock(messages_mutex_);
+    std::unique_lock<std::mutex> lock(messages_mutex_);
 
     TF_MESSAGEFILTER_DEBUG("%s", "Cleared");
 
@@ -249,7 +249,7 @@ public:
 
   void add(const MEvent& evt)
   {
-    std::scoped_lock lock(messages_mutex_);
+    std::unique_lock<std::mutex> lock(messages_mutex_);
 
     testMessages();
 
@@ -295,7 +295,7 @@ public:
    */
   Connection registerFailureCallback(const FailureCallback& callback)
   {
-    std::scoped_lock lock(failure_signal_mutex_);
+    std::unique_lock<std::mutex> lock(failure_signal_mutex_);
     return Connection(std::bind(&MessageFilter::disconnectFailure, this, std::placeholders::_1), failure_signal_.connect(callback));
   }
 
@@ -449,7 +449,7 @@ private:
 
   void maxRateTimerCallback(const TimerEvent&)
   {
-    std::scoped_lock list_lock(messages_mutex_);
+    std::unique_lock<std::mutex> list_lock(messages_mutex_);
     if (new_transforms_)
     {
       testMessages();
@@ -503,13 +503,13 @@ private:
 
   void disconnectFailure(const Connection& c)
   {
-    std::scoped_lock lock(failure_signal_mutex_);
+    std::unique_lock<std::mutex> lock(failure_signal_mutex_);
     failure_signal_.disconnect(c.getSignalConnection());
   }
 
   void signalFailure(const MEvent& evt, FilterFailureReason reason)
   {
-    std::scoped_lock lock(failure_signal_mutex_);
+    std::unique_lock<std::mutex> lock(failure_signal_mutex_);
     failure_signal_.emit(evt.getMessage(), reason);
   }
 
