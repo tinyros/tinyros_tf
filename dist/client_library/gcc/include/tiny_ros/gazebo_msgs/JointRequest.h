@@ -103,8 +103,8 @@ static const char JOINTREQUEST[] = "gazebo_msgs/JointRequest";
     static std::string getTypeStatic(){ return JOINTREQUEST; }
     virtual std::string getMD5(){ return "e0bdc37edb92be07f3069573364a169f"; }
     static std::string getMD5Static(){ return "e0bdc37edb92be07f3069573364a169f"; }
-    virtual std::string getDefinition(){ return "string joint_name   \n"; }
-    static std::string getDefinitionStatic(){ return "string joint_name   \n"; }
+    virtual std::string getDefinition(){ return "string joint_name\n"; }
+    static std::string getDefinitionStatic(){ return "string joint_name\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

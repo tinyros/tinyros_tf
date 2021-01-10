@@ -30,24 +30,26 @@
 #ifndef RVIZ_LOADING_DIALOG_H
 #define RVIZ_LOADING_DIALOG_H
 
-#include <QDialog>
+#include <wx/dialog.h>
+#include <wx/bitmap.h>
 
 #include <string>
-
-class QLabel;
 
 namespace rviz
 {
 
-class LoadingDialog : public QDialog
+class LoadingDialog : public wxDialog
 {
 public:
-  LoadingDialog( QWidget* parent = 0 );
+  LoadingDialog(wxWindow* parent);
+  ~LoadingDialog();
 
-  void setState( const std::string& state );
+  void setState(const std::string& state);
 
 protected:
-  QLabel* label_;
+  void onPaint(wxPaintEvent& evt);
+
+  std::string state_;
 };
 
 }

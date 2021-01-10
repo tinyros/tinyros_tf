@@ -16,14 +16,14 @@ public class Subscriber<MsgT extends Msg> extends SubscriberT {
 
     @Override
     public void callback(byte[] data) {
-    	try {
-        	Class<? extends Msg> cl = this.msg_.getClass();
-			Msg tmsg = cl.newInstance();
-			tmsg.deserialize(data, 0);
-	        this.cb_.callback(tmsg);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+      try {
+          Class<? extends Msg> cl = this.msg_.getClass();
+      Msg tmsg = cl.newInstance();
+      tmsg.deserialize(data, 0);
+          this.cb_.callback(tmsg);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     }
 
     @Override

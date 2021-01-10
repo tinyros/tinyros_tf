@@ -126,8 +126,8 @@ namespace sensor_msgs
     static std::string getTypeStatic(){ return "sensor_msgs/LaserEcho"; }
     virtual std::string getMD5(){ return "a8537b388573845b3240b44db5bc4905"; }
     static std::string getMD5Static(){ return "a8537b388573845b3240b44db5bc4905"; }
-    virtual std::string getDefinition(){ return "float32[] echoes  \n"; }
-    static std::string getDefinitionStatic(){ return "float32[] echoes  \n"; }
+    virtual std::string getDefinition(){ return "float32[] echoes\n"; }
+    static std::string getDefinitionStatic(){ return "float32[] echoes\n"; }
     static bool hasHeader(){ return false; }
   };
 

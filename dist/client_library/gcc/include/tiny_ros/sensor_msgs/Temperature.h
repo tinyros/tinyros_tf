@@ -139,8 +139,8 @@ namespace sensor_msgs
     static std::string getTypeStatic(){ return "sensor_msgs/Temperature"; }
     virtual std::string getMD5(){ return "898a0e5950c8e4073c0c3cf2d7e7bf26"; }
     static std::string getMD5Static(){ return "898a0e5950c8e4073c0c3cf2d7e7bf26"; }
-    virtual std::string getDefinition(){ return "Header header           \nfloat64 temperature     \nfloat64 variance        \n"; }
-    static std::string getDefinitionStatic(){ return "Header header           \nfloat64 temperature     \nfloat64 variance        \n"; }
+    virtual std::string getDefinition(){ return "Header header\nfloat64 temperature\nfloat64 variance\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\nfloat64 temperature\nfloat64 variance\n"; }
     static bool hasHeader(){ return true; }
   };
 

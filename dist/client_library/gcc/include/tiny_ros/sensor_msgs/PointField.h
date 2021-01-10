@@ -137,8 +137,8 @@ namespace sensor_msgs
     static std::string getTypeStatic(){ return "sensor_msgs/PointField"; }
     virtual std::string getMD5(){ return "039974f05fdf0470d9dc865fd01dcc3e"; }
     static std::string getMD5Static(){ return "039974f05fdf0470d9dc865fd01dcc3e"; }
-    virtual std::string getDefinition(){ return "string name      \nuint32 offset    \nuint8  datatype  \nuint32 count     \n"; }
-    static std::string getDefinitionStatic(){ return "string name      \nuint32 offset    \nuint8  datatype  \nuint32 count     \n"; }
+    virtual std::string getDefinition(){ return "string name\nuint32 offset\nuint8  datatype\nuint32 count\n"; }
+    static std::string getDefinitionStatic(){ return "string name\nuint32 offset\nuint8  datatype\nuint32 count\n"; }
     static bool hasHeader(){ return false; }
   };
 

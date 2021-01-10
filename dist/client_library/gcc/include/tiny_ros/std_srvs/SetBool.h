@@ -96,8 +96,8 @@ static const char SETBOOL[] = "std_srvs/SetBool";
     static std::string getTypeStatic(){ return SETBOOL; }
     virtual std::string getMD5(){ return "2600271ce244b6b0d236894ec6f04373"; }
     static std::string getMD5Static(){ return "2600271ce244b6b0d236894ec6f04373"; }
-    virtual std::string getDefinition(){ return "bool data \n"; }
-    static std::string getDefinitionStatic(){ return "bool data \n"; }
+    virtual std::string getDefinition(){ return "bool data\n"; }
+    static std::string getDefinitionStatic(){ return "bool data\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
@@ -216,8 +216,8 @@ typedef std::shared_ptr<tinyros::std_srvs::SetBoolRequest const> SetBoolRequestC
     static std::string getTypeStatic(){ return SETBOOL; }
     virtual std::string getMD5(){ return "51cf1b5cb67d107350442299d694fd1d"; }
     static std::string getMD5Static(){ return "51cf1b5cb67d107350442299d694fd1d"; }
-    virtual std::string getDefinition(){ return "bool success   \nstring message \n"; }
-    static std::string getDefinitionStatic(){ return "bool success   \nstring message \n"; }
+    virtual std::string getDefinition(){ return "bool success\nstring message\n"; }
+    static std::string getDefinitionStatic(){ return "bool success\nstring message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

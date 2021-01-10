@@ -144,8 +144,8 @@ namespace std_msgs
     static std::string getTypeStatic(){ return "std_msgs/Float64MultiArray"; }
     virtual std::string getMD5(){ return "e3061da26924f3790a70f9dbf06fc1a5"; }
     static std::string getMD5Static(){ return "e3061da26924f3790a70f9dbf06fc1a5"; }
-    virtual std::string getDefinition(){ return "MultiArrayLayout  layout        \nfloat64[]         data          \n"; }
-    static std::string getDefinitionStatic(){ return "MultiArrayLayout  layout        \nfloat64[]         data          \n"; }
+    virtual std::string getDefinition(){ return "MultiArrayLayout  layout\nfloat64[]         data\n"; }
+    static std::string getDefinitionStatic(){ return "MultiArrayLayout  layout\nfloat64[]         data\n"; }
     static bool hasHeader(){ return false; }
   };
 

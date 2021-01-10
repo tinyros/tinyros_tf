@@ -132,8 +132,8 @@ static const char GETLINKSTATE[] = "gazebo_msgs/GetLinkState";
     static std::string getTypeStatic(){ return GETLINKSTATE; }
     virtual std::string getMD5(){ return "b9de4ed1795bda93c873763a2e55e76b"; }
     static std::string getMD5Static(){ return "b9de4ed1795bda93c873763a2e55e76b"; }
-    virtual std::string getDefinition(){ return "string link_name          \nstring reference_frame    \n"; }
-    static std::string getDefinitionStatic(){ return "string link_name          \nstring reference_frame    \n"; }
+    virtual std::string getDefinition(){ return "string link_name\nstring reference_frame\n"; }
+    static std::string getDefinitionStatic(){ return "string link_name\nstring reference_frame\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
@@ -261,8 +261,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetLinkStateRequest const> GetLink
     static std::string getTypeStatic(){ return GETLINKSTATE; }
     virtual std::string getMD5(){ return "4d4305d53d97f8edc3b3ce04bcb94ed0"; }
     static std::string getMD5Static(){ return "4d4305d53d97f8edc3b3ce04bcb94ed0"; }
-    virtual std::string getDefinition(){ return "gazebo_msgs/LinkState link_state\nbool success              \nstring status_message     \n"; }
-    static std::string getDefinitionStatic(){ return "gazebo_msgs/LinkState link_state\nbool success              \nstring status_message     \n"; }
+    virtual std::string getDefinition(){ return "gazebo_msgs/LinkState link_state\nbool success\nstring status_message\n"; }
+    static std::string getDefinitionStatic(){ return "gazebo_msgs/LinkState link_state\nbool success\nstring status_message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

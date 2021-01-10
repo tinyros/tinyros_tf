@@ -220,8 +220,8 @@ namespace diagnostic_msgs
     static std::string getTypeStatic(){ return "diagnostic_msgs/DiagnosticStatus"; }
     virtual std::string getMD5(){ return "9ec892d2145f478061efd60bb1762361"; }
     static std::string getMD5Static(){ return "9ec892d2145f478061efd60bb1762361"; }
-    virtual std::string getDefinition(){ return "byte level \nstring name \nstring message \nstring hardware_id \nKeyValue[] values \n"; }
-    static std::string getDefinitionStatic(){ return "byte level \nstring name \nstring message \nstring hardware_id \nKeyValue[] values \n"; }
+    virtual std::string getDefinition(){ return "byte level\nstring name\nstring message\nstring hardware_id\nKeyValue[] values\n"; }
+    static std::string getDefinitionStatic(){ return "byte level\nstring name\nstring message\nstring hardware_id\nKeyValue[] values\n"; }
     static bool hasHeader(){ return false; }
   };
 

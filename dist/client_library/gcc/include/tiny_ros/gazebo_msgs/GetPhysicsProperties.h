@@ -306,8 +306,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetPhysicsPropertiesRequest const>
     static std::string getTypeStatic(){ return GETPHYSICSPROPERTIES; }
     virtual std::string getMD5(){ return "8f17f751935ff418006bf6b24982cb08"; }
     static std::string getMD5Static(){ return "8f17f751935ff418006bf6b24982cb08"; }
-    virtual std::string getDefinition(){ return "float64 time_step                  \nbool pause                         \nfloat64 max_update_rate            \ngeometry_msgs/Vector3 gravity      \ngazebo_msgs/ODEPhysics ode_config  \nbool success                       \nstring status_message              \n"; }
-    static std::string getDefinitionStatic(){ return "float64 time_step                  \nbool pause                         \nfloat64 max_update_rate            \ngeometry_msgs/Vector3 gravity      \ngazebo_msgs/ODEPhysics ode_config  \nbool success                       \nstring status_message              \n"; }
+    virtual std::string getDefinition(){ return "float64 time_step\nbool pause\nfloat64 max_update_rate\ngeometry_msgs/Vector3 gravity\ngazebo_msgs/ODEPhysics ode_config\nbool success\nstring status_message\n"; }
+    static std::string getDefinitionStatic(){ return "float64 time_step\nbool pause\nfloat64 max_update_rate\ngeometry_msgs/Vector3 gravity\ngazebo_msgs/ODEPhysics ode_config\nbool success\nstring status_message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

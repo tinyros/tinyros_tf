@@ -224,8 +224,8 @@ namespace stereo_msgs
     static std::string getTypeStatic(){ return "stereo_msgs/DisparityImage"; }
     virtual std::string getMD5(){ return "03545cef8df8d20bea21fdbbf9482b4b"; }
     static std::string getMD5Static(){ return "03545cef8df8d20bea21fdbbf9482b4b"; }
-    virtual std::string getDefinition(){ return "Header header\nsensor_msgs/Image image\nfloat32 f \nfloat32 T \nsensor_msgs/RegionOfInterest valid_window\nfloat32 min_disparity\nfloat32 max_disparity\nfloat32 delta_d\n"; }
-    static std::string getDefinitionStatic(){ return "Header header\nsensor_msgs/Image image\nfloat32 f \nfloat32 T \nsensor_msgs/RegionOfInterest valid_window\nfloat32 min_disparity\nfloat32 max_disparity\nfloat32 delta_d\n"; }
+    virtual std::string getDefinition(){ return "Header header\nsensor_msgs/Image image\nfloat32 f\nfloat32 T\nsensor_msgs/RegionOfInterest valid_window\nfloat32 min_disparity\nfloat32 max_disparity\nfloat32 delta_d\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\nsensor_msgs/Image image\nfloat32 f\nfloat32 T\nsensor_msgs/RegionOfInterest valid_window\nfloat32 min_disparity\nfloat32 max_disparity\nfloat32 delta_d\n"; }
     static bool hasHeader(){ return true; }
   };
 

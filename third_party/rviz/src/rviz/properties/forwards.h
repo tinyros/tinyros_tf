@@ -30,29 +30,20 @@
 #ifndef RVIZ_PROPERTY_FORWARDS_H
 #define RVIZ_PROPERTY_FORWARDS_H
 
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
-#include <boost/function.hpp>
-
-#include <vector>
-#include <string>
-
-#define FIXED_FRAME_STRING "<Fixed Frame>"
+#include <memory>
+#include <functional>
 
 namespace rviz
 {
 
-typedef boost::function<void(const std::string&)> StatusCallback;
-typedef std::vector<std::string> V_string;
-typedef boost::function<void(V_string&)> EditEnumOptionCallback;
-class EditEnumPGProperty;
+typedef std::function<void(const std::string&)> StatusCallback;
 
 class PropertyManager;
 
 #define PROPERTY_FORWARD(name) \
   class name; \
-  typedef boost::shared_ptr<name> name##Ptr; \
-  typedef boost::weak_ptr<name> name##WPtr;
+  typedef std::shared_ptr<name> name##Ptr; \
+  typedef std::weak_ptr<name> name##WPtr;
 
 PROPERTY_FORWARD(PropertyBase);
 PROPERTY_FORWARD(BoolProperty);
@@ -67,45 +58,13 @@ PROPERTY_FORWARD(CategoryProperty);
 PROPERTY_FORWARD(Vector3Property);
 PROPERTY_FORWARD(QuaternionProperty);
 PROPERTY_FORWARD(ROSTopicStringProperty);
-PROPERTY_FORWARD(StatusProperty);
-PROPERTY_FORWARD(TFFrameProperty);
-
-typedef std::vector<PropertyBasePtr> V_PropertyBasePtr;
-typedef std::vector<PropertyBaseWPtr> V_PropertyBaseWPtr;
 
 template<class T>
-void propertyChanged(boost::weak_ptr<T>& wprop)
+void propertyChanged(std::weak_ptr<T>& wprop)
 {
-  if (boost::shared_ptr<T> prop = wprop.lock())
+  if (std::shared_ptr<T> prop = wprop.lock())
   {
     prop->changed();
-  }
-}
-
-template<class T>
-void hideProperty(boost::weak_ptr<T>& wprop)
-{
-  if (boost::shared_ptr<T> prop = wprop.lock())
-  {
-    prop->hide();
-  }
-}
-
-template<class T>
-void showProperty(boost::weak_ptr<T>& wprop)
-{
-  if (boost::shared_ptr<T> prop = wprop.lock())
-  {
-    prop->show();
-  }
-}
-
-template<class T>
-void setPropertyHelpText(boost::weak_ptr<T>& wprop, const std::string& text)
-{
-  if (boost::shared_ptr<T> prop = wprop.lock())
-  {
-    prop->setHelpText(text);
   }
 }
 

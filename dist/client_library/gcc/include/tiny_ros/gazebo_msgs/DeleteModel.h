@@ -103,8 +103,8 @@ static const char DELETEMODEL[] = "gazebo_msgs/DeleteModel";
     static std::string getTypeStatic(){ return DELETEMODEL; }
     virtual std::string getMD5(){ return "c4e25cd35d75c6c2f51ee0d986d8e556"; }
     static std::string getMD5Static(){ return "c4e25cd35d75c6c2f51ee0d986d8e556"; }
-    virtual std::string getDefinition(){ return "string model_name                 \n"; }
-    static std::string getDefinitionStatic(){ return "string model_name                 \n"; }
+    virtual std::string getDefinition(){ return "string model_name\n"; }
+    static std::string getDefinitionStatic(){ return "string model_name\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
@@ -223,8 +223,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::DeleteModelRequest const> DeleteMo
     static std::string getTypeStatic(){ return DELETEMODEL; }
     virtual std::string getMD5(){ return "3feb2eeea1c45bcf64067e4dd162726f"; }
     static std::string getMD5Static(){ return "3feb2eeea1c45bcf64067e4dd162726f"; }
-    virtual std::string getDefinition(){ return "bool success                      \nstring status_message             \n"; }
-    static std::string getDefinitionStatic(){ return "bool success                      \nstring status_message             \n"; }
+    virtual std::string getDefinition(){ return "bool success\nstring status_message\n"; }
+    static std::string getDefinitionStatic(){ return "bool success\nstring status_message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

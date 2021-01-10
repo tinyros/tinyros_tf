@@ -105,8 +105,8 @@ namespace tinyros_msgs
     static std::string getTypeStatic(){ return "tinyros_msgs/SyncTime"; }
     virtual std::string getMD5(){ return "45bf702585c65b1bb762993bdbb1de6f"; }
     static std::string getMD5Static(){ return "45bf702585c65b1bb762993bdbb1de6f"; }
-    virtual std::string getDefinition(){ return "uint32 tick \ntime data   \n"; }
-    static std::string getDefinitionStatic(){ return "uint32 tick \ntime data   \n"; }
+    virtual std::string getDefinition(){ return "uint32 tick\ntime data\n"; }
+    static std::string getDefinitionStatic(){ return "uint32 tick\ntime data\n"; }
     static bool hasHeader(){ return false; }
   };
 

@@ -46,7 +46,6 @@ public:
   virtual void deactivate() {}
 
   virtual int processMouseEvent( ViewportMouseEvent& event );
-  virtual int processKeyEvent( QKeyEvent* event, RenderPanel* panel );
 };
 
 }

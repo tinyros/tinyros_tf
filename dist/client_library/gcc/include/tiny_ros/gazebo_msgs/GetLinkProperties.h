@@ -104,8 +104,8 @@ static const char GETLINKPROPERTIES[] = "gazebo_msgs/GetLinkProperties";
     static std::string getTypeStatic(){ return GETLINKPROPERTIES; }
     virtual std::string getMD5(){ return "30b187ce76c283d51c190e8f7d59f0ff"; }
     static std::string getMD5Static(){ return "30b187ce76c283d51c190e8f7d59f0ff"; }
-    virtual std::string getDefinition(){ return "string link_name          \n"; }
-    static std::string getDefinitionStatic(){ return "string link_name          \n"; }
+    virtual std::string getDefinition(){ return "string link_name\n"; }
+    static std::string getDefinitionStatic(){ return "string link_name\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
@@ -499,8 +499,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetLinkPropertiesRequest const> Ge
     static std::string getTypeStatic(){ return GETLINKPROPERTIES; }
     virtual std::string getMD5(){ return "d45a9e2f72bfb95f519b2d0cbaac4512"; }
     static std::string getMD5Static(){ return "d45a9e2f72bfb95f519b2d0cbaac4512"; }
-    virtual std::string getDefinition(){ return "geometry_msgs/Pose com    \nbool gravity_mode         \nfloat64 mass              \nfloat64 ixx               \nfloat64 ixy               \nfloat64 ixz               \nfloat64 iyy               \nfloat64 iyz               \nfloat64 izz               \nbool success              \nstring status_message     \n"; }
-    static std::string getDefinitionStatic(){ return "geometry_msgs/Pose com    \nbool gravity_mode         \nfloat64 mass              \nfloat64 ixx               \nfloat64 ixy               \nfloat64 ixz               \nfloat64 iyy               \nfloat64 iyz               \nfloat64 izz               \nbool success              \nstring status_message     \n"; }
+    virtual std::string getDefinition(){ return "geometry_msgs/Pose com\nbool gravity_mode\nfloat64 mass\nfloat64 ixx\nfloat64 ixy\nfloat64 ixz\nfloat64 iyy\nfloat64 iyz\nfloat64 izz\nbool success\nstring status_message\n"; }
+    static std::string getDefinitionStatic(){ return "geometry_msgs/Pose com\nbool gravity_mode\nfloat64 mass\nfloat64 ixx\nfloat64 ixy\nfloat64 ixz\nfloat64 iyy\nfloat64 iyz\nfloat64 izz\nbool success\nstring status_message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

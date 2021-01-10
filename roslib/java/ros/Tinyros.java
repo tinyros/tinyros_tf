@@ -85,8 +85,8 @@ public class Tinyros {
         }
         return Tinyros.g_nh_udp_;
     }
-	
-	public static void logdebug(java.lang.String msg) { nh().log(Log.ROSDEBUG, msg); }
+  
+  public static void logdebug(java.lang.String msg) { nh().log(Log.ROSDEBUG, msg); }
     public static void loginfo(java.lang.String msg) { nh().log(Log.ROSINFO, msg); }
     public static void logwarn(java.lang.String msg) { nh().log(Log.ROSWARN, msg); }
     public static void logerror(java.lang.String msg) { nh().log(Log.ROSERROR, msg); }

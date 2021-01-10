@@ -27,7 +27,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <QKeyEvent>
+#include "selection_tool.h"
+#include "move_tool.h"
+#include "selection/selection_manager.h"
+#include "visualization_manager.h"
+#include "render_panel.h"
+#include "display.h"
+#include "viewport_mouse_event.h"
+
+#include "ogre_tools/camera_base.h"
+#include "ogre_tools/wx_ogre_render_window.h"
+
+#include <wx/event.h>
 
 #include <OGRE/OgreRay.h>
 #include <OGRE/OgreSceneManager.h>
@@ -40,19 +51,9 @@
 #include <OGRE/OgreTexture.h>
 #include <OGRE/OgreTextureManager.h>
 
-#include <ros/time.h>
+#include <btBulletCollisionCommon.h>
 
-#include "ogre_helpers/camera_base.h"
-#include "ogre_helpers/qt_ogre_render_window.h"
-
-#include "move_tool.h"
-#include "selection/selection_manager.h"
-#include "visualization_manager.h"
-#include "render_panel.h"
-#include "display.h"
-#include "viewport_mouse_event.h"
-
-#include "selection_tool.h"
+#include <tiny_ros/ros.h>
 
 namespace rviz
 {
@@ -75,7 +76,6 @@ SelectionTool::~SelectionTool()
 
 void SelectionTool::activate()
 {
-  manager_->getSelectionManager()->setTextureSize(512);
   selecting_ = false;
   moving_ = false;
 }
@@ -99,9 +99,11 @@ int SelectionTool::processMouseEvent( ViewportMouseEvent& event )
 {
   SelectionManager* sel_manager = manager_->getSelectionManager();
 
+  event.viewport->setMaterialScheme("test");
+
   int flags = 0;
 
-  if( event.alt() )
+  if (event.event.AltDown())
   {
     moving_ = true;
     selecting_ = false;
@@ -110,67 +112,71 @@ int SelectionTool::processMouseEvent( ViewportMouseEvent& event )
   {
     moving_ = false;
 
-    if( event.leftDown() )
+    if (event.event.LeftDown())
     {
       selecting_ = true;
 
-      sel_start_x_ = event.x;
-      sel_start_y_ = event.y;
+      sel_start_x_ = event.event.GetX();
+      sel_start_y_ = event.event.GetY();
     }
   }
 
-  if( selecting_ )
+  if (selecting_)
   {
-    sel_manager->highlight( event.viewport, sel_start_x_, sel_start_y_, event.x, event.y );
+    sel_manager->highlight(event.viewport, sel_start_x_, sel_start_y_, event.event.GetX(), event.event.GetY());
 
-    if( event.leftUp() )
+    if (event.event.LeftUp())
     {
       SelectionManager::SelectType type = SelectionManager::Replace;
 
       M_Picked selection;
 
-      if( event.shift() )
+      if (event.event.ShiftDown())
       {
         type = SelectionManager::Add;
       }
-      else if( event.control() )
+      else if (event.event.ControlDown())
       {
         type = SelectionManager::Remove;
       }
 
-      sel_manager->select( event.viewport, sel_start_x_, sel_start_y_, event.x, event.y, type );
+      sel_manager->select(event.viewport, sel_start_x_, sel_start_y_, event.event.GetX(), event.event.GetY(), type);
 
       selecting_ = false;
     }
 
     flags |= Render;
   }
-  else if( moving_ )
+  else if (moving_)
   {
     sel_manager->removeHighlight();
 
-    flags = move_tool_->processMouseEvent( event );
+    flags = move_tool_->processMouseEvent(event);
 
-    if( event.type == QEvent::MouseButtonRelease )
+    if (event.event.LeftUp() || event.event.RightUp() || event.event.MiddleUp())
     {
       moving_ = false;
     }
   }
   else
   {
-    sel_manager->highlight( event.viewport, event.x, event.y, event.x, event.y );
+    sel_manager->highlight(event.viewport, event.event.GetX(), event.event.GetY(), event.event.GetX(), event.event.GetY());
   }
 
   return flags;
 }
 
-int SelectionTool::processKeyEvent( QKeyEvent* event, RenderPanel* panel )
+int SelectionTool::processKeyEvent( wxKeyEvent& event )
 {
   SelectionManager* sel_manager = manager_->getSelectionManager();
+  char key = event.GetKeyCode();
 
-  if( event->key() == Qt::Key_F )
+  switch (key)
   {
+  case 'f':
+  case 'F':
     sel_manager->focusOnSelection();
+    break;
   }
 
   return Render;

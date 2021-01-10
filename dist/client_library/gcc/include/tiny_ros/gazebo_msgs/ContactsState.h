@@ -121,8 +121,8 @@ namespace gazebo_msgs
     static std::string getTypeStatic(){ return "gazebo_msgs/ContactsState"; }
     virtual std::string getMD5(){ return "d19cd2a086cbd43da4252eb8d5cc64f5"; }
     static std::string getMD5Static(){ return "d19cd2a086cbd43da4252eb8d5cc64f5"; }
-    virtual std::string getDefinition(){ return "Header header                                   \ngazebo_msgs/ContactState[] states            \n"; }
-    static std::string getDefinitionStatic(){ return "Header header                                   \ngazebo_msgs/ContactState[] states            \n"; }
+    virtual std::string getDefinition(){ return "Header header\ngazebo_msgs/ContactState[] states\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\ngazebo_msgs/ContactState[] states\n"; }
     static bool hasHeader(){ return true; }
   };
 

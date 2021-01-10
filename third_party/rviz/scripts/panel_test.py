@@ -1,56 +1,46 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
-import roslib; roslib.load_manifest('rviz')
+import os
 import sys
+
+WXVER = '2.8'
+import wxversion
+if wxversion.checkInstalled(WXVER):
+  wxversion.select(WXVER)
+else:
+  print >> sys.stderr, "This application requires wxPython version %s"%(WXVER)
+  sys.exit(1)
+
+import wx
+
+import roslib
+roslib.load_manifest('rviz')
+
 import rviz
-from QtGui import *
-from QtCore import *
+import ogre_tools
 
-app = QApplication( sys.argv )
+class VisualizerFrame(wx.Frame):
+  def __init__(self, parent, id=wx.ID_ANY, title='Standalone Visualizer', pos=wx.DefaultPosition, size=(800, 600), style=wx.DEFAULT_FRAME_STYLE):
+    wx.Frame.__init__(self, parent, id, title, pos, size, style)
+    
+    visualizer_panel = rviz.VisualizationPanel(self)
+    
+    self.Layout()
+    
 
-def do_top():
-    global frame
-    frame.setTargetFrame( "<Fixed Frame>" );
-    frame.setViewString( "1.5548 2.3904 10 0 0 0" )
+class VisualizerApp(wx.App):
+  def __init__(self):
+    wx.App.__init__(self)
+  
+  def OnInit(self):
+    ogre_tools.initializeOgre()
+    frame = VisualizerFrame(None, wx.ID_ANY, "Visualization Panel Test", wx.DefaultPosition, wx.Size( 800, 600 ) )
+    frame.Show(True)
+    return True
+        
+  def OnExit(self):        
+    ogre_tools.cleanupOgre()
 
-def do_side():
-    global frame
-    frame.setTargetFrame( "<Fixed Frame>" );
-    frame.setViewString( "0.0903987 1.5854 10 0 0 0" )
-
-def do_quit():
-    print 'Quitting.'
-    app.quit()
-
-def fun():
-    global frame
-
-    top = QPushButton( "Top" )
-    top.clicked.connect( do_top )
-
-    side = QPushButton( "Side" )
-    side.clicked.connect( do_side )
-
-    quit_btn = QPushButton( "Quit" )
-    quit_btn.clicked.connect( do_quit )
-
-    button_layout = QVBoxLayout()
-    button_layout.addWidget( top )
-    button_layout.addWidget( side )
-    button_layout.addWidget( quit_btn )
-
-    frame = rviz.VisualizationPanel()
-
-    main_layout = QHBoxLayout()
-    main_layout.addLayout( button_layout )
-    main_layout.addWidget( frame )
-
-    main_window = QWidget()
-    main_window.setLayout( main_layout )
-    main_window.show()
-
-    app.exec_()
-
-fun()
-
-sys.exit()
+if __name__ == "__main__":
+  app = VisualizerApp()
+  app.MainLoop()

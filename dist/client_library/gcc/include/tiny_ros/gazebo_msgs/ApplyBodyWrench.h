@@ -211,8 +211,8 @@ static const char APPLYBODYWRENCH[] = "gazebo_msgs/ApplyBodyWrench";
     static std::string getTypeStatic(){ return APPLYBODYWRENCH; }
     virtual std::string getMD5(){ return "434adb4bdbb64c5610c7fadb31f0fa7d"; }
     static std::string getMD5Static(){ return "434adb4bdbb64c5610c7fadb31f0fa7d"; }
-    virtual std::string getDefinition(){ return "string body_name                          \nstring reference_frame                    \ngeometry_msgs/Point  reference_point      \ngeometry_msgs/Wrench wrench               \ntime start_time                           \nduration duration                         \n"; }
-    static std::string getDefinitionStatic(){ return "string body_name                          \nstring reference_frame                    \ngeometry_msgs/Point  reference_point      \ngeometry_msgs/Wrench wrench               \ntime start_time                           \nduration duration                         \n"; }
+    virtual std::string getDefinition(){ return "string body_name\nstring reference_frame\ngeometry_msgs/Point  reference_point\ngeometry_msgs/Wrench wrench\ntime start_time\nduration duration\n"; }
+    static std::string getDefinitionStatic(){ return "string body_name\nstring reference_frame\ngeometry_msgs/Point  reference_point\ngeometry_msgs/Wrench wrench\ntime start_time\nduration duration\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
@@ -331,8 +331,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyBodyWrenchRequest const> Appl
     static std::string getTypeStatic(){ return APPLYBODYWRENCH; }
     virtual std::string getMD5(){ return "f29b3c75e7d692065eda02aae6d3a3a0"; }
     static std::string getMD5Static(){ return "f29b3c75e7d692065eda02aae6d3a3a0"; }
-    virtual std::string getDefinition(){ return "bool success                              \nstring status_message                     \n"; }
-    static std::string getDefinitionStatic(){ return "bool success                              \nstring status_message                     \n"; }
+    virtual std::string getDefinition(){ return "bool success\nstring status_message\n"; }
+    static std::string getDefinitionStatic(){ return "bool success\nstring status_message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

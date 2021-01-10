@@ -113,8 +113,8 @@ static const char SETJOINTPROPERTIES[] = "gazebo_msgs/SetJointProperties";
     static std::string getTypeStatic(){ return SETJOINTPROPERTIES; }
     virtual std::string getMD5(){ return "e9063603bda4e7bdd2b5530ad7705661"; }
     static std::string getMD5Static(){ return "e9063603bda4e7bdd2b5530ad7705661"; }
-    virtual std::string getDefinition(){ return "string joint_name                               \ngazebo_msgs/ODEJointProperties ode_joint_config \n"; }
-    static std::string getDefinitionStatic(){ return "string joint_name                               \ngazebo_msgs/ODEJointProperties ode_joint_config \n"; }
+    virtual std::string getDefinition(){ return "string joint_name\ngazebo_msgs/ODEJointProperties ode_joint_config\n"; }
+    static std::string getDefinitionStatic(){ return "string joint_name\ngazebo_msgs/ODEJointProperties ode_joint_config\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
@@ -233,8 +233,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointPropertiesRequest const> S
     static std::string getTypeStatic(){ return SETJOINTPROPERTIES; }
     virtual std::string getMD5(){ return "7e8650b70fd2dfc24b249dddf8f45cee"; }
     static std::string getMD5Static(){ return "7e8650b70fd2dfc24b249dddf8f45cee"; }
-    virtual std::string getDefinition(){ return "bool success                                    \nstring status_message                           \n"; }
-    static std::string getDefinitionStatic(){ return "bool success                                    \nstring status_message                           \n"; }
+    virtual std::string getDefinition(){ return "bool success\nstring status_message\n"; }
+    static std::string getDefinitionStatic(){ return "bool success\nstring status_message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

@@ -36,123 +36,123 @@ subject to the following restrictions:
 
 #ifdef _WIN32
 
-		#if defined(__MINGW32__) || defined(__CYGWIN__) || (defined (_MSC_VER) && _MSC_VER < 1300)
+    #if defined(__MINGW32__) || defined(__CYGWIN__) || (defined (_MSC_VER) && _MSC_VER < 1300)
 
-			#define TFSIMD_FORCE_INLINE inline
-			#define ATTRIBUTE_ALIGNED16(a) a
-			#define ATTRIBUTE_ALIGNED64(a) a
-			#define ATTRIBUTE_ALIGNED128(a) a
-		#else
-			//#define TF_HAS_ALIGNED_ALLOCATOR
-			#pragma warning(disable : 4324) // disable padding warning
-//			#pragma warning(disable:4530) // Disable the exception disable but used in MSCV Stl warning.
-//			#pragma warning(disable:4996) //Turn off warnings about deprecated C routines
-//			#pragma warning(disable:4786) // Disable the "debug name too long" warning
+      #define TFSIMD_FORCE_INLINE inline
+      #define ATTRIBUTE_ALIGNED16(a) a
+      #define ATTRIBUTE_ALIGNED64(a) a
+      #define ATTRIBUTE_ALIGNED128(a) a
+    #else
+      //#define TF_HAS_ALIGNED_ALLOCATOR
+      #pragma warning(disable : 4324) // disable padding warning
+//      #pragma warning(disable:4530) // Disable the exception disable but used in MSCV Stl warning.
+//      #pragma warning(disable:4996) //Turn off warnings about deprecated C routines
+//      #pragma warning(disable:4786) // Disable the "debug name too long" warning
 
-			#define TFSIMD_FORCE_INLINE __forceinline
-			#define ATTRIBUTE_ALIGNED16(a) __declspec(align(16)) a
-			#define ATTRIBUTE_ALIGNED64(a) __declspec(align(64)) a
-			#define ATTRIBUTE_ALIGNED128(a) __declspec (align(128)) a
-		#ifdef _XBOX
-			#define TF_USE_VMX128
+      #define TFSIMD_FORCE_INLINE __forceinline
+      #define ATTRIBUTE_ALIGNED16(a) __declspec(align(16)) a
+      #define ATTRIBUTE_ALIGNED64(a) __declspec(align(64)) a
+      #define ATTRIBUTE_ALIGNED128(a) __declspec (align(128)) a
+    #ifdef _XBOX
+      #define TF_USE_VMX128
 
-			#include <ppcintrinsics.h>
- 			#define TF_HAVE_NATIVE_FSEL
- 			#define tfFsel(a,b,c) __fsel((a),(b),(c))
-		#else
+      #include <ppcintrinsics.h>
+       #define TF_HAVE_NATIVE_FSEL
+       #define tfFsel(a,b,c) __fsel((a),(b),(c))
+    #else
 
 
-		#endif//_XBOX
+    #endif//_XBOX
 
-		#endif //__MINGW32__
+    #endif //__MINGW32__
 
-		#include <assert.h>
+    #include <assert.h>
 #ifdef TF_DEBUG
-		#define tfAssert assert
+    #define tfAssert assert
 #else
-		#define tfAssert(x)
+    #define tfAssert(x)
 #endif
-		//tfFullAssert is optional, slows down a lot
-		#define tfFullAssert(x)
+    //tfFullAssert is optional, slows down a lot
+    #define tfFullAssert(x)
 
-		#define tfLikely(_c)  _c
-		#define tfUnlikely(_c) _c
+    #define tfLikely(_c)  _c
+    #define tfUnlikely(_c) _c
 
 #else
-	
-#if defined	(__CELLOS_LV2__)
-		#define TFSIMD_FORCE_INLINE inline
-		#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
-		#define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
-		#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
-		#ifndef assert
-		#include <assert.h>
-		#endif
+  
+#if defined  (__CELLOS_LV2__)
+    #define TFSIMD_FORCE_INLINE inline
+    #define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+    #define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
+    #define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
+    #ifndef assert
+    #include <assert.h>
+    #endif
 #ifdef TF_DEBUG
-		#define tfAssert assert
+    #define tfAssert assert
 #else
-		#define tfAssert(x)
+    #define tfAssert(x)
 #endif
-		//tfFullAssert is optional, slows down a lot
-		#define tfFullAssert(x)
+    //tfFullAssert is optional, slows down a lot
+    #define tfFullAssert(x)
 
-		#define tfLikely(_c)  _c
-		#define tfUnlikely(_c) _c
+    #define tfLikely(_c)  _c
+    #define tfUnlikely(_c) _c
 
 #else
 
 #ifdef USE_LIBSPE2
 
-		#define TFSIMD_FORCE_INLINE __inline
-		#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
-		#define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
-		#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
-		#ifndef assert
-		#include <assert.h>
-		#endif
+    #define TFSIMD_FORCE_INLINE __inline
+    #define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+    #define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
+    #define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
+    #ifndef assert
+    #include <assert.h>
+    #endif
 #ifdef TF_DEBUG
-		#define tfAssert assert
+    #define tfAssert assert
 #else
-		#define tfAssert(x)
+    #define tfAssert(x)
 #endif
-		//tfFullAssert is optional, slows down a lot
-		#define tfFullAssert(x)
+    //tfFullAssert is optional, slows down a lot
+    #define tfFullAssert(x)
 
 
-		#define tfLikely(_c)   __builtin_expect((_c), 1)
-		#define tfUnlikely(_c) __builtin_expect((_c), 0)
-		
+    #define tfLikely(_c)   __builtin_expect((_c), 1)
+    #define tfUnlikely(_c) __builtin_expect((_c), 0)
+    
 
 #else
-	//non-windows systems
+  //non-windows systems
 
 
-		#define TFSIMD_FORCE_INLINE inline
-		///@todo: check out alignment methods for other platforms/compilers
-		///#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
-		///#define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
-		///#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
-		#define ATTRIBUTE_ALIGNED16(a) a
-		#define ATTRIBUTE_ALIGNED64(a) a
-		#define ATTRIBUTE_ALIGNED128(a) a
-		#ifndef assert
-		#include <assert.h>
-		#endif
+    #define TFSIMD_FORCE_INLINE inline
+    ///@todo: check out alignment methods for other platforms/compilers
+    ///#define ATTRIBUTE_ALIGNED16(a) a __attribute__ ((aligned (16)))
+    ///#define ATTRIBUTE_ALIGNED64(a) a __attribute__ ((aligned (64)))
+    ///#define ATTRIBUTE_ALIGNED128(a) a __attribute__ ((aligned (128)))
+    #define ATTRIBUTE_ALIGNED16(a) a
+    #define ATTRIBUTE_ALIGNED64(a) a
+    #define ATTRIBUTE_ALIGNED128(a) a
+    #ifndef assert
+    #include <assert.h>
+    #endif
 
 #if defined(DEBUG) || defined (_DEBUG)
-		#define tfAssert assert
+    #define tfAssert assert
 #else
-		#define tfAssert(x)
+    #define tfAssert(x)
 #endif
 
-		//tfFullAssert is optional, slows down a lot
-		#define tfFullAssert(x)
-		#define tfLikely(_c)  _c
-		#define tfUnlikely(_c) _c
+    //tfFullAssert is optional, slows down a lot
+    #define tfFullAssert(x)
+    #define tfLikely(_c)  _c
+    #define tfUnlikely(_c) _c
 
 #endif // LIBSPE2
 
-#endif	//__CELLOS_LV2__
+#endif  //__CELLOS_LV2__
 #endif
 
 
@@ -175,14 +175,14 @@ typedef double tfScalar;
 
 
 
-		
+    
 TFSIMD_FORCE_INLINE tfScalar tfSqrt(tfScalar x) { return sqrt(x); }
 TFSIMD_FORCE_INLINE tfScalar tfFabs(tfScalar x) { return fabs(x); }
 TFSIMD_FORCE_INLINE tfScalar tfCos(tfScalar x) { return cos(x); }
 TFSIMD_FORCE_INLINE tfScalar tfSin(tfScalar x) { return sin(x); }
 TFSIMD_FORCE_INLINE tfScalar tfTan(tfScalar x) { return tan(x); }
-TFSIMD_FORCE_INLINE tfScalar tfAcos(tfScalar x) { if (x<tfScalar(-1))	x=tfScalar(-1); if (x>tfScalar(1))	x=tfScalar(1); return acos(x); }
-TFSIMD_FORCE_INLINE tfScalar tfAsin(tfScalar x) { if (x<tfScalar(-1))	x=tfScalar(-1); if (x>tfScalar(1))	x=tfScalar(1); return asin(x); }
+TFSIMD_FORCE_INLINE tfScalar tfAcos(tfScalar x) { if (x<tfScalar(-1))  x=tfScalar(-1); if (x>tfScalar(1))  x=tfScalar(1); return acos(x); }
+TFSIMD_FORCE_INLINE tfScalar tfAsin(tfScalar x) { if (x<tfScalar(-1))  x=tfScalar(-1); if (x>tfScalar(1))  x=tfScalar(1); return asin(x); }
 TFSIMD_FORCE_INLINE tfScalar tfAtan(tfScalar x) { return atan(x); }
 TFSIMD_FORCE_INLINE tfScalar tfAtan2(tfScalar x, tfScalar y) { return atan2(x, y); }
 TFSIMD_FORCE_INLINE tfScalar tfExp(tfScalar x) { return exp(x); }
@@ -198,7 +198,7 @@ TFSIMD_FORCE_INLINE tfScalar tfFmod(tfScalar x,tfScalar y) { return fmod(x,y); }
 #define TFSIMD_DEGS_PER_RAD  (tfScalar(360.0) / TFSIMD_2_PI)
 #define TFSIMDSQRT12 tfScalar(0.7071067811865475244008443621048490)
 
-#define tfRecipSqrt(x) ((tfScalar)(tfScalar(1.0)/tfSqrt(tfScalar(x))))		/* reciprocal square root */
+#define tfRecipSqrt(x) ((tfScalar)(tfScalar(1.0)/tfSqrt(tfScalar(x))))    /* reciprocal square root */
 
 
 #define TFSIMD_EPSILON      DBL_EPSILON
@@ -206,27 +206,27 @@ TFSIMD_FORCE_INLINE tfScalar tfFmod(tfScalar x,tfScalar y) { return fmod(x,y); }
 
 TFSIMD_FORCE_INLINE tfScalar tfAtan2Fast(tfScalar y, tfScalar x) 
 {
-	tfScalar coeff_1 = TFSIMD_PI / 4.0f;
-	tfScalar coeff_2 = 3.0f * coeff_1;
-	tfScalar abs_y = tfFabs(y);
-	tfScalar angle;
-	if (x >= 0.0f) {
-		tfScalar r = (x - abs_y) / (x + abs_y);
-		angle = coeff_1 - coeff_1 * r;
-	} else {
-		tfScalar r = (x + abs_y) / (abs_y - x);
-		angle = coeff_2 - coeff_1 * r;
-	}
-	return (y < 0.0f) ? -angle : angle;
+  tfScalar coeff_1 = TFSIMD_PI / 4.0f;
+  tfScalar coeff_2 = 3.0f * coeff_1;
+  tfScalar abs_y = tfFabs(y);
+  tfScalar angle;
+  if (x >= 0.0f) {
+    tfScalar r = (x - abs_y) / (x + abs_y);
+    angle = coeff_1 - coeff_1 * r;
+  } else {
+    tfScalar r = (x + abs_y) / (abs_y - x);
+    angle = coeff_2 - coeff_1 * r;
+  }
+  return (y < 0.0f) ? -angle : angle;
 }
 
 TFSIMD_FORCE_INLINE bool      tfFuzzyZero(tfScalar x) { return tfFabs(x) < TFSIMD_EPSILON; }
 
-TFSIMD_FORCE_INLINE bool	tfEqual(tfScalar a, tfScalar eps) {
-	return (((a) <= eps) && !((a) < -eps));
+TFSIMD_FORCE_INLINE bool  tfEqual(tfScalar a, tfScalar eps) {
+  return (((a) <= eps) && !((a) < -eps));
 }
-TFSIMD_FORCE_INLINE bool	tfGreaterEqual (tfScalar a, tfScalar eps) {
-	return (!((a) <= eps));
+TFSIMD_FORCE_INLINE bool  tfGreaterEqual (tfScalar a, tfScalar eps) {
+  return (!((a) <= eps));
 }
 
 
@@ -242,7 +242,7 @@ TFSIMD_FORCE_INLINE tfScalar tfDegrees(tfScalar x) { return x * TFSIMD_DEGS_PER_
 #ifndef tfFsel
 TFSIMD_FORCE_INLINE tfScalar tfFsel(tfScalar a, tfScalar b, tfScalar c)
 {
-	return a >= 0 ? b : c;
+  return a >= 0 ? b : c;
 }
 #endif
 #define tfFsels(a,b,c) (tfScalar)tfFsel(a,b,c)
@@ -253,9 +253,9 @@ TFSIMD_FORCE_INLINE bool tfMachineIsLittleEndian()
    long int i = 1;
    const char *p = (const char *) &i;
    if (p[0] == 1)  // Lowest address contains the least significant byte
-	   return true;
+     return true;
    else
-	   return false;
+     return false;
 }
 
 
@@ -289,31 +289,31 @@ TFSIMD_FORCE_INLINE float tfSelect(unsigned condition, float valueIfConditionNon
 
 template<typename T> TFSIMD_FORCE_INLINE void tfSwap(T& a, T& b)
 {
-	T tmp = a;
-	a = b;
-	b = tmp;
+  T tmp = a;
+  a = b;
+  b = tmp;
 }
 
 
 //PCK: endian swapping functions
 TFSIMD_FORCE_INLINE unsigned tfSwapEndian(unsigned val)
 {
-	return (((val & 0xff000000) >> 24) | ((val & 0x00ff0000) >> 8) | ((val & 0x0000ff00) << 8)  | ((val & 0x000000ff) << 24));
+  return (((val & 0xff000000) >> 24) | ((val & 0x00ff0000) >> 8) | ((val & 0x0000ff00) << 8)  | ((val & 0x000000ff) << 24));
 }
 
 TFSIMD_FORCE_INLINE unsigned short tfSwapEndian(unsigned short val)
 {
-	return static_cast<unsigned short>(((val & 0xff00) >> 8) | ((val & 0x00ff) << 8));
+  return static_cast<unsigned short>(((val & 0xff00) >> 8) | ((val & 0x00ff) << 8));
 }
 
 TFSIMD_FORCE_INLINE unsigned tfSwapEndian(int val)
 {
-	return tfSwapEndian((unsigned)val);
+  return tfSwapEndian((unsigned)val);
 }
 
 TFSIMD_FORCE_INLINE unsigned short tfSwapEndian(short val)
 {
-	return tfSwapEndian((unsigned short) val);
+  return tfSwapEndian((unsigned short) val);
 }
 
 ///tfSwapFloat uses using char pointers to swap the endianness
@@ -382,38 +382,38 @@ TFSIMD_FORCE_INLINE double tfUnswapEndianDouble(const unsigned char *src)
     dst[6] = src[1];
     dst[7] = src[0];
 
-	return d;
+  return d;
 }
 
 // returns normalized value in range [-TFSIMD_PI, TFSIMD_PI]
 TFSIMD_FORCE_INLINE tfScalar tfNormalizeAngle(tfScalar angleInRadians) 
 {
-	angleInRadians = tfFmod(angleInRadians, TFSIMD_2_PI);
-	if(angleInRadians < -TFSIMD_PI)
-	{
-		return angleInRadians + TFSIMD_2_PI;
-	}
-	else if(angleInRadians > TFSIMD_PI)
-	{
-		return angleInRadians - TFSIMD_2_PI;
-	}
-	else
-	{
-		return angleInRadians;
-	}
+  angleInRadians = tfFmod(angleInRadians, TFSIMD_2_PI);
+  if(angleInRadians < -TFSIMD_PI)
+  {
+    return angleInRadians + TFSIMD_2_PI;
+  }
+  else if(angleInRadians > TFSIMD_PI)
+  {
+    return angleInRadians - TFSIMD_2_PI;
+  }
+  else
+  {
+    return angleInRadians;
+  }
 }
 
 ///rudimentary class to provide type info
 struct tfTypedObject
 {
-	tfTypedObject(int objectType)
-		:m_objectType(objectType)
-	{
-	}
-	int	m_objectType;
-	inline int getObjectType() const
-	{
-		return m_objectType;
-	}
+  tfTypedObject(int objectType)
+    :m_objectType(objectType)
+  {
+  }
+  int  m_objectType;
+  inline int getObjectType() const
+  {
+    return m_objectType;
+  }
 };
 #endif //TINYROS_TFSIMD___SCALAR_H

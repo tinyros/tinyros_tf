@@ -49,10 +49,10 @@ public class ServiceClient<MReq extends Msg, MRes extends Msg> extends Subscribe
                 }
 
                 try {
-					mutex.wait(durationSec * 1000);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+          mutex.wait(durationSec * 1000);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
                 
                 this.call_req = null;
                 this.call_resp = null;

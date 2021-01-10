@@ -19,12 +19,14 @@ public:
   virtual std::string getMsgType() = 0;
   virtual std::string getMsgMD5() = 0;
   virtual bool negotiated() { return negotiated_; }
+  virtual void setEnabled(bool enable) { enable_ = enable; }
   std::string topic_;
 
   // negotiated_ is set by NodeHandle when we negotiateTopics
   bool negotiated_;
   bool srv_flag_;
   bool use_constptr_;
+  bool enable_;
 };
 
 /* Bound function subscriber. */
@@ -44,6 +46,7 @@ public:
     negotiated_ = false;
     srv_flag_ = false;
     use_constptr_ = false;
+    enable_ = true;
   }
 
   Subscriber(std::string topic_name, CallbackT1 cb, ObjT* obj, int endpoint = tinyros::tinyros_msgs::TopicInfo::ID_SUBSCRIBER) :
@@ -54,10 +57,14 @@ public:
     negotiated_ = false;
     srv_flag_ = false;
     use_constptr_ = true;
+    enable_ = true;
   }
 
   virtual void callback(unsigned char* data)
   {
+    if (!enable_)
+      return;
+    
     if (use_constptr_) 
     {
       std::shared_ptr<MsgT> tmsg = std::shared_ptr<MsgT>(new MsgT);
@@ -108,6 +115,7 @@ public:
     negotiated_ = false;
     srv_flag_ = false;
     use_constptr_ = false;
+    enable_ = true;
   }
 
   Subscriber(std::string topic_name, CallbackT1 cb, int endpoint = tinyros::tinyros_msgs::TopicInfo::ID_SUBSCRIBER) :
@@ -117,10 +125,14 @@ public:
     negotiated_ = false;
     srv_flag_ = false;
     use_constptr_ = true;
+    enable_ = true;
   }
 
   virtual void callback(unsigned char* data)
   {
+    if (!enable_)
+      return;
+    
     if (use_constptr_) 
     {
       std::shared_ptr<MsgT> tmsg = std::shared_ptr<MsgT>(new MsgT);

@@ -28,9 +28,9 @@
  */
 
 #include "tf_link_updater.h"
-#include "frame_manager.h"
+#include "common.h"
 
-#include <tf/tf.h>
+#include <tiny_ros/tf/tf.h>
 
 #include <OGRE/OgreVector3.h>
 #include <OGRE/OgreQuaternion.h>
@@ -38,33 +38,41 @@
 namespace rviz
 {
 
-TFLinkUpdater::TFLinkUpdater(FrameManager* frame_manager, const StatusCallback& status_cb, const std::string& tf_prefix)
-: frame_manager_(frame_manager)
-, status_callback_(status_cb)
-, tf_prefix_(tf_prefix)
+TFLinkUpdater::TFLinkUpdater(tinyros::tf::Transformer* tf, const std::string& target_frame_)
+: tf_(tf)
+, target_frame_(target_frame_)
 {
 }
 
-bool TFLinkUpdater::getLinkTransforms(const std::string& _link_name, Ogre::Vector3& visual_position, Ogre::Quaternion& visual_orientation,
+bool TFLinkUpdater::getLinkTransforms(const std::string& link_name, Ogre::Vector3& visual_position, Ogre::Quaternion& visual_orientation,
                                       Ogre::Vector3& collision_position, Ogre::Quaternion& collision_orientation, bool& apply_offset_transforms) const
 {
-  std::string link_name = _link_name;
-  if (!tf_prefix_.empty())
-  {
-    link_name = tf::resolve(tf_prefix_, link_name);
-  }
+  tinyros::tf::Stamped<tinyros::tf::Pose> pose( tinyros::tf::Transform( tinyros::tf::Quaternion( 0, 0, 0, 1 ), tinyros::tf::Vector3( 0, 0, 0 ) ), tinyros::Time(), link_name );
 
-  Ogre::Vector3 position;
-  Ogre::Quaternion orientation;
-  if (!frame_manager_->getTransform(link_name, ros::Time(), position, orientation))
+  if (tf_->canTransform(target_frame_, link_name, ros::Time()))
   {
-    std::stringstream ss;
-    ss << "No transform from [" << link_name << "] to [" << frame_manager_->getFixedFrame() << "]";
-    setLinkStatus(status_levels::Error, link_name, ss.str());
+    try
+    {
+      tf_->transformPose( target_frame_, pose, pose );
+    }
+    catch(tinyros::tf::TransformException& e)
+    {
+      tinyros_log_error( "Error transforming from frame '%s' to frame '%s'\n", link_name.c_str(), target_frame_.c_str() );
+      return false;
+    }
+  }
+  else
+  {
     return false;
   }
 
-  setLinkStatus(status_levels::Ok, link_name, "Transform OK");
+  Ogre::Vector3 position( pose.getOrigin().x(), pose.getOrigin().y(), pose.getOrigin().z() );
+  robotToOgre( position );
+
+  tfScalar yaw, pitch, roll;
+  pose.getBasis().getEulerYPR( yaw, pitch, roll );
+
+  Ogre::Matrix3 orientation( ogreMatrixFromRobotEulers( yaw, pitch, roll ) );
 
   // Collision/visual transforms are the same in this case
   visual_position = position;
@@ -74,14 +82,6 @@ bool TFLinkUpdater::getLinkTransforms(const std::string& _link_name, Ogre::Vecto
   apply_offset_transforms = true;
 
   return true;
-}
-
-void TFLinkUpdater::setLinkStatus(StatusLevel level, const std::string& link_name, const std::string& text) const
-{
-  if (status_callback_)
-  {
-    status_callback_(level, link_name, text);
-  }
 }
 
 }

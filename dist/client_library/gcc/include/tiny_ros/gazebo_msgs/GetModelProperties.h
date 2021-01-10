@@ -103,8 +103,8 @@ static const char GETMODELPROPERTIES[] = "gazebo_msgs/GetModelProperties";
     static std::string getTypeStatic(){ return GETMODELPROPERTIES; }
     virtual std::string getMD5(){ return "fe0194bf75c917c89b820b09c12fe6c1"; }
     static std::string getMD5Static(){ return "fe0194bf75c917c89b820b09c12fe6c1"; }
-    virtual std::string getDefinition(){ return "string model_name                    \n"; }
-    static std::string getDefinitionStatic(){ return "string model_name                    \n"; }
+    virtual std::string getDefinition(){ return "string model_name\n"; }
+    static std::string getDefinitionStatic(){ return "string model_name\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
@@ -604,8 +604,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetModelPropertiesRequest const> G
     static std::string getTypeStatic(){ return GETMODELPROPERTIES; }
     virtual std::string getMD5(){ return "d8f16b08abaf0220a551cf9025748602"; }
     static std::string getMD5Static(){ return "d8f16b08abaf0220a551cf9025748602"; }
-    virtual std::string getDefinition(){ return "string parent_model_name             \nstring canonical_body_name           \nstring[] body_names                  \nstring[] geom_names                  \nstring[] joint_names                 \nstring[] child_model_names           \nbool is_static                       \nbool success                         \nstring status_message                \n"; }
-    static std::string getDefinitionStatic(){ return "string parent_model_name             \nstring canonical_body_name           \nstring[] body_names                  \nstring[] geom_names                  \nstring[] joint_names                 \nstring[] child_model_names           \nbool is_static                       \nbool success                         \nstring status_message                \n"; }
+    virtual std::string getDefinition(){ return "string parent_model_name\nstring canonical_body_name\nstring[] body_names\nstring[] geom_names\nstring[] joint_names\nstring[] child_model_names\nbool is_static\nbool success\nstring status_message\n"; }
+    static std::string getDefinitionStatic(){ return "string parent_model_name\nstring canonical_body_name\nstring[] body_names\nstring[] geom_names\nstring[] joint_names\nstring[] child_model_names\nbool is_static\nbool success\nstring status_message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

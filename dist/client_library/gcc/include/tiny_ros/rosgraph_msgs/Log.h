@@ -299,8 +299,8 @@ namespace rosgraph_msgs
     static std::string getTypeStatic(){ return "rosgraph_msgs/Log"; }
     virtual std::string getMD5(){ return "2de9daf47e984009074d74dbdd492d49"; }
     static std::string getMD5Static(){ return "2de9daf47e984009074d74dbdd492d49"; }
-    virtual std::string getDefinition(){ return "Header header\nbyte level\nstring name \nstring msg \nstring file \nstring function \nuint32 line \nstring[] topics \n"; }
-    static std::string getDefinitionStatic(){ return "Header header\nbyte level\nstring name \nstring msg \nstring file \nstring function \nuint32 line \nstring[] topics \n"; }
+    virtual std::string getDefinition(){ return "Header header\nbyte level\nstring name\nstring msg\nstring file\nstring function\nuint32 line\nstring[] topics\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\nbyte level\nstring name\nstring msg\nstring file\nstring function\nuint32 line\nstring[] topics\n"; }
     static bool hasHeader(){ return true; }
   };
 

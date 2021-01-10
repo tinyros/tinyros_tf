@@ -426,8 +426,8 @@ namespace sensor_msgs
     static std::string getTypeStatic(){ return "sensor_msgs/BatteryState"; }
     virtual std::string getMD5(){ return "715c4769cacd76e4b679cc3ea4c347b4"; }
     static std::string getMD5Static(){ return "715c4769cacd76e4b679cc3ea4c347b4"; }
-    virtual std::string getDefinition(){ return "Header  header\nfloat32 voltage          \nfloat32 current          \nfloat32 charge           \nfloat32 capacity         \nfloat32 design_capacity  \nfloat32 percentage       \nuint8   power_supply_status     \nuint8   power_supply_health     \nuint8   power_supply_technology \nbool    present          \nfloat32[] cell_voltage   \nstring location          \nstring serial_number     \n"; }
-    static std::string getDefinitionStatic(){ return "Header  header\nfloat32 voltage          \nfloat32 current          \nfloat32 charge           \nfloat32 capacity         \nfloat32 design_capacity  \nfloat32 percentage       \nuint8   power_supply_status     \nuint8   power_supply_health     \nuint8   power_supply_technology \nbool    present          \nfloat32[] cell_voltage   \nstring location          \nstring serial_number     \n"; }
+    virtual std::string getDefinition(){ return "Header  header\nfloat32 voltage\nfloat32 current\nfloat32 charge\nfloat32 capacity\nfloat32 design_capacity\nfloat32 percentage\nuint8   power_supply_status\nuint8   power_supply_health\nuint8   power_supply_technology\nbool    present\nfloat32[] cell_voltage\nstring location\nstring serial_number\n"; }
+    static std::string getDefinitionStatic(){ return "Header  header\nfloat32 voltage\nfloat32 current\nfloat32 charge\nfloat32 capacity\nfloat32 design_capacity\nfloat32 percentage\nuint8   power_supply_status\nuint8   power_supply_health\nuint8   power_supply_technology\nbool    present\nfloat32[] cell_voltage\nstring location\nstring serial_number\n"; }
     static bool hasHeader(){ return true; }
   };
 

@@ -28,107 +28,165 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <QTimer>
-
+#include "selection_panel.h"
 #include "visualization_manager.h"
 #include "selection/selection_manager.h"
 #include "properties/property.h"
 #include "properties/property_manager.h"
 
-#include "selection_panel.h"
+#include <wx/timer.h>
+
+#include <wx/propgrid/propgrid.h>
+#include <functional>
 
 namespace rviz
 {
 
-SelectionPanel::SelectionPanel( QWidget* parent )
-  : PropertyTreeWidget( parent )
-  , manager_( NULL )
-  , setting_( false )
+SelectionPanel::SelectionPanel( wxWindow* parent )
+: wxPanel( parent, wxID_ANY )
+, manager_(NULL)
+, setting_(false)
 {
-  // Ignore change signals emitted by the tree widget. None of the
-  // selection properties are editable, so the only change signals are
-  // spurious and should be ignored.
-  setIgnoreChanges( true );
+  wxBoxSizer* top_sizer = new wxBoxSizer(wxVERTICAL);
+
+  property_grid_ = new wxPropertyGrid( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxPG_SPLITTER_AUTO_CENTER | wxTAB_TRAVERSAL | wxPG_DEFAULT_STYLE );
+  property_grid_->SetExtraStyle( wxPG_EX_HELP_AS_TOOLTIPS );
+  top_sizer->Add(property_grid_, 1, wxEXPAND, 5);
+  SetSizer(top_sizer);
+
+  property_grid_->Connect( wxEVT_PG_CHANGING, wxPropertyGridEventHandler( SelectionPanel::onPropertyChanging ), NULL, this );
+  property_grid_->Connect( wxEVT_PG_CHANGED, wxPropertyGridEventHandler( SelectionPanel::onPropertyChanged ), NULL, this );
+  property_grid_->Connect( wxEVT_PG_SELECTED, wxPropertyGridEventHandler( SelectionPanel::onPropertySelected ), NULL, this );
+
+  property_grid_->SetCaptionBackgroundColour( wxColour( 2, 0, 174 ) );
+  property_grid_->SetCaptionForegroundColour( *wxLIGHT_GREY );
 
   property_manager_ = new PropertyManager();
-  property_manager_->setPropertyTreeWidget( this );
+  property_manager_->setPropertyGrid(property_grid_);
+
+  refresh_timer_ = new wxTimer( this );
+  refresh_timer_->Start( 200 );
+  Connect( refresh_timer_->GetId(), wxEVT_TIMER, wxTimerEventHandler( SelectionPanel::onUpdate ), NULL, this );
 }
 
 SelectionPanel::~SelectionPanel()
 {
-  delete property_manager_;
+  Disconnect( refresh_timer_->GetId(), wxEVT_TIMER, wxTimerEventHandler( SelectionPanel::onUpdate ), NULL, this );
+  refresh_timer_->Stop();
+  delete refresh_timer_;
+
+  property_grid_->Disconnect( wxEVT_PG_CHANGING, wxPropertyGridEventHandler( SelectionPanel::onPropertyChanging ), NULL, this );
+  property_grid_->Disconnect( wxEVT_PG_CHANGED, wxPropertyGridEventHandler( SelectionPanel::onPropertyChanged ), NULL, this );
+  property_grid_->Disconnect( wxEVT_PG_SELECTED, wxPropertyGridEventHandler( SelectionPanel::onPropertySelected ), NULL, this );
+  property_grid_->Destroy();
 }
 
 void SelectionPanel::initialize(VisualizationManager* manager)
 {
   manager_ = manager;
 
-  SelectionManager* sel_man = manager_->getSelectionManager();
-
-  connect( sel_man, SIGNAL( selectionAdded( const M_Picked& )), this, SLOT( onSelectionAdded( const M_Picked& )));
-  connect( sel_man, SIGNAL( selectionRemoved( const M_Picked& )), this, SLOT( onSelectionRemoved( const M_Picked& )));
-  connect( sel_man, SIGNAL( selectionSet( const M_Picked&, const M_Picked& )), this, SLOT( onSelectionSet() ));
-  connect( sel_man, SIGNAL( selectionSetting() ), this, SLOT( onSelectionSetting() ));
-
-  QTimer* timer = new QTimer( this );
-  connect( timer, SIGNAL( timeout() ), this, SLOT( onUpdate() ));
-  timer->start( 200 );
+  manager_->getSelectionManager()->getSelectionAddedSignal().connect( std::bind( &SelectionPanel::onSelectionAdded, this, std::placeholders::_1 ) );
+  manager_->getSelectionManager()->getSelectionRemovedSignal().connect( std::bind( &SelectionPanel::onSelectionRemoved, this, std::placeholders::_1 ) );
+  manager_->getSelectionManager()->getSelectionSetSignal().connect( std::bind( &SelectionPanel::onSelectionSet, this, std::placeholders::_1 ) );
+  manager_->getSelectionManager()->getSelectionSettingSignal().connect( std::bind( &SelectionPanel::onSelectionSetting, this, std::placeholders::_1 ) );
 }
 
-void SelectionPanel::onSelectionRemoved( const M_Picked& removed )
+void SelectionPanel::onPropertyChanging( wxPropertyGridEvent& event )
+{
+  wxPGProperty* property = event.GetProperty();
+
+  if ( !property )
+  {
+    return;
+  }
+
+  property_manager_->propertyChanging( event );
+}
+
+void SelectionPanel::onPropertyChanged( wxPropertyGridEvent& event )
+{
+  wxPGProperty* property = event.GetProperty();
+
+  if ( !property )
+  {
+    return;
+  }
+
+  property_manager_->propertyChanged( event );
+}
+
+void SelectionPanel::onPropertySelected( wxPropertyGridEvent& event )
+{
+}
+
+void SelectionPanel::onSelectionRemoved(const SelectionRemovedArgs& args)
 {
   if (setting_)
   {
     return;
   }
 
+  property_grid_->Freeze();
+
   SelectionManager* sel_manager = manager_->getSelectionManager();
 
-  M_Picked::const_iterator it = removed.begin();
-  M_Picked::const_iterator end = removed.end();
+  M_Picked::const_iterator it = args.removed_.begin();
+  M_Picked::const_iterator end = args.removed_.end();
   for (; it != end; ++it)
   {
     const Picked& picked = it->second;
     SelectionHandlerPtr handler = sel_manager->getHandler(picked.handle);
-    ROS_ASSERT(handler);
+    TINYROS_ASSERT(handler);
 
     handler->destroyProperties(picked, property_manager_);
   }
 
   //property_grid_->Sort(property_grid_->GetRoot());
+
+  property_grid_->Thaw();
 }
 
-void SelectionPanel::onSelectionAdded( const M_Picked& added )
+void SelectionPanel::onSelectionAdded(const SelectionAddedArgs& args)
 {
+  property_grid_->Freeze();
+
   SelectionManager* sel_manager = manager_->getSelectionManager();
 
-  M_Picked::const_iterator it = added.begin();
-  M_Picked::const_iterator end = added.end();
+  M_Picked::const_iterator it = args.added_.begin();
+  M_Picked::const_iterator end = args.added_.end();
   for (; it != end; ++it)
   {
     const Picked& picked = it->second;
     SelectionHandlerPtr handler = sel_manager->getHandler(picked.handle);
-    ROS_ASSERT(handler);
+    TINYROS_ASSERT(handler);
 
     handler->createProperties(picked, property_manager_);
   }
-  sortItems( 0, Qt::AscendingOrder );
+
+  property_grid_->Sort(property_grid_->GetRoot());
+
+  property_grid_->Thaw();
 }
 
-void SelectionPanel::onSelectionSetting()
+void SelectionPanel::onSelectionSetting(const SelectionSettingArgs& args)
 {
   setting_ = true;
 
+  property_grid_->Freeze();
   property_manager_->clear();
 }
 
-void SelectionPanel::onSelectionSet()
+void SelectionPanel::onSelectionSet(const SelectionSetArgs& args)
 {
   setting_ = false;
+
+  property_grid_->Thaw();
 }
 
-void SelectionPanel::onUpdate()
+void SelectionPanel::onUpdate( wxTimerEvent& event )
 {
+  property_grid_->Freeze();
+
   SelectionManager* sel_manager = manager_->getSelectionManager();
   const M_Picked& selection = sel_manager->getSelection();
   M_Picked::const_iterator it = selection.begin();
@@ -143,6 +201,8 @@ void SelectionPanel::onUpdate()
 
   property_manager_->update();
   //property_grid_->Sort(property_grid_->GetRoot());
+
+  property_grid_->Thaw();
 }
 
 } // namespace rviz

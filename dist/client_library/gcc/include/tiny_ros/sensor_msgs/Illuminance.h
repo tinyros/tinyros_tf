@@ -139,8 +139,8 @@ namespace sensor_msgs
     static std::string getTypeStatic(){ return "sensor_msgs/Illuminance"; }
     virtual std::string getMD5(){ return "08ab9e71fcfbed30d5e337886c3f07f2"; }
     static std::string getMD5Static(){ return "08ab9e71fcfbed30d5e337886c3f07f2"; }
-    virtual std::string getDefinition(){ return "Header header           \nfloat64 illuminance     \nfloat64 variance        \n"; }
-    static std::string getDefinitionStatic(){ return "Header header           \nfloat64 illuminance     \nfloat64 variance        \n"; }
+    virtual std::string getDefinition(){ return "Header header\nfloat64 illuminance\nfloat64 variance\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\nfloat64 illuminance\nfloat64 variance\n"; }
     static bool hasHeader(){ return true; }
   };
 

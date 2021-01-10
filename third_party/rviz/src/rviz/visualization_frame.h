@@ -30,29 +30,23 @@
 #ifndef RVIZ_VISUALIZATION_FRAME_H
 #define RVIZ_VISUALIZATION_FRAME_H
 
-#include <QMainWindow>
-#include <QList>
+#include "window_manager_interface.h"
+
+#include <wx/frame.h>
 
 #include <string>
-#include <deque>
-#include <set>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
-#include <pluginlib/class_loader.h>
-
-#include "rviz/window_manager_interface.h"
-#include "rviz/config.h"
-#include "rviz/panel.h"
-
-class QSplashScreen;
-class QAction;
-class QActionGroup;
-class QTimer;
+class wxConfigBase;
+class wxMenuBar;
+class wxMenu;
+class wxAuiManager;
+class wxAuiManagerEvent;
+class wxToolBar;
 
 namespace rviz
 {
 
-class PanelDockWidget;
 class RenderPanel;
 class DisplaysPanel;
 class ViewsPanel;
@@ -61,158 +55,50 @@ class SelectionPanel;
 class ToolPropertiesPanel;
 class VisualizationManager;
 class Tool;
-class HelpPanel;
-class WidgetGeometryChangeDetector;
+class SplashScreen;
 
-/** @brief The main rviz window.
- *
- * VisualizationFrame is a QMainWindow, which means it has a center
- * area and a bunch of dock areas around it.  The central widget here
- * is a RenderPanel, and around it (by default) are a DisplaysPanel,
- * ViewsPanel, TimePanel, SelectionPanel, and ToolPropertiesPanel.  At
- * the top is a toolbar with "Move Camera", "Select", etc.  There is
- * also a menu bar with file/open, etc.
- */
-class VisualizationFrame : public QMainWindow, public WindowManagerInterface
+class VisualizationFrame : public wxFrame, public WindowManagerInterface
 {
-Q_OBJECT
 public:
-  VisualizationFrame( QWidget* parent = 0 );
+  VisualizationFrame(wxWindow* parent);
   ~VisualizationFrame();
 
-  void initialize( const std::string& display_config_file = "",
-                   const std::string& fixed_frame = "",
-                   const std::string& target_frame = "",
-                   const std::string& splash_path = "",
-                   const std::string& help_path = "",
-                   bool verbose = false,
-                   bool show_choose_new_master_option = false );
+  void initialize(const std::string& display_config_file = "", const std::string& fixed_frame = "", const std::string& target_frame = "");
 
   VisualizationManager* getManager() { return manager_; }
 
   // overrides from WindowManagerInterface
-  virtual QWidget* getParentWindow();
-  virtual PanelDockWidget* addPane( const std::string& name,
-                                    QWidget* panel,
-                                    Qt::DockWidgetArea area = Qt::LeftDockWidgetArea,
-                                    bool floating = true );
-
-public Q_SLOTS:
-  /** @brief Call this to let the frame know that something that would
-   *         get saved in the display config has changed. */
-  void setDisplayConfigModified();
-
-protected Q_SLOTS:
-  void onOpen();
-  void save();
-  void saveAs();
-  void onSaveImage();
-  void onRecentConfigSelected();
-  void onHelpWiki();
-  void openNewPanelDialog();
-  void showHelpPanel();
-
-  /** @brief Looks up the Tool for this action and calls
-   * VisualizationManager::setCurrentTool(). */
-  void onToolbarActionTriggered( QAction* action );
-
-  /** @brief Add the given tool to this frame's toolbar.
-   *
-   * This creates a QAction internally which listens for the Tool's
-   * shortcut key.  When the action is triggered by the toolbar or by
-   * the shortcut key, onToolbarActionTriggered() is called. */
-  void addTool(Tool* tool);
-
-  /** @brief Mark the given tool as the current one.
-   *
-   * This is purely a visual change in the GUI, it does not call any
-   * tool functions. */
-  void indicateToolIsCurrent(Tool* tool);
-
-  /** @brief Save the current state and quit with exit code 255 to
-   * signal the wrapper that we would like to restart with a different
-   * ROS master URI. */
-  void changeMaster();
-
-  /** @brief Remove the given panel's name from the list of current
-   * panel names. */
-  void onPanelRemoved( QObject* panel );
-
-  /** @brief Delete a panel widget.
-   *
-   * The sender() of the signal should be a QAction whose text() is
-   * the name of the panel. */
-  void onDeletePanel();
-
-protected Q_SLOTS:
-  /** @brief Set loading_ to false. */
-  void markLoadingDone();
-
-  /** @brief Set the default directory in which to save screenshot images. */
-  void setImageSaveDirectory( const QString& directory );
+  virtual wxWindow* getParentWindow();
+  virtual void addPane(const std::string& name, wxWindow* panel);
+  virtual void removePane(wxWindow* panel);
+  virtual void showPane(wxWindow* panel);
+  virtual void closePane(wxWindow* panel);
 
 protected:
-  /** @brief Initialize the default config directory (~/.rviz) and set
-   * up the general_config_file_ and display_config_file_
-   * variables.
-   * @param display_config_file_override The display config file passed in to initialize(). */
-  void initConfigs( const std::string& display_config_file_override );
-
+  void initConfigs();
   void initMenus();
+  void loadDisplayConfig(const std::string& path);
+  void loadConfigMenus();
+  void saveConfigs();
 
-  /** @brief Check for unsaved changes, prompt to save config, etc.
-   * @return true if it is OK to exit, false if not. */
-  bool prepareToExit();
+  // wx Callbacks
+  void onClose(wxCommandEvent& event);
+  void onOpen(wxCommandEvent& event);
+  void onSave(wxCommandEvent& event);
+  void onGlobalConfig(wxCommandEvent& event);
+  void onLocalConfig(wxCommandEvent& event);
+  /// Called when a tool is selected
+  void onToolClicked( wxCommandEvent& event );
+  void onPaneClosed(wxAuiManagerEvent& event);
+  void onViewMenuItemSelected(wxCommandEvent& event);
+  void onManagePlugins(wxCommandEvent& event);
+  void onHelpWiki(wxCommandEvent& event);
 
-  virtual void moveEvent( QMoveEvent* event );
-  virtual void closeEvent( QCloseEvent* event );
+  // other Callbacks
+  void onToolAdded(Tool* tool);
+  void onToolChanged(Tool* tool);
 
-  void setSplashStatus( const std::string& status );
-
-  void markRecentConfig(const std::string& path);
-  void updateRecentConfigMenu();
-
-  QRect hackedFrameGeometry();
-
-  PanelDockWidget* addCustomPanel( const std::string& name,
-                                   const std::string& class_lookup_name,
-                                   Qt::DockWidgetArea area = Qt::LeftDockWidgetArea,
-                                   bool floating = true );
-
-  void loadCustomPanels( const boost::shared_ptr<Config>& config );
-  void saveCustomPanels( const boost::shared_ptr<Config>& config );
-
-  void loadWindowGeometry( const boost::shared_ptr<Config>& config );
-  void saveWindowGeometry( const boost::shared_ptr<Config>& config );
-
-  /** @brief Load the "general" config file, which has just the few
-   * things which should not be saved with a display config.
-   *
-   * Loads from the file named in general_config_file_. */
-  void loadGeneralConfig();
-
-  /** @brief Save the "general" config file, which has just the few
-   * things which should not be saved with a display config.
-   *
-   * Saves to the file named in general_config_file_. */
-  void saveGeneralConfig();
-
-  /** @brief Load display and other settings from the given file.
-   * @param path The full path of the config file to load from. */
-  void loadDisplayConfig( const std::string& path );
-
-  /** @brief Save display and other settings to the given file.
-   * @param path The full path of the config file to save into. */
-  void saveDisplayConfig( const std::string& path );
-
-  /** @brief Return true if the give file is writable, false if not. */
-  bool fileIsWritable( const std::string& path );
-  
-  /** @brief Set the display config file path.
-   *
-   * This does not load the given file, it just sets the member
-   * variable and updates the window title. */
-  void setDisplayConfigFile( const std::string& path );
+  void onSplashLoadStatus(const std::string& status, SplashScreen* splash);
 
   RenderPanel* render_panel_;
   DisplaysPanel* displays_panel_;
@@ -221,62 +107,31 @@ protected:
   SelectionPanel* selection_panel_;
   ToolPropertiesPanel* tool_properties_panel_;
 
-  HelpPanel* help_panel_;
-  QAction* show_help_action_;
-
+  std::shared_ptr<wxConfigBase> general_config_;
+  std::shared_ptr<wxConfigBase> display_config_;
   std::string config_dir_;
   std::string general_config_file_;
   std::string display_config_file_;
-  std::string default_display_config_file_;
-  std::string last_config_dir_;
-  std::string last_image_dir_;
-  std::string home_dir_;
+  std::string save_dir_;
+  std::string global_config_dir_;
 
-  QMenu* file_menu_;
-  QMenu* recent_configs_menu_;
-  QMenu* view_menu_;
-  QMenu* delete_view_menu_;
-  QMenu* plugins_menu_;
-  QList<QAction*> view_menu_actions_;
+  wxMenuBar* menubar_;
+  wxMenu* file_menu_;
+  wxMenu* local_configs_menu_;
+  wxMenu* global_configs_menu_;
+  wxMenu* view_menu_;
+  wxMenu* plugins_menu_;
+  wxMenu* help_menu_;
 
-  QToolBar* toolbar_;
+  wxToolBar* toolbar_;
+
+  wxAuiManager* aui_manager_;
 
   VisualizationManager* manager_;
 
   std::string package_path_;
-  std::string help_path_;
 
-  QSplashScreen* splash_;
-
-  typedef std::deque<std::string> D_string;
-  D_string recent_configs_;
-
-  QPoint first_position_;
-  QPoint position_correction_;
-  int num_move_events_;
-  QActionGroup* toolbar_actions_;
-  std::map<QAction*,Tool*> action_to_tool_map_;
-  std::map<Tool*,QAction*> tool_to_action_map_;
-  bool show_choose_new_master_option_;
-
-  typedef std::set<std::string> S_string;
-  S_string panel_names_;
-  pluginlib::ClassLoader<Panel>* panel_class_loader_;
-
-  struct PanelRecord
-  {
-    Panel* panel;
-    PanelDockWidget* dock;
-    std::string name;
-    std::string lookup_name; // class lookup name needed by pluginlib.
-    QAction* delete_action;
-  };
-  typedef std::map<std::string, PanelRecord> M_PanelRecord;
-  M_PanelRecord custom_panels_;
-  bool initialized_;
-  WidgetGeometryChangeDetector* geom_change_detector_;
-  bool loading_; ///< True just when loading a display config file, false all other times.
-  QTimer* post_load_timer_; ///< Single-shot timer for calling postLoad() a short time after loadDisplayConfig() finishes.
+  SplashScreen* splash_;
 };
 
 }

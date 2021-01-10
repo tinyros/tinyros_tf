@@ -103,8 +103,8 @@ static const char BODYREQUEST[] = "gazebo_msgs/BodyRequest";
     static std::string getTypeStatic(){ return BODYREQUEST; }
     virtual std::string getMD5(){ return "d1c66fbceb0ee1b51e3b09ac030dedec"; }
     static std::string getMD5Static(){ return "d1c66fbceb0ee1b51e3b09ac030dedec"; }
-    virtual std::string getDefinition(){ return "string body_name   \n"; }
-    static std::string getDefinitionStatic(){ return "string body_name   \n"; }
+    virtual std::string getDefinition(){ return "string body_name\n"; }
+    static std::string getDefinitionStatic(){ return "string body_name\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

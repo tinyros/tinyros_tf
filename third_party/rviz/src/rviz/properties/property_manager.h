@@ -30,22 +30,22 @@
 #ifndef RVIZ_PROPERTY_MANAGER_H
 #define RVIZ_PROPERTY_MANAGER_H
 
-#include <QObject>
-
 #include "forwards.h"
-#include "ros/assert.h"
 
-#include <boost/bind.hpp>
-#include <boost/thread/mutex.hpp>
+#include <functional>
+#include <thread>
 
 #include <map>
 #include <set>
+#include <tiny_ros/tf/static_assert.h>
+
+class wxPropertyGrid;
+class wxPropertyGridEvent;
+class wxConfigBase;
 
 namespace rviz
 {
 
-class Config;
-class PropertyTreeWidget;
 class PropertyBase;
 class CategoryProperty;
 
@@ -54,9 +54,8 @@ class CategoryProperty;
  *
  * The PropertyManager manages a set of properties, allowing you to create, delete, and load/save them from disk
  */
-class PropertyManager: public QObject
+class PropertyManager
 {
-Q_OBJECT
 public:
   /**
    * \brief Constructor
@@ -79,15 +78,34 @@ public:
    * @return The new property
    */
   template<typename T, typename G, typename S>
-  boost::weak_ptr<T> createProperty(const std::string& name, const std::string& prefix, const G& getter, const S& setter, const CategoryPropertyWPtr& parent, void* user_data = NULL)
+  std::weak_ptr<T> createProperty(const std::string& name, const std::string& prefix, const G& getter, const S& setter, const CategoryPropertyWPtr& parent, void* user_data = NULL)
   {
-    boost::shared_ptr<T> property(new T( name, prefix, parent, getter, setter ));
-    addProperty(property, name, prefix, user_data);
+    std::shared_ptr<T> property(new T( name, prefix, parent, getter, setter ));
+    bool inserted = properties_.insert( std::make_pair( std::make_pair(prefix, name), property ) ).second;
+    TINYROS_ASSERT(inserted);
+
+    if (!user_data)
+    {
+      user_data = default_user_data_;
+    }
+
+    property->setUserData( user_data );
+    property->addChangedListener( std::bind( &PropertyManager::propertySet, this, _1 ) );
+
+    if (config_ && property->getSave())
+    {
+      property->loadFromConfig(config_.get());
+    }
+
+    if (grid_)
+    {
+      property->setPropertyGrid(grid_);
+      property->writeToGrid();
+      property->setPGClientData();
+    }
 
     return boost::weak_ptr<T>(property);
   }
-
-  void addProperty(const PropertyBasePtr& property, const std::string& name, const std::string& prefix, void* user_data);
 
   /**
    * \brief Create a category property
@@ -96,11 +114,6 @@ public:
    * @return The new category property
    */
   CategoryPropertyWPtr createCategory(const std::string& name, const std::string& prefix, const CategoryPropertyWPtr& parent = CategoryPropertyWPtr(), void* user_data = NULL);
-
-  CategoryPropertyWPtr createCheckboxCategory(const std::string& label, const std::string& name, const std::string& prefix, const boost::function<bool(void)>& getter,
-                                              const boost::function<void(bool)>& setter, const CategoryPropertyWPtr& parent = CategoryPropertyWPtr(), void* user_data = NULL);
-
-  StatusPropertyWPtr createStatus(const std::string& name, const std::string& prefix, const CategoryPropertyWPtr& parent = CategoryPropertyWPtr(), void* user_data = NULL);
 
   bool hasProperty(const std::string& name, const std::string& prefix) { return properties_.find(std::make_pair(prefix, name)) != properties_.end(); }
 
@@ -127,34 +140,40 @@ public:
   void deleteChildren( const PropertyBasePtr& property );
 
   /**
+   * \brief Called when a property in the property grid is changing.
+   * @param event The event
+   */
+  void propertyChanging( wxPropertyGridEvent& event );
+  /**
+   * \brief Called when a property in the property grid has changed.
+   * @param event The event
+   */
+  void propertyChanged( wxPropertyGridEvent& event );
+
+  /**
    * \brief Called when a property has been set (ie, Property::changed() has been called)
    * @param property The property that was set
    */
   void propertySet( const PropertyBasePtr& property );
 
   /**
-   * \brief Save all properties into a Config
+   * \brief Save all properties into a wxConfig
    * @param config The config to save to
    */
-  void save(const boost::shared_ptr<Config>& config);
+  void save(const boost::shared_ptr<wxConfigBase>& config);
   /**
-   * \brief Load all existing properties' values from a Config
+   * \brief Load all existing properties' values from a wxConfig
    * @param config The config to load from
    */
-  void load(const boost::shared_ptr<Config>& config, const StatusCallback& cb = StatusCallback());
+  void load(const std::shared_ptr<wxConfigBase>& config, const StatusCallback& cb = StatusCallback());
 
   /**
    * \brief Get the property grid used by this manager
    * @return A pointer to the property grid
    */
-  PropertyTreeWidget* getPropertyTreeWidget() { return grid_; }
+  wxPropertyGrid* getPropertyGrid() { return grid_; }
 
-  /**
-   * \brief rename a property
-   */
-  void changePrefix(const std::string& old_prefix, const std::string& new_prefix);
-
-  void setPropertyTreeWidget(PropertyTreeWidget* grid);
+  void setPropertyGrid(wxPropertyGrid* grid);
 
   void setDefaultUserData(void* data) { default_user_data_ = data; }
 
@@ -162,26 +181,19 @@ public:
   void clear();
   void update();
 
-  /** @brief Emit the configChanged() signal. */
-  void emitConfigChanged();
-
-Q_SIGNALS:
-  /** @brief Emitted when changes occur which would show up in a config file. */
-  void configChanged();
-
 protected:
-  PropertyTreeWidget* grid_;        //< The property grid associated with our properties
+  wxPropertyGrid* grid_;        //< The property grid associated with our properties
 
   typedef std::map< std::pair<std::string, std::string>, PropertyBasePtr > M_Property;
   M_Property properties_;       //< The properties, mapped by name + prefix
 
-  boost::mutex changed_mutex_;
+  std::mutex changed_mutex_;
   typedef std::set<PropertyBaseWPtr> S_PropertyBaseWPtr;
   S_PropertyBaseWPtr changed_properties_;
 
   void* default_user_data_;
 
-  boost::shared_ptr<Config> config_;
+  std::shared_ptr<wxConfigBase> config_;
 };
 
 } // namespace rviz

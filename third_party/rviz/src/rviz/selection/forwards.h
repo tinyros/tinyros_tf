@@ -33,11 +33,7 @@
 #include <vector>
 #include <set>
 #include <map>
-#include <boost/unordered_map.hpp>
-#include <OGRE/OgrePixelFormat.h>
-
-#include <ros/console.h>
-
+#include <unordered_map>
 
 namespace rviz
 {
@@ -88,37 +84,17 @@ typedef std::vector<uint64_t> V_uint64;
 
 struct Picked
 {
-  Picked(CollObjectHandle _handle = 0 )
-  : handle(_handle), pixel_count(1)
+  Picked(CollObjectHandle _handle)
+  : handle(_handle)
   {
+
   }
 
   CollObjectHandle handle;
-  int pixel_count;
+
   S_uint64 extra_handles;
 };
-typedef boost::unordered_map<CollObjectHandle, Picked> M_Picked;
-
-
-inline uint32_t colorToHandle(Ogre::PixelFormat fmt, uint32_t col)
-{
-  uint32_t handle = 0;
-  if (fmt == Ogre::PF_A8R8G8B8 || fmt == Ogre::PF_X8R8G8B8)
-  {
-    handle = col & 0x00ffffff;
-  }
-  else if (fmt == Ogre::PF_R8G8B8A8)
-  {
-    handle = col >> 8;
-  }
-  else
-  {
-    ROS_DEBUG("Incompatible pixel format [%d]", fmt);
-  }
-
-  return handle;
-}
-
+typedef std::unordered_map<CollObjectHandle, Picked> M_Picked;
 
 }
 

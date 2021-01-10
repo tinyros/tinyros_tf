@@ -245,8 +245,8 @@ namespace sensor_msgs
     static std::string getTypeStatic(){ return "sensor_msgs/Imu"; }
     virtual std::string getMD5(){ return "a42c1ab94665a5807834c0ea19a6d16a"; }
     static std::string getMD5Static(){ return "a42c1ab94665a5807834c0ea19a6d16a"; }
-    virtual std::string getDefinition(){ return "Header header\ngeometry_msgs/Quaternion orientation\nfloat64[9] orientation_covariance \ngeometry_msgs/Vector3 angular_velocity\nfloat64[9] angular_velocity_covariance \ngeometry_msgs/Vector3 linear_acceleration\nfloat64[9] linear_acceleration_covariance \n"; }
-    static std::string getDefinitionStatic(){ return "Header header\ngeometry_msgs/Quaternion orientation\nfloat64[9] orientation_covariance \ngeometry_msgs/Vector3 angular_velocity\nfloat64[9] angular_velocity_covariance \ngeometry_msgs/Vector3 linear_acceleration\nfloat64[9] linear_acceleration_covariance \n"; }
+    virtual std::string getDefinition(){ return "Header header\ngeometry_msgs/Quaternion orientation\nfloat64[9] orientation_covariance\ngeometry_msgs/Vector3 angular_velocity\nfloat64[9] angular_velocity_covariance\ngeometry_msgs/Vector3 linear_acceleration\nfloat64[9] linear_acceleration_covariance\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\ngeometry_msgs/Quaternion orientation\nfloat64[9] orientation_covariance\ngeometry_msgs/Vector3 angular_velocity\nfloat64[9] angular_velocity_covariance\ngeometry_msgs/Vector3 linear_acceleration\nfloat64[9] linear_acceleration_covariance\n"; }
     static bool hasHeader(){ return true; }
   };
 

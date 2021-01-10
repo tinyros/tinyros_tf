@@ -144,8 +144,8 @@ namespace sensor_msgs
     static std::string getTypeStatic(){ return "sensor_msgs/RegionOfInterest"; }
     virtual std::string getMD5(){ return "8370dc286f915405c906299aef5bb442"; }
     static std::string getMD5Static(){ return "8370dc286f915405c906299aef5bb442"; }
-    virtual std::string getDefinition(){ return "uint32 x_offset  \nuint32 y_offset  \nuint32 height    \nuint32 width     \nbool do_rectify\n"; }
-    static std::string getDefinitionStatic(){ return "uint32 x_offset  \nuint32 y_offset  \nuint32 height    \nuint32 width     \nbool do_rectify\n"; }
+    virtual std::string getDefinition(){ return "uint32 x_offset\nuint32 y_offset\nuint32 height\nuint32 width\nbool do_rectify\n"; }
+    static std::string getDefinitionStatic(){ return "uint32 x_offset\nuint32 y_offset\nuint32 height\nuint32 width\nbool do_rectify\n"; }
     static bool hasHeader(){ return false; }
   };
 

@@ -139,8 +139,8 @@ namespace sensor_msgs
     static std::string getTypeStatic(){ return "sensor_msgs/FluidPressure"; }
     virtual std::string getMD5(){ return "0fdea137019d78ebf8c2cb91c31a458a"; }
     static std::string getMD5Static(){ return "0fdea137019d78ebf8c2cb91c31a458a"; }
-    virtual std::string getDefinition(){ return "Header header           \nfloat64 fluid_pressure  \nfloat64 variance        \n"; }
-    static std::string getDefinitionStatic(){ return "Header header           \nfloat64 fluid_pressure  \nfloat64 variance        \n"; }
+    virtual std::string getDefinition(){ return "Header header\nfloat64 fluid_pressure\nfloat64 variance\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\nfloat64 fluid_pressure\nfloat64 variance\n"; }
     static bool hasHeader(){ return true; }
   };
 

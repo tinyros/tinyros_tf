@@ -127,8 +127,8 @@ namespace sensor_msgs
     static std::string getTypeStatic(){ return "sensor_msgs/TimeReference"; }
     virtual std::string getMD5(){ return "8e1576e01de57cd0d55758112f0e84ec"; }
     static std::string getMD5Static(){ return "8e1576e01de57cd0d55758112f0e84ec"; }
-    virtual std::string getDefinition(){ return "Header header    \ntime   time_ref  \nstring source    \n"; }
-    static std::string getDefinitionStatic(){ return "Header header    \ntime   time_ref  \nstring source    \n"; }
+    virtual std::string getDefinition(){ return "Header header\ntime   time_ref\nstring source\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\ntime   time_ref\nstring source\n"; }
     static bool hasHeader(){ return true; }
   };
 

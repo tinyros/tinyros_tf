@@ -22,18 +22,18 @@ public class ServiceServer<MReq extends Msg, MRes extends Msg> extends Subscribe
     // these refer to the subscriber
     @Override
     public void callback(byte[] data) {
-    	try {
-        	Class<? extends Msg> clreq = this.req.getClass();
-        	Class<? extends Msg> clresp = this.resp.getClass();
-        	Msg treq = clreq.newInstance();
-        	Msg tresp = clresp.newInstance();
+      try {
+          Class<? extends Msg> clreq = this.req.getClass();
+          Class<? extends Msg> clresp = this.resp.getClass();
+          Msg treq = clreq.newInstance();
+          Msg tresp = clresp.newInstance();
             treq.deserialize(data, 0);
             this.cb_.callback(treq, tresp);
             tresp.setID(treq.getID());
             this.pub.publish(tresp);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     }
 
     @Override

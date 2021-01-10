@@ -361,8 +361,8 @@ namespace sensor_msgs
     static std::string getTypeStatic(){ return "sensor_msgs/MultiEchoLaserScan"; }
     virtual std::string getMD5(){ return "92f3933b4fa486e3889b461437899bf5"; }
     static std::string getMD5Static(){ return "92f3933b4fa486e3889b461437899bf5"; }
-    virtual std::string getDefinition(){ return "Header header            \nfloat32 angle_min        \nfloat32 angle_max        \nfloat32 angle_increment  \nfloat32 time_increment   \nfloat32 scan_time        \nfloat32 range_min        \nfloat32 range_max        \nLaserEcho[] ranges       \nLaserEcho[] intensities  \n"; }
-    static std::string getDefinitionStatic(){ return "Header header            \nfloat32 angle_min        \nfloat32 angle_max        \nfloat32 angle_increment  \nfloat32 time_increment   \nfloat32 scan_time        \nfloat32 range_min        \nfloat32 range_max        \nLaserEcho[] ranges       \nLaserEcho[] intensities  \n"; }
+    virtual std::string getDefinition(){ return "Header header\nfloat32 angle_min\nfloat32 angle_max\nfloat32 angle_increment\nfloat32 time_increment\nfloat32 scan_time\nfloat32 range_min\nfloat32 range_max\nLaserEcho[] ranges\nLaserEcho[] intensities\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\nfloat32 angle_min\nfloat32 angle_max\nfloat32 angle_increment\nfloat32 time_increment\nfloat32 scan_time\nfloat32 range_min\nfloat32 range_max\nLaserEcho[] ranges\nLaserEcho[] intensities\n"; }
     static bool hasHeader(){ return true; }
   };
 

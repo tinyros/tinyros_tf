@@ -147,8 +147,8 @@ namespace sensor_msgs
     static std::string getTypeStatic(){ return "sensor_msgs/CompressedImage"; }
     virtual std::string getMD5(){ return "eed57d856457441995644e6294152301"; }
     static std::string getMD5Static(){ return "eed57d856457441995644e6294152301"; }
-    virtual std::string getDefinition(){ return "Header header        \nstring format        \nuint8[] data         \n"; }
-    static std::string getDefinitionStatic(){ return "Header header        \nstring format        \nuint8[] data         \n"; }
+    virtual std::string getDefinition(){ return "Header header\nstring format\nuint8[] data\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\nstring format\nuint8[] data\n"; }
     static bool hasHeader(){ return true; }
   };
 

@@ -29,24 +29,24 @@
 
 #include "robot.h"
 #include "robot_link.h"
+#include "common.h"
 #include "properties/property.h"
 #include "properties/property_manager.h"
 #include "visualization_manager.h"
 
-#include "ogre_helpers/object.h"
-#include "ogre_helpers/shape.h"
-#include "ogre_helpers/axes.h"
+#include "ogre_tools/object.h"
+#include "ogre_tools/shape.h"
+#include "ogre_tools/axes.h"
 
 #include <urdf/model.h>
 
 #include <OGRE/OgreSceneNode.h>
 #include <OGRE/OgreSceneManager.h>
+#include <OGRE/OgreRibbonTrail.h>
 #include <OGRE/OgreEntity.h>
 #include <OGRE/OgreMaterialManager.h>
 #include <OGRE/OgreMaterial.h>
 #include <OGRE/OgreResourceGroupManager.h>
-
-#include <ros/console.h>
 
 namespace rviz
 {
@@ -94,24 +94,13 @@ void Robot::setVisible( bool visible )
 void Robot::setVisualVisible( bool visible )
 {
   visual_visible_ = visible;
-  updateLinkVisibilities();
+  root_visual_node_->setVisible( visible );
 }
 
 void Robot::setCollisionVisible( bool visible )
 {
   collision_visible_ = visible;
-  updateLinkVisibilities();
-}
-
-void Robot::updateLinkVisibilities()
-{
-  M_NameToLink::iterator it = links_.begin();
-  M_NameToLink::iterator end = links_.end();
-  for ( ; it != end; ++it )
-  {
-    RobotLink* link = it->second;
-    link->updateVisibility();
-  }
+  root_collision_node_->setVisible( visible );
 }
 
 bool Robot::isVisualVisible()
@@ -140,11 +129,6 @@ void Robot::setAlpha(float a)
 
 void Robot::clear()
 {
-  if ( property_manager_ )
-  {
-    property_manager_->deleteByUserData( this );
-  }
-
   M_NameToLink::iterator link_it = links_.begin();
   M_NameToLink::iterator link_end = links_.end();
   for ( ; link_it != link_end; ++link_it )
@@ -153,17 +137,21 @@ void Robot::clear()
     delete info;
   }
 
+  if ( property_manager_ )
+  {
+    property_manager_->deleteByUserData( this );
+  }
+
   links_category_.reset();
   links_.clear();
   root_visual_node_->removeAndDestroyAllChildren();
   root_collision_node_->removeAndDestroyAllChildren();
-  root_other_node_->removeAndDestroyAllChildren();
 }
 
 void Robot::setPropertyManager( PropertyManager* property_manager, const CategoryPropertyWPtr& parent )
 {
-  ROS_ASSERT( property_manager );
-  ROS_ASSERT( parent.lock() );
+  TINYROS_ASSERT( property_manager );
+  TINYROS_ASSERT( parent.lock() );
 
   property_manager_ = property_manager;
   parent_property_ = parent;
@@ -190,7 +178,7 @@ void Robot::setPropertyManager( PropertyManager* property_manager, const Categor
 class LinkComparator
 {
 public:
-  bool operator()(const boost::shared_ptr<urdf::Link>& lhs, const boost::shared_ptr<urdf::Link>& rhs)
+  bool operator()(const std::shared_ptr<urdf::Link>& lhs, const std::shared_ptr<urdf::Link>& rhs)
   {
     return lhs->name < rhs->name;
   }
@@ -202,11 +190,11 @@ void Robot::load( TiXmlElement* root_element, urdf::Model &descr, bool visual, b
 
   if ( property_manager_ )
   {
-    ROS_ASSERT(!links_category_.lock());
+    TINYROS_ASSERT(!links_category_.lock());
     links_category_ = property_manager_->createCategory( "Links", name_, parent_property_, this );
   }
 
-  typedef std::vector<boost::shared_ptr<urdf::Link> > V_Link;
+  typedef std::vector<std::shared_ptr<urdf::Link> > V_Link;
   V_Link links;
   descr.getLinks(links);
   std::sort(links.begin(), links.end(), LinkComparator());
@@ -214,24 +202,17 @@ void Robot::load( TiXmlElement* root_element, urdf::Model &descr, bool visual, b
   V_Link::iterator end = links.end();
   for (; it != end; ++it)
   {
-    const boost::shared_ptr<urdf::Link>& link = *it;
+    const std::shared_ptr<urdf::Link>& link = *it;
 
     RobotLink* link_info = new RobotLink(this, vis_manager_);
-
     if (property_manager_)
     {
       link_info->setPropertyManager(property_manager_);
     }
     link_info->load(root_element, descr, link, visual, collision);
 
-    if (!link_info->isValid())
-    {
-      delete link_info;
-      continue;
-    }
-
     bool inserted = links_.insert( std::make_pair( link_info->getName(), link_info ) ).second;
-    ROS_ASSERT( inserted );
+    TINYROS_ASSERT( inserted );
 
     link_info->setAlpha(alpha_);
   }
@@ -251,7 +232,7 @@ RobotLink* Robot::getLink( const std::string& name )
   M_NameToLink::iterator it = links_.find( name );
   if ( it == links_.end() )
   {
-    ROS_WARN( "Link [%s] does not exist", name.c_str() );
+    tinyros_log_warn( "Link [%s] does not exist", name.c_str() );
     return NULL;
   }
 

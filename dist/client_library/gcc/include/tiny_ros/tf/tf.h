@@ -150,7 +150,7 @@ struct TransformAccum
         tf::Quaternion inv_target_quat = target_to_top_quat.inverse();
         tf::Vector3 inv_target_vec = quatRotate(inv_target_quat, -target_to_top_vec);
 
-     	result_vec = quatRotate(inv_target_quat, source_to_top_vec) + inv_target_vec;
+       result_vec = quatRotate(inv_target_quat, source_to_top_vec) + inv_target_vec;
         result_quat = inv_target_quat * source_to_top_quat;
       }
       break;
@@ -368,8 +368,8 @@ public:
       TimeCache* frame = getFrame(frame_number);
       if (frame == NULL)
       {
-      	frames_[frame_number] = new TimeCache(cache_time_);
-      	frame = frames_[frame_number];
+        frames_[frame_number] = new TimeCache(cache_time_);
+        frame = frames_[frame_number];
       }
 
       if (frame->insertData(TransformStorage(mapped_transform, lookupOrInsertFrameNumber(mapped_transform.frame_id_), frame_number)))
@@ -405,46 +405,46 @@ public:
   void lookupTransform(const std::string& target_frame, const std::string& source_frame,
                      const tinyros::Time& time, StampedTransform& transform) const
   {
-  	  std::string mapped_tgt = assert_resolved(tf_prefix_, target_frame);
-  	  std::string mapped_src = assert_resolved(tf_prefix_, source_frame);
+      std::string mapped_tgt = assert_resolved(tf_prefix_, target_frame);
+      std::string mapped_src = assert_resolved(tf_prefix_, source_frame);
 
-  	  if (mapped_tgt == mapped_src) {
-  		  transform.setIdentity();
-  		  transform.child_frame_id_ = mapped_src;
-  		  transform.frame_id_       = mapped_tgt;
-  		  transform.stamp_          = now();
-  		  return;
-  	  }
+      if (mapped_tgt == mapped_src) {
+        transform.setIdentity();
+        transform.child_frame_id_ = mapped_src;
+        transform.frame_id_       = mapped_tgt;
+        transform.stamp_          = now();
+        return;
+      }
 
-  	  std::unique_lock<std::recursive_mutex> lock(frame_mutex_);
+      std::unique_lock<std::recursive_mutex> lock(frame_mutex_);
 
-  	  CompactFrameID target_id = lookupFrameNumber(mapped_tgt);
-  	  CompactFrameID source_id = lookupFrameNumber(mapped_src);
+      CompactFrameID target_id = lookupFrameNumber(mapped_tgt);
+      CompactFrameID source_id = lookupFrameNumber(mapped_src);
 
-  	  std::string error_string;
-  	  TransformAccum accum;
-  	  int retval = walkToTopParent(accum, time, target_id, source_id, &error_string);
-  	  if (retval != NO_ERROR)
-  	  {
-  	    switch (retval)
-  	    {
-  	    case CONNECTIVITY_ERROR:
-  	      throw ConnectivityException(error_string);
-  	    case EXTRAPOLATION_ERROR:
-  	      throw ExtrapolationException(error_string);
-  	    case LOOKUP_ERROR:
-  	      throw LookupException(error_string);
-  	    default:
-  	      tinyros_log_error("Unknown error code: %d", retval);
-  	      TINYROS_BREAK();
-  	    }
-  	  }
+      std::string error_string;
+      TransformAccum accum;
+      int retval = walkToTopParent(accum, time, target_id, source_id, &error_string);
+      if (retval != NO_ERROR)
+      {
+        switch (retval)
+        {
+        case CONNECTIVITY_ERROR:
+          throw ConnectivityException(error_string);
+        case EXTRAPOLATION_ERROR:
+          throw ExtrapolationException(error_string);
+        case LOOKUP_ERROR:
+          throw LookupException(error_string);
+        default:
+          tinyros_log_error("Unknown error code: %d", retval);
+          TINYROS_BREAK();
+        }
+      }
 
-  	  transform.setOrigin(accum.result_vec);
-  	  transform.setRotation(accum.result_quat);
-  	  transform.child_frame_id_ = mapped_src;
-  	  transform.frame_id_       = mapped_tgt;
-  	  transform.stamp_          = accum.time;
+      transform.setOrigin(accum.result_vec);
+      transform.setRotation(accum.result_quat);
+      transform.child_frame_id_ = mapped_src;
+      transform.frame_id_       = mapped_tgt;
+      transform.stamp_          = accum.time;
   }
   
   /** \brief Get the transform between two frames by frame ID assuming fixed frame.
@@ -620,16 +620,16 @@ public:
                     const tinyros::Time& time,
                     std::string* error_msg = NULL) const
   {
-  	std::string mapped_tgt = assert_resolved(tf_prefix_, target_frame);
-  	std::string mapped_src = assert_resolved(tf_prefix_, source_frame);
+    std::string mapped_tgt = assert_resolved(tf_prefix_, target_frame);
+    std::string mapped_src = assert_resolved(tf_prefix_, source_frame);
 
-  	if (mapped_tgt == mapped_src)
-  		return true;
+    if (mapped_tgt == mapped_src)
+      return true;
 
-  	std::unique_lock<std::recursive_mutex> lock(frame_mutex_);
+    std::unique_lock<std::recursive_mutex> lock(frame_mutex_);
 
     if (!frameExists(mapped_tgt) || !frameExists(mapped_src))
-  	  return false;
+      return false;
 
     CompactFrameID target_id = lookupFrameNumber(mapped_tgt);
     CompactFrameID source_id = lookupFrameNumber(mapped_src);
@@ -676,17 +676,17 @@ public:
   int getLatestCommonTime(const std::string &source_frame, const std::string &target_frame, 
                     tinyros::Time& time, std::string* error_string) const
   {
-	  std::string mapped_tgt = assert_resolved(tf_prefix_, target_frame);
-	  std::string mapped_src = assert_resolved(tf_prefix_, source_frame);
+    std::string mapped_tgt = assert_resolved(tf_prefix_, target_frame);
+    std::string mapped_src = assert_resolved(tf_prefix_, source_frame);
 
-	  if (!frameExists(mapped_tgt) || !frameExists(mapped_src)) {
-		  time = tinyros::Time();
-		  return LOOKUP_ERROR;
-	  }
+    if (!frameExists(mapped_tgt) || !frameExists(mapped_src)) {
+      time = tinyros::Time();
+      return LOOKUP_ERROR;
+    }
 
-	  CompactFrameID source_id = lookupFrameNumber(mapped_src);
-	  CompactFrameID target_id = lookupFrameNumber(mapped_tgt);
-	  return getLatestCommonTime(source_id, target_id, time, error_string);
+    CompactFrameID source_id = lookupFrameNumber(mapped_src);
+    CompactFrameID target_id = lookupFrameNumber(mapped_tgt);
+    return getLatestCommonTime(source_id, target_id, time, error_string);
   }
 
   /** \brief Transform a Stamped Quaternion into the target frame
@@ -953,7 +953,7 @@ public:
         frame_id_num = temp.frame_id_;
       else
         {
-  	frame_id_num = 0;
+    frame_id_num = 0;
         }
 
       if(frameIDs_reverse[frame_id_num]=="NO_PARENT")
@@ -961,7 +961,7 @@ public:
         mstream << "edge [style=invis];" <<std::endl;
         mstream << " subgraph cluster_legend { style=bold; color=black; label =\"Tinyros view_frames Result\";\n"
                 << "\"Recorded at time: " << current_time.toSec() << "\"[ shape=plaintext ] ;\n "
-  	      << "}" << "->" << "\"" << frameIDs_reverse[counter]<<"\";" <<std::endl;
+          << "}" << "->" << "\"" << frameIDs_reverse[counter]<<"\";" <<std::endl;
       }
     }
     mstream << "}";
@@ -1203,7 +1203,7 @@ protected:
   bool test_extrapolation_past(const ros::Time& target_time, const TransformStorage& tr, std::string* error_string) const;
   bool test_extrapolation_future(const ros::Time& target_time, const TransformStorage& tr, std::string* error_string) const;
   bool test_extrapolation(const ros::Time& target_time, const TransformLists& t_lists, std::string * error_string) const;
-	*/
+  */
 
  private:
   /**@brief Return the latest rostime which is common across the spanning set

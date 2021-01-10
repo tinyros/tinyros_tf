@@ -41,6 +41,7 @@
 #include <tiny_ros/tf/signals.h>
 #include <tiny_ros/tf/static_assert.h>
 #include <tiny_ros/tf/timer.h>
+#include "tiny_ros/sensor_msgs/CameraInfo.h"
 #include <signal.h>
 
 #include <string>
@@ -106,8 +107,7 @@ tf_filter.registerCallback(&MyClass::myCallback, this);
 \endverbatim
  */
 template<class M>
-class MessageFilter : public MessageFilterBase, public SimpleFilter<M>
-{
+class MessageFilter : public MessageFilterBase, public SimpleFilter<M> {
 public:
   typedef std::shared_ptr<M const> MConstPtr;
   typedef MessageEvent<M const> MEvent;
@@ -128,6 +128,8 @@ public:
    */
   MessageFilter(Transformer& tf, const std::string& target_frame, uint32_t queue_size, tinyros::Duration max_rate = tinyros::Duration(0.01))
   : tf_(tf)
+  , input_connected_(false)
+  , input_sub_(new tinyros::Subscriber<M, tinyros::tf::MessageFilter<M> >("", &MessageFilter<M>::incomingMessage, this))
   , max_rate_(max_rate)
   , queue_size_(queue_size)
   {
@@ -137,36 +139,26 @@ public:
   }
 
   /**
-   * \brief Constructor
-   *
-   * \param f The filter to connect this filter's input to.  Often will be a message_filters::Subscriber.
-   * \param tf The tf::Transformer this filter should use
-   * \param target_frame The frame this filter should attempt to transform to.  To use multiple frames, pass an empty string here and use the setTargetFrames() function.
-   * \param queue_size The number of messages to queue up before throwing away old ones.  0 means infinite (dangerous).
-   * \param nh The NodeHandle to use for any necessary operations
-   * \param max_rate The maximum rate to check for newly transformable messages
+   * \brief Connect this filter's input to another filter's output.
    */
-  template<class F>
-  MessageFilter(F& f, Transformer& tf, const std::string& target_frame, uint32_t queue_size, tinyros::Duration max_rate = tinyros::Duration(0.01))
-  : tf_(tf)
-  , max_rate_(max_rate)
-  , queue_size_(queue_size)
+  void connectInput(std::string topic)
   {
-    init();
-
-    setTargetFrame(target_frame);
-
-    connectInput(f);
+    if (topic.empty())
+      return;
+    
+    if (input_sub_->topic_.empty()) {
+        input_sub_->topic_ = topic;
+        tinyros::nh()->subscribe(*input_sub_);
+    } else if (input_sub_->topic_ != topic) {
+      input_sub_->setEnabled(false);
+      input_sub_ = new tinyros::Subscriber<M, tinyros::tf::MessageFilter<M> >(topic, &MessageFilter<M>::incomingMessage, this);
+      tinyros::nh()->subscribe(*input_sub_);
+    }
   }
 
-  /**
-   * \brief Connect this filter's input to another filter's output.  If this filter is already connected, disconnects first.
-   */
-  template<class F>
-  void connectInput(F& f)
+  void connectEnable(bool enable)
   {
-    message_connection_.disconnect();
-    message_connection_ = f.registerCallback(&MessageFilter::incomingMessage, this);
+    input_sub_->setEnabled(enable);
   }
 
   /**
@@ -462,9 +454,9 @@ private:
   /**
    * \brief Callback that happens when we receive a message on the message topic
    */
-  void incomingMessage(const MessageEvent<M const>& evt)
+  void incomingMessage(const MConstPtr& message)
   {
-    add(evt);
+    add(MessageEvent<M>(message));
   }
 
   void transformsChanged()
@@ -550,6 +542,8 @@ private:
 
   FailureSignal failure_signal_;
   std::mutex failure_signal_mutex_;
+  bool input_connected_;
+  tinyros::Subscriber<M, tinyros::tf::MessageFilter<M> > *input_sub_;
 };
 }
 } 

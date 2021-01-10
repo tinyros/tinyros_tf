@@ -738,12 +738,12 @@ def messages_generate(path, build, msgs):
     mydir = msgs
     builddir = build
     for d in sorted(os.listdir(mydir)):
-	    try:
-	        MakeLibrary(mydir + "/" + d, d, path, builddir + "/" + d)
-	    except Exception as e:
-	        failed.append(d + " ("+str(e)+")")
-	        print('[%s]: Unable to build messages: %s\n' % (d, str(e)))
-	        print(traceback.format_exc())
+      try:
+          MakeLibrary(mydir + "/" + d, d, path, builddir + "/" + d)
+      except Exception as e:
+          failed.append(d + " ("+str(e)+")")
+          print('[%s]: Unable to build messages: %s\n' % (d, str(e)))
+          print(traceback.format_exc())
 
     print('\n')
     if len(failed) > 0:

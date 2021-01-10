@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, Willow Garage, Inc.
+ * Copyright (c) 2008, Willow Garage, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,39 +30,35 @@
 #ifndef RVIZ_VISUALIZATION_PANEL_H
 #define RVIZ_VISUALIZATION_PANEL_H
 
-#include <QSplitter>
-#include <QString>
+#include <wx/panel.h>
 
 #include <string>
+
+class wxConfigBase;
+class wxMenuBar;
+class wxMenu;
+class wxAuiManager;
 
 namespace rviz
 {
 
-class Config;
 class RenderPanel;
 class DisplaysPanel;
 class VisualizationManager;
 
-class VisualizationPanel: public QSplitter
+class VisualizationPanel : public wxPanel
 {
-Q_OBJECT
 public:
-  VisualizationPanel( QWidget* parent = 0 );
+  VisualizationPanel(wxWindow* parent);
   ~VisualizationPanel();
 
   VisualizationManager* getManager() { return manager_; }
 
-  void loadDisplayConfig( const std::string& filepath );
-  void setViewControllerType( const std::string& view_type_name );
-  void setViewString( const std::string& view_string );
-  void setTargetFrame( const std::string& target_frame );
-
-  void loadDisplayConfig( const QString& filepath ) { loadDisplayConfig( filepath.toStdString() ); }
-  void setViewControllerType( const QString& view_type_name ) { setViewControllerType( view_type_name.toStdString() ); }
-  void setViewString( const QString& view_string ) { setViewString( view_string.toStdString() ); }
-  void setTargetFrame( const QString& target_frame ) { setTargetFrame( target_frame.toStdString() ); }
+  void loadGeneralConfig(const std::string& filepath);
+  void loadDisplayConfig(const std::string& filepath);
 
 protected:
+
   RenderPanel* render_panel_;
   DisplaysPanel* displays_panel_;
 

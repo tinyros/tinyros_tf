@@ -30,55 +30,116 @@
 
 #include "tool_properties_panel.h"
 #include "visualization_manager.h"
+#include "display.h"
+#include "display_wrapper.h"
+#include "new_display_dialog.h"
 #include "properties/property.h"
 #include "properties/property_manager.h"
+#include "plugin/type_registry.h"
+#include "plugin/plugin_manager.h"
+#include "plugin/plugin.h"
 #include "tools/tool.h"
-#include "config.h"
 
-#include <boost/bind.hpp>
+#include <wx/propgrid/propgrid.h>
+#include <wx/msgdlg.h>
+#include <wx/confbase.h>
+#include <wx/artprov.h>
 
-static const std::string PROPERTY_GRID_CONFIG("Property Grid State");
+#include <functional>
+
+static const wxString PROPERTY_GRID_CONFIG(wxT("Property Grid State"));
 
 namespace rviz
 {
 
-ToolPropertiesPanel::ToolPropertiesPanel( QWidget* parent )
-  : PropertyTreeWidget( parent )
-  , manager_( NULL )
+ToolPropertiesPanel::ToolPropertiesPanel( wxWindow* parent )
+: wxPanel( parent, wxID_ANY )
+, manager_(NULL)
 {
+  wxBoxSizer* top_sizer = new wxBoxSizer(wxVERTICAL);
+
+  property_grid_ = new wxPropertyGrid( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxPG_SPLITTER_AUTO_CENTER | wxTAB_TRAVERSAL | wxPG_DEFAULT_STYLE );
+  property_grid_->SetExtraStyle( wxPG_EX_HELP_AS_TOOLTIPS );
+  top_sizer->Add(property_grid_, 1, wxEXPAND, 5);
+  SetSizer(top_sizer);
+
+  property_grid_->SetExtraStyle( wxPG_EX_HELP_AS_TOOLTIPS );
+
+  property_grid_->Connect( wxEVT_PG_CHANGING, wxPropertyGridEventHandler( ToolPropertiesPanel::onPropertyChanging ), NULL, this );
+  property_grid_->Connect( wxEVT_PG_CHANGED, wxPropertyGridEventHandler( ToolPropertiesPanel::onPropertyChanged ), NULL, this );
+  property_grid_->Connect( wxEVT_PG_SELECTED, wxPropertyGridEventHandler( ToolPropertiesPanel::onPropertySelected ), NULL, this );
+
+  property_grid_->SetCaptionBackgroundColour( wxColour( 2, 0, 174 ) );
+  property_grid_->SetCaptionForegroundColour( *wxLIGHT_GREY );
 }
 
-void ToolPropertiesPanel::initialize( VisualizationManager* manager )
+ToolPropertiesPanel::~ToolPropertiesPanel()
+{
+  property_grid_->Disconnect( wxEVT_PG_CHANGING, wxPropertyGridEventHandler( ToolPropertiesPanel::onPropertyChanging ), NULL, this );
+  property_grid_->Disconnect( wxEVT_PG_CHANGED, wxPropertyGridEventHandler( ToolPropertiesPanel::onPropertyChanged ), NULL, this );
+  property_grid_->Disconnect( wxEVT_PG_SELECTED, wxPropertyGridEventHandler( ToolPropertiesPanel::onPropertySelected ), NULL, this );
+  property_grid_->Destroy();
+}
+
+void ToolPropertiesPanel::initialize(VisualizationManager* manager)
 {
   manager_ = manager;
 
-  manager_->getToolPropertyManager()->setPropertyTreeWidget( this );
-
-  connect( manager_, SIGNAL( toolAdded( Tool* )), this, SLOT( onToolAdded( Tool* )));
+  manager_->getToolPropertyManager()->setPropertyGrid(property_grid_);
+  manager_->getToolAddedSignal().connect(std::bind(&ToolPropertiesPanel::onToolAdded, this, std::placeholders::_1));
 }
 
-void ToolPropertiesPanel::onToolAdded( Tool* tool )
+void ToolPropertiesPanel::onToolAdded(Tool* tool)
 {
-  if( tool->hasProperties() )
+  if (tool->hasProperties())
   {
     std::string name = tool->getName();
-    CategoryPropertyWPtr cat = manager_->getToolPropertyManager()->createCategory( name, "", CategoryPropertyWPtr(), tool );
-    tool->enumerateProperties( manager_->getToolPropertyManager(), cat );
+    CategoryPropertyWPtr cat = manager_->getToolPropertyManager()->createCategory(name, "", CategoryPropertyWPtr(), tool);
+    tool->enumerateProperties(manager_->getToolPropertyManager(), cat);
   }
 }
 
-void ToolPropertiesPanel::onDisplaysConfigLoaded(const boost::shared_ptr<Config>& config)
+void ToolPropertiesPanel::onPropertyChanging( wxPropertyGridEvent& event )
 {
-/////  std::string grid_state;
-/////  if ( config->get( PROPERTY_GRID_CONFIG, &grid_state ) )
-/////  {
-/////    property_grid_->RestoreEditableState( grid_state );
-/////  }
+  wxPGProperty* property = event.GetProperty();
+
+  if ( !property )
+  {
+    return;
+  }
+
+  manager_->getToolPropertyManager()->propertyChanging( event );
 }
 
-void ToolPropertiesPanel::onDisplaysConfigSaving(const boost::shared_ptr<Config>& config)
+void ToolPropertiesPanel::onPropertyChanged( wxPropertyGridEvent& event )
 {
-/////  config->set( PROPERTY_GRID_CONFIG, property_grid_->SaveEditableState() );
+  wxPGProperty* property = event.GetProperty();
+
+  if ( !property )
+  {
+    return;
+  }
+
+  manager_->getToolPropertyManager()->propertyChanged( event );
+}
+
+void ToolPropertiesPanel::onPropertySelected( wxPropertyGridEvent& event )
+{
+  event.Skip();
+}
+
+void ToolPropertiesPanel::onDisplaysConfigLoaded(const std::shared_ptr<wxConfigBase>& config)
+{
+  wxString grid_state;
+  if ( config->Read( PROPERTY_GRID_CONFIG, &grid_state ) )
+  {
+    property_grid_->RestoreEditableState( grid_state );
+  }
+}
+
+void ToolPropertiesPanel::onDisplaysConfigSaving(const std::shared_ptr<wxConfigBase>& config)
+{
+  config->Write( PROPERTY_GRID_CONFIG, property_grid_->SaveEditableState() );
 }
 
 } // namespace rviz

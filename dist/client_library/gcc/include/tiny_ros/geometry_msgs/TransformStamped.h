@@ -107,8 +107,8 @@ namespace geometry_msgs
     static std::string getTypeStatic(){ return "geometry_msgs/TransformStamped"; }
     virtual std::string getMD5(){ return "e46d447d8e8afc726d6013a3ae4146dd"; }
     static std::string getMD5Static(){ return "e46d447d8e8afc726d6013a3ae4146dd"; }
-    virtual std::string getDefinition(){ return "Header header\nstring child_frame_id \nTransform transform\n"; }
-    static std::string getDefinitionStatic(){ return "Header header\nstring child_frame_id \nTransform transform\n"; }
+    virtual std::string getDefinition(){ return "Header header\nstring child_frame_id\nTransform transform\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\nstring child_frame_id\nTransform transform\n"; }
     static bool hasHeader(){ return true; }
   };
 

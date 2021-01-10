@@ -28,15 +28,17 @@
  */
 
 #include "goal_tool.h"
+#include "common.h"
 #include "visualization_manager.h"
+#include "viewport_mouse_event.h"
 #include "properties/property.h"
 #include "properties/property_manager.h"
 
-#include "ogre_helpers/camera_base.h"
-#include "ogre_helpers/arrow.h"
-#include "ogre_helpers/qt_ogre_render_window.h"
+#include "ogre_tools/camera_base.h"
+#include "ogre_tools/arrow.h"
+#include "ogre_tools/wx_ogre_render_window.h"
 
-#include <geometry_msgs/PoseStamped.h>
+#include <tiny_ros/geometry_msgs/PoseStamped.h>
 
 #include <OGRE/OgreRay.h>
 #include <OGRE/OgrePlane.h>
@@ -44,15 +46,18 @@
 #include <OGRE/OgreSceneNode.h>
 #include <OGRE/OgreViewport.h>
 
-#include <tf/transform_listener.h>
+#include <tiny_ros/tf/transform_listener.h>
+
+#include <wx/event.h>
 
 namespace rviz
 {
 
 GoalTool::GoalTool( const std::string& name, char shortcut_key, VisualizationManager* manager )
 : PoseTool( name, shortcut_key, manager )
+, pub_(new tinyros::Publisher("", new tinyros::geometry_msgs::PoseStamped()))
 {
-  setTopic("/move_base_simple/goal");
+  setTopic("goal");
 }
 
 GoalTool::~GoalTool()
@@ -62,26 +67,40 @@ GoalTool::~GoalTool()
 void GoalTool::setTopic(const std::string& topic)
 {
   topic_ = topic;
-  pub_ = nh_.advertise<geometry_msgs::PoseStamped>(topic, 1);
+  if (!topic_.empty())
+  {
+    if (pub_->topic_.empty())
+    {
+      pub_->topic_ = topic_;
+      tinyros::nh()->advertise(*pub_);
+    }
+    else if (pub_->topic_ != topic_)
+    {
+      pub_ = new tinyros::Publisher(topic_, new tinyros::geometry_msgs::PoseStamped());
+      tinyros::nh()->advertise(*pub_);
+    }
+  }
 }
 
 void GoalTool::onPoseSet(double x, double y, double theta)
 {
   std::string fixed_frame = manager_->getFixedFrame();
-  tf::Quaternion quat;
+  tinyros::tf::Quaternion quat;
   quat.setRPY(0.0, 0.0, theta);
-  tf::Stamped<tf::Pose> p = tf::Stamped<tf::Pose>(tf::Pose(quat, tf::Point(x, y, 0.0)), ros::Time::now(), fixed_frame);
-  geometry_msgs::PoseStamped goal;
-  tf::poseStampedTFToMsg(p, goal);
-  ROS_INFO("Setting goal: Frame:%s, Position(%.3f, %.3f, %.3f), Orientation(%.3f, %.3f, %.3f, %.3f) = Angle: %.3f\n", fixed_frame.c_str(),
+  tinyros::tf::Stamped<tinyros::tf::Pose> p = tinyros::tf::Stamped<tinyros::tf::Pose>(tinyros::tf::Pose(quat, tinyros::tf::Point(x, y, 0.0)), tinyros::Time::now(), fixed_frame);
+  tinyros::geometry_msgs::PoseStamped goal;
+  tinyros::tf::poseStampedTFToMsg(p, goal);
+  tinyros_log_info("Setting goal: Frame:%s, Position(%.3f, %.3f, %.3f), Orientation(%.3f, %.3f, %.3f, %.3f) = Angle: %.3f\n", fixed_frame.c_str(),
       goal.pose.position.x, goal.pose.position.y, goal.pose.position.z,
       goal.pose.orientation.x, goal.pose.orientation.y, goal.pose.orientation.z, goal.pose.orientation.w, theta);
-  pub_.publish(goal);
+  pub_->publish(&goal);
 }
 
 void GoalTool::enumerateProperties(PropertyManager* property_manager, const CategoryPropertyWPtr& parent)
 {
-  topic_property_ = property_manager->createProperty<StringProperty>("Topic", "Tool " + getName(), boost::bind(&GoalTool::getTopic, this), boost::bind(&GoalTool::setTopic, this, _1), parent, this);
+  topic_property_ = property_manager->createProperty<StringProperty>("Topic", "Tool " + getName(), std::bind(&GoalTool::getTopic, this), std::bind(&GoalTool::setTopic, this, std::placeholders::_1), parent, this);
+  //ROSTopicStringPropertyPtr topic_prop = topic_property_.lock();
+  //topic_prop->setMessageType(tinyros::geometry_msgs::PoseStamped::getTypeStatic());
 }
 
 }

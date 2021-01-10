@@ -93,7 +93,7 @@ public class NodeHandle extends NodeHandleBase{
     @Override
     public boolean initNode(java.lang.String node_name, java.lang.String ip_addr) {
         ip_addr_ = ip_addr;
-		node_name_ = node_name;
+    node_name_ = node_name;
         com.roslib.std_msgs.String msg = new com.roslib.std_msgs.String();
         if (hardware_.init(ip_addr_)) {
             msg.data = node_name_;
@@ -252,28 +252,28 @@ public class NodeHandle extends NodeHandleBase{
                         syncTime(message_in);
                     } else {
                         if (((topic - 100) >= 0) && ((topic - 100) < MAX_SUBSCRIBERS)) {
-	                        SubscriberT sub = subscribers[topic - 100];
-	                        byte[] message = new byte[total_bytes];
-	                        System.arraycopy(message_in, 0, message, 0, total_bytes);
-	                        Runnable thread_pool_run = new Runnable() {
-	                            SubscriberT  sub_ = sub;
-	                            byte[] data = message;
-	                            @Override
-	                            public void run() {
-	                                if (sub_ != null) {
-	                                    sub_.callback(data);
-	                                }
-	                            }
-	                        };
-	                        if (subscribers[topic-100].topic_ == TINYROS_LOG_TOPIC) {
-	                            spin_log_thread_pool_.execute(thread_pool_run);
-	                        } else {
-	                            if (subscribers[topic-100].srv_flag_) {
-	                                spin_srv_thread_pool_.execute(thread_pool_run);
-	                            } else {
-	                                spin_thread_pool_.execute(thread_pool_run);
-	                            }
-	                        }
+                          SubscriberT sub = subscribers[topic - 100];
+                          byte[] message = new byte[total_bytes];
+                          System.arraycopy(message_in, 0, message, 0, total_bytes);
+                          Runnable thread_pool_run = new Runnable() {
+                              SubscriberT  sub_ = sub;
+                              byte[] data = message;
+                              @Override
+                              public void run() {
+                                  if (sub_ != null) {
+                                      sub_.callback(data);
+                                  }
+                              }
+                          };
+                          if (subscribers[topic-100].topic_ == TINYROS_LOG_TOPIC) {
+                              spin_log_thread_pool_.execute(thread_pool_run);
+                          } else {
+                              if (subscribers[topic-100].srv_flag_) {
+                                  spin_srv_thread_pool_.execute(thread_pool_run);
+                              } else {
+                                  spin_thread_pool_.execute(thread_pool_run);
+                              }
+                          }
                         }
                     }
                 }

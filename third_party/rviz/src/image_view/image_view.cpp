@@ -28,18 +28,16 @@
  */
 
 
-#include <QtGlobal>
-#include <QTimer>
+#include <wx/wx.h>
+#include <wx/timer.h>
 
-#include "rviz/ogre_helpers/qt_ogre_render_window.h"
-#include "rviz/ogre_helpers/initialization.h"
+#include "ogre_tools/wx_ogre_render_window.h"
+#include "ogre_tools/initialization.h"
 #include "rviz/image/ros_image_texture.h"
 
-#include "ros/ros.h"
-#include <ros/package.h>
+#include "tiny_ros/ros.h"
 
 #include <OGRE/OgreRoot.h>
-#include <OGRE/OgreRenderWindow.h>
 #include <OGRE/OgreSceneManager.h>
 #include <OGRE/OgreViewport.h>
 #include <OGRE/OgreRectangle2D.h>
@@ -47,99 +45,138 @@
 #include <OGRE/OgreMaterialManager.h>
 #include <OGRE/OgreTextureUnitState.h>
 
-#include "image_view.h"
+#ifdef __WXMAC__
+#include <ApplicationServices/ApplicationServices.h>
+#endif
 
+using namespace ogre_tools;
 using namespace rviz;
-using namespace rviz;
 
-ImageView::ImageView( QWidget* parent )
-  : QtOgreRenderWindow( parent )
+class MyFrame : public wxFrame
 {
-  setAutoRender(false);
-  scene_manager_ = ogre_root_->createSceneManager( Ogre::ST_GENERIC, "TestSceneManager" );
-}
-
-ImageView::~ImageView()
-{
-  delete texture_;
-}
-
-void ImageView::showEvent( QShowEvent* event )
-{
-  QtOgreRenderWindow::showEvent( event );
-
-  V_string paths;
-  paths.push_back(ros::package::getPath(ROS_PACKAGE_NAME) + "/ogre_media/textures");
-  initializeResources(paths);
-
-  setCamera( scene_manager_->createCamera( "Camera" ));
-
-  std::string resolved_image = nh_.resolveName("image");
-  if( resolved_image == "/image" )
+public:
+  MyFrame(wxWindow* parent)
+  : wxFrame(parent, wxID_ANY, wxT("RViZ Image Viewer"), wxDefaultPosition, wxSize(800,600), wxDEFAULT_FRAME_STYLE)
+  , timer_(this)
   {
-    ROS_WARN("image topic has not been remapped");
+    ogre_tools::initializeOgre();
+    ogre_tools::initializeResources( ogre_tools::V_string() );
+
+    root_ = Ogre::Root::getSingletonPtr();
+
+    try
+    {
+      scene_manager_ = root_->createSceneManager( Ogre::ST_GENERIC, "TestSceneManager" );
+
+      render_window_ = new ogre_tools::wxOgreRenderWindow( root_, this );
+      render_window_->SetSize( this->GetSize() );
+
+      camera_ = scene_manager_->createCamera("Camera");
+
+      render_window_->getViewport()->setCamera( camera_ );
+
+      texture_ = new ROSImageTexture(nh_);
+      texture_->setTopic("image");
+
+      Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().create( "Material", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME );
+      material->setCullingMode(Ogre::CULL_NONE);
+      material->getTechnique(0)->getPass(0)->setDepthWriteEnabled(true);
+      material->getTechnique(0)->setLightingEnabled(false);
+      Ogre::TextureUnitState* tu = material->getTechnique(0)->getPass(0)->createTextureUnitState();
+      tu->setTextureName(texture_->getTexture()->getName());
+      tu->setTextureFiltering( Ogre::TFO_NONE );
+
+      Ogre::Rectangle2D* rect = new Ogre::Rectangle2D(true);
+      rect->setCorners(-1.0f, 1.0f, 1.0f, -1.0f);
+      rect->setMaterial(material->getName());
+      rect->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY - 1);
+      Ogre::AxisAlignedBox aabb;
+      aabb.setInfinite();
+      rect->setBoundingBox(aabb);
+
+      Ogre::SceneNode* node = scene_manager_->getRootSceneNode()->createChildSceneNode();
+      node->attachObject(rect);
+      node->setVisible(true);
+    }
+    catch ( Ogre::Exception& e )
+    {
+      printf( "Fatal error: %s\n", e.what() );
+      exit(1);
+    }
+
+    Connect(timer_.GetId(), wxEVT_TIMER, wxTimerEventHandler(MyFrame::onTimer), NULL, this);
+    timer_.Start(16);
+
+    render_window_->Refresh();
   }
 
-  std::stringstream title;
-  title << "rviz Image Viewer [" << resolved_image << "]";
-  setWindowTitle( QString::fromStdString( title.str() ));
-
-  texture_ = new ROSImageTexture(nh_);
-  texture_->setTopic("image");
-
-  Ogre::MaterialPtr material =
-    Ogre::MaterialManager::getSingleton().create( "Material",
-                                                  Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME );
-  material->setCullingMode(Ogre::CULL_NONE);
-  material->getTechnique(0)->getPass(0)->setDepthWriteEnabled(true);
-  material->getTechnique(0)->setLightingEnabled(false);
-  Ogre::TextureUnitState* tu = material->getTechnique(0)->getPass(0)->createTextureUnitState();
-  tu->setTextureName(texture_->getTexture()->getName());
-  tu->setTextureFiltering( Ogre::TFO_NONE );
-
-  Ogre::Rectangle2D* rect = new Ogre::Rectangle2D(true);
-  rect->setCorners(-1.0f, 1.0f, 1.0f, -1.0f);
-  rect->setMaterial(material->getName());
-  rect->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY - 1);
-  Ogre::AxisAlignedBox aabb;
-  aabb.setInfinite();
-  rect->setBoundingBox(aabb);
-
-  Ogre::SceneNode* node = scene_manager_->getRootSceneNode()->createChildSceneNode();
-  node->attachObject(rect);
-  node->setVisible(true);
-
-  QTimer* timer = new QTimer( this );
-  connect( timer, SIGNAL( timeout() ), this, SLOT( onTimer() ));
-  timer->start( 33 );
-}
-
-void ImageView::onTimer()
-{
-  ros::spinOnce();
-
-  static bool first = true;
-  try
+  void onTimer(wxTimerEvent&)
   {
-    if( texture_->update() )
+    static bool first = true;
+    if (texture_->update())
     {
-      if( first )
+      if (first)
       {
         first = false;
 
-        resize( texture_->getWidth(), texture_->getHeight() );
+        render_window_->SetSize(texture_->getWidth(), texture_->getHeight());
+        Fit();
       }
+
+      render_window_->Refresh();
     }
 
-    ogre_root_->renderOneFrame();
-  }
-  catch( UnsupportedImageEncoding& e )
-  {
-    ROS_ERROR("%s", e.what());
+    if (!tinyros::nh()->ok())
+    {
+      Close();
+    }
   }
 
-  if( !nh_.ok() )
+  ~MyFrame()
   {
-    close();
+    delete texture_;
+    render_window_->Destroy();
+    delete root_;
   }
-}
+
+private:
+
+  Ogre::Root* root_;
+  Ogre::SceneManager* scene_manager_;
+  ogre_tools::wxOgreRenderWindow* render_window_;
+  Ogre::Camera* camera_;
+  ROSImageTexture* texture_;
+  wxTimer timer_;
+};
+
+// our normal wxApp-derived class, as usual
+class MyApp : public wxApp
+{
+public:
+
+  bool OnInit()
+  {
+#ifdef __WXMAC__
+    ProcessSerialNumber PSN;
+    GetCurrentProcess(&PSN);
+    TransformProcessType(&PSN,kProcessTransformToForegroundApplication);
+    SetFrontProcess(&PSN);
+#endif
+
+    tinyros::init("tinyros_rviz_image_view");
+
+    wxFrame* frame = new MyFrame(NULL);
+    SetTopWindow(frame);
+    frame->Show();
+    return true;
+  }
+
+  int OnExit()
+  {
+    ogre_tools::cleanupOgre();
+    return 0;
+  }
+};
+
+DECLARE_APP(MyApp);
+IMPLEMENT_APP(MyApp);

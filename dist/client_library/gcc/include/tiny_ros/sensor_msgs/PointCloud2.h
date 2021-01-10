@@ -277,8 +277,8 @@ namespace sensor_msgs
     static std::string getTypeStatic(){ return "sensor_msgs/PointCloud2"; }
     virtual std::string getMD5(){ return "6aa926339b282463281af40546b3b3cf"; }
     static std::string getMD5Static(){ return "6aa926339b282463281af40546b3b3cf"; }
-    virtual std::string getDefinition(){ return "Header header\nuint32 height\nuint32 width\nPointField[] fields\nbool    is_bigendian \nuint32  point_step   \nuint32  row_step     \nuint8[] data         \nbool is_dense        \n"; }
-    static std::string getDefinitionStatic(){ return "Header header\nuint32 height\nuint32 width\nPointField[] fields\nbool    is_bigendian \nuint32  point_step   \nuint32  row_step     \nuint8[] data         \nbool is_dense        \n"; }
+    virtual std::string getDefinition(){ return "Header header\nuint32 height\nuint32 width\nPointField[] fields\nbool    is_bigendian\nuint32  point_step\nuint32  row_step\nuint8[] data\nbool is_dense\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\nuint32 height\nuint32 width\nPointField[] fields\nbool    is_bigendian\nuint32  point_step\nuint32  row_step\nuint8[] data\nbool is_dense\n"; }
     static bool hasHeader(){ return true; }
   };
 

@@ -128,8 +128,8 @@ namespace sensor_msgs
     static std::string getTypeStatic(){ return "sensor_msgs/MagneticField"; }
     virtual std::string getMD5(){ return "f8e051d776de1349146122759c66db92"; }
     static std::string getMD5Static(){ return "f8e051d776de1349146122759c66db92"; }
-    virtual std::string getDefinition(){ return "Header header                        \ngeometry_msgs/Vector3 magnetic_field \nfloat64[9] magnetic_field_covariance \n"; }
-    static std::string getDefinitionStatic(){ return "Header header                        \ngeometry_msgs/Vector3 magnetic_field \nfloat64[9] magnetic_field_covariance \n"; }
+    virtual std::string getDefinition(){ return "Header header\ngeometry_msgs/Vector3 magnetic_field\nfloat64[9] magnetic_field_covariance\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\ngeometry_msgs/Vector3 magnetic_field\nfloat64[9] magnetic_field_covariance\n"; }
     static bool hasHeader(){ return true; }
   };
 

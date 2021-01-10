@@ -28,16 +28,18 @@
  */
 
 #include "initial_pose_tool.h"
+#include "common.h"
 #include "visualization_manager.h"
+#include "viewport_mouse_event.h"
 #include "properties/property.h"
 #include "properties/property_manager.h"
 
-#include "ogre_helpers/camera_base.h"
-#include "ogre_helpers/arrow.h"
-#include "ogre_helpers/qt_ogre_render_window.h"
+#include "ogre_tools/camera_base.h"
+#include "ogre_tools/arrow.h"
+#include "ogre_tools/wx_ogre_render_window.h"
 
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <tiny_ros/geometry_msgs/PoseStamped.h>
+#include <tiny_ros/geometry_msgs/PoseWithCovarianceStamped.h>
 
 #include <OGRE/OgreRay.h>
 #include <OGRE/OgrePlane.h>
@@ -45,13 +47,16 @@
 #include <OGRE/OgreSceneNode.h>
 #include <OGRE/OgreViewport.h>
 
-#include <tf/transform_listener.h>
+#include <tiny_ros/tf/transform_listener.h>
+
+#include <wx/event.h>
 
 namespace rviz
 {
 
 InitialPoseTool::InitialPoseTool( const std::string& name, char shortcut_key, VisualizationManager* manager )
 : PoseTool( name, shortcut_key, manager )
+, pub_(new tinyros::Publisher("", new tinyros::geometry_msgs::PoseWithCovarianceStamped()))
 {
   setTopic("initialpose");
 }
@@ -63,31 +68,42 @@ InitialPoseTool::~InitialPoseTool()
 void InitialPoseTool::setTopic(const std::string& topic)
 {
   topic_ = topic;
-  pub_ = nh_.advertise<geometry_msgs::PoseWithCovarianceStamped>(topic, 1);
+  if (!topic_.empty())
+  {
+    if (pub_->topic_.empty())
+    {
+      pub_->topic_ = topic_;
+      tinyros::nh()->advertise(*pub_);
+    }
+    else if (pub_->topic_ != topic_)
+    {
+      pub_ = new tinyros::Publisher(topic_, new tinyros::geometry_msgs::PoseWithCovarianceStamped());
+      tinyros::nh()->advertise(*pub_);
+    }
+  }
 }
 
 void InitialPoseTool::onPoseSet(double x, double y, double theta)
 {
   std::string fixed_frame = manager_->getFixedFrame();
-  geometry_msgs::PoseWithCovarianceStamped pose;
+  tinyros::geometry_msgs::PoseWithCovarianceStamped pose;
   pose.header.frame_id = fixed_frame;
   pose.pose.pose.position.x = x;
   pose.pose.pose.position.y = y;
 
-  tf::Quaternion quat;
+  tinyros::tf::Quaternion quat;
   quat.setRPY(0.0, 0.0, theta);
-  tf::quaternionTFToMsg(quat,
-                        pose.pose.pose.orientation);
+  tf::quaternionTFToMsg(quat, pose.pose.pose.orientation);
   pose.pose.covariance[6*0+0] = 0.5 * 0.5;
   pose.pose.covariance[6*1+1] = 0.5 * 0.5;
-  pose.pose.covariance[6*5+5] = M_PI/12.0 * M_PI/12.0;
-  ROS_INFO("Setting pose: %.3f %.3f %.3f [frame=%s]", x, y, theta, fixed_frame.c_str());
-  pub_.publish(pose);
+  pose.pose.covariance[6*3+3] = M_PI/12.0 * M_PI/12.0;
+  tinyros_log_info("Setting pose: %.3f %.3f %.3f [frame=%s]", x, y, theta, fixed_frame.c_str());
+  pub_->publish(&pose);
 }
 
 void InitialPoseTool::enumerateProperties(PropertyManager* property_manager, const CategoryPropertyWPtr& parent)
 {
-  topic_property_ = property_manager->createProperty<StringProperty>("Topic", "Tool " + getName(), boost::bind(&InitialPoseTool::getTopic, this), boost::bind(&InitialPoseTool::setTopic, this, _1), parent, this);
+  topic_property_ = property_manager->createProperty<StringProperty>("Topic", "Tool " + getName(), std::bind(&InitialPoseTool::getTopic, this), std::bind(&InitialPoseTool::setTopic, this, std::placeholders::_1), parent, this);
 }
 
 }

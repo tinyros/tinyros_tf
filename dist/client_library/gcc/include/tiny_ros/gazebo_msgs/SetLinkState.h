@@ -205,8 +205,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::SetLinkStateRequest const> SetLink
     static std::string getTypeStatic(){ return SETLINKSTATE; }
     virtual std::string getMD5(){ return "daf8f1df20722a4f504ceb200701e404"; }
     static std::string getMD5Static(){ return "daf8f1df20722a4f504ceb200701e404"; }
-    virtual std::string getDefinition(){ return "bool success                \nstring status_message       \n"; }
-    static std::string getDefinitionStatic(){ return "bool success                \nstring status_message       \n"; }
+    virtual std::string getDefinition(){ return "bool success\nstring status_message\n"; }
+    static std::string getDefinitionStatic(){ return "bool success\nstring status_message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

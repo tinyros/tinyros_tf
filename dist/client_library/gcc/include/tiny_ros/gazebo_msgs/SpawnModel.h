@@ -197,8 +197,8 @@ static const char SPAWNMODEL[] = "gazebo_msgs/SpawnModel";
     static std::string getTypeStatic(){ return SPAWNMODEL; }
     virtual std::string getMD5(){ return "da34e61c8813e52ac159e5f31fbf55be"; }
     static std::string getMD5Static(){ return "da34e61c8813e52ac159e5f31fbf55be"; }
-    virtual std::string getDefinition(){ return "string model_name                 \nstring model_xml                  \nstring robot_namespace            \ngeometry_msgs/Pose initial_pose   \nstring reference_frame            \n"; }
-    static std::string getDefinitionStatic(){ return "string model_name                 \nstring model_xml                  \nstring robot_namespace            \ngeometry_msgs/Pose initial_pose   \nstring reference_frame            \n"; }
+    virtual std::string getDefinition(){ return "string model_name\nstring model_xml\nstring robot_namespace\ngeometry_msgs/Pose initial_pose\nstring reference_frame\n"; }
+    static std::string getDefinitionStatic(){ return "string model_name\nstring model_xml\nstring robot_namespace\ngeometry_msgs/Pose initial_pose\nstring reference_frame\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
@@ -317,8 +317,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::SpawnModelRequest const> SpawnMode
     static std::string getTypeStatic(){ return SPAWNMODEL; }
     virtual std::string getMD5(){ return "d59d46cc4e5a64f978a429dd7c306d30"; }
     static std::string getMD5Static(){ return "d59d46cc4e5a64f978a429dd7c306d30"; }
-    virtual std::string getDefinition(){ return "bool success                      \nstring status_message             \n"; }
-    static std::string getDefinitionStatic(){ return "bool success                      \nstring status_message             \n"; }
+    virtual std::string getDefinition(){ return "bool success\nstring status_message\n"; }
+    static std::string getDefinitionStatic(){ return "bool success\nstring status_message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

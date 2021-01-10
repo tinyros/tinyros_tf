@@ -103,8 +103,8 @@ static const char GETJOINTPROPERTIES[] = "gazebo_msgs/GetJointProperties";
     static std::string getTypeStatic(){ return GETJOINTPROPERTIES; }
     virtual std::string getMD5(){ return "b07a3ce5fb5aba1cfc56577c9cb3ecc6"; }
     static std::string getMD5Static(){ return "b07a3ce5fb5aba1cfc56577c9cb3ecc6"; }
-    virtual std::string getDefinition(){ return "string joint_name                    \n"; }
-    static std::string getDefinitionStatic(){ return "string joint_name                    \n"; }
+    virtual std::string getDefinition(){ return "string joint_name\n"; }
+    static std::string getDefinitionStatic(){ return "string joint_name\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
@@ -464,8 +464,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetJointPropertiesRequest const> G
     static std::string getTypeStatic(){ return GETJOINTPROPERTIES; }
     virtual std::string getMD5(){ return "a60fbf691ac539e1355c979ca09b4573"; }
     static std::string getMD5Static(){ return "a60fbf691ac539e1355c979ca09b4573"; }
-    virtual std::string getDefinition(){ return "uint8 type\nfloat64[] damping\nfloat64[] position\nfloat64[] rate\nbool success                         \nstring status_message                \n"; }
-    static std::string getDefinitionStatic(){ return "uint8 type\nfloat64[] damping\nfloat64[] position\nfloat64[] rate\nbool success                         \nstring status_message                \n"; }
+    virtual std::string getDefinition(){ return "uint8 type\nfloat64[] damping\nfloat64[] position\nfloat64[] rate\nbool success\nstring status_message\n"; }
+    static std::string getDefinitionStatic(){ return "uint8 type\nfloat64[] damping\nfloat64[] position\nfloat64[] rate\nbool success\nstring status_message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

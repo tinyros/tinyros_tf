@@ -379,8 +379,8 @@ static const char SETLINKPROPERTIES[] = "gazebo_msgs/SetLinkProperties";
     static std::string getTypeStatic(){ return SETLINKPROPERTIES; }
     virtual std::string getMD5(){ return "03d7e308476601832a9e1ce9d7eab722"; }
     static std::string getMD5Static(){ return "03d7e308476601832a9e1ce9d7eab722"; }
-    virtual std::string getDefinition(){ return "string link_name          \ngeometry_msgs/Pose com    \nbool gravity_mode         \nfloat64 mass              \nfloat64 ixx               \nfloat64 ixy               \nfloat64 ixz               \nfloat64 iyy               \nfloat64 iyz               \nfloat64 izz               \n"; }
-    static std::string getDefinitionStatic(){ return "string link_name          \ngeometry_msgs/Pose com    \nbool gravity_mode         \nfloat64 mass              \nfloat64 ixx               \nfloat64 ixy               \nfloat64 ixz               \nfloat64 iyy               \nfloat64 iyz               \nfloat64 izz               \n"; }
+    virtual std::string getDefinition(){ return "string link_name\ngeometry_msgs/Pose com\nbool gravity_mode\nfloat64 mass\nfloat64 ixx\nfloat64 ixy\nfloat64 ixz\nfloat64 iyy\nfloat64 iyz\nfloat64 izz\n"; }
+    static std::string getDefinitionStatic(){ return "string link_name\ngeometry_msgs/Pose com\nbool gravity_mode\nfloat64 mass\nfloat64 ixx\nfloat64 ixy\nfloat64 ixz\nfloat64 iyy\nfloat64 iyz\nfloat64 izz\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
@@ -499,8 +499,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::SetLinkPropertiesRequest const> Se
     static std::string getTypeStatic(){ return SETLINKPROPERTIES; }
     virtual std::string getMD5(){ return "777dea05607e1bca37e3206f97801d89"; }
     static std::string getMD5Static(){ return "777dea05607e1bca37e3206f97801d89"; }
-    virtual std::string getDefinition(){ return "bool success              \nstring status_message     \n"; }
-    static std::string getDefinitionStatic(){ return "bool success              \nstring status_message     \n"; }
+    virtual std::string getDefinition(){ return "bool success\nstring status_message\n"; }
+    static std::string getDefinitionStatic(){ return "bool success\nstring status_message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

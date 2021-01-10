@@ -135,8 +135,8 @@ namespace gazebo_msgs
     static std::string getTypeStatic(){ return "gazebo_msgs/ModelState"; }
     virtual std::string getMD5(){ return "dee4d802363b4d6bd1ed61e20c2c4635"; }
     static std::string getMD5Static(){ return "dee4d802363b4d6bd1ed61e20c2c4635"; }
-    virtual std::string getDefinition(){ return "string model_name           \ngeometry_msgs/Pose pose     \ngeometry_msgs/Twist twist   \nstring reference_frame      \n"; }
-    static std::string getDefinitionStatic(){ return "string model_name           \ngeometry_msgs/Pose pose     \ngeometry_msgs/Twist twist   \nstring reference_frame      \n"; }
+    virtual std::string getDefinition(){ return "string model_name\ngeometry_msgs/Pose pose\ngeometry_msgs/Twist twist\nstring reference_frame\n"; }
+    static std::string getDefinitionStatic(){ return "string model_name\ngeometry_msgs/Pose pose\ngeometry_msgs/Twist twist\nstring reference_frame\n"; }
     static bool hasHeader(){ return false; }
   };
 

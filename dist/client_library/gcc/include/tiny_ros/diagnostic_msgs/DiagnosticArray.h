@@ -121,8 +121,8 @@ namespace diagnostic_msgs
     static std::string getTypeStatic(){ return "diagnostic_msgs/DiagnosticArray"; }
     virtual std::string getMD5(){ return "79a87210f85eb6afbd600eb2ba49dd85"; }
     static std::string getMD5Static(){ return "79a87210f85eb6afbd600eb2ba49dd85"; }
-    virtual std::string getDefinition(){ return "Header header \nDiagnosticStatus[] status \n"; }
-    static std::string getDefinitionStatic(){ return "Header header \nDiagnosticStatus[] status \n"; }
+    virtual std::string getDefinition(){ return "Header header\nDiagnosticStatus[] status\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\nDiagnosticStatus[] status\n"; }
     static bool hasHeader(){ return true; }
   };
 

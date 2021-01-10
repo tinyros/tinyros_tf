@@ -34,9 +34,9 @@
 #include "properties/forwards.h"
 
 #include <OGRE/OgreVector3.h>
-#include <ros/ros.h>
+#include <tiny_ros/ros.h>
 
-namespace rviz
+namespace ogre_tools
 {
 class Arrow;
 }
@@ -62,8 +62,7 @@ protected:
 
   std::string topic_;
 
-  ros::NodeHandle nh_;
-  ros::Publisher pub_;
+  tinyros::Publisher *pub_;
 
   StringPropertyWPtr topic_property_;
 };

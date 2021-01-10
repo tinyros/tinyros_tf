@@ -165,8 +165,8 @@ static const char SETPHYSICSPROPERTIES[] = "gazebo_msgs/SetPhysicsProperties";
     static std::string getTypeStatic(){ return SETPHYSICSPROPERTIES; }
     virtual std::string getMD5(){ return "373e5371b10119be0a008429a9660679"; }
     static std::string getMD5Static(){ return "373e5371b10119be0a008429a9660679"; }
-    virtual std::string getDefinition(){ return "float64 time_step                  \nfloat64 max_update_rate            \ngeometry_msgs/Vector3 gravity      \ngazebo_msgs/ODEPhysics ode_config  \n"; }
-    static std::string getDefinitionStatic(){ return "float64 time_step                  \nfloat64 max_update_rate            \ngeometry_msgs/Vector3 gravity      \ngazebo_msgs/ODEPhysics ode_config  \n"; }
+    virtual std::string getDefinition(){ return "float64 time_step\nfloat64 max_update_rate\ngeometry_msgs/Vector3 gravity\ngazebo_msgs/ODEPhysics ode_config\n"; }
+    static std::string getDefinitionStatic(){ return "float64 time_step\nfloat64 max_update_rate\ngeometry_msgs/Vector3 gravity\ngazebo_msgs/ODEPhysics ode_config\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
@@ -285,8 +285,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::SetPhysicsPropertiesRequest const>
     static std::string getTypeStatic(){ return SETPHYSICSPROPERTIES; }
     virtual std::string getMD5(){ return "5b1d14bf828ba119319cc03e2bb3473a"; }
     static std::string getMD5Static(){ return "5b1d14bf828ba119319cc03e2bb3473a"; }
-    virtual std::string getDefinition(){ return "bool success                       \nstring status_message              \n"; }
-    static std::string getDefinitionStatic(){ return "bool success                       \nstring status_message              \n"; }
+    virtual std::string getDefinition(){ return "bool success\nstring status_message\n"; }
+    static std::string getDefinitionStatic(){ return "bool success\nstring status_message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

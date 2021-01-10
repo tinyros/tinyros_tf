@@ -205,8 +205,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::SetModelStateRequest const> SetMod
     static std::string getTypeStatic(){ return SETMODELSTATE; }
     virtual std::string getMD5(){ return "7fe6c3a1ea4a4df9bf5b6858fd028ee6"; }
     static std::string getMD5Static(){ return "7fe6c3a1ea4a4df9bf5b6858fd028ee6"; }
-    virtual std::string getDefinition(){ return "bool success                  \nstring status_message         \n"; }
-    static std::string getDefinitionStatic(){ return "bool success                  \nstring status_message         \n"; }
+    virtual std::string getDefinition(){ return "bool success\nstring status_message\n"; }
+    static std::string getDefinitionStatic(){ return "bool success\nstring status_message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

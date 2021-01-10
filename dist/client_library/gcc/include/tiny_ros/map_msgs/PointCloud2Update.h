@@ -97,8 +97,8 @@ namespace map_msgs
     static std::string getTypeStatic(){ return "map_msgs/PointCloud2Update"; }
     virtual std::string getMD5(){ return "e79dfbefd7336861352e1bc7148491c4"; }
     static std::string getMD5Static(){ return "e79dfbefd7336861352e1bc7148491c4"; }
-    virtual std::string getDefinition(){ return "Header header\nuint32 type          \nsensor_msgs/PointCloud2 points\n"; }
-    static std::string getDefinitionStatic(){ return "Header header\nuint32 type          \nsensor_msgs/PointCloud2 points\n"; }
+    virtual std::string getDefinition(){ return "Header header\nuint32 type\nsensor_msgs/PointCloud2 points\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\nuint32 type\nsensor_msgs/PointCloud2 points\n"; }
     static bool hasHeader(){ return true; }
   };
 

@@ -382,8 +382,8 @@ namespace gazebo_msgs
     static std::string getTypeStatic(){ return "gazebo_msgs/ContactState"; }
     virtual std::string getMD5(){ return "d82d0f0cae88aebf6b2cc86caea33a2b"; }
     static std::string getMD5Static(){ return "d82d0f0cae88aebf6b2cc86caea33a2b"; }
-    virtual std::string getDefinition(){ return "string info                                   \nstring collision1_name                        \nstring collision2_name                        \ngeometry_msgs/Wrench[] wrenches               \ngeometry_msgs/Wrench total_wrench             \ngeometry_msgs/Vector3[] contact_positions     \ngeometry_msgs/Vector3[] contact_normals       \nfloat64[] depths                              \n"; }
-    static std::string getDefinitionStatic(){ return "string info                                   \nstring collision1_name                        \nstring collision2_name                        \ngeometry_msgs/Wrench[] wrenches               \ngeometry_msgs/Wrench total_wrench             \ngeometry_msgs/Vector3[] contact_positions     \ngeometry_msgs/Vector3[] contact_normals       \nfloat64[] depths                              \n"; }
+    virtual std::string getDefinition(){ return "string info\nstring collision1_name\nstring collision2_name\ngeometry_msgs/Wrench[] wrenches\ngeometry_msgs/Wrench total_wrench\ngeometry_msgs/Vector3[] contact_positions\ngeometry_msgs/Vector3[] contact_normals\nfloat64[] depths\n"; }
+    static std::string getDefinitionStatic(){ return "string info\nstring collision1_name\nstring collision2_name\ngeometry_msgs/Wrench[] wrenches\ngeometry_msgs/Wrench total_wrench\ngeometry_msgs/Vector3[] contact_positions\ngeometry_msgs/Vector3[] contact_normals\nfloat64[] depths\n"; }
     static bool hasHeader(){ return false; }
   };
 

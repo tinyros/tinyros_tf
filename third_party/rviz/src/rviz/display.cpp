@@ -31,43 +31,30 @@
 #include "visualization_manager.h"
 #include "properties/property_manager.h"
 #include "properties/property.h"
+#include <tiny_ros/tf/static_assert.h>
 
 namespace rviz
 {
 
-Display::Display()
-  : vis_manager_( 0 )
-  , scene_manager_( 0 )
-  , enabled_( false )
-  , status_( status_levels::Ok )
-  , property_manager_( NULL )
+Display::Display( const std::string& name, VisualizationManager* manager )
+: vis_manager_( manager )
+, scene_manager_( manager->getSceneManager() )
+, name_( name )
+, enabled_( false )
+, target_frame_( "base" )
+, property_prefix_( name_ + "." )
+, property_manager_( NULL )
 {
 }
 
 Display::~Display()
 {
+  state_changed_.disconnect_all();
+  
   if ( property_manager_ )
   {
     property_manager_->deleteByUserData( this );
   }
-}
-
-void Display::initialize( const std::string& name, VisualizationManager* manager )
-{
-  setName( name );
-  vis_manager_ = manager;
-  scene_manager_ = manager->getSceneManager();
-  update_nh_.setCallbackQueue(manager->getUpdateQueue());
-  threaded_nh_.setCallbackQueue(manager->getThreadedQueue());
-
-  // Do subclass initialization, if implemented.
-  onInitialize();
-}
-
-void Display::setName(const std::string& name)
-{
-  name_ = name;
-  property_prefix_ = name + ".";
 }
 
 void Display::enable( bool force )
@@ -79,14 +66,11 @@ void Display::enable( bool force )
 
   enabled_ = true;
 
-  if (StatusPropertyPtr status = status_property_.lock())
-  {
-    status->enable();
-  }
-
   onEnable();
 
-  Q_EMIT stateChanged( this );
+  propertyChanged(enabled_property_);
+
+  state_changed_.emit(this);
 }
 
 void Display::disable( bool force )
@@ -100,12 +84,9 @@ void Display::disable( bool force )
 
   onDisable();
 
-  if (StatusPropertyPtr status = status_property_.lock())
-  {
-    status->disable();
-  }
+  propertyChanged(enabled_property_);
 
-  Q_EMIT stateChanged( this );
+  state_changed_.emit(this);
 }
 
 void Display::setEnabled(bool en, bool force)
@@ -160,6 +141,13 @@ void Display::unlockRender()
   }
 }
 
+void Display::setTargetFrame( const std::string& frame )
+{
+  target_frame_ = frame;
+
+  targetFrameChanged();
+}
+
 void Display::setFixedFrame( const std::string& frame )
 {
   fixed_frame_ = frame;
@@ -167,71 +155,17 @@ void Display::setFixedFrame( const std::string& frame )
   fixedFrameChanged();
 }
 
-StatusLevel Display::getStatus()
-{
-  return status_;
-}
-
-void Display::setStatus(StatusLevel level, const std::string& name, const std::string& text)
-{
-  if (StatusPropertyPtr status = status_property_.lock())
-  {
-    status->setStatus(level, name, text);
-
-    StatusLevel new_status = status->getTopLevelStatus();
-    if (new_status != status_)
-    {
-      status_ = new_status;
-      Q_EMIT stateChanged( this );
-    }
-  }
-}
-
-void Display::deleteStatus(const std::string& name)
-{
-  if (StatusPropertyPtr status = status_property_.lock())
-  {
-    status->deleteStatus(name);
-
-    StatusLevel new_status = status->getTopLevelStatus();
-    if (new_status != status_)
-    {
-      status_ = new_status;
-      Q_EMIT stateChanged( this );
-    }
-  }
-}
-
-void Display::clearStatuses()
-{
-  if (StatusPropertyPtr status = status_property_.lock())
-  {
-    status->clear();
-
-    StatusLevel new_status = status->getTopLevelStatus();
-    if (new_status != status_)
-    {
-      status_ = new_status;
-      Q_EMIT stateChanged( this );
-    }
-  }
-}
-
 void Display::setPropertyManager( PropertyManager* manager, const CategoryPropertyWPtr& parent )
 {
-  ROS_ASSERT(!property_manager_);
+  TINYROS_ASSERT(!property_manager_);
 
   property_manager_ = manager;
 
   parent_category_ = parent;
-  status_property_ = property_manager_->createStatus("Status", property_prefix_, parent_category_, this);
+  enabled_property_ = property_manager_->createProperty<BoolProperty>( "Enabled", property_prefix_, std::bind( &Display::isEnabled, this ),
+                                                                       std::bind( &Display::setEnabled, this, std::placeholders::_1, false ), parent_category_, this );
 
   createProperties();
-}
-
-void Display::reset()
-{
-  clearStatuses();
 }
 
 } // namespace rviz

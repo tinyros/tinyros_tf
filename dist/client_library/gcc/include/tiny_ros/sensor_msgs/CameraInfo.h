@@ -393,8 +393,8 @@ namespace sensor_msgs
     static std::string getTypeStatic(){ return "sensor_msgs/CameraInfo"; }
     virtual std::string getMD5(){ return "57d2553deec0a7842f00837f40032798"; }
     static std::string getMD5Static(){ return "57d2553deec0a7842f00837f40032798"; }
-    virtual std::string getDefinition(){ return "Header header    \nuint32 height\nuint32 width\nstring distortion_model\nfloat64[] D\nfloat64[9]  K \nfloat64[9]  R \nfloat64[12] P \nuint32 binning_x\nuint32 binning_y\nRegionOfInterest roi\n"; }
-    static std::string getDefinitionStatic(){ return "Header header    \nuint32 height\nuint32 width\nstring distortion_model\nfloat64[] D\nfloat64[9]  K \nfloat64[9]  R \nfloat64[12] P \nuint32 binning_x\nuint32 binning_y\nRegionOfInterest roi\n"; }
+    virtual std::string getDefinition(){ return "Header header\nuint32 height\nuint32 width\nstring distortion_model\nfloat64[] D\nfloat64[9]  K\nfloat64[9]  R\nfloat64[12] P\nuint32 binning_x\nuint32 binning_y\nRegionOfInterest roi\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\nuint32 height\nuint32 width\nstring distortion_model\nfloat64[] D\nfloat64[9]  K\nfloat64[9]  R\nfloat64[12] P\nuint32 binning_x\nuint32 binning_y\nRegionOfInterest roi\n"; }
     static bool hasHeader(){ return true; }
   };
 

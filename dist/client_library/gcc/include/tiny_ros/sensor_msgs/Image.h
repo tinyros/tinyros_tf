@@ -205,8 +205,8 @@ namespace sensor_msgs
     static std::string getTypeStatic(){ return "sensor_msgs/Image"; }
     virtual std::string getMD5(){ return "886f928dc81bf7f1496a8b452057c5b2"; }
     static std::string getMD5Static(){ return "886f928dc81bf7f1496a8b452057c5b2"; }
-    virtual std::string getDefinition(){ return "Header header        \nuint32 height         \nuint32 width          \nstring encoding       \nuint8 is_bigendian    \nuint32 step           \nuint8[] data          \n"; }
-    static std::string getDefinitionStatic(){ return "Header header        \nuint32 height         \nuint32 width          \nstring encoding       \nuint8 is_bigendian    \nuint32 step           \nuint8[] data          \n"; }
+    virtual std::string getDefinition(){ return "Header header\nuint32 height\nuint32 width\nstring encoding\nuint8 is_bigendian\nuint32 step\nuint8[] data\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\nuint32 height\nuint32 width\nstring encoding\nuint8 is_bigendian\nuint32 step\nuint8[] data\n"; }
     static bool hasHeader(){ return true; }
   };
 

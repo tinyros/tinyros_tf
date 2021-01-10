@@ -189,8 +189,8 @@ namespace sensor_msgs
     static std::string getTypeStatic(){ return "sensor_msgs/Range"; }
     virtual std::string getMD5(){ return "54d647e3a481f5b87ce39d1b97e84d53"; }
     static std::string getMD5Static(){ return "54d647e3a481f5b87ce39d1b97e84d53"; }
-    virtual std::string getDefinition(){ return "Header header           \nuint8 radiation_type    \nfloat32 field_of_view   \nfloat32 min_range       \nfloat32 max_range       \nfloat32 range           \n"; }
-    static std::string getDefinitionStatic(){ return "Header header           \nuint8 radiation_type    \nfloat32 field_of_view   \nfloat32 min_range       \nfloat32 max_range       \nfloat32 range           \n"; }
+    virtual std::string getDefinition(){ return "Header header\nuint8 radiation_type\nfloat32 field_of_view\nfloat32 min_range\nfloat32 max_range\nfloat32 range\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\nuint8 radiation_type\nfloat32 field_of_view\nfloat32 min_range\nfloat32 max_range\nfloat32 range\n"; }
     static bool hasHeader(){ return true; }
   };
 

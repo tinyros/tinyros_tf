@@ -195,8 +195,8 @@ typedef std::shared_ptr<tinyros::std_srvs::TriggerRequest const> TriggerRequestC
     static std::string getTypeStatic(){ return TRIGGER; }
     virtual std::string getMD5(){ return "08d111154ed595049573252ba929a6d8"; }
     static std::string getMD5Static(){ return "08d111154ed595049573252ba929a6d8"; }
-    virtual std::string getDefinition(){ return "bool success   \nstring message \n"; }
-    static std::string getDefinitionStatic(){ return "bool success   \nstring message \n"; }
+    virtual std::string getDefinition(){ return "bool success\nstring message\n"; }
+    static std::string getDefinitionStatic(){ return "bool success\nstring message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

@@ -33,7 +33,7 @@
 #include "properties/forwards.h"
 #include "selection/forwards.h"
 
-#include <ogre_helpers/object.h>
+#include <ogre_tools/object.h>
 
 #include <string>
 #include <map>
@@ -41,13 +41,11 @@
 #include <OGRE/OgreVector3.h>
 #include <OGRE/OgreQuaternion.h>
 #include <OGRE/OgreAny.h>
-#include <OGRE/OgreMaterial.h>
 
 namespace Ogre
 {
 class SceneManager;
 class Entity;
-class SubEntity;
 class SceneNode;
 class Vector3;
 class Quaternion;
@@ -55,7 +53,7 @@ class Any;
 class RibbonTrail;
 }
 
-namespace rviz
+namespace ogre_tools
 {
 class Shape;
 class Axes;
@@ -116,20 +114,6 @@ public:
   void setPropertyManager(PropertyManager* property_manager);
   void createProperties();
 
-  bool isValid();
-
-  void setLinkAlpha( float a );
-  float getLinkAlpha();
-
-  void setLinkEnabled( bool enabled );
-  bool getLinkEnabled() { return enabled_; }
-
-  /** @brief Update the visibility of the link elements: visual mesh, collision mesh, trail, and axes.
-   *
-   * Called by Robot when changing visual and collision visibilities,
-   * since each link may be enabled or disabled. */
-  void updateVisibility();
-
 protected:
 
   void createEntityForGeometryElement(TiXmlElement* root_element, const urdf::LinkConstPtr& link, const urdf::Geometry& geom, const urdf::Pose& origin, Ogre::SceneNode* parent_node, Ogre::Entity*& entity, Ogre::SceneNode*& scene_node, Ogre::SceneNode*& offset_node);
@@ -137,8 +121,7 @@ protected:
   void createVisual(TiXmlElement* root_element, const urdf::LinkConstPtr& link);
   void createCollision(TiXmlElement* root_element, const urdf::LinkConstPtr& link);
   void createSelection(const urdf::Model& descr, const urdf::LinkConstPtr& link);
-  Ogre::MaterialPtr getMaterialForLink( TiXmlElement* root_element, const urdf::LinkConstPtr& link );
-  void updateAlpha();
+
 
   Robot* parent_;
   Ogre::SceneManager* scene_manager_;
@@ -146,13 +129,7 @@ protected:
   VisualizationManager* vis_manager_;
 
   std::string name_;                          ///< Name of this link
-
-  bool enabled_; ///< True if this link should be shown, false if not.
-
-  typedef std::map<Ogre::SubEntity*, Ogre::MaterialPtr> M_SubEntityToMaterial;
-  M_SubEntityToMaterial materials_;
-  Ogre::MaterialPtr default_material_;
-  std::string default_material_name_;
+  std::string material_name_;                 ///< Name of the ogre material used by the meshes in this link
 
   Ogre::Entity* visual_mesh_;                 ///< The entity representing the visual mesh of this link (if it exists)
   Ogre::Entity* collision_mesh_;              ///< The entity representing the collision mesh of this link (if it exists)
@@ -167,11 +144,7 @@ protected:
 
   Ogre::RibbonTrail* trail_;
 
-  Axes* axes_;
-
-  float material_alpha_; ///< If material is not a texture, this saves the alpha value set in the URDF, otherwise is 1.0.
-  float link_alpha_; ///< Alpha value set by property of this link.
-  float robot_alpha_; ///< Alpha value from top-level robot alpha Property (set via setAlpha()).
+  ogre_tools::Axes* axes_;
 
   // joint stuff
   std::string joint_name_;
@@ -180,12 +153,10 @@ protected:
   RobotLinkSelectionHandlerPtr selection_handler_;
 
   // properties
-  CategoryPropertyWPtr link_property_;
   Vector3PropertyWPtr position_property_;
   QuaternionPropertyWPtr orientation_property_;
   BoolPropertyWPtr trail_property_;
   BoolPropertyWPtr axes_property_;
-  FloatPropertyWPtr alpha_property_;
 
   friend class RobotLinkSelectionHandler;
 };

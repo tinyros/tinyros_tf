@@ -34,9 +34,9 @@
 #include "properties/forwards.h"
 
 #include <OGRE/OgreVector3.h>
-#include <ros/ros.h>
+#include <tiny_ros/ros.h>
 
-namespace rviz
+namespace ogre_tools
 {
 class Arrow;
 }
@@ -62,7 +62,7 @@ protected:
 
   virtual void onPoseSet(double x, double y, double theta) = 0;
 
-  Arrow* arrow_;
+  ogre_tools::Arrow* arrow_;
 
   enum State
   {

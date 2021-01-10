@@ -809,8 +809,8 @@ namespace gazebo_msgs
     static std::string getTypeStatic(){ return "gazebo_msgs/ODEJointProperties"; }
     virtual std::string getMD5(){ return "a9e264dbf3eff8e202d2bebecf081639"; }
     static std::string getMD5Static(){ return "a9e264dbf3eff8e202d2bebecf081639"; }
-    virtual std::string getDefinition(){ return "float64[] damping             \nfloat64[] hiStop              \nfloat64[] loStop              \nfloat64[] erp                 \nfloat64[] cfm                 \nfloat64[] stop_erp            \nfloat64[] stop_cfm            \nfloat64[] fudge_factor        \nfloat64[] fmax                \nfloat64[] vel                 \n"; }
-    static std::string getDefinitionStatic(){ return "float64[] damping             \nfloat64[] hiStop              \nfloat64[] loStop              \nfloat64[] erp                 \nfloat64[] cfm                 \nfloat64[] stop_erp            \nfloat64[] stop_cfm            \nfloat64[] fudge_factor        \nfloat64[] fmax                \nfloat64[] vel                 \n"; }
+    virtual std::string getDefinition(){ return "float64[] damping\nfloat64[] hiStop\nfloat64[] loStop\nfloat64[] erp\nfloat64[] cfm\nfloat64[] stop_erp\nfloat64[] stop_cfm\nfloat64[] fudge_factor\nfloat64[] fmax\nfloat64[] vel\n"; }
+    static std::string getDefinitionStatic(){ return "float64[] damping\nfloat64[] hiStop\nfloat64[] loStop\nfloat64[] erp\nfloat64[] cfm\nfloat64[] stop_erp\nfloat64[] stop_cfm\nfloat64[] fudge_factor\nfloat64[] fmax\nfloat64[] vel\n"; }
     static bool hasHeader(){ return false; }
   };
 

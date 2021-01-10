@@ -139,8 +139,8 @@ namespace sensor_msgs
     static std::string getTypeStatic(){ return "sensor_msgs/RelativeHumidity"; }
     virtual std::string getMD5(){ return "d9a3a4b2c3c0c55eede767d38b460110"; }
     static std::string getMD5Static(){ return "d9a3a4b2c3c0c55eede767d38b460110"; }
-    virtual std::string getDefinition(){ return "Header header             \nfloat64 relative_humidity \nfloat64 variance          \n"; }
-    static std::string getDefinitionStatic(){ return "Header header             \nfloat64 relative_humidity \nfloat64 variance          \n"; }
+    virtual std::string getDefinition(){ return "Header header\nfloat64 relative_humidity\nfloat64 variance\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\nfloat64 relative_humidity\nfloat64 variance\n"; }
     static bool hasHeader(){ return true; }
   };
 

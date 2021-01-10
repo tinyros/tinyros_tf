@@ -203,8 +203,8 @@ namespace sensor_msgs
     static std::string getTypeStatic(){ return "sensor_msgs/Joy"; }
     virtual std::string getMD5(){ return "da3438323dbe92a4d6e4658e06bf8da1"; }
     static std::string getMD5Static(){ return "da3438323dbe92a4d6e4658e06bf8da1"; }
-    virtual std::string getDefinition(){ return "Header header           \nfloat32[] axes          \nint32[] buttons         \n"; }
-    static std::string getDefinitionStatic(){ return "Header header           \nfloat32[] axes          \nint32[] buttons         \n"; }
+    virtual std::string getDefinition(){ return "Header header\nfloat32[] axes\nint32[] buttons\n"; }
+    static std::string getDefinitionStatic(){ return "Header header\nfloat32[] axes\nint32[] buttons\n"; }
     static bool hasHeader(){ return true; }
   };
 

@@ -31,8 +31,10 @@
 #include "visualization_manager.h"
 #include "render_panel.h"
 #include "viewport_mouse_event.h"
-#include "selection/selection_manager.h"
-#include "view_controller.h"
+
+#include "ogre_tools/camera_base.h"
+
+#include <wx/event.h>
 
 namespace rviz
 {
@@ -45,38 +47,73 @@ MoveTool::MoveTool( const std::string& name, char shortcut_key, VisualizationMan
 
 int MoveTool::processMouseEvent( ViewportMouseEvent& event )
 {
-  if (event.panel->getViewController())
+  int flags = 0;
+
+  ogre_tools::CameraBase* camera = manager_->getCurrentCamera();
+
+  if ( event.event.LeftDown() )
   {
-    event.panel->getViewController()->handleMouseEvent(event);
+    camera->mouseLeftDown( event.event.GetX(), event.event.GetY() );
+    flags |= Render;
   }
-
-  return 0;
-}
-
-int MoveTool::processKeyEvent( QKeyEvent* event, RenderPanel* panel )
-{
-  if( event->key() == Qt::Key_F &&
-      panel->getViewport() &&
-      manager_->getSelectionManager() &&
-      manager_->getCurrentViewController() )
+  else if ( event.event.MiddleDown() )
   {
-    QPoint mouse_rel_panel = panel->mapFromGlobal( QCursor::pos() );
-    Ogre::Vector3 point_rel_world; // output of get3DPoint().
-    if( manager_->getSelectionManager()->get3DPoint( panel->getViewport(),
-                                                     mouse_rel_panel.x(), mouse_rel_panel.y(),
-                                                     point_rel_world ))
+    camera->mouseMiddleDown( event.event.GetX(), event.event.GetY() );
+    flags |= Render;
+  }
+  else if ( event.event.RightDown() )
+  {
+    camera->mouseRightDown( event.event.GetX(), event.event.GetY() );
+    flags |= Render;
+  }
+  else if ( event.event.LeftUp() )
+  {
+    camera->mouseLeftUp( event.event.GetX(), event.event.GetY() );
+    flags |= Render;
+  }
+  else if ( event.event.MiddleUp() )
+  {
+    camera->mouseMiddleUp( event.event.GetX(), event.event.GetY() );
+    flags |= Render;
+  }
+  else if ( event.event.RightUp() )
+  {
+    camera->mouseRightUp( event.event.GetX(), event.event.GetY() );
+    flags |= Render;
+  }
+  else if ( event.event.Dragging() )
+  {
+    int32_t diff_x = event.event.GetX() - event.last_x;
+    int32_t diff_y = event.event.GetY() - event.last_y;
+
+    if ( event.event.LeftIsDown() )
     {
-      manager_->getCurrentViewController()->lookAt( point_rel_world );
+      camera->mouseLeftDrag( diff_x, diff_y, event.event.CmdDown(), event.event.AltDown(), event.event.ShiftDown() );
+
+      flags |= Render;
+    }
+    else if ( event.event.MiddleIsDown() )
+    {
+      camera->mouseMiddleDrag( diff_x, diff_y, event.event.CmdDown(), event.event.AltDown(), event.event.ShiftDown() );
+
+      flags |= Render;
+    }
+    else if ( event.event.RightIsDown() )
+    {
+      camera->mouseRightDrag( diff_x, diff_y, event.event.CmdDown(), event.event.AltDown(), event.event.ShiftDown() );
+
+      flags |= Render;
     }
   }
 
-  if( event->key() == Qt::Key_Z &&
-      manager_->getCurrentViewController() )
+  if ( event.event.GetWheelRotation() != 0 )
   {
-    manager_->getCurrentViewController()->reset();
+    camera->scrollWheel( event.event.GetWheelRotation(), event.event.CmdDown(), event.event.AltDown(), event.event.ShiftDown() );
+
+    flags |= Render;
   }
 
-  return Render;
+  return flags;
 }
 
 }

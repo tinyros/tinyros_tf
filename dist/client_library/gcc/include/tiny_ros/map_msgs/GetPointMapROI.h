@@ -321,8 +321,8 @@ static const char GETPOINTMAPROI[] = "map_msgs/GetPointMapROI";
     static std::string getTypeStatic(){ return GETPOINTMAPROI; }
     virtual std::string getMD5(){ return "c338f5616930e00a72c38486f77e9810"; }
     static std::string getMD5Static(){ return "c338f5616930e00a72c38486f77e9810"; }
-    virtual std::string getDefinition(){ return "float64 x\nfloat64 y\nfloat64 z\nfloat64 r    \nfloat64 l_x  \nfloat64 l_y  \nfloat64 l_z  \n"; }
-    static std::string getDefinitionStatic(){ return "float64 x\nfloat64 y\nfloat64 z\nfloat64 r    \nfloat64 l_x  \nfloat64 l_y  \nfloat64 l_z  \n"; }
+    virtual std::string getDefinition(){ return "float64 x\nfloat64 y\nfloat64 z\nfloat64 r\nfloat64 l_x\nfloat64 l_y\nfloat64 l_z\n"; }
+    static std::string getDefinitionStatic(){ return "float64 x\nfloat64 y\nfloat64 z\nfloat64 r\nfloat64 l_x\nfloat64 l_y\nfloat64 l_z\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

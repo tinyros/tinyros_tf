@@ -497,7 +497,7 @@ class Message:
                 self.data.append( ArrayDataType(name, code_type, size, cls, type_array_size ) )
             else:
                 self.data.append( cls(name, code_type, size) )
-            self.definition += line
+            self.definition += line.strip().rstrip()
             self.definition += "\\n"
             if code_type == "tinyros::std_msgs::Header" and name == "header":
                 self.hasHeader = "true"

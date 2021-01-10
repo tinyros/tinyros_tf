@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2008, Willow Garage, Inc.
  * All rights reserved.
  *
@@ -27,164 +27,64 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <QApplication>
-#include <QTimer>
+/**
+ * \file
+ */
 
-#include <boost/thread.hpp>
+#include <wx/app.h>
+#include <wx/timer.h>
+#include "visualization_frame.h"
+#include "wx_log_rosout.h"
+#include <ogre_tools/initialization.h>
+
+#include <tiny_ros/ros.h>
+
+#include <thread>
 #include <boost/program_options.hpp>
 #include <signal.h>
 
-#include <OGRE/OgreHighLevelGpuProgramManager.h>
-#include <OGRE/OgreLogManager.h>
-#include <std_srvs/Empty.h>
-
-#ifdef Q_OS_MAC
+#ifdef __WXMAC__
 #include <ApplicationServices/ApplicationServices.h>
-// Apparently OSX #defines 'check' to be an empty string somewhere.  
-// That was fun to figure out.
-#undef check
 #endif
-
-#include <ros/ros.h>
-
-#include "visualization_frame.h"
-#include "version.h"
-#include "wait_for_master_dialog.h"
-#include "visualizer_app.h"
-
-#define CATCH_EXCEPTIONS 0
 
 namespace po = boost::program_options;
 
 namespace rviz
 {
 
-bool reloadShaders(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
+class VisualizerApp : public wxApp
 {
-  Ogre::ResourceManager::ResourceMapIterator it = Ogre::HighLevelGpuProgramManager::getSingleton().getResourceIterator();
-  while (it.hasMoreElements())
+public:
+  char** local_argv_;
+  VisualizationFrame* frame_;
+  volatile bool continue_;
+  std::thread signal_handler_thread_;
+  wxTimer timer_;
+
+  VisualizerApp()
+  : timer_(this)
   {
-    Ogre::ResourcePtr resource = it.getNext();
-    resource->reload();
   }
-  return true;
-}
 
-VisualizerApp::VisualizerApp()
-  : timer_( 0 )
-  , frame_( 0 )
-{
-}
-
-void VisualizerApp::onTimer()
-{
-  if( !continue_ )
+  void onTimer(wxTimerEvent&)
   {
-    QApplication::closeAllWindows();
+    if (!continue_)
+    {
+      frame_->Close();
+    }
   }
-}
 
-bool VisualizerApp::init( int argc, char** argv )
-{
-  ROS_INFO( "rviz revision number %s", get_version().c_str() );
-  ROS_INFO( "compiled against OGRE version %d.%d.%d%s (%s)",
-            OGRE_VERSION_MAJOR, OGRE_VERSION_MINOR, OGRE_VERSION_PATCH,
-            OGRE_VERSION_SUFFIX, OGRE_VERSION_NAME );
-
-#ifdef Q_OS_MAC
-  ProcessSerialNumber PSN;
-  GetCurrentProcess(&PSN);
-  TransformProcessType(&PSN,kProcessTransformToForegroundApplication);
-  SetFrontProcess(&PSN);
+  bool OnInit()
+  {
+    tinyros::init("rviz");
+#ifdef __WXMAC__
+    ProcessSerialNumber PSN;
+    GetCurrentProcess(&PSN);
+    TransformProcessType(&PSN,kProcessTransformToForegroundApplication);
+    SetFrontProcess(&PSN);
 #endif
 
-#if CATCH_EXCEPTIONS
-  try
-  {
-#endif
-    ros::init( argc, argv, "rviz", ros::init_options::AnonymousName | ros::init_options::NoSigintHandler );
-
-    po::options_description options;
-    options.add_options()
-      ("help,h", "Produce this help message")
-      ("splash-screen,s", po::value<std::string>(), "A custom splash-screen image to display")
-      ("help-file", po::value<std::string>(), "A custom html file to show as the help screen")
-      ("display-config,d", po::value<std::string>(), "A display config file (.vcg) to load")
-      ("target-frame,t", po::value<std::string>(), "Set the target frame")
-      ("fixed-frame,f", po::value<std::string>(), "Set the fixed frame")
-      ("ogre-log,l", "Enable the Ogre.log file (output in cwd)")
-      ("in-mc-wrapper", "Signal that this is running inside a master-chooser wrapper")
-      ("verbose,v", "Enable debug visualizations");
-    po::variables_map vm;
-    std::string display_config, target_frame, fixed_frame, splash_path, help_path;
-    bool enable_ogre_log = false;
-    bool in_mc_wrapper = false;
-    bool verbose = false;
-    try
-    {
-      po::store( po::parse_command_line( argc, argv, options ), vm );
-      po::notify( vm );
-
-      if( vm.count( "help" ))
-      {
-        std::cout << "rviz command line options:\n" << options;
-        return false;
-      }
-
-      if( vm.count( "in-mc-wrapper" ))
-      {
-        in_mc_wrapper = true;
-      }
-
-      if (vm.count("display-config"))
-      {
-        display_config = vm["display-config"].as<std::string>();
-      }
-
-      if (vm.count("splash-screen"))
-      {
-        splash_path = vm["splash-screen"].as<std::string>();
-      }
-
-      if (vm.count("help-file"))
-      {
-        help_path = vm["help-file"].as<std::string>();
-      }
-
-      if (vm.count("target-frame"))
-      {
-        target_frame = vm["target-frame"].as<std::string>();
-      }
-
-      if (vm.count("fixed-frame"))
-      {
-        fixed_frame = vm["fixed-frame"].as<std::string>();
-      }
-
-      if (vm.count("ogre-log"))
-      {
-        enable_ogre_log = true;
-      }
-
-      if (vm.count("verbose"))
-      {
-        verbose = true;
-      }
-    }
-    catch (std::exception& e)
-    {
-      ROS_ERROR("Error parsing command line: %s", e.what());
-      return false;
-    }
-
-    if( !ros::master::check() )
-    {
-      WaitForMasterDialog* dialog = new WaitForMasterDialog;
-      if( dialog->exec() != QDialog::Accepted )
-      {
-        return false;
-      }
-    }
+    wxLog::SetActiveTarget(new wxLogRosout());
 
     // block kill signals on all threads, since this also disables signals in threads
     // created by this one (the main thread)
@@ -198,88 +98,130 @@ bool VisualizerApp::init( int argc, char** argv )
 
     // Start up our signal handler
     continue_ = true;
-    signal_handler_thread_ = boost::thread(boost::bind(&VisualizerApp::signalHandler, this));
+    signal_handler_thread_ = std::thread(std::bind(&VisualizerApp::signalHandler, this));
 
-    nh_.reset( new ros::NodeHandle );
+    ogre_tools::initializeOgre();
 
-    Ogre::LogManager* log_manager = new Ogre::LogManager();
-    log_manager->createLog( "Ogre.log", false, false, !enable_ogre_log );
+    // create our own copy of argv, with regular char*s.
+    local_argv_ =  new char*[ argc ];
+    for ( int i = 0; i < argc; ++i )
+    {
+      local_argv_[ i ] = strdup( wxString( argv[ i ] ).mb_str() );
+    }
 
-    frame_ = new VisualizationFrame;
-    frame_->initialize( display_config, fixed_frame, target_frame,
-                        splash_path, help_path, verbose, in_mc_wrapper );
-    frame_->show();
+    po::options_description options;
+    options.add_options()
+             ("help,h", "Produce this help message")
+             ("display-config,d", po::value<std::string>(), "A display config file (.vcg) to load")
+             ("target-frame,t", po::value<std::string>(), "Set the target frame")
+             ("fixed-frame,f", po::value<std::string>(), "Set the fixed frame");
+    po::variables_map vm;
+    std::string display_config, target_frame, fixed_frame;
+    try
+    {
+      po::store(po::parse_command_line(argc, local_argv_, options), vm);
+      po::notify(vm);
 
-    timer_ = new QTimer( this );
-    connect( timer_, SIGNAL( timeout() ), this, SLOT( onTimer() ));
-    timer_->start( 100 );
+      if (vm.count("help"))
+      {
+        std::cout << "rviz command line options:\n" << options;
+        return false;
+      }
 
-    ros::NodeHandle private_nh("~");
-    reload_shaders_service_ = private_nh.advertiseService("reload_shaders", reloadShaders);
-#if CATCH_EXCEPTIONS
+
+      if (vm.count("display-config"))
+      {
+        display_config = vm["display-config"].as<std::string>();
+      }
+
+      if (vm.count("target-frame"))
+      {
+        target_frame = vm["target-frame"].as<std::string>();
+      }
+
+      if (vm.count("fixed-frame"))
+      {
+        fixed_frame = vm["fixed-frame"].as<std::string>();
+      }
+    }
+    catch (std::exception& e)
+    {
+      tinyros_log_error("Error parsing command line: %s", e.what());
+      return false;
+    }
+
+    frame_ = new VisualizationFrame(NULL);
+    frame_->initialize(display_config, fixed_frame, target_frame);
+
+    SetTopWindow(frame_);
+    frame_->Show();
+
+    Connect(timer_.GetId(), wxEVT_TIMER, wxTimerEventHandler(VisualizerApp::onTimer), NULL, this);
+    timer_.Start(100);
+
+    return true;
   }
-  catch (std::exception& e)
+
+  int OnExit()
   {
-    ROS_ERROR("Caught exception while loading: %s", e.what());
-    return false;
+    timer_.Stop();
+    continue_ = false;
+
+    raise(SIGQUIT);
+
+    signal_handler_thread_.join();
+
+    for ( int i = 0; i < argc; ++i )
+    {
+      free( local_argv_[ i ] );
+    }
+    delete [] local_argv_;
+
+    ogre_tools::cleanupOgre();
+
+    return 0;
   }
-#endif
-  return true;
-}
 
-VisualizerApp::~VisualizerApp()
-{
-  if( timer_ )
+  void signalHandler()
   {
-    timer_->stop();
-  }
-  continue_ = false;
+    sigset_t signal_set;
+    while(continue_)
+    {
+      // Wait for any signals
+      sigfillset(&signal_set);
 
-  delete frame_;
-
-  raise(SIGQUIT);
-
-  signal_handler_thread_.join();
-}
-
-void VisualizerApp::signalHandler()
-{
-  sigset_t signal_set;
-  while(continue_)
-  {
-    // Wait for any signals
-    sigfillset(&signal_set);
-
-#if defined(Q_OS_MAC)
-    int sig;
-    sigwait(&signal_set, &sig);
+#if defined(__WXMAC__)
+      int sig;
+      sigwait(&signal_set, &sig);
 #else
-    struct timespec ts = {0, 100000000};
-    int sig = sigtimedwait(&signal_set, NULL, &ts);
+      struct timespec ts = {0, 100000000};
+      int sig = sigtimedwait(&signal_set, NULL, &ts);
 #endif
 
-    switch( sig )
-    {
-    case SIGKILL:
-    case SIGTERM:
-    case SIGQUIT:
-    {
-      exit(1);
-    }
-    break;
+      switch( sig )
+      {
+      case SIGKILL:
+      case SIGTERM:
+      case SIGQUIT:
+      case SIGINT:
+        {
+          continue_ = false;
 
-    case SIGINT:
-    {
-      ros::shutdown();
-      continue_ = false;
-      return;
-    }
-    break;
+          ros::shutdown();
+          return;
+        }
+        break;
 
-    default:
-      break;
+      default:
+        break;
+      }
     }
   }
-}
+};
+
+DECLARE_APP(VisualizerApp);
 
 } // namespace rviz
+
+
+IMPLEMENT_APP(rviz::VisualizerApp);

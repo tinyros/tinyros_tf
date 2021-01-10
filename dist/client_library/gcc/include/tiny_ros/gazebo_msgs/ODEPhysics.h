@@ -338,8 +338,8 @@ namespace gazebo_msgs
     static std::string getTypeStatic(){ return "gazebo_msgs/ODEPhysics"; }
     virtual std::string getMD5(){ return "67a077e58362b50f63dc189c25d01418"; }
     static std::string getMD5Static(){ return "67a077e58362b50f63dc189c25d01418"; }
-    virtual std::string getDefinition(){ return "bool auto_disable_bodies           \nuint32 sor_pgs_precon_iters        \nuint32 sor_pgs_iters               \nfloat64 sor_pgs_w                  \nfloat64 sor_pgs_rms_error_tol      \nfloat64 contact_surface_layer      \nfloat64 contact_max_correcting_vel \nfloat64 cfm                        \nfloat64 erp                        \nuint32 max_contacts                \n"; }
-    static std::string getDefinitionStatic(){ return "bool auto_disable_bodies           \nuint32 sor_pgs_precon_iters        \nuint32 sor_pgs_iters               \nfloat64 sor_pgs_w                  \nfloat64 sor_pgs_rms_error_tol      \nfloat64 contact_surface_layer      \nfloat64 contact_max_correcting_vel \nfloat64 cfm                        \nfloat64 erp                        \nuint32 max_contacts                \n"; }
+    virtual std::string getDefinition(){ return "bool auto_disable_bodies\nuint32 sor_pgs_precon_iters\nuint32 sor_pgs_iters\nfloat64 sor_pgs_w\nfloat64 sor_pgs_rms_error_tol\nfloat64 contact_surface_layer\nfloat64 contact_max_correcting_vel\nfloat64 cfm\nfloat64 erp\nuint32 max_contacts\n"; }
+    static std::string getDefinitionStatic(){ return "bool auto_disable_bodies\nuint32 sor_pgs_precon_iters\nuint32 sor_pgs_iters\nfloat64 sor_pgs_w\nfloat64 sor_pgs_rms_error_tol\nfloat64 contact_surface_layer\nfloat64 contact_max_correcting_vel\nfloat64 cfm\nfloat64 erp\nuint32 max_contacts\n"; }
     static bool hasHeader(){ return false; }
   };
 

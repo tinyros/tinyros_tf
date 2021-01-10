@@ -15,7 +15,7 @@ public class Publisher<MsgT extends Msg> {
         this.endpoint_ = TopicInfo.ID_PUBLISHER;
         this.topic_ = topic_name;
         this.msg_ = msg;
-		this.negotiated_ = false;
+    this.negotiated_ = false;
     }
 
     public int publish(MsgT msg) {

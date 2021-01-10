@@ -165,8 +165,8 @@ static const char SETJOINTTRAJECTORY[] = "gazebo_msgs/SetJointTrajectory";
     static std::string getTypeStatic(){ return SETJOINTTRAJECTORY; }
     virtual std::string getMD5(){ return "8230e1fcc0295d8d21fbd5df0ccb0af3"; }
     static std::string getMD5Static(){ return "8230e1fcc0295d8d21fbd5df0ccb0af3"; }
-    virtual std::string getDefinition(){ return "string model_name\ntrajectory_msgs/JointTrajectory joint_trajectory\ngeometry_msgs/Pose model_pose\nbool set_model_pose\nbool disable_physics_updates \n"; }
-    static std::string getDefinitionStatic(){ return "string model_name\ntrajectory_msgs/JointTrajectory joint_trajectory\ngeometry_msgs/Pose model_pose\nbool set_model_pose\nbool disable_physics_updates \n"; }
+    virtual std::string getDefinition(){ return "string model_name\ntrajectory_msgs/JointTrajectory joint_trajectory\ngeometry_msgs/Pose model_pose\nbool set_model_pose\nbool disable_physics_updates\n"; }
+    static std::string getDefinitionStatic(){ return "string model_name\ntrajectory_msgs/JointTrajectory joint_trajectory\ngeometry_msgs/Pose model_pose\nbool set_model_pose\nbool disable_physics_updates\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
@@ -285,8 +285,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointTrajectoryRequest const> S
     static std::string getTypeStatic(){ return SETJOINTTRAJECTORY; }
     virtual std::string getMD5(){ return "2f5fe47400272efd54556969ffe63e7e"; }
     static std::string getMD5Static(){ return "2f5fe47400272efd54556969ffe63e7e"; }
-    virtual std::string getDefinition(){ return "bool success                \nstring status_message       \n"; }
-    static std::string getDefinitionStatic(){ return "bool success                \nstring status_message       \n"; }
+    virtual std::string getDefinition(){ return "bool success\nstring status_message\n"; }
+    static std::string getDefinitionStatic(){ return "bool success\nstring status_message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

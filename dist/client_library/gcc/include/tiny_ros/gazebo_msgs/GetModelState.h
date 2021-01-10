@@ -133,8 +133,8 @@ static const char GETMODELSTATE[] = "gazebo_msgs/GetModelState";
     static std::string getTypeStatic(){ return GETMODELSTATE; }
     virtual std::string getMD5(){ return "92a8c6443abf59a40e396c81c0e29d40"; }
     static std::string getMD5Static(){ return "92a8c6443abf59a40e396c81c0e29d40"; }
-    virtual std::string getDefinition(){ return "string model_name                    \nstring relative_entity_name          \n"; }
-    static std::string getDefinitionStatic(){ return "string model_name                    \nstring relative_entity_name          \n"; }
+    virtual std::string getDefinition(){ return "string model_name\nstring relative_entity_name\n"; }
+    static std::string getDefinitionStatic(){ return "string model_name\nstring relative_entity_name\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
@@ -271,8 +271,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetModelStateRequest const> GetMod
     static std::string getTypeStatic(){ return GETMODELSTATE; }
     virtual std::string getMD5(){ return "3fd873975bc823929b01f7473704b974"; }
     static std::string getMD5Static(){ return "3fd873975bc823929b01f7473704b974"; }
-    virtual std::string getDefinition(){ return "geometry_msgs/Pose pose              \ngeometry_msgs/Twist twist            \nbool success                         \nstring status_message                \n"; }
-    static std::string getDefinitionStatic(){ return "geometry_msgs/Pose pose              \ngeometry_msgs/Twist twist            \nbool success                         \nstring status_message                \n"; }
+    virtual std::string getDefinition(){ return "geometry_msgs/Pose pose\ngeometry_msgs/Twist twist\nbool success\nstring status_message\n"; }
+    static std::string getDefinitionStatic(){ return "geometry_msgs/Pose pose\ngeometry_msgs/Twist twist\nbool success\nstring status_message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

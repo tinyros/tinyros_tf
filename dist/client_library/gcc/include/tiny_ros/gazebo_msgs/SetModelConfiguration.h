@@ -282,8 +282,8 @@ static const char SETMODELCONFIGURATION[] = "gazebo_msgs/SetModelConfiguration";
     static std::string getTypeStatic(){ return SETMODELCONFIGURATION; }
     virtual std::string getMD5(){ return "74db6184ae83468b540d4c02d244ada7"; }
     static std::string getMD5Static(){ return "74db6184ae83468b540d4c02d244ada7"; }
-    virtual std::string getDefinition(){ return "string model_name           \nstring urdf_param_name      \nstring[] joint_names        \nfloat64[] joint_positions   \n"; }
-    static std::string getDefinitionStatic(){ return "string model_name           \nstring urdf_param_name      \nstring[] joint_names        \nfloat64[] joint_positions   \n"; }
+    virtual std::string getDefinition(){ return "string model_name\nstring urdf_param_name\nstring[] joint_names\nfloat64[] joint_positions\n"; }
+    static std::string getDefinitionStatic(){ return "string model_name\nstring urdf_param_name\nstring[] joint_names\nfloat64[] joint_positions\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
@@ -402,8 +402,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::SetModelConfigurationRequest const
     static std::string getTypeStatic(){ return SETMODELCONFIGURATION; }
     virtual std::string getMD5(){ return "6f12aefa315c8b37040d5d47471e39ee"; }
     static std::string getMD5Static(){ return "6f12aefa315c8b37040d5d47471e39ee"; }
-    virtual std::string getDefinition(){ return "bool success                \nstring status_message       \n"; }
-    static std::string getDefinitionStatic(){ return "bool success                \nstring status_message       \n"; }
+    virtual std::string getDefinition(){ return "bool success\nstring status_message\n"; }
+    static std::string getDefinitionStatic(){ return "bool success\nstring status_message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

@@ -34,18 +34,18 @@ template <class T>
 TFSIMD_FORCE_INLINE void tfSetMin(T& a, const T& b) 
 {
     if (b < a) 
-	{
-		a = b;
-	}
+  {
+    a = b;
+  }
 }
 
 template <class T>
 TFSIMD_FORCE_INLINE void tfSetMax(T& a, const T& b) 
 {
     if (a < b) 
-	{
-		a = b;
-	}
+  {
+    a = b;
+  }
 }
 
 

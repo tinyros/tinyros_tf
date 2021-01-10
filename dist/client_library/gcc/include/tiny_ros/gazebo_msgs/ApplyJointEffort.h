@@ -198,8 +198,8 @@ static const char APPLYJOINTEFFORT[] = "gazebo_msgs/ApplyJointEffort";
     static std::string getTypeStatic(){ return APPLYJOINTEFFORT; }
     virtual std::string getMD5(){ return "90595a46cf1fb4ee17158e2f7034a0eb"; }
     static std::string getMD5Static(){ return "90595a46cf1fb4ee17158e2f7034a0eb"; }
-    virtual std::string getDefinition(){ return "string joint_name           \nfloat64 effort              \ntime start_time             \nduration duration           \n"; }
-    static std::string getDefinitionStatic(){ return "string joint_name           \nfloat64 effort              \ntime start_time             \nduration duration           \n"; }
+    virtual std::string getDefinition(){ return "string joint_name\nfloat64 effort\ntime start_time\nduration duration\n"; }
+    static std::string getDefinitionStatic(){ return "string joint_name\nfloat64 effort\ntime start_time\nduration duration\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
@@ -318,8 +318,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyJointEffortRequest const> App
     static std::string getTypeStatic(){ return APPLYJOINTEFFORT; }
     virtual std::string getMD5(){ return "953194fc8ca726693bef2876cebb0438"; }
     static std::string getMD5Static(){ return "953194fc8ca726693bef2876cebb0438"; }
-    virtual std::string getDefinition(){ return "bool success                \nstring status_message       \n"; }
-    static std::string getDefinitionStatic(){ return "bool success                \nstring status_message       \n"; }
+    virtual std::string getDefinition(){ return "bool success\nstring status_message\n"; }
+    static std::string getDefinitionStatic(){ return "bool success\nstring status_message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

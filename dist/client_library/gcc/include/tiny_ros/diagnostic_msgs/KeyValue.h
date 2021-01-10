@@ -115,8 +115,8 @@ namespace diagnostic_msgs
     static std::string getTypeStatic(){ return "diagnostic_msgs/KeyValue"; }
     virtual std::string getMD5(){ return "1baa904b80c685c77d1a42a872ca1d07"; }
     static std::string getMD5Static(){ return "1baa904b80c685c77d1a42a872ca1d07"; }
-    virtual std::string getDefinition(){ return "string key \nstring value \n"; }
-    static std::string getDefinitionStatic(){ return "string key \nstring value \n"; }
+    virtual std::string getDefinition(){ return "string key\nstring value\n"; }
+    static std::string getDefinitionStatic(){ return "string key\nstring value\n"; }
     static bool hasHeader(){ return false; }
   };
 

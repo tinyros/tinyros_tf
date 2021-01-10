@@ -327,8 +327,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesRequest const> G
     static std::string getTypeStatic(){ return GETWORLDPROPERTIES; }
     virtual std::string getMD5(){ return "fe944c1c210919291ad14bc43b6c10cf"; }
     static std::string getMD5Static(){ return "fe944c1c210919291ad14bc43b6c10cf"; }
-    virtual std::string getDefinition(){ return "float64 sim_time                     \nstring[] model_names                 \nbool rendering_enabled               \nbool success                         \nstring status_message                \n"; }
-    static std::string getDefinitionStatic(){ return "float64 sim_time                     \nstring[] model_names                 \nbool rendering_enabled               \nbool success                         \nstring status_message                \n"; }
+    virtual std::string getDefinition(){ return "float64 sim_time\nstring[] model_names\nbool rendering_enabled\nbool success\nstring status_message\n"; }
+    static std::string getDefinitionStatic(){ return "float64 sim_time\nstring[] model_names\nbool rendering_enabled\nbool success\nstring status_message\n"; }
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }

@@ -119,8 +119,8 @@ namespace std_msgs
     static std::string getTypeStatic(){ return "std_msgs/MultiArrayDimension"; }
     virtual std::string getMD5(){ return "c2aacf83d49c7aa4a8504bd32158e990"; }
     static std::string getMD5Static(){ return "c2aacf83d49c7aa4a8504bd32158e990"; }
-    virtual std::string getDefinition(){ return "string label   \nuint32 size    \nuint32 stride  \n"; }
-    static std::string getDefinitionStatic(){ return "string label   \nuint32 size    \nuint32 stride  \n"; }
+    virtual std::string getDefinition(){ return "string label\nuint32 size\nuint32 stride\n"; }
+    static std::string getDefinitionStatic(){ return "string label\nuint32 size\nuint32 stride\n"; }
     static bool hasHeader(){ return false; }
   };
 
