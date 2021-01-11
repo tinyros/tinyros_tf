@@ -130,7 +130,7 @@ private:
     , current_expected_(current_expected)
     , called_(false)
     {
-      std::unique_lock<std::mutex> lock(info->waiting_mutex);
+      std::scoped_lock lock(info->waiting_mutex);
       ++info->waiting_callbacks;
     }
 
@@ -139,7 +139,7 @@ private:
       TimerInfoPtr info = info_.lock();
       if (info)
       {
-        std::unique_lock<std::mutex> lock(info->waiting_mutex);
+        std::scoped_lock lock(info->waiting_mutex);
         --info->waiting_callbacks;
       }
     }
@@ -209,7 +209,7 @@ TimerManager<T, D, E>::~TimerManager()
 {
   quit_ = true;
   {
-    std::unique_lock<std::mutex> lock(timers_mutex_);
+    std::scoped_lock lock(timers_mutex_);
     timers_cond_.notify_all();
   }
   if (thread_started_)
@@ -250,7 +250,7 @@ typename TimerManager<T, D, E>::TimerInfoPtr TimerManager<T, D, E>::findTimer(in
 template<class T, class D, class E>
 bool TimerManager<T, D, E>::hasPending(int32_t handle)
 {
-  std::unique_lock<std::mutex> lock(timers_mutex_);
+  std::scoped_lock lock(timers_mutex_);
   TimerInfoPtr info = findTimer(handle);
 
   if (!info)
@@ -267,7 +267,7 @@ bool TimerManager<T, D, E>::hasPending(int32_t handle)
     }
   }
 
-  std::unique_lock<std::mutex> lock2(info->waiting_mutex);
+  std::scoped_lock lock2(info->waiting_mutex);
   return info->next_expected <= T::now() || info->waiting_callbacks != 0;
 }
 
@@ -293,12 +293,12 @@ int32_t TimerManager<T, D, E>::add(const D& period, const std::function<void(con
   }
 
   {
-    std::unique_lock<std::mutex> lock(id_mutex_);
+    std::scoped_lock lock(id_mutex_);
     info->handle = id_counter_++;
   }
 
   {
-    std::unique_lock<std::mutex> lock(timers_mutex_);
+    std::scoped_lock lock(timers_mutex_);
     timers_.push_back(info);
 
     if (!thread_started_)
@@ -308,7 +308,7 @@ int32_t TimerManager<T, D, E>::add(const D& period, const std::function<void(con
     }
 
     {
-      std::unique_lock<std::mutex> lock(waiting_mutex_);
+      std::scoped_lock lock(waiting_mutex_);
       waiting_.push_back(info->handle);
       waiting_.sort(std::bind(&TimerManager::waitingCompare, this, std::placeholders::_1, std::placeholders::_2));
     }
@@ -327,7 +327,7 @@ void TimerManager<T, D, E>::remove(int32_t handle)
   uint64_t remove_id = 0;
 
   {
-    std::unique_lock<std::mutex> lock(timers_mutex_);
+    std::scoped_lock lock(timers_mutex_);
 
     typename V_TimerInfo::iterator it = timers_.begin();
     typename V_TimerInfo::iterator end = timers_.end();
@@ -345,7 +345,7 @@ void TimerManager<T, D, E>::remove(int32_t handle)
     }
 
     {
-      std::unique_lock<std::mutex> lock2(waiting_mutex_);
+      std::scoped_lock lock2(waiting_mutex_);
       // Remove from the waiting list if it's in it
       L_int32::iterator it = std::find(waiting_.begin(), waiting_.end(), handle);
       if (it != waiting_.end())
@@ -364,7 +364,7 @@ void TimerManager<T, D, E>::remove(int32_t handle)
 template<class T, class D, class E>
 void TimerManager<T, D, E>::schedule(const TimerInfoPtr& info)
 {
-  std::unique_lock<std::mutex> lock(timers_mutex_);
+  std::scoped_lock lock(timers_mutex_);
 
   if (info->removed)
   {
@@ -373,7 +373,7 @@ void TimerManager<T, D, E>::schedule(const TimerInfoPtr& info)
 
   updateNext(info, T::now());
   {
-    std::unique_lock<std::mutex> lock(waiting_mutex_);
+    std::scoped_lock lock(waiting_mutex_);
 
     waiting_.push_back(info->handle);
     // waitingCompare requires a lock on the timers_mutex_
@@ -414,7 +414,7 @@ void TimerManager<T, D, E>::updateNext(const TimerInfoPtr& info, const T& curren
 template<class T, class D, class E>
 void TimerManager<T, D, E>::setPeriod(int32_t handle, const D& period)
 {
-  std::unique_lock<std::mutex> lock(timers_mutex_);
+  std::scoped_lock lock(timers_mutex_);
   TimerInfoPtr info = findTimer(handle);
 
   if (!info)
@@ -423,7 +423,7 @@ void TimerManager<T, D, E>::setPeriod(int32_t handle, const D& period)
   }
 
   {
-    std::unique_lock<std::mutex> lock(waiting_mutex_);
+    std::scoped_lock lock(waiting_mutex_);
     info->period = period;
     info->next_expected = T::now() + period;
 
@@ -469,7 +469,7 @@ void TimerManager<T, D, E>::threadFunc()
     current = T::now();
 
     {
-      std::unique_lock<std::mutex> waitlock(waiting_mutex_);
+      std::scoped_lock waitlock(waiting_mutex_);
 
       if (waiting_.empty())
       {

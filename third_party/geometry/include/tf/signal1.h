@@ -89,14 +89,14 @@ public:
   {
     CallbackHelper1T<P, M>* helper = new CallbackHelper1T<P, M>(callback);
 
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::scoped_lock lock(mutex_);
     callbacks_.push_back(CallbackHelper1Ptr(helper));
     return callbacks_.back();
   }
 
   void removeCallback(const CallbackHelper1Ptr& helper)
   {
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::scoped_lock lock(mutex_);
     typename V_CallbackHelper1::iterator it = std::find(callbacks_.begin(), callbacks_.end(), helper);
     if (it != callbacks_.end())
     {
@@ -106,7 +106,7 @@ public:
 
   void call(const MessageEvent<M const>& event)
   {
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::scoped_lock lock(mutex_);
     bool nonconst_force_copy = callbacks_.size() > 1;
     typename V_CallbackHelper1::iterator it = callbacks_.begin();
     typename V_CallbackHelper1::iterator end = callbacks_.end();

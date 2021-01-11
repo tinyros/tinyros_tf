@@ -42,6 +42,7 @@
 #include <deque>
 #include <chrono>
 #include <mutex>
+#include <shared_mutex>
 #include "tiny_ros/tf/callback_queue_interface.h"
 #include "tiny_ros/ros/time.h"
 #include "tiny_ros/tf/common.h"
@@ -51,49 +52,10 @@ namespace tinyros
 namespace tf
 {
 
-class readWriteLock 
-{ 
-public: 
-  readWriteLock() : read_cnt(0) 
-  { 
-  } 
- 
-  void readLock() 
-  { 
-    read_mtx.lock(); 
-    if (++read_cnt == 1) 
-      write_mtx.lock(); 
-    read_mtx.unlock(); 
-  } 
- 
-  void readUnlock() 
-  { 
-    read_mtx.lock(); 
-    if (--read_cnt == 0) 
-      write_mtx.unlock(); 
-    read_mtx.unlock(); 
-  } 
- 
-  void writeLock() 
-  { 
-    write_mtx.lock(); 
-  } 
- 
-  void writeUnlock() 
-  { 
-    write_mtx.unlock(); 
-  } 
-   
-private: 
-  std::mutex read_mtx; 
-  std::mutex write_mtx; 
-  int read_cnt;
-}; 
-
 struct IDInfo
 {
   uint64_t id;
-  readWriteLock calling_rw_mutex;
+  std::shared_mutex calling_rw_mutex;
 };
 typedef std::shared_ptr<IDInfo> IDInfoPtr;
 typedef std::map<uint64_t, IDInfoPtr> M_IDInfo;
@@ -146,7 +108,7 @@ public:
     info.removal_id = removal_id;
 
     {
-      std::unique_lock<std::mutex> lock(mutex_);
+      std::scoped_lock lock(mutex_);
 
       if (!enabled_)
       {
@@ -157,7 +119,7 @@ public:
     }
 
     {
-      std::unique_lock<std::mutex> lock(id_info_mutex_);
+      std::scoped_lock lock(id_info_mutex_);
 
       M_IDInfo::iterator it = id_info_.find(removal_id);
       if (it == id_info_.end())
@@ -178,7 +140,7 @@ public:
     {
       IDInfoPtr id_info;
       {
-        std::unique_lock<std::mutex> lock(id_info_mutex_);
+        std::scoped_lock lock(id_info_mutex_);
         M_IDInfo::iterator it = id_info_.find(removal_id);
         if (it != id_info_.end())
         {
@@ -194,12 +156,12 @@ public:
       // here so that we can take a unique lock.  We'll re-lock it later.
       if (tls_->calling_in_this_thread == id_info->id)
       {
-        id_info->calling_rw_mutex.readUnlock();
+        id_info->calling_rw_mutex.unlock_shared();
       }
   
       {
-        id_info->calling_rw_mutex.writeLock();
-        std::unique_lock<std::mutex> lock(mutex_);
+        std::unique_lock<std::shared_mutex> rw_lock(id_info->calling_rw_mutex);
+        std::scoped_lock lock(mutex_);
         D_CallbackInfo::iterator it = callbacks_.begin();
         for (; it != callbacks_.end();)
         {
@@ -213,12 +175,11 @@ public:
             ++it;
           }
         }
-        id_info->calling_rw_mutex.writeUnlock();
       }
   
       if (tls_->calling_in_this_thread == id_info->id)
       {
-        id_info->calling_rw_mutex.readLock();
+        id_info->calling_rw_mutex.lock_shared();
       }
     }
   
@@ -238,7 +199,7 @@ public:
     }
   
     {
-      std::unique_lock<std::mutex> lock(id_info_mutex_);
+      std::scoped_lock lock(id_info_mutex_);
       id_info_.erase(removal_id);
     }
   }
@@ -276,7 +237,7 @@ public:
     CallbackInfo cb_info;
 
     {
-      std::unique_lock<std::mutex> lock(mutex_);
+      std::unique_lock lock(mutex_);
 
       if (!enabled_)
       {
@@ -340,7 +301,7 @@ public:
     CallOneResult res = callOneCB(tls);
     if (res != Empty)
     {
-      std::unique_lock<std::mutex> lock(mutex_);
+      std::scoped_lock lock(mutex_);
       --calling_;
     }
     return res;
@@ -366,7 +327,7 @@ public:
     TLS* tls = tls_.get();
 
     {
-      std::unique_lock<std::mutex> lock(mutex_);
+      std::unique_lock lock(mutex_);
 
       if (!enabled_)
       {
@@ -410,7 +371,7 @@ public:
     }
 
     {
-      std::unique_lock<std::mutex> lock(mutex_);
+      std::scoped_lock lock(mutex_);
       calling_ -= called;
     }
   }
@@ -424,7 +385,7 @@ public:
    */
   bool isEmpty()
   {
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::scoped_lock lock(mutex_);
 
     return callbacks_.empty() && calling_ == 0;
   }
@@ -433,7 +394,7 @@ public:
    */
   void clear()
   {
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::scoped_lock lock(mutex_);
 
     callbacks_.clear();
   }
@@ -443,7 +404,7 @@ public:
    */
   void enable()
   {
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::scoped_lock lock(mutex_);
     enabled_ = true;
 
     condition_.notify_all();
@@ -453,7 +414,7 @@ public:
    */
   void disable()
   {
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::scoped_lock lock(mutex_);
     enabled_ = false;
 
     condition_.notify_all();
@@ -463,7 +424,7 @@ public:
    */
   bool isEnabled()
   {
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::scoped_lock lock(mutex_);
 
     return enabled_;
   }
@@ -500,7 +461,8 @@ protected:
     IDInfoPtr id_info = getIDInfo(info.removal_id);
     if (id_info)
     {
-      id_info->calling_rw_mutex.readLock();
+      std::shared_lock<std::shared_mutex> rw_lock(id_info->calling_rw_mutex);
+
       uint64_t last_calling = tls->calling_in_this_thread;
       tls->calling_in_this_thread = id_info->id;
 
@@ -520,12 +482,12 @@ protected:
       // Push TryAgain callbacks to the back of the shared queue
       if (result == CallbackInterface::TryAgain && !info.marked_for_removal)
       {
-        std::unique_lock<std::mutex> lock(mutex_);
+        std::scoped_lock lock(mutex_);
         callbacks_.push_back(info);
-        id_info->calling_rw_mutex.readUnlock();
+
         return TryAgain;
       }
-      id_info->calling_rw_mutex.readUnlock();
+
       return Called;
     }
     else
@@ -538,7 +500,7 @@ protected:
 
   IDInfoPtr getIDInfo(uint64_t id) 
   {
-    std::unique_lock<std::mutex> lock(id_info_mutex_);
+    std::scoped_lock lock(id_info_mutex_);
     M_IDInfo::iterator it = id_info_.find(id);
     if (it != id_info_.end())
     {

@@ -294,7 +294,7 @@ public:
   virtual ~Transformer(void)
   {
     /* deallocate all frames */
-    std::unique_lock<std::recursive_mutex> lock(frame_mutex_);
+    std::scoped_lock lock(frame_mutex_);
     for (std::vector<TimeCache*>::iterator  cache_it = frames_.begin(); cache_it != frames_.end(); ++cache_it)
     {
       delete (*cache_it);
@@ -304,7 +304,7 @@ public:
   /** \brief Clear all data */
   void clear()
   {
-    std::unique_lock<std::recursive_mutex> lock(frame_mutex_);
+    std::scoped_lock lock(frame_mutex_);
     if ( frames_.size() > 1 )
     {
       for (std::vector< TimeCache*>::iterator  cache_it = frames_.begin() + 1; cache_it != frames_.end(); ++cache_it)
@@ -363,7 +363,7 @@ public:
       return false;
 
     {
-      std::unique_lock<std::recursive_mutex> lock(frame_mutex_);
+      std::scoped_lock lock(frame_mutex_);
       CompactFrameID frame_number = lookupOrInsertFrameNumber(mapped_transform.child_frame_id_);
       TimeCache* frame = getFrame(frame_number);
       if (frame == NULL)
@@ -384,7 +384,7 @@ public:
     }
 
     {
-      std::unique_lock<std::mutex> lock(transforms_changed_mutex_);
+      std::scoped_lock lock(transforms_changed_mutex_);
       transforms_changed_.emit();
     }
 
@@ -416,7 +416,7 @@ public:
         return;
       }
 
-      std::unique_lock<std::recursive_mutex> lock(frame_mutex_);
+      std::scoped_lock lock(frame_mutex_);
 
       CompactFrameID target_id = lookupFrameNumber(mapped_tgt);
       CompactFrameID source_id = lookupFrameNumber(mapped_src);
@@ -626,7 +626,7 @@ public:
     if (mapped_tgt == mapped_src)
       return true;
 
-    std::unique_lock<std::recursive_mutex> lock(frame_mutex_);
+    std::scoped_lock lock(frame_mutex_);
 
     if (!frameExists(mapped_tgt) || !frameExists(mapped_src))
       return false;
@@ -839,7 +839,7 @@ public:
     output.clear(); //empty vector
 
     std::stringstream mstream;
-    std::unique_lock<std::recursive_mutex> lock(frame_mutex_);
+    std::scoped_lock lock(frame_mutex_);
 
     TransformStorage temp;
 
@@ -866,7 +866,7 @@ public:
   std::string allFramesAsString() const
   {
     std::stringstream mstream;
-    std::unique_lock<std::recursive_mutex> lock(frame_mutex_);
+    std::scoped_lock lock(frame_mutex_);
 
     TransformStorage temp;
 
@@ -899,7 +899,7 @@ public:
   {
     std::stringstream mstream;
     mstream << "digraph G {" << std::endl;
-    std::unique_lock<std::recursive_mutex> lock(frame_mutex_);
+    std::scoped_lock lock(frame_mutex_);
 
     TransformStorage temp;
 
@@ -973,7 +973,7 @@ public:
   {
     vec.clear();
 
-    std::unique_lock<std::recursive_mutex> lock(frame_mutex_);
+    std::scoped_lock lock(frame_mutex_);
 
     TransformStorage temp;
 
@@ -1021,7 +1021,7 @@ public:
    * @param frame_id_str The frame id in question  */
   bool frameExists(const std::string& frame_id_str) const
   {
-    std::unique_lock<std::recursive_mutex> lock(frame_mutex_);
+    std::scoped_lock lock(frame_mutex_);
     std::string frame_id_resolveped = assert_resolved(tf_prefix_, frame_id_str);
     
     return frameIDs_.count(frame_id_resolveped);
@@ -1047,13 +1047,13 @@ public:
    */
   int addTransformsChangedListener(std::function<void(void)> callback)
   {
-    std::unique_lock<std::mutex> lock(transforms_changed_mutex_);
+    std::scoped_lock lock(transforms_changed_mutex_);
     return transforms_changed_.connect(callback);
   }
   
   void removeTransformsChangedListener(int c) 
   {
-    std::unique_lock<std::mutex> lock(transforms_changed_mutex_);
+    std::scoped_lock lock(transforms_changed_mutex_);
     transforms_changed_.disconnect(c);
   }
   
@@ -1153,7 +1153,7 @@ protected:
   CompactFrameID lookupFrameNumber(const std::string& frameid_str) const
   {
     unsigned int retval = 0;
-    std::unique_lock<std::recursive_mutex>(frame_mutex_);
+    std::scoped_lock(frame_mutex_);
     M_StringToCompactFrameID::const_iterator map_it = frameIDs_.find(frameid_str);
     if (map_it == frameIDs_.end())
     {
@@ -1170,7 +1170,7 @@ protected:
   CompactFrameID lookupOrInsertFrameNumber(const std::string& frameid_str)
   {
     unsigned int retval = 0;
-    std::unique_lock<std::recursive_mutex>(frame_mutex_);
+    std::scoped_lock(frame_mutex_);
     M_StringToCompactFrameID::iterator map_it = frameIDs_.find(frameid_str);
     if (map_it == frameIDs_.end())
     {
@@ -1503,7 +1503,7 @@ protected:
   bool canTransformInternal(CompactFrameID target_id, CompactFrameID source_id,
                     const tinyros::Time& time, std::string* error_msg) const
   {
-    std::unique_lock<std::recursive_mutex> lock(frame_mutex_);
+    std::scoped_lock lock(frame_mutex_);
     return canTransformNoLock(target_id, source_id, time, error_msg);
   }
   

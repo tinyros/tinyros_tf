@@ -8,9 +8,16 @@ option(TINYROS_SUPPORT_TF "Tf support? (ON/OFF)" ON)
 
 option(TINYROS_SUPPORT_RVIZ "RVIZ support? (ON/OFF)" OFF)
 
+# Ubuntu 14.04 support c++17:
+# 1. sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+# 2. sudo apt-get update
+# 3. sudo apt-get install g++-7
+# 4. cd /usr/bin 
+# 5. sudo ln -s /usr/bin/gcc-7  gcc
+# 6. sudo ln -s /usr/bin/g++-7  g++
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 -O3")
 set(OUTPUT_PATHS ${PROJECT_SOURCE_DIR}/build/output)
 set(ROSLIB_PATHS ${OUTPUT_PATHS}/client_library/gcc/include/tiny_ros)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -O3")
 
 add_definitions(-DSPDLOG_COMPILED_LIB)
 
