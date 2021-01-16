@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, Willow Garage, Inc.
+ * Copyright (c) 2012, Willow Garage, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,202 +27,191 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <QLabel>
+#include <QListWidget>
+#include <QComboBox>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QInputDialog>
+
+#include "rviz/properties/property_tree_widget.h"
+#include "rviz/view_controller.h"
+#include "rviz/view_manager.h"
+#include "rviz/visualization_manager.h"
+
 #include "views_panel.h"
-#include "render_panel.h"
-#include "visualization_manager.h"
-
-#include <ogre_tools/camera_base.h>
-
-#include <wx/textdlg.h>
-#include <wx/confbase.h>
-
-#include <functional>
 
 namespace rviz
 {
 
-ViewsPanel::ViewsPanel( wxWindow* parent )
-: ViewsPanelGenerated( parent )
-, manager_(NULL)
+ViewsPanel::ViewsPanel( QWidget* parent )
+  : Panel( parent )
+  , view_man_( NULL )
 {
+  camera_type_selector_ = new QComboBox;
+  properties_view_ = new PropertyTreeWidget();
+
+  save_button_ = new QPushButton( "Save" );
+  QPushButton* remove_button = new QPushButton( "Remove" );
+  QPushButton* rename_button = new QPushButton( "Rename" );
+  QPushButton* zero_button = new QPushButton( "Zero" );
+  zero_button->setToolTip( "Jump to 0,0,0 with the current view controller. Shortcut: Z" );
+
+  QHBoxLayout* top_layout = new QHBoxLayout;
+  top_layout->addWidget( new QLabel( "Type:" ));
+  top_layout->addWidget( camera_type_selector_ );
+  top_layout->addStretch();
+  top_layout->addWidget( zero_button );
+  top_layout->setContentsMargins( 2, 6, 2, 2 );
+
+  QHBoxLayout* button_layout = new QHBoxLayout;
+  button_layout->addWidget( save_button_ );
+  button_layout->addWidget( remove_button );
+  button_layout->addWidget( rename_button );
+  button_layout->setContentsMargins( 2, 0, 2, 2 );
+
+  QVBoxLayout* main_layout = new QVBoxLayout;
+  main_layout->setContentsMargins( 0,0,0,0 );
+  main_layout->addLayout( top_layout );
+  main_layout->addWidget( properties_view_ );
+  main_layout->addLayout( button_layout );
+  setLayout( main_layout );
+
+  connect( remove_button, SIGNAL( clicked() ), this, SLOT( onDeleteClicked() ));
+  connect( rename_button, SIGNAL( clicked() ), this, SLOT( renameSelected() ));
+  connect( zero_button, SIGNAL( clicked() ), this, SLOT( onZeroClicked() ));
+  connect( properties_view_, SIGNAL( clicked( const QModelIndex& )), this, SLOT( setCurrentViewFromIndex( const QModelIndex& )));
+  connect( properties_view_, SIGNAL( activated( const QModelIndex& )), this, SLOT( setCurrentViewFromIndex( const QModelIndex& )));
 }
 
-ViewsPanel::~ViewsPanel()
+void ViewsPanel::onInitialize()
 {
-
+  setViewManager( vis_manager_->getViewManager() );
 }
 
-void ViewsPanel::initialize(VisualizationManager* manager)
+void ViewsPanel::setViewManager( ViewManager* view_man )
 {
-  manager_ = manager;
-
-  manager_->getGeneralConfigLoadedSignal().connect( std::bind( &ViewsPanel::onGeneralConfigLoaded, this, std::placeholders::_1 ) );
-  manager_->getGeneralConfigSavingSignal().connect( std::bind( &ViewsPanel::onGeneralConfigSaving, this, std::placeholders::_1 ) );
-  manager_->getCameraTypeAddedSignal().connect( std::bind( &ViewsPanel::onCameraTypeAdded, this, std::placeholders::_1, std::placeholders::_2 ) );
-  manager_->getCameraTypeChangedSignal().connect( std::bind( &ViewsPanel::onCameraTypeChanged, this, std::placeholders::_1 ) );
-}
-
-void ViewsPanel::loadSelected()
-{
-  int index = views_list_->GetSelection();
-  if (index != wxNOT_FOUND)
+  if( view_man_ )
   {
-    const View& view = views_[index];
-    manager_->setTargetFrame(view.target_frame_);
-    manager_->setCurrentCamera(view.camera_type_);
-    manager_->getCurrentCamera()->fromString(view.camera_config_);
-    manager_->queueRender();
+    disconnect( save_button_, SIGNAL( clicked() ), view_man_, SLOT( copyCurrentToList() ));
+    disconnect( camera_type_selector_, SIGNAL( activated( int )), this, SLOT( onTypeSelectorChanged( int )));
+    disconnect( view_man_, SIGNAL( currentChanged() ), this, SLOT( onCurrentChanged() ));
   }
-}
-
-void ViewsPanel::addView(const View& view)
-{
-  views_.push_back(view);
-
-  std::stringstream ss;
-  ss << view.name_ << "; Target=[" << view.target_frame_ << "] Type=[" << view.camera_type_ << "] Config=[" << view.camera_config_ << "]";
-
-  views_list_->Append(wxString::FromAscii(ss.str().c_str()));
-}
-
-void ViewsPanel::save(const std::string& name)
-{
-  View view;
-  view.target_frame_ = manager_->getTargetFrame();
-  view.camera_type_ = manager_->getCurrentCameraType();
-  view.name_ = name;
-  view.camera_config_ = manager_->getCurrentCamera()->toString();
-
-  addView(view);
-}
-
-void ViewsPanel::onCameraTypeAdded(ogre_tools::CameraBase* camera, const std::string& name)
-{
-  camera_types_->Append( wxString::FromAscii(name.c_str()) );
-  camera_types_->SetClientData(camera_types_->GetCount() - 1, (void*)camera);
-
-  if (camera_types_->GetCount() == 1)
+  view_man_ = view_man;
+  camera_type_selector_->clear();
+  if( view_man_ )
   {
-    camera_types_->SetSelection( 0 );
-  }
-}
+    properties_view_->setModel( view_man_->getPropertyModel() );
 
-void ViewsPanel::onCameraTypeChanged(ogre_tools::CameraBase* camera)
-{
-  int count = camera_types_->GetCount();
-  for (int i = 0; i < count; ++i)
-  {
-    if (camera_types_->GetClientData(i) == camera)
+    QStringList ids = view_man_->getFactory()->getDeclaredClassIds();
+    for( int i = 0; i < ids.size(); i++ )
     {
-      camera_types_->SetSelection(i);
-      break;
+      const QString& id = ids[ i ];
+      camera_type_selector_->addItem( ViewController::formatClassId( id ), id ); // send the regular-formatted id as userData.
+    }
+
+    connect( save_button_, SIGNAL( clicked() ), view_man_, SLOT( copyCurrentToList() ));
+    connect( camera_type_selector_, SIGNAL( activated( int )), this, SLOT( onTypeSelectorChanged( int )));
+    connect( view_man_, SIGNAL( currentChanged() ), this, SLOT( onCurrentChanged() ));
+  }
+  else
+  {
+    properties_view_->setModel( NULL );
+  }
+  onCurrentChanged();
+}
+
+void ViewsPanel::onTypeSelectorChanged( int selected_index )
+{
+  QString class_id = camera_type_selector_->itemData( selected_index ).toString();
+  view_man_->setCurrentViewControllerType( class_id );
+}
+
+void ViewsPanel::onZeroClicked()
+{
+  if( view_man_->getCurrent() )
+  {
+    view_man_->getCurrent()->reset();
+  }
+}
+
+void ViewsPanel::setCurrentViewFromIndex( const QModelIndex& index )
+{
+  Property* prop = view_man_->getPropertyModel()->getProp( index );
+  if( ViewController* view = qobject_cast<ViewController*>( prop ))
+  {
+    view_man_->setCurrentFrom( view );
+  }
+}
+
+void ViewsPanel::onDeleteClicked()
+{
+  QList<ViewController*> views_to_delete = properties_view_->getSelectedObjects<ViewController>();
+
+  for( int i = 0; i < views_to_delete.size(); i++ )
+  {
+    // TODO: should eventually move to a scheme where the CURRENT view
+    // is not in the same list as the saved views, at which point this
+    // check can go away.
+    if( views_to_delete[ i ] != view_man_->getCurrent() )
+    {
+      delete views_to_delete[ i ];
     }
   }
 }
 
-void ViewsPanel::onCameraTypeSelected( wxCommandEvent& event )
+void ViewsPanel::renameSelected()
 {
-  manager_->setCurrentCamera((const char*)camera_types_->GetStringSelection().fn_str());
-}
-
-void ViewsPanel::onViewsClicked( wxCommandEvent& event )
-{
-}
-
-void ViewsPanel::onViewsDClicked( wxCommandEvent& event )
-{
-  loadSelected();
-}
-
-void ViewsPanel::onLoadClicked( wxCommandEvent& event )
-{
-  loadSelected();
-}
-
-void ViewsPanel::onSaveClicked( wxCommandEvent& event )
-{
-  wxString name = wxGetTextFromUser(wxT("Name the View"), wxT("Name"), wxT("My View"), this);
-
-  if (!name.IsEmpty())
+  QList<ViewController*> views_to_rename = properties_view_->getSelectedObjects<ViewController>();
+  if( views_to_rename.size() == 1 )
   {
-    save((const char*)name.fn_str());
+    ViewController* view = views_to_rename[ 0 ];
+
+    // TODO: should eventually move to a scheme where the CURRENT view
+    // is not in the same list as the saved views, at which point this
+    // check can go away.
+    if( view == view_man_->getCurrent() )
+    {
+      return;
+    }
+
+    QString old_name = view->getName();
+    QString new_name = QInputDialog::getText( this, "Rename View", "New Name?", QLineEdit::Normal, old_name );
+
+    if( new_name.isEmpty() || new_name == old_name )
+    {
+      return;
+    }
+
+    view->setName( new_name );
   }
 }
 
-void ViewsPanel::onDeleteClicked( wxCommandEvent& event )
+void ViewsPanel::onCurrentChanged()
 {
-  int index = views_list_->GetSelection();
-  if (index != wxNOT_FOUND)
-  {
-    views_.erase(views_.begin() + index);
-    views_list_->Delete(index);
-  }
+  QString formatted_class_id = ViewController::formatClassId( view_man_->getCurrent()->getClassId() );
+
+  // Make sure the type selector shows the type of the current view.
+  // This is only here in case the type is changed programmatically,
+  // instead of via the camera_type_selector_ being used.
+  camera_type_selector_->setCurrentIndex( camera_type_selector_->findText( formatted_class_id ));
+
+  properties_view_->setAnimated( false );
+  view_man_->getCurrent()->expand();
+  properties_view_->setAnimated( true );
 }
 
-void ViewsPanel::onGeneralConfigLoaded(const std::shared_ptr<wxConfigBase>& config)
+void ViewsPanel::save( Config config ) const
 {
-  int i = 0;
-  while (1)
-  {
-    wxString type, target, cam_config, name;
-    type.Printf( wxT("Views/%d/Type"), i );
-    target.Printf( wxT("Views/%d/Target"), i );
-    cam_config.Printf( wxT("Views/%d/Config"), i );
-    name.Printf( wxT("Views/%d/Name"), i );
-
-    wxString view_type, view_name, view_target, view_config;
-    if ( !config->Read( type, &view_type ) )
-    {
-      break;
-    }
-
-    if ( !config->Read( name, &view_name ) )
-    {
-      break;
-    }
-
-    if ( !config->Read( target, &view_target ) )
-    {
-      break;
-    }
-
-    if ( !config->Read( cam_config, &view_config ) )
-    {
-      break;
-    }
-
-    View view;
-    view.name_ = (const char*)view_name.fn_str();
-    view.camera_type_ = (const char*)view_type.fn_str();
-    view.target_frame_ = (const char*)view_target.fn_str();
-    view.camera_config_ = (const char*)view_config.fn_str();
-
-    addView(view);
-
-    ++i;
-  }
+  Panel::save( config );
+  properties_view_->save( config );
 }
 
-void ViewsPanel::onGeneralConfigSaving(const std::shared_ptr<wxConfigBase>& config)
+void ViewsPanel::load( const Config& config )
 {
-  V_View::const_iterator it = views_.begin();
-  V_View::const_iterator end = views_.end();
-  uint32_t i = 0;
-  for (; it != end; ++it, ++i)
-  {
-    const View& view = *it;
-
-    wxString type, target, cam_config, name;
-    type.Printf( wxT("Views/%d/Type"), i );
-    target.Printf( wxT("Views/%d/Target"), i );
-    cam_config.Printf( wxT("Views/%d/Config"), i );
-    name.Printf( wxT("Views/%d/Name"), i );
-
-    config->Write(name, wxString::FromAscii(view.name_.c_str()));
-    config->Write(type, wxString::FromAscii(view.camera_type_.c_str()));
-    config->Write(target, wxString::FromAscii(view.target_frame_.c_str()));
-    config->Write(cam_config, wxString::FromAscii(view.camera_config_.c_str()));
-  }
+  Panel::load( config );
+  properties_view_->load( config );
 }
 
 } // namespace rviz

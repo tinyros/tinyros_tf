@@ -1,6 +1,5 @@
-
 /*
- * Copyright (c) 2008, Willow Garage, Inc.
+ * Copyright (c) 2012, Willow Garage, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,118 +27,42 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "tool_properties_panel.h"
-#include "visualization_manager.h"
-#include "display.h"
-#include "display_wrapper.h"
-#include "new_display_dialog.h"
-#include "properties/property.h"
-#include "properties/property_manager.h"
-#include "plugin/type_registry.h"
-#include "plugin/plugin_manager.h"
-#include "plugin/plugin.h"
-#include "tools/tool.h"
+#include <QVBoxLayout>
 
-#include <wx/propgrid/propgrid.h>
-#include <wx/msgdlg.h>
-#include <wx/confbase.h>
-#include <wx/artprov.h>
+#include "rviz/properties/property_tree_widget.h"
+#include "rviz/tool_manager.h"
+#include "rviz/visualization_manager.h"
 
-#include <functional>
-
-static const wxString PROPERTY_GRID_CONFIG(wxT("Property Grid State"));
+#include "rviz/tool_properties_panel.h"
 
 namespace rviz
 {
 
-ToolPropertiesPanel::ToolPropertiesPanel( wxWindow* parent )
-: wxPanel( parent, wxID_ANY )
-, manager_(NULL)
+ToolPropertiesPanel::ToolPropertiesPanel( QWidget* parent )
+  : Panel( parent )
 {
-  wxBoxSizer* top_sizer = new wxBoxSizer(wxVERTICAL);
-
-  property_grid_ = new wxPropertyGrid( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxPG_SPLITTER_AUTO_CENTER | wxTAB_TRAVERSAL | wxPG_DEFAULT_STYLE );
-  property_grid_->SetExtraStyle( wxPG_EX_HELP_AS_TOOLTIPS );
-  top_sizer->Add(property_grid_, 1, wxEXPAND, 5);
-  SetSizer(top_sizer);
-
-  property_grid_->SetExtraStyle( wxPG_EX_HELP_AS_TOOLTIPS );
-
-  property_grid_->Connect( wxEVT_PG_CHANGING, wxPropertyGridEventHandler( ToolPropertiesPanel::onPropertyChanging ), NULL, this );
-  property_grid_->Connect( wxEVT_PG_CHANGED, wxPropertyGridEventHandler( ToolPropertiesPanel::onPropertyChanged ), NULL, this );
-  property_grid_->Connect( wxEVT_PG_SELECTED, wxPropertyGridEventHandler( ToolPropertiesPanel::onPropertySelected ), NULL, this );
-
-  property_grid_->SetCaptionBackgroundColour( wxColour( 2, 0, 174 ) );
-  property_grid_->SetCaptionForegroundColour( *wxLIGHT_GREY );
+  QVBoxLayout* layout = new QVBoxLayout();
+  layout->setContentsMargins( 0, 0, 0, 0 );
+  tree_widget_ = new PropertyTreeWidget();
+  layout->addWidget( tree_widget_ );
+  setLayout( layout );
 }
 
-ToolPropertiesPanel::~ToolPropertiesPanel()
+void ToolPropertiesPanel::onInitialize()
 {
-  property_grid_->Disconnect( wxEVT_PG_CHANGING, wxPropertyGridEventHandler( ToolPropertiesPanel::onPropertyChanging ), NULL, this );
-  property_grid_->Disconnect( wxEVT_PG_CHANGED, wxPropertyGridEventHandler( ToolPropertiesPanel::onPropertyChanged ), NULL, this );
-  property_grid_->Disconnect( wxEVT_PG_SELECTED, wxPropertyGridEventHandler( ToolPropertiesPanel::onPropertySelected ), NULL, this );
-  property_grid_->Destroy();
+  tree_widget_->setModel( vis_manager_->getToolManager()->getPropertyModel() );
 }
 
-void ToolPropertiesPanel::initialize(VisualizationManager* manager)
+void ToolPropertiesPanel::save( Config config ) const
 {
-  manager_ = manager;
-
-  manager_->getToolPropertyManager()->setPropertyGrid(property_grid_);
-  manager_->getToolAddedSignal().connect(std::bind(&ToolPropertiesPanel::onToolAdded, this, std::placeholders::_1));
+  Panel::save( config );
+  tree_widget_->save( config );
 }
 
-void ToolPropertiesPanel::onToolAdded(Tool* tool)
+void ToolPropertiesPanel::load( const Config& config )
 {
-  if (tool->hasProperties())
-  {
-    std::string name = tool->getName();
-    CategoryPropertyWPtr cat = manager_->getToolPropertyManager()->createCategory(name, "", CategoryPropertyWPtr(), tool);
-    tool->enumerateProperties(manager_->getToolPropertyManager(), cat);
-  }
-}
-
-void ToolPropertiesPanel::onPropertyChanging( wxPropertyGridEvent& event )
-{
-  wxPGProperty* property = event.GetProperty();
-
-  if ( !property )
-  {
-    return;
-  }
-
-  manager_->getToolPropertyManager()->propertyChanging( event );
-}
-
-void ToolPropertiesPanel::onPropertyChanged( wxPropertyGridEvent& event )
-{
-  wxPGProperty* property = event.GetProperty();
-
-  if ( !property )
-  {
-    return;
-  }
-
-  manager_->getToolPropertyManager()->propertyChanged( event );
-}
-
-void ToolPropertiesPanel::onPropertySelected( wxPropertyGridEvent& event )
-{
-  event.Skip();
-}
-
-void ToolPropertiesPanel::onDisplaysConfigLoaded(const std::shared_ptr<wxConfigBase>& config)
-{
-  wxString grid_state;
-  if ( config->Read( PROPERTY_GRID_CONFIG, &grid_state ) )
-  {
-    property_grid_->RestoreEditableState( grid_state );
-  }
-}
-
-void ToolPropertiesPanel::onDisplaysConfigSaving(const std::shared_ptr<wxConfigBase>& config)
-{
-  config->Write( PROPERTY_GRID_CONFIG, property_grid_->SaveEditableState() );
+  Panel::load( config );
+  tree_widget_->load( config );
 }
 
 } // namespace rviz

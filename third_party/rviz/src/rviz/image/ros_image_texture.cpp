@@ -27,11 +27,19 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ros_image_texture.h"
+#include <map>
+#include <sstream>
+#include <algorithm>
+#include <iostream>
 
-#include <tiny_ros/tf/tf.h>
+#include <boost/algorithm/string/erase.hpp>
+#include <boost/foreach.hpp>
 
-#include <OGRE/OgreTextureManager.h>
+#include <OgreTextureManager.h>
+
+#include <sensor_msgs/image_encodings.h>
+
+#include "rviz/image/ros_image_texture.h"
 
 namespace rviz
 {
@@ -40,91 +48,129 @@ ROSImageTexture::ROSImageTexture()
 : new_image_(false)
 , width_(0)
 , height_(0)
-, tf_client_(0)
-, sub_(new tinyros::Subscriber<tinyros::sensor_msgs::Image, ROSImageTexture>("", &ROSImageTexture::callback, this))
+, median_frames_(5)
 {
-  const static uint32_t texture_data[4] = { 0x00ffff80, 0x00ffff80, 0x00ffff80, 0x00ffff80 };
-  Ogre::DataStreamPtr pixel_stream;
-  pixel_stream.bind(new Ogre::MemoryDataStream( (void*)&texture_data[0], 16 ));
+  empty_image_.load("no_image.png", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
   static uint32_t count = 0;
   std::stringstream ss;
   ss << "ROSImageTexture" << count++;
-  texture_ = Ogre::TextureManager::getSingleton().loadRawData(ss.str(), Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, pixel_stream, 2, 2, Ogre::PF_R8G8B8A8, Ogre::TEX_TYPE_2D, 0);
+  texture_ = Ogre::TextureManager::getSingleton().loadImage(ss.str(), Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, empty_image_, Ogre::TEX_TYPE_2D, 0);
+
+  setNormalizeFloatImage(true);
 }
 
 ROSImageTexture::~ROSImageTexture()
 {
+  current_image_.reset();
 }
 
 void ROSImageTexture::clear()
 {
-  const static uint32_t texture_data[4] = { 0x00ffff80, 0x00ffff80, 0x00ffff80, 0x00ffff80 };
-  Ogre::DataStreamPtr pixel_stream;
-  pixel_stream.bind(new Ogre::MemoryDataStream( (void*)&texture_data[0], 16 ));
+  boost::mutex::scoped_lock lock(mutex_);
 
   texture_->unload();
-  texture_->loadRawData(pixel_stream, 2, 2, Ogre::PF_R8G8B8A8);
+  texture_->loadImage(empty_image_);
 
   new_image_ = false;
   current_image_.reset();
-
-  if (tf_filter_)
-  {
-    tf_filter_->clear();
-  }
 }
 
-void ROSImageTexture::setFrame(const std::string& frame, tinyros::tf::TransformListener* tf_client)
+const sensor_msgs::Image::ConstPtr& ROSImageTexture::getImage()
 {
-  tf_client_ = tf_client;
-  frame_ = frame;
-  setTopic(topic_);
-}
-
-void ROSImageTexture::setTopic(const std::string& topic)
-{
-  topic_ = topic;
-  tf_filter_.reset();
-
-  if (!topic.empty())
-  {
-    if (frame_.empty())
-    {
-      if (sub_->topic_.empty()) {
-        sub_->topic_ = topic_;
-        tinyros::nh()->subscribe(*sub_);
-      } else if (sub_->topic_ != topic_) {
-        sub_->setEnabled(false);
-        sub_ = new tinyros::Subscriber<tinyros::sensor_msgs::Image, ROSImageTexture>(topic_, &ROSImageTexture::callback, this);
-        tinyros::nh()->subscribe(*sub_);
-      }
-      sub_->setEnabled(true);
-    }
-    else
-    {
-      TINYROS_ASSERT(tf_client_);
-      tf_filter_.reset(new tinyros::tf::MessageFilter<tinyros::sensor_msgs::Image>((tinyros::tf::Transformer&)*tf_client_, frame_, 2));
-      tf_filter_->registerCallback(std::bind(&ROSImageTexture::callback, this, std::placeholders::_1));
-      tf_filter_->connectInput(topic);
-      tf_filter_->connectEnable(true);
-    }
-  }
-}
-
-const tinyros::sensor_msgs::ImageConstPtr& ROSImageTexture::getImage()
-{
-  std::scoped_lock lock(mutex_);
+  boost::mutex::scoped_lock lock(mutex_);
 
   return current_image_;
 }
 
+void ROSImageTexture::setMedianFrames( unsigned median_frames )
+{
+  median_frames_ = median_frames;
+}
+
+double ROSImageTexture::updateMedian( std::deque<double>& buffer, double value )
+{
+  //update buffer
+  while(buffer.size() > median_frames_-1)
+  {
+    buffer.pop_back();
+  }
+  buffer.push_front(value);
+  // get median
+  std::deque<double> buffer2 = buffer;
+  std::nth_element( buffer2.begin(), buffer2.begin()+buffer2.size()/2, buffer2.end() );
+  return *( buffer2.begin()+buffer2.size()/2 );
+}
+
+void ROSImageTexture::setNormalizeFloatImage( bool normalize, double min, double max )
+{
+  normalize_ = normalize;
+  min_ = min;
+  max_ = max;
+}
+
+
+template<typename T>
+void ROSImageTexture::normalize( T* image_data, size_t image_data_size, std::vector<uint8_t> &buffer  )
+{
+  // Prepare output buffer
+  buffer.resize(image_data_size, 0);
+
+  T minValue;
+  T maxValue;
+
+  if ( normalize_ )
+  {
+    T* input_ptr = image_data;
+    // Find min. and max. pixel value
+    minValue = std::numeric_limits<T>::max();
+    maxValue = std::numeric_limits<T>::min();
+    for( unsigned i = 0; i < image_data_size; ++i )
+    {
+      minValue = std::min( minValue, *input_ptr );
+      maxValue = std::max( maxValue, *input_ptr );
+      input_ptr++;
+    }
+
+    if ( median_frames_ > 1 )
+    {
+      minValue = updateMedian( min_buffer_, minValue );
+      maxValue = updateMedian( max_buffer_, maxValue );
+    }
+  }
+  else
+  {
+    // set fixed min/max
+    minValue = min_;
+    maxValue = max_;
+  }
+
+  // Rescale floating point image and convert it to 8-bit
+  double range = maxValue - minValue;
+  if( range > 0.0 )
+  {
+    T* input_ptr = image_data;
+
+    // Pointer to output buffer
+    uint8_t* output_ptr = &buffer[0];
+
+    // Rescale and quantize
+    for( size_t i = 0; i < image_data_size; ++i, ++output_ptr, ++input_ptr )
+    {
+      double val = (double(*input_ptr - minValue) / range);
+      if ( val < 0 ) val = 0;
+      if ( val > 1 ) val = 1;
+      *output_ptr = val * 255u;
+    }
+  }
+}
+
 bool ROSImageTexture::update()
 {
-  tinyros::sensor_msgs::ImageConstPtr image;
+  sensor_msgs::Image::ConstPtr image;
   bool new_image = false;
   {
-    std::scoped_lock lock(mutex_);
+    boost::mutex::scoped_lock lock(mutex_);
 
     image = current_image_;
     new_image = new_image_;
@@ -135,55 +181,101 @@ bool ROSImageTexture::update()
     return false;
   }
 
-  Ogre::PixelFormat format = Ogre::PF_R8G8B8;
+  new_image_ = false;
 
-  if (image->encoding == tinyros::sensor_msgs::image_encodings::RGB8)
+  if (image->data.empty())
   {
-    format = Ogre::PF_R8G8B8;
+    return false;
   }
-  else if (image->encoding == tinyros::sensor_msgs::image_encodings::RGBA8)
+
+  Ogre::PixelFormat format = Ogre::PF_R8G8B8;
+  Ogre::Image ogre_image;
+  std::vector<uint8_t> buffer;
+
+  uint8_t* imageDataPtr = (uint8_t*)&image->data[0];
+  size_t imageDataSize = image->data.size();
+
+  if (image->encoding == sensor_msgs::image_encodings::RGB8)
   {
-    format = Ogre::PF_R8G8B8A8;
+    format = Ogre::PF_BYTE_RGB;
   }
-  else if (image->encoding == tinyros::sensor_msgs::image_encodings::TYPE_8UC4 ||
-           image->encoding == tinyros::sensor_msgs::image_encodings::BGRA8)
+  else if (image->encoding == sensor_msgs::image_encodings::RGBA8)
   {
-    format = Ogre::PF_B8G8R8A8;
+    format = Ogre::PF_BYTE_RGBA;
   }
-  else if (image->encoding == tinyros::sensor_msgs::image_encodings::TYPE_8UC3 ||
-           image->encoding == tinyros::sensor_msgs::image_encodings::BGR8)
+  else if (image->encoding == sensor_msgs::image_encodings::TYPE_8UC4 ||
+           image->encoding == sensor_msgs::image_encodings::TYPE_8SC4 ||
+           image->encoding == sensor_msgs::image_encodings::BGRA8)
   {
-    format = Ogre::PF_B8G8R8;
+    format = Ogre::PF_BYTE_BGRA;
   }
-  else if (image->encoding == tinyros::sensor_msgs::image_encodings::TYPE_8UC1 ||
-           image->encoding == tinyros::sensor_msgs::image_encodings::MONO8)
+  else if (image->encoding == sensor_msgs::image_encodings::TYPE_8UC3 ||
+           image->encoding == sensor_msgs::image_encodings::TYPE_8SC3 ||
+           image->encoding == sensor_msgs::image_encodings::BGR8)
   {
-    format = Ogre::PF_L8;
+    format = Ogre::PF_BYTE_BGR;
+  }
+  else if (image->encoding == sensor_msgs::image_encodings::TYPE_8UC1 ||
+           image->encoding == sensor_msgs::image_encodings::TYPE_8SC1 ||
+           image->encoding == sensor_msgs::image_encodings::MONO8)
+  {
+    format = Ogre::PF_BYTE_L;
+  }
+  else if (image->encoding == sensor_msgs::image_encodings::TYPE_16UC1 ||
+           image->encoding == sensor_msgs::image_encodings::TYPE_16SC1 ||
+           image->encoding == sensor_msgs::image_encodings::MONO16)
+  {
+    imageDataSize /= sizeof(uint16_t);
+    normalize<uint16_t>( (uint16_t*)&image->data[0], imageDataSize, buffer );
+    format = Ogre::PF_BYTE_L;
+    imageDataPtr = &buffer[0];
+  }
+  else if (image->encoding.find("bayer") == 0)
+  {
+    format = Ogre::PF_BYTE_L;
+  }
+  else if (image->encoding == sensor_msgs::image_encodings::TYPE_32FC1)
+  {
+    imageDataSize /= sizeof(float);
+    normalize<float>( (float*)&image->data[0], imageDataSize, buffer );
+    format = Ogre::PF_BYTE_L;
+    imageDataPtr = &buffer[0];
   }
   else
   {
-    tinyros_log_error("Unsupported image encoding [%s]", image->encoding.c_str());
-    return false;
+    throw UnsupportedImageEncoding(image->encoding);
   }
 
   width_ = image->width;
   height_ = image->height;
 
-  uint32_t size = image->height * image->step;
+  // TODO: Support different steps/strides
+
   Ogre::DataStreamPtr pixel_stream;
-  pixel_stream.bind(new Ogre::MemoryDataStream((void*)(&image->data[0]), size));
+  pixel_stream.bind(new Ogre::MemoryDataStream(imageDataPtr, imageDataSize));
+
+  try
+  {
+    ogre_image.loadRawData(pixel_stream, width_, height_, 1, format, 1, 0);
+  }
+  catch (Ogre::Exception& e)
+  {
+    // TODO: signal error better
+    ROS_ERROR("Error loading image: %s", e.what());
+    return false;
+  }
+
   texture_->unload();
-  texture_->loadRawData(pixel_stream, width_, height_, format);
-  new_image_ = false;
+  texture_->loadImage(ogre_image);
 
   return true;
 }
 
-void ROSImageTexture::callback(const tinyros::sensor_msgs::ImageConstPtr& msg)
+void ROSImageTexture::addMessage(const sensor_msgs::Image::ConstPtr& msg)
 {
-  std::scoped_lock lock(mutex_);
+  boost::mutex::scoped_lock lock(mutex_);
   current_image_ = msg;
   new_image_ = true;
 }
 
-}
+} // end of namespace rviz

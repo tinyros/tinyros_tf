@@ -33,7 +33,12 @@
 #include <vector>
 #include <set>
 #include <map>
-#include <unordered_map>
+#include <boost/unordered_map.hpp>
+#include <OgrePixelFormat.h>
+#include <OgreColourValue.h>
+
+#include <ros/console.h>
+
 
 namespace rviz
 {
@@ -43,58 +48,48 @@ typedef std::vector<CollObjectHandle> V_CollObject;
 typedef std::vector<V_CollObject> VV_CollObject;
 typedef std::set<CollObjectHandle> S_CollObject;
 
-struct Pixel
-{
-  Pixel()
-  {
-
-  }
-
-  Pixel(int _x, int _y, uint32_t _handle)
-  : x(_x)
-  , y(_y)
-  , handle(_handle)
-  {}
-
-  bool operator<(const Pixel& rhs)
-  {
-    if (x != rhs.x)
-    {
-      return x < rhs.x;
-    }
-
-    if (y != rhs.y)
-    {
-      return y < rhs.y;
-    }
-
-    return handle < rhs.handle;
-  }
-
-  int x;
-  int y;
-
-  uint32_t handle;
-};
-typedef std::vector<Pixel> V_Pixel;
-typedef std::map<std::pair<int, int>, V_Pixel> MV_Pixel;
-
 typedef std::set<uint64_t> S_uint64;
 typedef std::vector<uint64_t> V_uint64;
 
 struct Picked
 {
-  Picked(CollObjectHandle _handle)
-  : handle(_handle)
+  Picked(CollObjectHandle _handle = 0 )
+  : handle(_handle), pixel_count(1)
   {
-
   }
 
   CollObjectHandle handle;
-
+  int pixel_count;
   S_uint64 extra_handles;
 };
-typedef std::unordered_map<CollObjectHandle, Picked> M_Picked;
+typedef boost::unordered_map<CollObjectHandle, Picked> M_Picked;
+
+
+inline uint32_t colorToHandle(Ogre::PixelFormat fmt, uint32_t col)
+{
+  uint32_t handle = 0;
+  if (fmt == Ogre::PF_A8R8G8B8 || fmt == Ogre::PF_X8R8G8B8)
+  {
+    handle = col & 0x00ffffff;
+  }
+  else if (fmt == Ogre::PF_R8G8B8A8)
+  {
+    handle = col >> 8;
+  }
+  else
+  {
+    ROS_DEBUG("Incompatible pixel format [%d]", fmt);
+  }
+
+  return handle;
+}
+
+inline CollObjectHandle colorToHandle( const Ogre::ColourValue & color )
+{
+  return (int(color.r * 255) << 16) | (int(color.g * 255) << 8) | int(color.b * 255);
+}
+
+
 
 }
 

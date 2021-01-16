@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, Willow Garage, Inc.
+ * Copyright (c) 2012, Willow Garage, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,52 +27,48 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "splash_screen.h"
+#include "rviz/splash_screen.h"
+#include "rviz/load_resource.h"
+#include "env_config.h"
 
-#include <wx/dcclient.h>
+#include <QPainter>
+#include <QPoint>
 
-#define TEXT_AREA_HEIGHT 16
+#include <iostream>
+#include <QCoreApplication>
 
 namespace rviz
 {
 
-SplashScreen::SplashScreen(wxWindow* parent, const wxBitmap& background)
-: wxFrame(0, wxID_ANY, wxT(""), wxDefaultPosition, wxDefaultSize, wxFRAME_NO_TASKBAR|wxFRAME_FLOAT_ON_PARENT)
-, background_(background)
+SplashScreen::SplashScreen( const QPixmap& pixmap )
+  : QSplashScreen()
 {
-  Connect(wxEVT_PAINT, wxPaintEventHandler(SplashScreen::onPaint), 0, this);
+  const int bottom_border = 27;
+  QPixmap splash( pixmap.width(), pixmap.height()+bottom_border );
+  splash.fill( QColor(0,0,0) );
 
-  wxSize size = wxSize(background_.GetWidth(), background_.GetHeight());
-  size.SetHeight(size.GetHeight() + TEXT_AREA_HEIGHT);
-  SetSize(size);
+  QPainter painter( &splash );
 
-  wxSize display_size = wxGetDisplaySize();
-  SetPosition(wxPoint(display_size.GetWidth()/2 - size.GetWidth()/2, display_size.GetHeight()/2 - size.GetHeight()/2));
+  painter.drawPixmap( QPoint(0,0), pixmap );
+
+  QPixmap overlay = loadPixmap( "package://rviz/images/splash_overlay.png" );
+  painter.drawTiledPixmap( QRect( 0,pixmap.height()-overlay.height(), pixmap.width(),pixmap.height() ), overlay );
+
+  // draw version info
+  QString version_info = "r"+QString(get_version().c_str());
+  version_info += " (" + QString(get_distro().c_str()) + ")";
+
+  painter.setPen( QColor(160,160,160) );
+  QRect r = splash.rect();
+  r .setRect(r.x() + 5, r.y() + 5, r.width() - 10, r.height() - 10);
+  painter.drawText( r, Qt::AlignRight | Qt::AlignBottom, version_info );
+
+  setPixmap( splash );
 }
 
-SplashScreen::~SplashScreen()
+void SplashScreen::showMessage( const QString& message )
 {
-
+  QSplashScreen::showMessage( message, Qt::AlignLeft | Qt::AlignBottom, Qt::white );
 }
 
-void SplashScreen::setState(const std::string& state)
-{
-  state_ = state;
-  Refresh();
-
-  wxSafeYield(this, true);
-}
-
-void SplashScreen::onPaint(wxPaintEvent& evt)
-{
-  wxPaintDC dc(this);
-
-  wxSize text_size = dc.GetTextExtent(wxString::FromAscii(state_.c_str()));
-
-  dc.DrawBitmap(background_, 0, 0);
-  dc.SetBrush(*wxWHITE_BRUSH);
-  dc.DrawRectangle(0, background_.GetHeight(), background_.GetWidth(), TEXT_AREA_HEIGHT);
-  dc.DrawText(wxString::FromAscii(state_.c_str()), 4, background_.GetHeight() + (TEXT_AREA_HEIGHT/2) - (text_size.GetHeight()/2));
-}
-
-}
+} // end namespace rviz

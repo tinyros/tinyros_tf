@@ -30,117 +30,65 @@
 #ifndef RVIZ_DISPLAYS_PANEL_H
 #define RVIZ_DISPLAYS_PANEL_H
 
-#include "generated/rviz_generated.h"
-
-#include <thread>
-#include <memory>
+#include <boost/thread/mutex.hpp>
 
 #include <vector>
 #include <map>
+#include <set>
 
-namespace ogre_tools
-{
-class wxOgreRenderWindow;
-class FPSCamera;
-class OrbitCamera;
-class CameraBase;
-class OrthoCamera;
-}
+#include "rviz/config.h"
+#include "rviz/panel.h"
 
-namespace Ogre
-{
-class Root;
-class SceneManager;
-class Camera;
-class RaySceneQuery;
-class ParticleSystem;
-}
-
-class wxTimerEvent;
-class wxKeyEvent;
-class wxSizeEvent;
-class wxTimer;
-class wxPropertyGrid;
-class wxPropertyGridEvent;
-class wxConfigBase;
+class QPushButton;
 
 namespace rviz
 {
 
+class PropertyTreeWidget;
+class PropertyTreeWithHelp;
 class VisualizationManager;
-class Tool;
-
 class Display;
-class DisplayWrapper;
-typedef std::vector<DisplayWrapper*> V_DisplayWrapper;
 
 /**
  * \class DisplaysPanel
  *
  */
-class DisplaysPanel : public DisplaysPanelGenerated
+class DisplaysPanel: public Panel
 {
+Q_OBJECT
 public:
-  /**
-   * \brief Constructor
-   *
-   * @param parent Parent window
-   * @return
-   */
-  DisplaysPanel( wxWindow* parent );
+  DisplaysPanel( QWidget* parent = 0);
   virtual ~DisplaysPanel();
 
-  void initialize(VisualizationManager* manager);
+  virtual void onInitialize();
 
-  wxPropertyGrid* getPropertyGrid() { return property_grid_; }
-  VisualizationManager* getManager() { return manager_; }
+  /** @brief Write state to the given Config object. */
+  virtual void save( Config config ) const;
+
+  /** @brief Read state from the given Config. */
+  virtual void load( const Config& config );
+
+protected Q_SLOTS:
+  /// Called when the "Add" button is pressed
+  void onNewDisplay();
+  /// Called when the "copy" button is pressed
+  void onDuplicateDisplay();
+  /// Called when the "Remove" button is pressed
+  void onDeleteDisplay();
+  /// Called when the "Rename" button is pressed
+  void onRenameDisplay();
+
+  void onSelectionChanged();
 
 protected:
-  void setDisplayCategoryLabel(const DisplayWrapper* display, int index);
-  void setDisplayCategoryColor(const DisplayWrapper* display);
+  PropertyTreeWidget* property_grid_;
 
-  void sortDisplays();
-
-  // wx callbacks
-  /// Called when a property from the wxPropertyGrid is changing
-  void onPropertyChanging( wxPropertyGridEvent& event );
-  /// Called when a property from the wxProperty
-  void onPropertyChanged( wxPropertyGridEvent& event );
-  /// Called when a property is selected
-  void onPropertySelected( wxPropertyGridEvent& event );
-
-  /// Called when the "New Display" button is pressed
-  virtual void onNewDisplay( wxCommandEvent& event );
-  /// Called when the "Delete Display" button is pressed
-  virtual void onDeleteDisplay( wxCommandEvent& event );
-  /// Called when the "Move Up" button is pressed
-  virtual void onMoveUp( wxCommandEvent& event );
-  /// Called when the "Move Down" button is pressed
-  virtual void onMoveDown( wxCommandEvent& event );
-
-  // Other callbacks
-  /// Called when a display is enabled or disabled
-  void onDisplayStateChanged(Display* display);
-  void onDisplayCreated(DisplayWrapper* display);
-  void onDisplayDestroyed(DisplayWrapper* display);
-  void onDisplayAdding(DisplayWrapper* display);
-  void onDisplayAdded(DisplayWrapper* display);
-  void onDisplayRemoving(DisplayWrapper* display);
-  void onDisplayRemoved(DisplayWrapper* display);
-  void onDisplaysRemoving(const V_DisplayWrapper& displays);
-  void onDisplaysRemoved(const V_DisplayWrapper& displays);
-  void onDisplaysConfigLoaded(const std::shared_ptr<wxConfigBase>& config);
-  void onDisplaysConfigSaving(const std::shared_ptr<wxConfigBase>& config);
-
-  wxPropertyGrid* property_grid_;                         ///< Display property grid
-  VisualizationManager* manager_;
-  DisplayWrapper* selected_display_;
-
-  typedef std::map<DisplayWrapper*, uint32_t> M_DisplayToIndex;
-  M_DisplayToIndex display_map_;
+  QPushButton* duplicate_button_;
+  QPushButton* remove_button_;
+  QPushButton* rename_button_;
+  PropertyTreeWithHelp* tree_with_help_;
 };
 
 } // namespace rviz
 
 #endif
-

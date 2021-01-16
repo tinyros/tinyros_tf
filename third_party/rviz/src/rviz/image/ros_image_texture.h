@@ -30,222 +30,29 @@
 #ifndef RVIZ_ROS_IMAGE_TEXTURE_H
 #define RVIZ_ROS_IMAGE_TEXTURE_H
 
-#include <tiny_ros/sensor_msgs/Image.h>
+#include <sensor_msgs/Image.h>
 
-#include <OGRE/OgreTexture.h>
+#include <OgreTexture.h>
+#include <OgreImage.h>
+#include <OgreSharedPtr.h>
 
-#include <memory>
-#include <thread>
-#include <cstdlib>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+
+#include <ros/ros.h>
+
 #include <stdexcept>
-#include <string>
-
-#include <tiny_ros/ros.h>
-
-#include <tiny_ros/tf/message_filter.h>
-namespace tinyros 
-{
-namespace tf 
-{
-class TransformListener;
-}
-}
-
-namespace tinyros
-{
-namespace sensor_msgs
-{
-namespace image_encodings
-{
-  const std::string RGB8 = "rgb8";
-  const std::string RGBA8 = "rgba8";
-  const std::string RGB16 = "rgb16";
-  const std::string RGBA16 = "rgba16";
-  const std::string BGR8 = "bgr8";
-  const std::string BGRA8 = "bgra8";
-  const std::string BGR16 = "bgr16";
-  const std::string BGRA16 = "bgra16";
-  const std::string MONO8="mono8";
-  const std::string MONO16="mono16";
-
-  // OpenCV CvMat types
-  const std::string TYPE_8UC1="8UC1";
-  const std::string TYPE_8UC2="8UC2";
-  const std::string TYPE_8UC3="8UC3";
-  const std::string TYPE_8UC4="8UC4";
-  const std::string TYPE_8SC1="8SC1";
-  const std::string TYPE_8SC2="8SC2";
-  const std::string TYPE_8SC3="8SC3";
-  const std::string TYPE_8SC4="8SC4";
-  const std::string TYPE_16UC1="16UC1";
-  const std::string TYPE_16UC2="16UC2";
-  const std::string TYPE_16UC3="16UC3";
-  const std::string TYPE_16UC4="16UC4";
-  const std::string TYPE_16SC1="16SC1";
-  const std::string TYPE_16SC2="16SC2";
-  const std::string TYPE_16SC3="16SC3";
-  const std::string TYPE_16SC4="16SC4";
-  const std::string TYPE_32SC1="32SC1";
-  const std::string TYPE_32SC2="32SC2";
-  const std::string TYPE_32SC3="32SC3";
-  const std::string TYPE_32SC4="32SC4";
-  const std::string TYPE_32FC1="32FC1";
-  const std::string TYPE_32FC2="32FC2";
-  const std::string TYPE_32FC3="32FC3";
-  const std::string TYPE_32FC4="32FC4";
-  const std::string TYPE_64FC1="64FC1";
-  const std::string TYPE_64FC2="64FC2";
-  const std::string TYPE_64FC3="64FC3";
-  const std::string TYPE_64FC4="64FC4";
-
-  // Bayer encodings
-  const std::string BAYER_RGGB8="bayer_rggb8";
-  const std::string BAYER_BGGR8="bayer_bggr8";
-  const std::string BAYER_GBRG8="bayer_gbrg8";
-  const std::string BAYER_GRBG8="bayer_grbg8";
-  const std::string BAYER_RGGB16="bayer_rggb16";
-  const std::string BAYER_BGGR16="bayer_bggr16";
-  const std::string BAYER_GBRG16="bayer_gbrg16";
-  const std::string BAYER_GRBG16="bayer_grbg16";
-
-  // Miscellaneous
-  // This is the UYVY version of YUV422 codec http://www.fourcc.org/yuv.php#UYVY
-  // with an 8-bit depth
-  const std::string YUV422="yuv422";
-
-  // Prefixes for abstract image encodings
-  const std::string ABSTRACT_ENCODING_PREFIXES[] = {
-      "8UC", "8SC", "16UC", "16SC", "32SC", "32FC", "64FC"};
-
-  // Utility functions for inspecting an encoding string
-  static inline bool isColor(const std::string& encoding)
-  {
-    return encoding == RGB8  || encoding == BGR8 ||
-           encoding == RGBA8 || encoding == BGRA8 ||
-           encoding == RGB16 || encoding == BGR16 ||
-           encoding == RGBA16 || encoding == BGRA16;
-  }
-
-  static inline bool isMono(const std::string& encoding)
-  {
-    return encoding == MONO8 || encoding == MONO16;
-  }
-
-  static inline bool isBayer(const std::string& encoding)
-  {
-    return encoding == BAYER_RGGB8 || encoding == BAYER_BGGR8 ||
-           encoding == BAYER_GBRG8 || encoding == BAYER_GRBG8 ||
-           encoding == BAYER_RGGB16 || encoding == BAYER_BGGR16 ||
-           encoding == BAYER_GBRG16 || encoding == BAYER_GRBG16;
-  }
-
-  static inline bool hasAlpha(const std::string& encoding)
-  {
-    return encoding == RGBA8 || encoding == BGRA8 ||
-           encoding == RGBA16 || encoding == BGRA16;
-  }
-
-  static inline int numChannels(const std::string& encoding)
-  {
-    // First do the common-case encodings
-    if (encoding == MONO8 ||
-        encoding == MONO16)
-      return 1;
-    if (encoding == BGR8 ||
-        encoding == RGB8 ||
-        encoding == BGR16 ||
-        encoding == RGB16)
-      return 3;
-    if (encoding == BGRA8 ||
-        encoding == RGBA8 ||
-        encoding == BGRA16 ||
-        encoding == RGBA16)
-      return 4;
-    if (encoding == BAYER_RGGB8 ||
-        encoding == BAYER_BGGR8 ||
-        encoding == BAYER_GBRG8 ||
-        encoding == BAYER_GRBG8 ||
-        encoding == BAYER_RGGB16 ||
-        encoding == BAYER_BGGR16 ||
-        encoding == BAYER_GBRG16 ||
-        encoding == BAYER_GRBG16)
-      return 1;
-
-    // Now all the generic content encodings
-    // Rewrite with regex when ROS supports C++11
-    for (size_t i=0; i < sizeof(ABSTRACT_ENCODING_PREFIXES) / sizeof(*ABSTRACT_ENCODING_PREFIXES); i++)
-    {
-      std::string prefix = ABSTRACT_ENCODING_PREFIXES[i];
-      if (encoding.substr(0, prefix.size()) != prefix)
-        continue;
-      if (encoding.size() == prefix.size())
-        return 1;  // ex. 8UC -> 1
-      int n_channel = atoi(encoding.substr(prefix.size(),
-                                           encoding.size() - prefix.size()).c_str());  // ex. 8UC5 -> 5
-      if (n_channel != 0)
-        return n_channel;  // valid encoding string
-    }
-
-    if (encoding == YUV422)
-      return 2;
-
-    throw std::runtime_error("Unknown encoding " + encoding);
-    return -1;
-  }
-
-  static inline int bitDepth(const std::string& encoding)
-  {
-    if (encoding == MONO16)
-      return 16;
-    if (encoding == MONO8       ||
-        encoding == BGR8        ||
-        encoding == RGB8        ||
-        encoding == BGRA8       ||
-        encoding == RGBA8       ||
-        encoding == BAYER_RGGB8 ||
-        encoding == BAYER_BGGR8 ||
-        encoding == BAYER_GBRG8 ||
-        encoding == BAYER_GRBG8)
-      return 8;
-
-    if (encoding == MONO16       ||
-        encoding == BGR16        ||
-        encoding == RGB16        ||
-        encoding == BGRA16       ||
-        encoding == RGBA16       ||
-        encoding == BAYER_RGGB16 ||
-        encoding == BAYER_BGGR16 ||
-        encoding == BAYER_GBRG16 ||
-        encoding == BAYER_GRBG16)
-      return 16;
-
-    // Now all the generic content encodings
-    // Rewrite with regex when ROS supports C++11
-    for (size_t i=0; i < sizeof(ABSTRACT_ENCODING_PREFIXES) / sizeof(*ABSTRACT_ENCODING_PREFIXES); i++)
-    {
-      std::string prefix = ABSTRACT_ENCODING_PREFIXES[i];
-      if (encoding.substr(0, prefix.size()) != prefix)
-        continue;
-      if (encoding.size() == prefix.size())
-        return atoi(prefix.c_str());  // ex. 8UC -> 8
-      int n_channel = atoi(encoding.substr(prefix.size(),
-                                           encoding.size() - prefix.size()).c_str());  // ex. 8UC10 -> 10
-      if (n_channel != 0)
-        return atoi(prefix.c_str());  // valid encoding string
-    }
-
-    if (encoding == YUV422)
-      return 8;
-
-    throw std::runtime_error("Unknown encoding " + encoding);
-    return -1;
-  }
-}
-}
-}
 
 namespace rviz
 {
+
+class UnsupportedImageEncoding : public std::runtime_error
+{
+public:
+  UnsupportedImageEncoding(const std::string& encoding)
+  : std::runtime_error("Unsupported image encoding [" + encoding + "]")
+  {}
+};
 
 class ROSImageTexture
 {
@@ -253,36 +60,44 @@ public:
   ROSImageTexture();
   ~ROSImageTexture();
 
-  void setTopic(const std::string& topic);
-  void setFrame(const std::string& frame, tinyros::tf::TransformListener* tf_client);
+  void addMessage(const sensor_msgs::Image::ConstPtr& image);
   bool update();
   void clear();
 
   const Ogre::TexturePtr& getTexture() { return texture_; }
-  const tinyros::sensor_msgs::ImageConstPtr& getImage();
+  const sensor_msgs::Image::ConstPtr& getImage();
 
   uint32_t getWidth() { return width_; }
   uint32_t getHeight() { return height_; }
 
+  // automatic range normalization
+  void setNormalizeFloatImage( bool normalize, double min=0.0, double max=1.0 );
+  void setMedianFrames( unsigned median_frames );
+
 private:
-  void callback(const tinyros::sensor_msgs::ImageConstPtr& image);
 
-  std::shared_ptr<tinyros::tf::MessageFilter<tinyros::sensor_msgs::Image> > tf_filter_;
-  
-  tinyros::Subscriber<tinyros::sensor_msgs::Image, ROSImageTexture> *sub_;
+  double updateMedian( std::deque<double>& buffer, double new_value );
 
-  tinyros::sensor_msgs::ImageConstPtr current_image_;
-  std::mutex mutex_;
+  template<typename T>
+  void normalize( T* image_data, size_t image_data_size, std::vector<uint8_t> &buffer  );
+
+  sensor_msgs::Image::ConstPtr current_image_;
+  boost::mutex mutex_;
   bool new_image_;
 
   Ogre::TexturePtr texture_;
+  Ogre::Image empty_image_;
 
   uint32_t width_;
   uint32_t height_;
 
-  std::string topic_;
-  std::string frame_;
-  tinyros::tf::TransformListener* tf_client_;
+  // fields for float image running median computation
+  bool normalize_;
+  double min_;
+  double max_;
+  unsigned median_frames_;
+  std::deque<double> min_buffer_;
+  std::deque<double> max_buffer_;
 };
 
 }

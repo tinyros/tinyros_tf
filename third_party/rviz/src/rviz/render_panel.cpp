@@ -27,81 +27,210 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "render_panel.h"
-#include "visualization_manager.h"
-#include "display.h"
-#include "tools/tool.h"
-#include "viewport_mouse_event.h"
+#include <QApplication>
+#include <QMenu>
+#include <QTimer>
 
-#include <functional>
+#include <OgreSceneManager.h>
+#include <OgreCamera.h>
 
-#include <OGRE/OgreRoot.h>
-#include <OGRE/OgreViewport.h>
+#include "rviz/display.h"
+#include "rviz/view_controller.h"
+#include "rviz/viewport_mouse_event.h"
+#include "rviz/visualization_manager.h"
+#include "rviz/window_manager_interface.h"
+
+#include "rviz/render_panel.h"
 
 namespace rviz
 {
 
-RenderPanel::RenderPanel( wxWindow* parent, bool create_render_window )
-: wxOgreRenderWindow( Ogre::Root::getSingletonPtr(), parent, wxID_ANY, wxDefaultPosition, wxSize(800, 600), wxSUNKEN_BORDER, wxDefaultValidator, create_render_window )
-, mouse_x_( 0 )
-, mouse_y_( 0 )
-, manager_(NULL)
+RenderPanel::RenderPanel( QWidget* parent )
+  : QtOgreRenderWindow( parent )
+  , mouse_x_( 0 )
+  , mouse_y_( 0 )
+  , context_( 0 )
+  , scene_manager_( 0 )
+  , view_controller_( 0 )
+  , fake_mouse_move_event_timer_( new QTimer() )
+  , default_camera_(0)
+  , context_menu_visible_(false)
 {
-  SetFocus();
-  Connect( wxEVT_CHAR, wxKeyEventHandler( RenderPanel::onChar ), NULL, this );
-
-  Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( RenderPanel::onRenderWindowMouseEvents ), NULL, this );
-  Connect( wxEVT_MIDDLE_DOWN, wxMouseEventHandler( RenderPanel::onRenderWindowMouseEvents ), NULL, this );
-  Connect( wxEVT_RIGHT_DOWN, wxMouseEventHandler( RenderPanel::onRenderWindowMouseEvents ), NULL, this );
-  Connect( wxEVT_MOTION, wxMouseEventHandler( RenderPanel::onRenderWindowMouseEvents ), NULL, this );
-  Connect( wxEVT_LEFT_UP, wxMouseEventHandler( RenderPanel::onRenderWindowMouseEvents ), NULL, this );
-  Connect( wxEVT_MIDDLE_UP, wxMouseEventHandler( RenderPanel::onRenderWindowMouseEvents ), NULL, this );
-  Connect( wxEVT_RIGHT_UP, wxMouseEventHandler( RenderPanel::onRenderWindowMouseEvents ), NULL, this );
-  Connect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( RenderPanel::onRenderWindowMouseEvents ), NULL, this );
-  Connect( wxEVT_LEFT_DCLICK, wxMouseEventHandler( RenderPanel::onRenderWindowMouseEvents ), NULL, this );
+  setFocus( Qt::OtherFocusReason );
 }
 
 RenderPanel::~RenderPanel()
 {
-  Disconnect( wxEVT_CHAR, wxKeyEventHandler( RenderPanel::onChar ), NULL, this );
-  Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( RenderPanel::onRenderWindowMouseEvents ), NULL, this );
-  Disconnect( wxEVT_MIDDLE_DOWN, wxMouseEventHandler( RenderPanel::onRenderWindowMouseEvents ), NULL, this );
-  Disconnect( wxEVT_RIGHT_DOWN, wxMouseEventHandler( RenderPanel::onRenderWindowMouseEvents ), NULL, this );
-  Disconnect( wxEVT_MOTION, wxMouseEventHandler( RenderPanel::onRenderWindowMouseEvents ), NULL, this );
-  Disconnect( wxEVT_LEFT_UP, wxMouseEventHandler( RenderPanel::onRenderWindowMouseEvents ), NULL, this );
-  Disconnect( wxEVT_MIDDLE_UP, wxMouseEventHandler( RenderPanel::onRenderWindowMouseEvents ), NULL, this );
-  Disconnect( wxEVT_RIGHT_UP, wxMouseEventHandler( RenderPanel::onRenderWindowMouseEvents ), NULL, this );
-  Disconnect( wxEVT_MOUSEWHEEL, wxMouseEventHandler( RenderPanel::onRenderWindowMouseEvents ), NULL, this );
-  Disconnect( wxEVT_LEFT_DCLICK, wxMouseEventHandler( RenderPanel::onRenderWindowMouseEvents ), NULL, this );
+  delete fake_mouse_move_event_timer_;
+  if( scene_manager_ && default_camera_ )
+  {
+    scene_manager_->destroyCamera( default_camera_ );
+  }
+  if( scene_manager_ )
+  {
+    scene_manager_->removeListener( this );
+  }
 }
 
-void RenderPanel::initialize(VisualizationManager* manager)
+void RenderPanel::initialize(Ogre::SceneManager* scene_manager, DisplayContext* context)
 {
-  manager_ = manager;
+  context_ = context;
+  scene_manager_ = scene_manager;
+  scene_manager_->addListener( this );
+
+  std::stringstream ss;
+  static int count = 0;
+  ss << "RenderPanelCamera" << count++;
+  default_camera_ = scene_manager_->createCamera(ss.str());
+  default_camera_->setNearClipDistance(0.01f);
+  default_camera_->setPosition(0, 10, 15);
+  default_camera_->lookAt(0, 0, 0);
+
+  setCamera( default_camera_ );
+
+  connect( fake_mouse_move_event_timer_, SIGNAL( timeout() ), this, SLOT( sendMouseMoveEvent() ));
+  fake_mouse_move_event_timer_->start( 33 /*milliseconds*/ );
 }
 
-void RenderPanel::onRenderWindowMouseEvents( wxMouseEvent& event )
+void RenderPanel::sendMouseMoveEvent()
+{
+  QPoint cursor_pos = QCursor::pos();
+  QPoint mouse_rel_widget = mapFromGlobal( cursor_pos );
+  if( rect().contains( mouse_rel_widget ))
+  {
+    bool mouse_over_this = false;
+    QWidget *w = QApplication::widgetAt( cursor_pos );
+    while( w )
+    {
+      if( w == this )
+      {
+        mouse_over_this = true;
+        break;
+      }
+      w = w->parentWidget();
+    }
+    if( !mouse_over_this )
+    {
+      return;
+    }
+
+    QMouseEvent fake_event( QEvent::MouseMove,
+                            mouse_rel_widget,
+                            Qt::NoButton,
+                            QApplication::mouseButtons(),
+                            QApplication::keyboardModifiers() );
+    onRenderWindowMouseEvents( &fake_event );
+  }
+}
+void RenderPanel::leaveEvent ( QEvent * event )
+{
+  setCursor( Qt::ArrowCursor );
+  if ( context_ )
+  {
+    context_->setStatus("");
+  }
+}
+
+void RenderPanel::onRenderWindowMouseEvents( QMouseEvent* event )
 {
   int last_x = mouse_x_;
   int last_y = mouse_y_;
 
-  mouse_x_ = event.GetX();
-  mouse_y_ = event.GetY();
+  mouse_x_ = event->x();
+  mouse_y_ = event->y();
 
-  if (manager_)
+  if (context_)
   {
-    SetFocus();
+    setFocus( Qt::MouseFocusReason );
 
-    ViewportMouseEvent vme( getViewport(), event, last_x, last_y );
-    manager_->handleMouseEvent(vme);
+    ViewportMouseEvent vme(this, getViewport(), event, last_x, last_y);
+    context_->handleMouseEvent(vme);
+    event->accept();
   }
 }
 
-void RenderPanel::onChar( wxKeyEvent& event )
+void RenderPanel::wheelEvent( QWheelEvent* event )
 {
-  if (manager_)
+  int last_x = mouse_x_;
+  int last_y = mouse_y_;
+
+  mouse_x_ = event->x();
+  mouse_y_ = event->y();
+
+  if (context_)
   {
-    manager_->handleChar( event );
+    setFocus( Qt::MouseFocusReason );
+
+    ViewportMouseEvent vme(this, getViewport(), event, last_x, last_y);
+    context_->handleMouseEvent(vme);
+    event->accept();
+  }
+}
+
+void RenderPanel::keyPressEvent( QKeyEvent* event )
+{
+  if( context_ )
+  {
+    context_->handleChar( event, this );
+  }
+}
+
+void RenderPanel::setViewController( ViewController* controller )
+{
+  view_controller_ = controller;
+
+  if( view_controller_ )
+  {
+    setCamera( view_controller_->getCamera() );
+    view_controller_->activate();
+  }
+  else
+  {
+    setCamera( NULL );
+  }
+}
+
+void RenderPanel::showContextMenu( boost::shared_ptr<QMenu> menu )
+{
+  boost::mutex::scoped_lock lock(context_menu_mutex_);
+  context_menu_ = menu;
+  context_menu_visible_ = true;
+
+  QApplication::postEvent( this, new QContextMenuEvent( QContextMenuEvent::Mouse, QPoint() ));
+}
+
+void RenderPanel::onContextMenuHide()
+{
+  context_menu_visible_ = false;
+}
+
+bool RenderPanel::contextMenuVisible()
+{
+  return context_menu_visible_;
+}
+
+void RenderPanel::contextMenuEvent( QContextMenuEvent* event )
+{
+  boost::shared_ptr<QMenu> context_menu;
+  {
+    boost::mutex::scoped_lock lock(context_menu_mutex_);
+    context_menu.swap(context_menu_);
+  }
+
+  if ( context_menu )
+  {
+    connect( context_menu.get(), SIGNAL( aboutToHide() ), this, SLOT( onContextMenuHide() ) );
+    context_menu->exec( QCursor::pos() );
+  }
+}
+
+void RenderPanel::sceneManagerDestroyed( Ogre::SceneManager* destroyed_scene_manager )
+{
+  if( destroyed_scene_manager == scene_manager_ )
+  {
+    scene_manager_ = NULL;
+    default_camera_ = NULL;
+    setCamera( NULL );
   }
 }
 

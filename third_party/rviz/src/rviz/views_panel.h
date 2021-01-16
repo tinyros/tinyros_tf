@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, Willow Garage, Inc.
+ * Copyright (c) 2012, Willow Garage, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,90 +30,66 @@
 #ifndef RVIZ_VIEWS_PANEL_H
 #define RVIZ_VIEWS_PANEL_H
 
-#include "generated/rviz_generated.h"
+#include "rviz/panel.h"
 
-#include <mutex>
-
-#include <vector>
-#include <map>
-
-namespace ogre_tools
-{
-class CameraBase;
-}
-
-class wxTimerEvent;
-class wxKeyEvent;
-class wxSizeEvent;
-class wxTimer;
-class wxPropertyGrid;
-class wxPropertyGridEvent;
-class wxConfigBase;
+class QComboBox;
+class QModelIndex;
+class QPushButton;
 
 namespace rviz
 {
 
-class Display;
-class VisualizationManager;
-class Tool;
+class ViewManager;
+class PropertyTreeWidget;
 
 /**
- * \class ViewsPanel
- *
+ * @brief Panel for choosing the view controller and saving and restoring
+ * viewpoints.
  */
-class ViewsPanel : public ViewsPanelGenerated
+class ViewsPanel: public Panel
 {
+Q_OBJECT
 public:
-  /**
-   * \brief Constructor
+  ViewsPanel( QWidget* parent = 0 );
+  virtual ~ViewsPanel() {}
+
+  /** @brief Overridden from Panel.  Just calls setViewManager() with vis_manager_->getViewManager(). */
+  virtual void onInitialize();
+
+  /** @brief Set the ViewManager which this panel should display and edit.
    *
-   * @param parent Parent window
-   * @return
-   */
-  ViewsPanel( wxWindow* parent );
-  virtual ~ViewsPanel();
+   * If this ViewsPanel is to be used with a ViewManager other than
+   * the one in the VisualizationManager sent in through
+   * Panel::initialize(), either Panel::initialize() must not be
+   * called or setViewManager() must be called after
+   * Panel::initialize(). */
+  void setViewManager( ViewManager* view_man );
 
-  void initialize(VisualizationManager* manager);
+  /** @brief Returns the current ViewManager. */
+  ViewManager* getViewManager() const { return view_man_; }
 
-  VisualizationManager* getManager() { return manager_; }
+  /** @brief Load configuration data, specifically the PropertyTreeWidget view settings. */
+  virtual void load( const Config& config );
 
-protected:
-  struct View
-  {
-    std::string name_;
-    std::string camera_type_;
-    std::string camera_config_;
-    std::string target_frame_;
-  };
-  typedef std::vector<View> V_View;
+  /** @brief Save configuration data, specifically the PropertyTreeWidget view settings. */
+  virtual void save( Config config ) const;
 
-  void loadSelected();
-  void save(const std::string& name);
-  void addView(const View& view);
+private Q_SLOTS:
+  void onTypeSelectorChanged( int selected_index );
+  void onDeleteClicked();
+  void renameSelected();
+  void onZeroClicked();
+  void onCurrentChanged();
 
-  // wx Callbacks
-  /// Called when a camera type is selected from the list
-  virtual void onCameraTypeSelected( wxCommandEvent& event );
-  virtual void onViewsClicked( wxCommandEvent& event );
-  virtual void onViewsDClicked( wxCommandEvent& event );
-  virtual void onLoadClicked( wxCommandEvent& event );
-  virtual void onSaveClicked( wxCommandEvent& event );
-  virtual void onDeleteClicked( wxCommandEvent& event );
+  void setCurrentViewFromIndex( const QModelIndex& index );
 
-  // Other callbacks
-  void onGeneralConfigLoaded(const std::shared_ptr<wxConfigBase>& config);
-  void onGeneralConfigSaving(const std::shared_ptr<wxConfigBase>& config);
-  void onCameraTypeAdded(ogre_tools::CameraBase* camera, const std::string& name);
-  void onCameraTypeChanged(ogre_tools::CameraBase* camera);
-
-  VisualizationManager* manager_;
-
-
-  V_View views_;
+private:
+  ViewManager* view_man_;
+  PropertyTreeWidget* properties_view_;
+  QPushButton* save_button_;
+  QComboBox* camera_type_selector_;
 };
 
 } // namespace rviz
 
 #endif // RVIZ_VIEWS_PANEL_H
-
-

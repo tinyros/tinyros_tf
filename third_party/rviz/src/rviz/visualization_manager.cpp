@@ -27,267 +27,274 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "visualization_manager.h"
-#include "selection/selection_manager.h"
-#include "plugin/plugin_manager.h"
-#include "plugin/display_type_info.h"
-#include "render_panel.h"
-#include "displays_panel.h"
-#include "viewport_mouse_event.h"
-
-#include "display.h"
-#include "display_wrapper.h"
-#include "properties/property_manager.h"
-#include "properties/property.h"
-#include "common.h"
-#include "new_display_dialog.h"
-
-#include "tools/tool.h"
-#include "tools/move_tool.h"
-#include "tools/goal_tool.h"
-#include "tools/initial_pose_tool.h"
-#include "tools/selection_tool.h"
-
-#include <ogre_tools/wx_ogre_render_window.h>
-#include <ogre_tools/camera_base.h>
-#include "ogre_tools/fps_camera.h"
-#include "ogre_tools/orbit_camera.h"
-#include "ogre_tools/ortho_camera.h"
-
-#include <tiny_ros/tf/transform_listener.h>
-
-#include <wx/timer.h>
-#include <wx/propgrid/propgrid.h>
-#include <wx/confbase.h>
-
-#include <functional>
-
-#include <OGRE/OgreRoot.h>
-#include <OGRE/OgreSceneManager.h>
-#include <OGRE/OgreSceneNode.h>
-#include <OGRE/OgreLight.h>
-#include <OGRE/OgreViewport.h>
-#include <OGRE/OgreMaterialManager.h>
-#include <OGRE/OgreMaterial.h>
-#include <OGRE/OgreRenderWindow.h>
-
 #include <algorithm>
+
+#include <QApplication>
+#include <QCursor>
+#include <QPixmap>
+#include <QTimer>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QWindow>
+#endif
+
+#include <boost/bind.hpp>
+
+#include <OgreRoot.h>
+#include <OgreSceneManager.h>
+#include <OgreSceneNode.h>
+#include <OgreLight.h>
+#include <OgreViewport.h>
+#include <OgreMaterialManager.h>
+#include <OgreMaterial.h>
+#include <OgreRenderWindow.h>
+#include <OgreSharedPtr.h>
+#include <OgreCamera.h>
+
+#include <boost/filesystem.hpp>
+
+#include <tf/transform_listener.h>
+
+#include <ros/package.h>
+#include <ros/callback_queue.h>
+
+#include "rviz/display.h"
+#include "rviz/display_factory.h"
+#include "rviz/display_group.h"
+#include "rviz/displays_panel.h"
+#include "rviz/frame_manager.h"
+#include "rviz/ogre_helpers/qt_ogre_render_window.h"
+#include "rviz/properties/color_property.h"
+#include "rviz/properties/parse_color.h"
+#include "rviz/properties/property.h"
+#include "rviz/properties/property_tree_model.h"
+#include "rviz/properties/status_list.h"
+#include "rviz/properties/tf_frame_property.h"
+#include "rviz/properties/int_property.h"
+#include "rviz/render_panel.h"
+#include "rviz/selection/selection_manager.h"
+#include "rviz/tool.h"
+#include "rviz/tool_manager.h"
+#include "rviz/viewport_mouse_event.h"
+#include "rviz/view_controller.h"
+#include "rviz/view_manager.h"
+#include "rviz/load_resource.h"
+#include "rviz/ogre_helpers/ogre_render_queue_clearer.h"
+#include "rviz/ogre_helpers/render_system.h"
+
+#include "rviz/visualization_manager.h"
+#include "rviz/window_manager_interface.h"
 
 namespace rviz
 {
 
-namespace camera_types
-{
-enum CameraType
-{
-  Orbit,
-  FPS,
-  TopDownOrtho,
-
-  Count
+//helper class needed to display an icon besides "Global Options"
+class IconizedProperty: public Property {
+public:
+  IconizedProperty( const QString& name = QString(),
+              const QVariant default_value = QVariant(),
+              const QString& description = QString(),
+              Property* parent = 0,
+              const char *changed_slot = 0,
+              QObject* receiver = 0 )
+  :Property( name, default_value, description, parent, changed_slot, receiver ) {};
+  virtual QVariant getViewData( int column, int role ) const
+  {
+    return (column == 0 && role == Qt::DecorationRole)
+        ? icon_ : Property::getViewData(column,role);
+  }
+  void setIcon( QIcon icon ) { icon_=icon; }
+private:
+  QIcon icon_;
 };
-}
-typedef camera_types::CameraType CameraType;
 
-static const char* g_camera_type_names[camera_types::Count] =
+class VisualizationManagerPrivate
 {
-  "Orbit",
-  "FPS",
-  "Top-down Orthographic"
+public:
+  ros::CallbackQueue threaded_queue_;
+  boost::thread_group threaded_queue_threads_;
+  ros::NodeHandle update_nh_;
+  ros::NodeHandle threaded_nh_;
+  boost::mutex render_mutex_;
 };
 
-VisualizationManager::VisualizationManager( RenderPanel* render_panel, WindowManagerInterface* wm )
+VisualizationManager::VisualizationManager( RenderPanel* render_panel, WindowManagerInterface* wm, boost::shared_ptr<tf::TransformListener> tf )
 : ogre_root_( Ogre::Root::getSingletonPtr() )
 , update_timer_(0)
 , shutting_down_(false)
-, current_tool_( NULL )
 , render_panel_( render_panel )
 , time_update_timer_(0.0f)
 , frame_update_timer_(0.0f)
-, current_camera_(NULL)
-, current_camera_type_(0)
-, fps_camera_(NULL)
-, orbit_camera_(NULL)
-, top_down_ortho_(NULL)
 , render_requested_(1)
-, render_timer_(0.0f)
-, skip_render_(0)
+, frame_count_(0)
 , window_manager_(wm)
-, disable_update_(false)
+, private_( new VisualizationManagerPrivate )
 {
-  tf_ = 0;
-  threaded_tf_ = 0;
-  initializeCommon();
+  // visibility_bit_allocator_ is listed after default_visibility_bit_ (and thus initialized later be default):
+  default_visibility_bit_ = visibility_bit_allocator_.allocBit();
+
+  frame_manager_ = new FrameManager(tf);
 
   render_panel->setAutoRender(false);
 
-  update_nh_.setCallbackQueue(&update_queue_);
-  threaded_nh_.setCallbackQueue(&threaded_queue_);
+  private_->threaded_nh_.setCallbackQueue(&private_->threaded_queue_);
 
   scene_manager_ = ogre_root_->createSceneManager( Ogre::ST_GENERIC );
 
-  target_relative_node_ = scene_manager_->getRootSceneNode()->createChildSceneNode();
+  rviz::RenderSystem::RenderSystem::get()->prepareOverlays(scene_manager_);
 
-  Ogre::Light* directional_light = scene_manager_->createLight( "MainDirectional" );
-  directional_light->setType( Ogre::Light::LT_DIRECTIONAL );
-  directional_light->setDirection( Ogre::Vector3( 0, -1, 1 ) );
-  directional_light->setDiffuseColour( Ogre::ColourValue( 1.0f, 1.0f, 1.0f ) );
+  directional_light_ = scene_manager_->createLight( "MainDirectional" );
+  directional_light_->setType( Ogre::Light::LT_DIRECTIONAL );
+  directional_light_->setDirection( Ogre::Vector3( -1, 0, -1 ) );
+  directional_light_->setDiffuseColour( Ogre::ColourValue( 1.0f, 1.0f, 1.0f ) );
 
-  property_manager_ = new PropertyManager();
-  tool_property_manager_ = new PropertyManager();
+  root_display_group_ = new DisplayGroup();
+  root_display_group_->setName( "root" );
+  display_property_tree_model_ = new PropertyTreeModel( root_display_group_ );
+  display_property_tree_model_->setDragDropClass( "display" );
+  connect( display_property_tree_model_, SIGNAL( configChanged() ), this, SIGNAL( configChanged() ));
 
-  CategoryPropertyWPtr options_category = property_manager_->createCategory( ".Global Options", "" );
-  target_frame_property_ = property_manager_->createProperty<EditEnumProperty>( "Target Frame", "", std::bind( &VisualizationManager::getTargetFrame, this ),
-                                                                              std::bind( &VisualizationManager::setTargetFrame, this, std::placeholders::_1 ), options_category );
-  fixed_frame_property_ = property_manager_->createProperty<EditEnumProperty>( "Fixed Frame", "", std::bind( &VisualizationManager::getFixedFrame, this ),
-                                                                             std::bind( &VisualizationManager::setFixedFrame, this, std::placeholders::_1 ), options_category );
-  background_color_property_ = property_manager_->createProperty<ColorProperty>( "Background Color", "", std::bind( &VisualizationManager::getBackgroundColor, this ),
-                                                                             std::bind( &VisualizationManager::setBackgroundColor, this, std::placeholders::_1 ), options_category );
-  CategoryPropertyPtr cat_prop = options_category.lock();
-  cat_prop->collapse();
+  tool_manager_ = new ToolManager( this );
+  connect( tool_manager_, SIGNAL( configChanged() ), this, SIGNAL( configChanged() ));
+  connect( tool_manager_, SIGNAL( toolChanged( Tool* ) ), this, SLOT( onToolChanged( Tool* ) ));
 
-  setBackgroundColor(Color(0.0f, 0.0f, 0.0f));
+  view_manager_ = new ViewManager( this );
+  view_manager_->setRenderPanel( render_panel_ );
+  connect( view_manager_, SIGNAL( configChanged() ), this, SIGNAL( configChanged() ));
+
+  IconizedProperty* ip = new IconizedProperty( "Global Options", QVariant(), "", root_display_group_ );
+  ip->setIcon( loadPixmap("package://rviz/icons/options.png") );
+  global_options_ = ip;
+
+  fixed_frame_property_ = new TfFrameProperty( "Fixed Frame", "/map",
+                                               "Frame into which all data is transformed before being displayed.",
+                                               global_options_, frame_manager_, false,
+                                               SLOT( updateFixedFrame() ), this );
+
+  background_color_property_ = new ColorProperty( "Background Color", QColor(48,48,48),
+                                                  "Background color for the 3D view.",
+                                                  global_options_, SLOT( updateBackgroundColor() ), this );
+
+  fps_property_ = new IntProperty( "Frame Rate", 30,
+                                   "RViz will try to render this many frames per second.",
+                                   global_options_, SLOT( updateFps() ), this );
+
+  root_display_group_->initialize( this ); // only initialize() a Display after its sub-properties are created.
+  root_display_group_->setEnabled( true );
+
+  updateFixedFrame();
+  updateBackgroundColor();
+
+  global_status_ = new StatusList( "Global Status", root_display_group_ );
 
   createColorMaterials();
 
   selection_manager_ = new SelectionManager(this);
 
-  for (uint32_t i = 0; i < std::thread::hardware_concurrency(); ++i)
-  {
-    threaded_queue_threads_.create_thread(std::bind(&VisualizationManager::threadedQueueThreadFunc, this));
-  }
+  private_->threaded_queue_threads_.create_thread(boost::bind(&VisualizationManager::threadedQueueThreadFunc, this));
 
-  plugin_manager_ = new PluginManager;
-  std::string rviz_path = ""; // ros::package::getPath("rviz");
-  plugin_manager_->loadDescription(rviz_path + "/lib/default_plugin.yaml");
+  display_factory_ = new DisplayFactory();
+
+  ogre_render_queue_clearer_ = new OgreRenderQueueClearer();
+  Ogre::Root::getSingletonPtr()->addFrameListener( ogre_render_queue_clearer_ );
+
+  update_timer_ = new QTimer;
+  connect( update_timer_, SIGNAL( timeout() ), this, SLOT( onUpdate() ));
 }
 
 VisualizationManager::~VisualizationManager()
 {
-  Disconnect( wxEVT_TIMER, update_timer_->GetId(), wxTimerEventHandler( VisualizationManager::onUpdate ), NULL, this );
-  update_timer_->Stop();
   delete update_timer_;
 
   shutting_down_ = true;
-  threaded_queue_threads_.join_all();
+  private_->threaded_queue_threads_.join_all();
 
-  V_DisplayWrapper::iterator it = displays_.begin();
-  V_DisplayWrapper::iterator end = displays_.end();
-  for (; it != end; ++it)
+  if(selection_manager_)
   {
-    delete *it;
+    selection_manager_->setSelection(M_Picked());
   }
-  displays_.clear();
 
-  V_Tool::iterator tool_it = tools_.begin();
-  V_Tool::iterator tool_end = tools_.end();
-  for ( ; tool_it != tool_end; ++tool_it )
-  {
-    delete *tool_it;
-  }
-  tools_.clear();
-
-  delete tf_;
-  delete threaded_tf_;
-
-  delete property_manager_;
-  delete tool_property_manager_;
-
-  delete fps_camera_;
-  delete orbit_camera_;
-  delete top_down_ortho_;
-
+  delete display_property_tree_model_;
+  delete tool_manager_;
+  delete display_factory_;
   delete selection_manager_;
-  delete plugin_manager_;
 
-  ogre_root_->destroySceneManager( scene_manager_ );
+  if(ogre_root_)
+  {
+    ogre_root_->destroySceneManager( scene_manager_ );
+  }
+  delete frame_manager_;
+  delete private_;
+
+  Ogre::Root::getSingletonPtr()->removeFrameListener( ogre_render_queue_clearer_ );
+  delete ogre_render_queue_clearer_;
 }
 
-void VisualizationManager::initialize(const StatusCallback& cb)
+void VisualizationManager::initialize()
 {
-  if (cb)
-  {
-    cb("Initializing TF");
-  }
+  emitStatusUpdate( "Initializing managers." );
 
-  tf_ = new tinyros::tf::TransformListener(update_nh_, tinyros::Duration(10 * 60), false);
-  threaded_tf_ = new tinyros::tf::TransformListener(threaded_nh_, tinyros::Duration(10 * 60), false);
-
-  updateRelativeNode();
-
-  setTargetFrame( "base_link" );
-  setFixedFrame( "/map" );
-
-  orbit_camera_ = new ogre_tools::OrbitCamera( scene_manager_ );
-  orbit_camera_->getOgreCamera()->setNearClipDistance( 0.01f );
-  orbit_camera_->setPosition( 0, 0, 15 );
-  orbit_camera_->setRelativeNode( getTargetRelativeNode() );
-  addCamera(orbit_camera_, g_camera_type_names[camera_types::Orbit]);
-
-  fps_camera_ = new ogre_tools::FPSCamera( scene_manager_ );
-  fps_camera_->getOgreCamera()->setNearClipDistance( 0.01f );
-  fps_camera_->setPosition( 0, 0, 15 );
-  fps_camera_->setRelativeNode( getTargetRelativeNode() );
-  addCamera(fps_camera_, g_camera_type_names[camera_types::FPS]);
-
-  top_down_ortho_ = new ogre_tools::OrthoCamera( render_panel_, scene_manager_ );
-  top_down_ortho_->setPosition( 0, 30, 0 );
-  top_down_ortho_->pitch( -Ogre::Math::HALF_PI );
-  top_down_ortho_->setRelativeNode( getTargetRelativeNode() );
-  addCamera(top_down_ortho_, g_camera_type_names[camera_types::TopDownOrtho]);
-
-  current_camera_ = orbit_camera_;
-  current_camera_type_ = camera_types::Orbit;
-
-  render_panel_->getViewport()->setCamera( current_camera_->getOgreCamera() );
-
-  MoveTool* move_tool = createTool< MoveTool >( "Move Camera", 'm' );
-  setCurrentTool( move_tool );
-  setDefaultTool( move_tool );
-
-  createTool< SelectionTool >( "Select", 's' );
-  createTool< GoalTool >( "2D Nav Goal", 'g' );
-  createTool< InitialPoseTool >( "2D Pose Estimate", 'p' );
-
+  view_manager_->initialize();
   selection_manager_->initialize();
+  tool_manager_->initialize();
 
   last_update_ros_time_ = ros::Time::now();
   last_update_wall_time_ = ros::WallTime::now();
 }
 
-void VisualizationManager::startUpdate()
+ros::CallbackQueueInterface* VisualizationManager::getThreadedQueue()
 {
-  update_timer_ = new wxTimer( this );
-  update_timer_->Start( 33 );
-  Connect( update_timer_->GetId(), wxEVT_TIMER, wxTimerEventHandler( VisualizationManager::onUpdate ), NULL, this );
+  return &private_->threaded_queue_;
 }
 
-void createColorMaterial(const std::string& name, const Ogre::ColourValue& color)
+void VisualizationManager::lockRender()
+{
+  private_->render_mutex_.lock();
+}
+
+void VisualizationManager::unlockRender()
+{
+  private_->render_mutex_.unlock();
+}
+
+ros::CallbackQueueInterface* VisualizationManager::getUpdateQueue()
+{
+  return ros::getGlobalCallbackQueue();
+}
+
+void VisualizationManager::startUpdate()
+{
+  float interval = 1000.0 / float(fps_property_->getInt());
+  update_timer_->start( interval );
+}
+
+void VisualizationManager::stopUpdate()
+{
+  update_timer_->stop();
+}
+
+void createColorMaterial(const std::string& name, const Ogre::ColourValue& color, bool use_self_illumination)
 {
   Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create( name, ROS_PACKAGE_NAME );
-    mat->setAmbient(color * 0.5f);
-    mat->setDiffuse(color);
+  mat->setAmbient(color * 0.5f);
+  mat->setDiffuse(color);
+  if( use_self_illumination )
+  {
     mat->setSelfIllumination(color);
-    mat->setLightingEnabled(true);
-    mat->setReceiveShadows(false);
+  }
+  mat->setLightingEnabled(true);
+  mat->setReceiveShadows(false);
 }
 
 void VisualizationManager::createColorMaterials()
 {
-  createColorMaterial("RVIZ/Red", Ogre::ColourValue(1.0f, 0.0f, 0.0f, 1.0f));
-  createColorMaterial("RVIZ/Green", Ogre::ColourValue(0.0f, 1.0f, 0.0f, 1.0f));
-  createColorMaterial("RVIZ/Blue", Ogre::ColourValue(0.0f, 0.0f, 1.0f, 1.0f));
-  createColorMaterial("RVIZ/Cyan", Ogre::ColourValue(0.0f, 1.0f, 1.0f, 1.0f));
-}
-
-void VisualizationManager::getDisplayNames(S_string& displays)
-{
-  V_DisplayWrapper::iterator vis_it = displays_.begin();
-  V_DisplayWrapper::iterator vis_end = displays_.end();
-  for ( ; vis_it != vis_end; ++vis_it )
-  {
-    displays.insert((*vis_it)->getName());
-  }
+  createColorMaterial("RVIZ/Red", Ogre::ColourValue(1.0f, 0.0f, 0.0f, 1.0f), true);
+  createColorMaterial("RVIZ/Green", Ogre::ColourValue(0.0f, 1.0f, 0.0f, 1.0f), true);
+  createColorMaterial("RVIZ/Blue", Ogre::ColourValue(0.0f, 0.0f, 1.0f, 1.0f), true);
+  createColorMaterial("RVIZ/Cyan", Ogre::ColourValue(0.0f, 1.0f, 1.0f, 1.0f), true);
+  createColorMaterial("RVIZ/ShadedRed", Ogre::ColourValue(1.0f, 0.0f, 0.0f, 1.0f), false);
+  createColorMaterial("RVIZ/ShadedGreen", Ogre::ColourValue(0.0f, 1.0f, 0.0f, 1.0f), false);
+  createColorMaterial("RVIZ/ShadedBlue", Ogre::ColourValue(0.0f, 0.0f, 1.0f, 1.0f), false);
+  createColorMaterial("RVIZ/ShadedCyan", Ogre::ColourValue(0.0f, 1.0f, 1.0f, 1.0f), false);
 }
 
 void VisualizationManager::queueRender()
@@ -295,51 +302,33 @@ void VisualizationManager::queueRender()
   render_requested_ = 1;
 }
 
-void VisualizationManager::onUpdate( wxTimerEvent& event )
+void VisualizationManager::onUpdate()
 {
-  if (disable_update_)
-  {
-    return;
-  }
-
-  disable_update_ = true;
-
-  tinyros::Time update_start = tinyros::Time::now();
-
-  tinyros::Duration wall_diff = tinyros::Time::now() - last_update_wall_time_;
-  tinyros::Duration ros_diff = tinyros::Time::now() - last_update_ros_time_;
+  ros::WallDuration wall_diff = ros::WallTime::now() - last_update_wall_time_;
+  ros::Duration ros_diff = ros::Time::now() - last_update_ros_time_;
   float wall_dt = wall_diff.toSec();
   float ros_dt = ros_diff.toSec();
+  last_update_ros_time_ = ros::Time::now();
+  last_update_wall_time_ = ros::WallTime::now();
 
-  if (ros_dt < 0.0)
+  if(ros_dt < 0.0)
   {
     resetTime();
   }
 
-  last_update_ros_time_ = tinyros::Time::now();
-  last_update_wall_time_ = tinyros::Time::now();
+  ros::spinOnce();
 
-  V_DisplayWrapper::iterator vis_it = displays_.begin();
-  V_DisplayWrapper::iterator vis_end = displays_.end();
-  for ( ; vis_it != vis_end; ++vis_it )
-  {
-    Display* display = (*vis_it)->getDisplay();
+  Q_EMIT preUpdate();
 
-    if ( display && display->isEnabled() )
-    {
-      display->update( wall_dt, ros_dt );
-    }
-  }
+  frame_manager_->update();
 
-  update_queue_.callAvailable(ros::WallDuration());
+  root_display_group_->update( wall_dt, ros_dt );
 
-  updateRelativeNode();
-
-  getCurrentCamera()->update();
+  view_manager_->update(wall_dt, ros_dt);
 
   time_update_timer_ += wall_dt;
 
-  if ( time_update_timer_ > 0.1f )
+  if( time_update_timer_ > 0.1f )
   {
     time_update_timer_ = 0.0f;
 
@@ -348,7 +337,7 @@ void VisualizationManager::onUpdate( wxTimerEvent& event )
 
   frame_update_timer_ += wall_dt;
 
-  if (frame_update_timer_ > 1.0f)
+  if(frame_update_timer_ > 1.0f)
   {
     frame_update_timer_ = 0.0f;
 
@@ -356,616 +345,152 @@ void VisualizationManager::onUpdate( wxTimerEvent& event )
   }
 
   selection_manager_->update();
-  property_manager_->update();
-  tool_property_manager_->update();
 
-  current_tool_->update(wall_dt, ros_dt);
-
-  render_timer_ += wall_dt;
-  if (render_timer_ > 0.1f)
+  if( tool_manager_->getCurrentTool() )
   {
-    render_requested_ = 1;
+    tool_manager_->getCurrentTool()->update(wall_dt, ros_dt);
   }
 
-  if (!skip_render_)
+  if ( view_manager_ &&
+        view_manager_->getCurrent() &&
+        view_manager_->getCurrent()->getCamera() )
   {
-    // Cap at 60fps
-    if (render_requested_ && render_timer_ > 0.016f)
-    {
-      render_requested_ = 0;
-      render_timer_ = 0.0f;
-
-      std::scoped_lock lock(render_mutex_);
-
-      tinyros::Time start = tinyros::Time::now();
-      ogre_root_->renderOneFrame();
-      tinyros::Time end = tinyros::Time::now();
-      tinyros::Duration d = end - start;
-      //tinyros_log_debug("Render took [%f] msec", d.toSec() * 1000.0f);
-      if (d.toSec() > 0.033f)
-      {
-        skip_render_ = floor(d.toSec() / 0.033f);
-      }
-    }
-  }
-  else
-  {
-    --skip_render_;
+    directional_light_->setDirection(view_manager_->getCurrent()->getCamera()->getDerivedDirection());
   }
 
-  tinyros::Time update_end = tinyros::Time::now();
-  if ((update_end - update_start).toSec() > 0.016f)
-  {
-    wxTheApp->Yield(true);
-  }
+  frame_count_++;
 
-  disable_update_ = false;
+  if ( render_requested_ || wall_dt > 0.01 )
+  {
+    render_requested_ = 0;
+    boost::mutex::scoped_lock lock(private_->render_mutex_);
+    ogre_root_->renderOneFrame();
+  }
 }
 
 void VisualizationManager::updateTime()
 {
-  if ( ros_time_begin_.isZero() )
+  if( ros_time_begin_.isZero() )
   {
-    ros_time_begin_ = tinyros::Time::now();
+    ros_time_begin_ = ros::Time::now();
   }
 
-  ros_time_elapsed_ = tinyros::Time::now() - ros_time_begin_;
+  ros_time_elapsed_ = ros::Time::now() - ros_time_begin_;
 
-  if ( wall_clock_begin_.isZero() )
+  if( wall_clock_begin_.isZero() )
   {
-    wall_clock_begin_ = tinyros::Time::now();
+    wall_clock_begin_ = ros::WallTime::now();
   }
 
-  wall_clock_elapsed_ = tinyros::Time::now() - wall_clock_begin_;
-
-  time_changed_();
+  wall_clock_elapsed_ = ros::WallTime::now() - wall_clock_begin_;
 }
 
 void VisualizationManager::updateFrames()
 {
   typedef std::vector<std::string> V_string;
   V_string frames;
-  tf_->getFrameStrings( frames );
-  std::sort(frames.begin(), frames.end());
+  frame_manager_->getTFClient()->getFrameStrings( frames );
 
-  EditEnumPropertyPtr target_prop = target_frame_property_.lock();
-  EditEnumPropertyPtr fixed_prop = fixed_frame_property_.lock();
-  TINYROS_ASSERT(target_prop);
-  TINYROS_ASSERT(fixed_prop);
-
-  if (frames != available_frames_)
+  // Check the fixed frame to see if it's ok
+  std::string error;
+  if( frame_manager_->frameHasProblems( getFixedFrame().toStdString(), ros::Time(), error ))
   {
-    bool target = property_manager_->getPropertyGrid()->GetSelectedProperty() != target_prop->getPGProperty();
-    bool fixed = property_manager_->getPropertyGrid()->GetSelectedProperty() != fixed_prop->getPGProperty();
-
-    if (target)
+    if( frames.empty() )
     {
-      target_prop->clear();
+      // fixed_prop->setToWarn();
+      std::stringstream ss;
+      ss << "No tf data.  Actual error: " << error;
+      global_status_->setStatus( StatusProperty::Warn, "Fixed Frame", QString::fromStdString( ss.str() ));
     }
-
-    if (fixed)
+    else
     {
-      fixed_prop->clear();
+      // fixed_prop->setToError();
+      global_status_->setStatus( StatusProperty::Error, "Fixed Frame", QString::fromStdString( error ));
     }
-
-    V_string::iterator it = frames.begin();
-    V_string::iterator end = frames.end();
-    for (; it != end; ++it)
-    {
-      const std::string& frame = *it;
-
-      if (frame.empty())
-      {
-        continue;
-      }
-
-      if (target)
-      {
-        target_prop->addOption(frame);
-      }
-
-      if (fixed)
-      {
-        fixed_prop->addOption(frame);
-      }
-    }
-
-    available_frames_ = frames;
-
-    frames_changed_(frames);
   }
+  else
+  {
+    // fixed_prop->setToOK();
+    global_status_->setStatus( StatusProperty::Ok, "Fixed Frame", "OK" );
+  }
+}
+
+tf::TransformListener* VisualizationManager::getTFClient() const
+{
+  return frame_manager_->getTFClient();
 }
 
 void VisualizationManager::resetTime()
 {
-  skip_render_ = 0;
-  resetDisplays();
-  tf_->clear();
-  threaded_tf_->clear();
+  root_display_group_->reset();
+  frame_manager_->getTFClient()->clear();
 
-  ros_time_begin_ = tinyros::Time();
-  wall_clock_begin_ = tinyros::Time();
+  ros_time_begin_ = ros::Time();
+  wall_clock_begin_ = ros::WallTime();
 
   queueRender();
 }
 
-void VisualizationManager::onDisplayCreated(DisplayWrapper* wrapper)
+void VisualizationManager::addDisplay( Display* display, bool enabled )
 {
-  Display* display = wrapper->getDisplay();
-  display->setRenderCallback( std::bind( &VisualizationManager::queueRender, this ) );
-  display->setLockRenderCallback( std::bind( &VisualizationManager::lockRender, this ) );
-  display->setUnlockRenderCallback( std::bind( &VisualizationManager::unlockRender, this ) );
-
-  display->setTargetFrame( target_frame_ );
-  display->setFixedFrame( fixed_frame_ );
-}
-
-bool VisualizationManager::addDisplay(DisplayWrapper* wrapper, bool enabled)
-{
-  if (getDisplayWrapper(wrapper->getName()))
-  {
-    tinyros_log_error("Display of name [%s] already exists", wrapper->getName().c_str());
-    return false;
-  }
-
-  display_adding_(wrapper);
-  displays_.push_back(wrapper);
-
-  wrapper->getDisplayCreatedSignal().connect(std::bind(&VisualizationManager::onDisplayCreated, this, std::placeholders::_1));
-  wrapper->setPropertyManager( property_manager_, CategoryPropertyWPtr() );
-  wrapper->createDisplay();
-
-  display_added_(wrapper);
-
-  if (wrapper->getDisplay())
-  {
-    wrapper->getDisplay()->setEnabled(enabled);
-  }
-
-  return true;
-}
-
-void VisualizationManager::removeDisplay( DisplayWrapper* display )
-{
-  V_DisplayWrapper::iterator it = std::find(displays_.begin(), displays_.end(), display);
-  TINYROS_ASSERT( it != displays_.end() );
-
-  display_removing_(display);
-
-  displays_.erase( it );
-
-  display_removed_(display);
-
-  delete display;
-
-  queueRender();
+  root_display_group_->addDisplay( display );
+  display->initialize( this );
+  display->setEnabled( enabled );
 }
 
 void VisualizationManager::removeAllDisplays()
 {
-  displays_removing_(displays_);
-
-  while (!displays_.empty())
-  {
-    removeDisplay(displays_.back());
-  }
-
-  displays_removed_(V_DisplayWrapper());
+  root_display_group_->removeAllDisplays();
 }
 
-void VisualizationManager::removeDisplay( const std::string& name )
+void VisualizationManager::emitStatusUpdate( const QString& message )
 {
-  DisplayWrapper* display = getDisplayWrapper( name );
-
-  if ( !display )
-  {
-    return;
-  }
-
-  removeDisplay( display );
+  Q_EMIT statusUpdate( message );
 }
 
-void VisualizationManager::resetDisplays()
+void VisualizationManager::load( const Config& config )
 {
-  V_DisplayWrapper::iterator vis_it = displays_.begin();
-  V_DisplayWrapper::iterator vis_end = displays_.end();
-  for ( ; vis_it != vis_end; ++vis_it )
-  {
-    Display* display = (*vis_it)->getDisplay();
+  stopUpdate();
 
-    if (display)
-    {
-      display->reset();
-    }
-  }
+  emitStatusUpdate( "Creating displays" );
+  root_display_group_->load( config );
+
+  emitStatusUpdate( "Creating tools" );
+  tool_manager_->load( config.mapGetChild( "Tools" ));
+
+  emitStatusUpdate( "Creating views" );
+  view_manager_->load( config.mapGetChild( "Views" ));
+
+  startUpdate();
 }
 
-void VisualizationManager::addTool( Tool* tool )
+void VisualizationManager::save( Config config ) const
 {
-  tools_.push_back( tool );
-
-  tool_added_(tool);
+  root_display_group_->save( config );
+  tool_manager_->save( config.mapMakeChild( "Tools" ));
+  view_manager_->save( config.mapMakeChild( "Views" ));
 }
 
-void VisualizationManager::setCurrentTool( Tool* tool )
+Display* VisualizationManager::createDisplay( const QString& class_lookup_name,
+                                              const QString& name,
+                                              bool enabled )
 {
-  if ( current_tool_ )
-  {
-    current_tool_->deactivate();
-  }
-
-  current_tool_ = tool;
-  current_tool_->activate();
-
-  tool_changed_(tool);
-}
-
-void VisualizationManager::setDefaultTool( Tool* tool )
-{
-  default_tool_ = tool;
-}
-
-Tool* VisualizationManager::getTool( int index )
-{
-  TINYROS_ASSERT( index >= 0 );
-  TINYROS_ASSERT( index < (int)tools_.size() );
-
-  return tools_[ index ];
-}
-
-DisplayWrapper* VisualizationManager::getDisplayWrapper( const std::string& name )
-{
-  V_DisplayWrapper::iterator vis_it = displays_.begin();
-  V_DisplayWrapper::iterator vis_end = displays_.end();
-  for ( ; vis_it != vis_end; ++vis_it )
-  {
-    DisplayWrapper* wrapper = *vis_it;
-    if ( wrapper->getName() == name )
-    {
-      return wrapper;
-    }
-  }
-
-  return 0;
-}
-
-DisplayWrapper* VisualizationManager::getDisplayWrapper( Display* display )
-{
-  V_DisplayWrapper::iterator vis_it = displays_.begin();
-  V_DisplayWrapper::iterator vis_end = displays_.end();
-  for ( ; vis_it != vis_end; ++vis_it )
-  {
-    DisplayWrapper* wrapper = *vis_it;
-    if ( wrapper->getDisplay() == display )
-    {
-      return wrapper;
-    }
-  }
-
-  return 0;
-}
-
-#define CAMERA_TYPE wxT("Camera Type")
-#define CAMERA_CONFIG wxT("Camera Config")
-
-void VisualizationManager::loadGeneralConfig( const std::shared_ptr<wxConfigBase>& config, const StatusCallback& cb )
-{
-  // Legacy... read camera config from the general config (camera config is now saved in the display config).
-  /// \todo Remove this once some time has passed
-  wxString camera_type;
-  if (config->Read(CAMERA_TYPE, &camera_type))
-  {
-    if (setCurrentCamera((const char*)camera_type.fn_str()))
-    {
-      wxString camera_config;
-      if (config->Read(CAMERA_CONFIG, &camera_config))
-      {
-        getCurrentCamera()->fromString((const char*)camera_config.fn_str());
-      }
-    }
-  }
-
-  if (cb)
-  {
-    cb("Loading plugins");
-  }
-
-  plugin_manager_->loadConfig(config);
-
-  general_config_loaded_(config);
-}
-
-void VisualizationManager::saveGeneralConfig( const std::shared_ptr<wxConfigBase>& config )
-{
-  plugin_manager_->saveConfig(config);
-  general_config_saving_(config);
-}
-
-void VisualizationManager::loadDisplayConfig( const std::shared_ptr<wxConfigBase>& config, const StatusCallback& cb )
-{
-  disable_update_ = true;
-
-  if (cb)
-  {
-    cb("Creating displays");
-  }
-
-  int i = 0;
-  while (1)
-  {
-    wxString name, package, class_name, type;
-    name.Printf( wxT("Display%d/Name"), i );
-    package.Printf( wxT("Display%d/Package"), i );
-    class_name.Printf( wxT("Display%d/ClassName"), i );
-    type.Printf(wxT("Display%d/Type"), i);
-
-    wxString vis_name, vis_package, vis_class, vis_type;
-    if (!config->Read(name, &vis_name))
-    {
-      break;
-    }
-
-    if (!config->Read(type, &vis_type))
-    {
-      if (!config->Read(package, &vis_package))
-      {
-        break;
-      }
-
-      if (!config->Read(class_name, &vis_class))
-      {
-        break;
-      }
-    }
-
-    // Legacy support, for loading old config files
-    if (!vis_type.IsEmpty())
-    {
-      std::string type = (const char*)vis_type.char_str();
-      PluginPtr plugin = plugin_manager_->getPluginByDisplayName(type);
-      if (plugin)
-      {
-        const DisplayTypeInfoPtr& info = plugin->getDisplayTypeInfoByDisplayName(type);
-        createDisplay(plugin->getPackageName(), info->class_name, (const char*)vis_name.char_str(), false);
-      }
-    }
-    else
-    {
-      createDisplay((const char*)vis_package.char_str(), (const char*)vis_class.char_str(), (const char*)vis_name.char_str(), false);
-    }
-
-    ++i;
-  }
-
-  property_manager_->load( config, cb );
-  tool_property_manager_->load( config, cb );
-
-  wxString camera_type;
-  if (config->Read(CAMERA_TYPE, &camera_type))
-  {
-    if (setCurrentCamera((const char*)camera_type.fn_str()))
-    {
-      wxString camera_config;
-      if (config->Read(CAMERA_CONFIG, &camera_config))
-      {
-        getCurrentCamera()->fromString((const char*)camera_config.fn_str());
-      }
-    }
-  }
-
-  displays_config_loaded_(config);
-
-  disable_update_ = false;
-}
-
-void VisualizationManager::saveDisplayConfig( const std::shared_ptr<wxConfigBase>& config )
-{
-  int i = 0;
-  V_DisplayWrapper::iterator vis_it = displays_.begin();
-  V_DisplayWrapper::iterator vis_end = displays_.end();
-  for ( ; vis_it != vis_end; ++vis_it, ++i )
-  {
-    DisplayWrapper* wrapper = *vis_it;
-
-    wxString name, package, class_name;
-    name.Printf( wxT("Display%d/Name"), i );
-    package.Printf( wxT("Display%d/Package"), i );
-    class_name.Printf( wxT("Display%d/ClassName"), i );
-    config->Write( name, wxString::FromAscii( wrapper->getName().c_str() ) );
-    config->Write( package, wxString::FromAscii( wrapper->getPackage().c_str() ) );
-    config->Write( class_name, wxString::FromAscii( wrapper->getClassName().c_str() ) );
-  }
-
-  property_manager_->save( config );
-  tool_property_manager_->save( config );
-
-  if (getCurrentCamera())
-  {
-    config->Write(CAMERA_TYPE, wxString::FromAscii(getCurrentCameraType()));
-    config->Write(CAMERA_CONFIG, wxString::FromAscii(getCurrentCamera()->toString().c_str()));
-  }
-
-  displays_config_saving_(config);
-}
-
-DisplayWrapper* VisualizationManager::createDisplay( const std::string& package, const std::string& class_name, const std::string& name, bool enabled )
-{
-  PluginPtr plugin = plugin_manager_->getPluginByPackage(package);
-  if (!plugin)
-  {
-    tinyros_log_error("Package [%s] does not have any plugins loaded available, for display of type [%s], and name [%s]", package.c_str(), class_name.c_str(), name.c_str());
-  }
-
-  DisplayWrapper* wrapper = new DisplayWrapper(package, class_name, plugin, name, this);
-  if (addDisplay(wrapper, enabled))
-  {
-    return wrapper;
-  }
-  else
-  {
-    delete wrapper;
-    return 0;
-  }
-}
-
-void VisualizationManager::setTargetFrame( const std::string& frame )
-{
-  std::string remapped_name = tf::remap(tf_->getTFPrefix(), frame);
-
-  if (target_frame_ == remapped_name)
-  {
-    return;
-  }
-
-  target_frame_ = remapped_name;
-
-  V_DisplayWrapper::iterator it = displays_.begin();
-  V_DisplayWrapper::iterator end = displays_.end();
-  for ( ; it != end; ++it )
-  {
-    Display* display = (*it)->getDisplay();
-
-    if (display)
-    {
-      display->setTargetFrame(target_frame_);
-    }
-  }
-
-  propertyChanged(target_frame_property_);
-
-  updateRelativeNode();
-
-  if ( getCurrentCamera() )
-  {
-    getCurrentCamera()->lookAt( target_relative_node_->getPosition() );
-  }
-}
-
-void VisualizationManager::setFixedFrame( const std::string& frame )
-{
-  std::string remapped_name = tf::remap(tf_->getTFPrefix(), frame);
-
-  if (fixed_frame_ == remapped_name)
-  {
-    return;
-  }
-
-  fixed_frame_ = remapped_name;
-
-  V_DisplayWrapper::iterator it = displays_.begin();
-  V_DisplayWrapper::iterator end = displays_.end();
-  for ( ; it != end; ++it )
-  {
-    Display* display = (*it)->getDisplay();
-
-    if (display)
-    {
-      display->setFixedFrame(fixed_frame_);
-    }
-  }
-
-  propertyChanged(fixed_frame_property_);
-}
-
-bool VisualizationManager::isValidDisplay(const DisplayWrapper* display)
-{
-  V_DisplayWrapper::iterator it = displays_.begin();
-  V_DisplayWrapper::iterator end = displays_.end();
-  for ( ; it != end; ++it )
-  {
-    if (display == (*it))
-    {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-void VisualizationManager::moveDisplayUp(DisplayWrapper* display)
-{
-  V_DisplayWrapper::iterator it = displays_.begin();
-  V_DisplayWrapper::iterator end = displays_.end();
-  for ( ; it != end; ++it )
-  {
-    if (display == *it)
-    {
-      if (it != displays_.begin())
-      {
-        uint32_t index = it - displays_.begin();
-        std::swap(displays_[index], displays_[index - 1]);
-      }
-
-      break;
-    }
-  }
-}
-
-void VisualizationManager::moveDisplayDown(DisplayWrapper* display)
-{
-  V_DisplayWrapper::iterator it = displays_.begin();
-  V_DisplayWrapper::iterator end = displays_.end();
-  for ( ; it != end; ++it )
-  {
-    if (display == *it)
-    {
-      if (it != (displays_.end() - 1))
-      {
-        uint32_t index = it - displays_.begin();
-        std::swap(displays_[index], displays_[index + 1]);
-      }
-
-      break;
-    }
-  }
-}
-
-void VisualizationManager::updateRelativeNode()
-{
-  tinyros::tf::Stamped<tinyros::tf::Pose> pose(tinyros::tf::Transform( tinyros::tf::Quaternion( 0.0f, 0.0f, 0.0f, 1.0f ), tinyros::tf::Vector3( 0.0f, 0.0f, 0.0f ) ),
-                              tinyros::Time(), target_frame_ );
-
-  typedef std::vector<std::string> V_string;
-  V_string frames;
-  tf_->getFrameStrings( frames );
-
-  bool has_fixed_frame = std::find( frames.begin(), frames.end(), fixed_frame_ ) != frames.end();
-  bool has_target_frame = std::find( frames.begin(), frames.end(), target_frame_ ) != frames.end();
-
-  if (has_fixed_frame && has_target_frame && tf_->canTransform(fixed_frame_, target_frame_, ros::Time()))
-  {
-    try
-    {
-      tf_->transformPose( fixed_frame_, pose, pose );
-    }
-    catch(tinyros::tf::TransformException& e)
-    {
-      tinyros_log_error( "Error transforming from frame '%s' to frame '%s': %s", target_frame_.c_str(), fixed_frame_.c_str(), e.what() );
-    }
-
-    Ogre::Vector3 position = Ogre::Vector3( pose.getOrigin().x(), pose.getOrigin().y(), pose.getOrigin().z() );
-    robotToOgre( position );
-
-    tinyros::tf::Quaternion quat;
-    pose.getBasis().getRotation( quat );
-    Ogre::Quaternion orientation( Ogre::Quaternion::IDENTITY );
-    ogreToRobot( orientation );
-    orientation = Ogre::Quaternion( quat.w(), quat.x(), quat.y(), quat.z() ) * orientation;
-    robotToOgre( orientation );
-
-    target_relative_node_->setPosition( position );
-    target_relative_node_->setOrientation( orientation );
-  }
+  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+  Display* new_display = root_display_group_->createDisplay( class_lookup_name );
+  addDisplay( new_display, enabled );
+  new_display->setName( name );
+  QApplication::restoreOverrideCursor();
+  return new_display;
 }
 
 double VisualizationManager::getWallClock()
 {
-  return tinyros::Time::now().toSec();
+  return ros::WallTime::now().toSec();
 }
 
 double VisualizationManager::getROSTime()
 {
-  return (ros_time_begin_ + ros_time_elapsed_).toSec();
+  return frame_manager_->getTime().toSec();
 }
 
 double VisualizationManager::getWallClockElapsed()
@@ -975,148 +500,106 @@ double VisualizationManager::getWallClockElapsed()
 
 double VisualizationManager::getROSTimeElapsed()
 {
-  return ros_time_elapsed_.toSec();
+  return (frame_manager_->getTime() - ros_time_begin_).toSec();
 }
 
-void VisualizationManager::setBackgroundColor(const Color& c)
+void VisualizationManager::updateBackgroundColor()
 {
-  background_color_ = c;
-
-  render_panel_->getViewport()->setBackgroundColour(Ogre::ColourValue(c.r_, c.g_, c.b_, 1.0f));
-
-  propertyChanged(background_color_property_);
+  render_panel_->setBackgroundColor( qtToOgre( background_color_property_->getColor() ));
 
   queueRender();
 }
 
-const Color& VisualizationManager::getBackgroundColor()
+void VisualizationManager::updateFps()
 {
-  return background_color_;
+  if ( update_timer_->isActive() )
+  {
+    startUpdate();
+  }
 }
 
-void VisualizationManager::handleChar( wxKeyEvent& event )
+void VisualizationManager::handleMouseEvent( const ViewportMouseEvent& vme )
 {
-  if ( event.GetKeyCode() == WXK_ESCAPE )
-  {
-    setCurrentTool( getDefaultTool() );
+  //process pending mouse events
+  Tool* current_tool = tool_manager_->getCurrentTool();
 
-    return;
-  }
-
-  char key = event.GetKeyCode();
-  V_Tool::iterator it = tools_.begin();
-  V_Tool::iterator end = tools_.end();
-  for ( ; it != end; ++it )
+  int flags = 0;
+  if( current_tool )
   {
-    Tool* tool = *it;
-    if ( tool->getShortcutKey() == key && tool != getCurrentTool() )
+    ViewportMouseEvent _vme = vme;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    QWindow* window = vme.panel->windowHandle();
+    if (window)
     {
-      setCurrentTool( tool );
-      return;
+        double pixel_ratio = window->devicePixelRatio();
+        _vme.x = static_cast<int>(pixel_ratio * _vme.x);
+        _vme.y = static_cast<int>(pixel_ratio * _vme.y);
+        _vme.last_x = static_cast<int>(pixel_ratio * _vme.last_x);
+        _vme.last_y = static_cast<int>(pixel_ratio * _vme.last_y);
     }
+#endif
+    flags = current_tool->processMouseEvent( _vme );
+    vme.panel->setCursor( current_tool->getCursor() );
   }
-
-  getCurrentTool()->processKeyEvent(event);
-}
-
-void VisualizationManager::addCamera(ogre_tools::CameraBase* camera, const std::string& name)
-{
-  camera_type_added_(camera, name);
-}
-
-void VisualizationManager::setCurrentCamera(int camera_type)
-{
-  if (camera_type == current_camera_type_)
+  else
   {
-    return;
+    vme.panel->setCursor( QCursor( Qt::ArrowCursor ) );
   }
 
-  ogre_tools::CameraBase* prev_camera = current_camera_;
-
-  bool set_from_old = false;
-
-  switch ( camera_type )
-  {
-  case camera_types::FPS:
-    {
-      if ( current_camera_ == orbit_camera_ )
-      {
-        set_from_old = true;
-      }
-
-      current_camera_ = fps_camera_;
-    }
-    break;
-
-  case camera_types::Orbit:
-    {
-      if ( current_camera_ == fps_camera_ )
-      {
-        set_from_old = true;
-      }
-
-      current_camera_ = orbit_camera_;
-    }
-    break;
-
-  case camera_types::TopDownOrtho:
-    {
-      current_camera_ = top_down_ortho_;
-    }
-    break;
-  }
-
-  if ( set_from_old )
-  {
-    current_camera_->setFrom( prev_camera );
-  }
-
-  current_camera_type_ = camera_type;
-  render_panel_->setCamera( current_camera_->getOgreCamera() );
-
-  camera_type_changed_(current_camera_);
-}
-
-bool VisualizationManager::setCurrentCamera(const std::string& camera_type)
-{
-  for (int i = 0; i < camera_types::Count; ++i)
-  {
-    if (g_camera_type_names[i] == camera_type)
-    {
-      setCurrentCamera(i);
-      return true;
-    }
-  }
-
-  return false;
-}
-
-const char* VisualizationManager::getCurrentCameraType()
-{
-  return g_camera_type_names[current_camera_type_];
-}
-
-void VisualizationManager::handleMouseEvent(ViewportMouseEvent& vme)
-{
-  int flags = getCurrentTool()->processMouseEvent(vme);
-
-  if ( flags & Tool::Render )
+  if( flags & Tool::Render )
   {
     queueRender();
   }
 
-  if ( flags & Tool::Finished )
+  if( flags & Tool::Finished )
   {
-    setCurrentTool( getDefaultTool() );
+    tool_manager_->setCurrentTool( tool_manager_->getDefaultTool() );
   }
+}
+
+void VisualizationManager::handleChar( QKeyEvent* event, RenderPanel* panel )
+{
+  tool_manager_->handleChar( event, panel );
 }
 
 void VisualizationManager::threadedQueueThreadFunc()
 {
   while (!shutting_down_)
   {
-    threaded_queue_.callOne(tinyros::Duration(0.1));
+    private_->threaded_queue_.callOne(ros::WallDuration(0.1));
   }
+}
+
+void VisualizationManager::notifyConfigChanged()
+{
+  Q_EMIT configChanged();
+}
+
+void VisualizationManager::onToolChanged( Tool* tool )
+{
+}
+
+void VisualizationManager::updateFixedFrame()
+{
+  QString frame = fixed_frame_property_->getFrame();
+
+  frame_manager_->setFixedFrame( frame.toStdString() );
+  root_display_group_->setFixedFrame( frame );
+}
+
+QString VisualizationManager::getFixedFrame() const
+{
+  return fixed_frame_property_->getFrame();
+}
+
+void VisualizationManager::setFixedFrame( const QString& frame )
+{
+  fixed_frame_property_->setValue( frame );
+}
+
+void VisualizationManager::setStatus( const QString & message )
+{
+  emitStatusUpdate( message );
 }
 
 } // namespace rviz

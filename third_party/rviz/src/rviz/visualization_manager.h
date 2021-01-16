@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, Willow Garage, Inc.
+ * Copyright (c) 2012, Willow Garage, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,259 +31,319 @@
 #ifndef RVIZ_VISUALIZATION_MANAGER_H_
 #define RVIZ_VISUALIZATION_MANAGER_H_
 
-#include "helpers/color.h"
-#include "properties/forwards.h"
-#include "thread_group.h"
+#include <deque>
 
-#include <wx/event.h>
-#include <wx/stopwatch.h>
+#include <ros/time.h>
 
-#include <tiny_ros/tf/signals.h>
+#include "rviz/bit_allocator.h"
+#include "rviz/config.h"
+#include "rviz/display_context.h"
 
-#include <vector>
-#include <map>
-#include <set>
-
-#include <tiny_ros/ros.h>
-#include <tiny_ros/tf/callback_queue.h>
-
-namespace ogre_tools
-{
-class wxOgreRenderWindow;
-class FPSCamera;
-class OrbitCamera;
-class CameraBase;
-class OrthoCamera;
-}
+class QKeyEvent;
+class QTimer;
 
 namespace Ogre
 {
 class Root;
 class SceneManager;
 class SceneNode;
-class Camera;
-class RaySceneQuery;
+class Light;
 }
 
-namespace tinyros
+namespace ros
 {
+class CallbackQueueInterface;
+}
+
 namespace tf
 {
 class TransformListener;
 }
-}
-
-class wxTimerEvent;
-class wxTimer;
-class wxPropertyGrid;
-class wxPropertyGridEvent;
-class wxConfigBase;
-class wxKeyEvent;
 
 namespace rviz
 {
 
-class PropertyManager;
-class SelectionManager;
-class RenderPanel;
+class ColorProperty;
 class Display;
-class Tool;
+class DisplayFactory;
+class DisplayGroup;
+class FrameManager;
+class Property;
+class IntProperty;
+class PropertyTreeModel;
+class RenderPanel;
+class SelectionManager;
+class StatusList;
+class TfFrameProperty;
 class ViewportMouseEvent;
 class WindowManagerInterface;
-class PluginManager;
+class Tool;
+class OgreRenderQueueClearer;
 
-typedef std::vector<std::string> V_string;
+class VisualizationManagerPrivate;
 
-class DisplayWrapper;
-typedef std::vector<DisplayWrapper*> V_DisplayWrapper;
-
-typedef tinyros::tf::Signal<DisplayWrapper*> DisplayWrapperSignal;
-typedef tinyros::tf::Signal<const V_DisplayWrapper&> DisplayWrappersSignal;
-typedef tinyros::tf::Signal<const V_string&> FramesChangedSignal;
-typedef tinyros::tf::Signal<const std::shared_ptr<wxConfigBase>&> ConfigSignal;
-typedef tinyros::tf::Signal<Tool*> ToolSignal;
-typedef tinyros::tf::Signal<ogre_tools::CameraBase*, const std::string&> CameraTypeAddedSignal;
-typedef tinyros::tf::Signal<ogre_tools::CameraBase*> CameraSignal;
-typedef tinyros::tf::Signal<> TimeSignal;
-
-class DisplayTypeInfo;
-typedef std::shared_ptr<DisplayTypeInfo> DisplayTypeInfoPtr;
-
-class VisualizationManager : public wxEvtHandler
+/**
+ * \brief The VisualizationManager class is the central manager class
+ *        of rviz, holding all the Displays, Tools, ViewControllers,
+ *        and other managers.
+ *
+ * It keeps the current view controller for the main render window.
+ * It has a timer which calls update() on all the displays.  It
+ * creates and holds pointers to the other manager objects:
+ * SelectionManager, FrameManager, the PropertyManager s, and
+ * Ogre::SceneManager.
+ *
+ * The "protected" members should probably all be "private", as
+ * VisualizationManager is not intended to be subclassed.
+ */
+class VisualizationManager: public DisplayContext
 {
+Q_OBJECT
 public:
   /**
    * \brief Constructor
+   * Creates managers and sets up global properties.
+   * @param render_panel a pointer to the main render panel widget of the app.
+   * @param wm a pointer to the window manager (which is really just a
+   *        VisualizationFrame, the top-level container widget of rviz).
+   * @param tf a pointer to tf::TransformListener which will be internally used by FrameManager.
    */
-  VisualizationManager(RenderPanel* render_panel, WindowManagerInterface* wm = 0);
+  VisualizationManager( RenderPanel* render_panel, WindowManagerInterface* wm = 0, boost::shared_ptr<tf::TransformListener> tf = boost::shared_ptr<tf::TransformListener>() );
+
+  /**
+   * \brief Destructor
+   * Stops update timers and destroys all displays, tools, and managers.
+   */
   virtual ~VisualizationManager();
 
-  void initialize(const StatusCallback& cb = StatusCallback());
+  /**
+   * \brief Do initialization that wasn't done in constructor.
+   * Initializes tool manager, view manager, selection manager.
+   */
+  void initialize();
+
+  /**
+   * \brief Start timers.
+   * Creates and starts the update and idle timers, both set to 30Hz (33ms).
+   */
   void startUpdate();
 
-  /**
-   * \brief Create and add a display to this panel, by type name
-   * @param type Type name of the display
-   * @param name Display name of the display
-   * @param enabled Whether to start enabled
-   * @return A pointer to the new display
+  /*
+   * \brief Stop the update timers. No Displays will be updated and no ROS
+   *        callbacks will be called during this period.
    */
-  DisplayWrapper* createDisplay( const std::string& package, const std::string& class_name, const std::string& name, bool enabled );
+  void stopUpdate();
 
   /**
-   * \brief Remove a display
-   * @param display The display to remove
+   * \brief Create and add a display to this panel, by class lookup name
+   * @param class_lookup_name "lookup name" of the Display subclass, for pluginlib.
+   *        Should be of the form "packagename/displaynameofclass", like "rviz/Image".
+   * @param name The name of this display instance shown on the GUI, like "Left arm camera".
+   * @param enabled Whether to start enabled
+   * @return A pointer to the new display.
    */
-  void removeDisplay( DisplayWrapper* display );
+  Display* createDisplay( const QString& class_lookup_name, const QString& name, bool enabled );
+
   /**
-   * \brief Remove a display by name
-   * @param name The name of the display to remove
+   * \brief Add a display to be managed by this panel
+   * @param display The display to be added
    */
-  void removeDisplay( const std::string& name );
+  void addDisplay( Display* display, bool enabled );
+
   /**
-   * \brief Remove all displays
+   * \brief Remove and delete all displays
    */
   void removeAllDisplays();
 
-  template< class T >
-  T* createTool( const std::string& name, char shortcut_key )
-  {
-    T* tool = new T( name, shortcut_key, this );
-    addTool( tool );
-
-    return tool;
-  }
-
-  void addTool( Tool* tool );
-  Tool* getCurrentTool() { return current_tool_; }
-  Tool* getTool( int index );
-  void setCurrentTool( Tool* tool );
-  void setDefaultTool( Tool* tool );
-  Tool* getDefaultTool() { return default_tool_; }
+  /** @brief Load the properties of each Display and most editable rviz data.
+   * 
+   * This is what is called when loading a "*.rviz" file.
+   *
+   * @param config The Config object to read from.  Expected to be a Config::Map type.
+   * @sa save()
+   */
+  void load( const Config& config );
 
   /**
-   * \brief Load general configuration
-   * @param config The wx config object to load from
+   * \brief Save the properties of each Display and most editable rviz
+   *        data.
+   * 
+   * This is what is called when saving a "*.vcg" file.
+   * \param config The object to write to.
+   * \sa loadDisplayConfig()
    */
-  void loadGeneralConfig( const std::shared_ptr<wxConfigBase>& config, const StatusCallback& cb = StatusCallback() );
-  /**
-   * \brief Save general configuration
-   * @param config The wx config object to save to
-   */
-  void saveGeneralConfig( const std::shared_ptr<wxConfigBase>& config );
-  /**
-   * \brief Load display configuration
-   * @param config The wx config object to load from
-   */
-  void loadDisplayConfig( const std::shared_ptr<wxConfigBase>& config, const StatusCallback& cb = StatusCallback() );
-  /**
-   * \brief Save display configuration
-   * @param config The wx config object to save to
-   */
-  void saveDisplayConfig( const std::shared_ptr<wxConfigBase>& config );
+  void save( Config config ) const;
 
+  /** @brief Return the fixed frame name.
+   * @sa setFixedFrame() */
+  QString getFixedFrame() const;
+
+  /** @brief Set the coordinate frame we should be transforming all fixed data into.
+   * @param frame The name of the frame -- must match the frame name broadcast to libTF
+   * @sa getFixedFrame() */
+  void setFixedFrame( const QString& frame );
+  
   /**
-   * \brief Set the coordinate frame we should be displaying in
-   * @param frame The string name -- must match the frame name broadcast to libTF
+   * @brief Convenience function: returns getFrameManager()->getTFClient().
    */
-  void setTargetFrame( const std::string& frame );
-  const std::string& getTargetFrame() { return target_frame_; }
+  tf::TransformListener* getTFClient() const;
 
   /**
-   * \brief Set the coordinate frame we should be transforming all fixed data to
-   * @param frame The string name -- must match the frame name broadcast to libTF
+   * @brief Returns the Ogre::SceneManager used for the main RenderPanel.
    */
-  void setFixedFrame( const std::string& frame );
-  const std::string& getFixedFrame() { return fixed_frame_; }
+  Ogre::SceneManager* getSceneManager() const { return scene_manager_; }
 
   /**
-   * \brief Performs a linear search to find a display wrapper based on its name
-   * @param name Name of the display to search for
+   * @brief Return the main RenderPanel.
    */
-  DisplayWrapper* getDisplayWrapper( const std::string& name );
+  RenderPanel* getRenderPanel() const { return render_panel_; }
 
   /**
-   * \brief Performs a linear search to find a display wrapper based on its display
-   * @param display Display to search for
+   * @brief Return the wall clock time, in seconds since 1970.
    */
-  DisplayWrapper* getDisplayWrapper( Display* display );
-
-  PropertyManager* getPropertyManager() { return property_manager_; }
-  PropertyManager* getToolPropertyManager() { return tool_property_manager_; }
-
-  bool isValidDisplay( const DisplayWrapper* display );
-
-  tinyros::tf::TransformListener* getTFClient() { return tf_; }
-  tinyros::tf::TransformListener* getThreadedTFClient() { return threaded_tf_; }
-  Ogre::SceneManager* getSceneManager() { return scene_manager_; }
-
-  Ogre::SceneNode* getTargetRelativeNode() { return target_relative_node_; }
-
-  RenderPanel* getRenderPanel() { return render_panel_; }
-
-  typedef std::set<std::string> S_string;
-  void getDisplayNames(S_string& displays);
-
-  void resetDisplays();
-
   double getWallClock();
+
+  /**
+   * @brief Return the ROS time, in seconds.
+   */
   double getROSTime();
+
+  /**
+   * @brief Return the wall clock time in seconds since the last reset.
+   */
   double getWallClockElapsed();
+
+  /**
+   * @brief Return the ROS time in seconds since the last reset.
+   */
   double getROSTimeElapsed();
 
-  void handleChar( wxKeyEvent& event );
-  void handleMouseEvent( ViewportMouseEvent& event );
+  /**
+   * @brief Handle a single key event for a given RenderPanel.
+   *
+   * If the key is Escape, switches to the default Tool (via
+   * getDefaultTool()).  All other key events are passed to the
+   * current Tool (via getCurrentTool()).
+   */
+  void handleChar( QKeyEvent* event, RenderPanel* panel );
 
-  void setBackgroundColor(const Color& c);
-  const Color& getBackgroundColor();
+  /**
+   * @brief Handle a mouse event.
+   *
+   * This just copies the given event into an event queue.  The events
+   * in the queue are processed by onUpdate() which is called from the
+   * main thread by a timer every 33ms.
+   */
+  void handleMouseEvent( const ViewportMouseEvent& event );
 
+  /**
+   * @brief Resets the wall and ROS elapsed time to zero and calls resetDisplays().
+   */
   void resetTime();
 
-  void moveDisplayUp(DisplayWrapper* display);
-  void moveDisplayDown(DisplayWrapper* display);
+  /**
+   * @brief Return a pointer to the SelectionManager.
+   */
+  SelectionManager* getSelectionManager() const { return selection_manager_; }
 
-  ogre_tools::CameraBase* getCurrentCamera() { return current_camera_; }
-  const char* getCurrentCameraType();
-  bool setCurrentCamera(const std::string& camera_type);
-  void setCurrentCamera(int camera_type);
+  /** @brief Return a pointer to the ToolManager. */
+  virtual ToolManager* getToolManager() const { return tool_manager_; }
 
-  SelectionManager* getSelectionManager() { return selection_manager_; }
+  /** @brief Return a pointer to the ViewManager. */
+  virtual ViewManager* getViewManager() const { return view_manager_; }
 
-  void lockRender() { render_mutex_.lock(); }
-  void unlockRender() { render_mutex_.unlock(); }
+  /**
+   * @brief Lock a mutex to delay calls to Ogre::Root::renderOneFrame().
+   */
+  void lockRender();
+
+  /**
+   * @brief Unlock a mutex, allowing calls to Ogre::Root::renderOneFrame().
+   */
+  void unlockRender();
+
   /**
    * \brief Queues a render.  Multiple calls before a render happens will only cause a single render.
    * \note This function can be called from any thread.
    */
   void queueRender();
 
-  WindowManagerInterface* getWindowManager() { return window_manager_; }
+  /**
+   * @brief Return the window manager, if any.
+   */
+  WindowManagerInterface* getWindowManager() const { return window_manager_; }
 
-  tinyros::tf::CallbackQueueInterface* getUpdateQueue() { return &update_queue_; }
-  tinyros::tf::CallbackQueueInterface* getThreadedQueue() { return &threaded_queue_; }
+  /**
+   * @brief Return the CallbackQueue using the main GUI thread.
+   */
+  ros::CallbackQueueInterface* getUpdateQueue();
 
-  PluginManager* getPluginManager() { return plugin_manager_; }
+  /**
+   * @brief Return a CallbackQueue using a different thread than the main GUI one.
+   */
+  ros::CallbackQueueInterface* getThreadedQueue();
+
+  /** @brief Return the FrameManager instance. */
+  FrameManager* getFrameManager() const { return frame_manager_; }
+
+  /** @brief Return the current value of the frame count.
+   *
+   * The frame count is just a number which increments each time a
+   * frame is rendered.  This lets clients check if a new frame has
+   * been rendered since the last time they did something. */
+  uint64_t getFrameCount() const { return frame_count_; }
+
+  /** @brief Notify this VisualizationManager that something about its
+   * display configuration has changed. */
+  void notifyConfigChanged();
+
+  /** @brief Return a factory for creating Display subclasses based on a class id string. */
+  virtual DisplayFactory* getDisplayFactory() const { return display_factory_; }
+
+  PropertyTreeModel* getDisplayTreeModel() const { return display_property_tree_model_; }
+
+  /** @brief Emits statusUpdate() signal with the given @a message. */
+  void emitStatusUpdate( const QString& message );
+
+  virtual DisplayGroup* getRootDisplayGroup() const { return root_display_group_; }
+
+  virtual uint32_t getDefaultVisibilityBit() const { return default_visibility_bit_; }
+
+  virtual BitAllocator* visibilityBits() { return &visibility_bit_allocator_; }
+
+  virtual void setStatus( const QString & message );
+
+  virtual void setHelpPath( const QString& help_path ) { help_path_ = help_path; }
+  virtual QString getHelpPath() const { return help_path_; }
+
+Q_SIGNALS:
+
+  /** @brief Emitted before updating all Displays */
+  void preUpdate();
+
+  /** @brief Emitted whenever the display configuration changes. */
+  void configChanged();
+
+  /** @brief Emitted during file-loading and initialization to indicate progress. */
+  void statusUpdate( const QString& message );
+
+protected Q_SLOTS:
+  /** @brief Call update() on all managed objects.
+   *
+   * This is the central place where update() is called on most rviz
+   * objects.  Display objects, the FrameManager, the current
+   * ViewController, the SelectionManager, PropertyManager.  Also
+   * calls ros::spinOnce(), so any callbacks on the global
+   * CallbackQueue get called from here as well.
+   *
+   * It is called at 30Hz from the update timer. */
+  void onUpdate();
+
+  void onToolChanged( Tool* );
 
 protected:
-  /**
-   * \brief Add a display to be managed by this panel
-   * @param display The display to be added
-   */
-  bool addDisplay(DisplayWrapper* wrapper, bool enabled);
-
-  void addCamera(ogre_tools::CameraBase* camera, const std::string& name);
-
-  /// Called from the update timer
-  void onUpdate( wxTimerEvent& event );
-
-  void updateRelativeNode();
-
-  void incomingROSTime();
-
   void updateTime();
   void updateFrames();
-
-  void onDisplayCreated(DisplayWrapper* wrapper);
 
   void createColorMaterials();
 
@@ -292,104 +352,58 @@ protected:
   Ogre::Root* ogre_root_;                                 ///< Ogre Root
   Ogre::SceneManager* scene_manager_;                     ///< Ogre scene manager associated with this panel
 
-  wxTimer* update_timer_;                                 ///< Update timer.  Display::update is called on each display whenever this timer fires
-  tinyros::Time last_update_ros_time_;                        ///< Update stopwatch.  Stores how long it's been since the last update
-  tinyros::Time last_update_wall_time_;
+  QTimer* update_timer_;                                 ///< Update timer.  Display::update is called on each display whenever this timer fires
+  ros::Time last_update_ros_time_;                        ///< Update stopwatch.  Stores how long it's been since the last update
+  ros::WallTime last_update_wall_time_;
 
-  tinyros::tf::CallbackQueue update_queue_;
-  tinyros::tf::CallbackQueue threaded_queue_;
-  rviz::thread_group threaded_queue_threads_;
-  bool shutting_down_;
-  tinyros::tf::TransformListener* tf_;
-  tinyros::tf::TransformListener* threaded_tf_;
+  volatile bool shutting_down_;
 
+  PropertyTreeModel* display_property_tree_model_;
+  DisplayGroup* root_display_group_;
 
-  V_DisplayWrapper displays_;                          ///< Our list of displays
+  ToolManager* tool_manager_;
+  ViewManager* view_manager_;
 
-  typedef std::vector< Tool* > V_Tool;
-  V_Tool tools_;
-  Tool* current_tool_;
-  Tool* default_tool_;
-
-  std::string target_frame_;                              ///< Target coordinate frame we're displaying everything in
-  std::string fixed_frame_;                               ///< Frame to transform fixed data to
-
-  PropertyManager* property_manager_;
-  PropertyManager* tool_property_manager_;
-  EditEnumPropertyWPtr target_frame_property_;
-  EditEnumPropertyWPtr fixed_frame_property_;
-
-  V_string available_frames_;
+  Property* global_options_;
+  TfFrameProperty* fixed_frame_property_;          ///< Frame to transform fixed data to
+  StatusList* global_status_;
+  IntProperty* fps_property_;
 
   RenderPanel* render_panel_;
 
-  Ogre::SceneNode* target_relative_node_;
+  ros::WallTime wall_clock_begin_;
+  ros::Time ros_time_begin_;
+  ros::WallDuration wall_clock_elapsed_;
+  ros::Duration ros_time_elapsed_;
 
-  tinyros::Time wall_clock_begin_;
-  tinyros::Time ros_time_begin_;
-  tinyros::Duration wall_clock_elapsed_;
-  tinyros::Duration ros_time_elapsed_;
-
-  Color background_color_;
-  ColorPropertyWPtr background_color_property_;
+  ColorProperty* background_color_property_;
 
   float time_update_timer_;
   float frame_update_timer_;
 
-  ogre_tools::CameraBase* current_camera_;                ///< The current camera
-  int current_camera_type_;
-  ogre_tools::FPSCamera* fps_camera_;                     ///< FPS camera
-  ogre_tools::OrbitCamera* orbit_camera_;                 ///< Orbit camera
-  ogre_tools::OrthoCamera* top_down_ortho_;               ///< Top-down orthographic camera
-
   SelectionManager* selection_manager_;
 
-  std::mutex render_mutex_;
   uint32_t render_requested_;
-  float render_timer_;
-  int32_t skip_render_;
+  uint64_t frame_count_;
 
   WindowManagerInterface* window_manager_;
+  
+  FrameManager* frame_manager_;
 
-  PluginManager* plugin_manager_;
+  OgreRenderQueueClearer* ogre_render_queue_clearer_;
 
-  bool disable_update_;
-
-public:
-  FramesChangedSignal& getFramesChangedSignal() { return frames_changed_; }
-  DisplayWrapperSignal& getDisplayAddingSignal() { return display_adding_; }
-  DisplayWrapperSignal& getDisplayAddedSignal() { return display_added_; }
-  DisplayWrapperSignal& getDisplayRemovingSignal() { return display_removing_; }
-  DisplayWrapperSignal& getDisplayRemovedSignal() { return display_removed_; }
-  DisplayWrappersSignal& getDisplaysRemovingSignal() { return displays_removing_; }
-  DisplayWrappersSignal& getDisplaysRemovedSignal() { return displays_removed_; }
-  ConfigSignal& getDisplaysConfigLoadedSignal() { return displays_config_loaded_; }
-  ConfigSignal& getDisplaysConfigSavingSignal() { return displays_config_saving_; }
-  ConfigSignal& getGeneralConfigLoadedSignal() { return general_config_loaded_; }
-  ConfigSignal& getGeneralConfigSavingSignal() { return general_config_saving_; }
-  ToolSignal& getToolAddedSignal() { return tool_added_; }
-  ToolSignal& getToolChangedSignal() { return tool_changed_; }
-  CameraTypeAddedSignal& getCameraTypeAddedSignal() { return camera_type_added_; }
-  CameraSignal& getCameraTypeChangedSignal() { return camera_type_changed_; }
-  TimeSignal& getTimeChangedSignal() { return time_changed_; }
+private Q_SLOTS:
+  void updateFixedFrame();
+  void updateBackgroundColor();
+  void updateFps();
 
 private:
-  FramesChangedSignal frames_changed_;
-  DisplayWrapperSignal display_adding_;
-  DisplayWrapperSignal display_added_;
-  DisplayWrapperSignal display_removing_;
-  DisplayWrapperSignal display_removed_;
-  DisplayWrappersSignal displays_removing_;
-  DisplayWrappersSignal displays_removed_;
-  ConfigSignal displays_config_loaded_;
-  ConfigSignal displays_config_saving_;
-  ConfigSignal general_config_loaded_;
-  ConfigSignal general_config_saving_;
-  ToolSignal tool_added_;
-  ToolSignal tool_changed_;
-  CameraTypeAddedSignal camera_type_added_;
-  CameraSignal camera_type_changed_;
-  TimeSignal time_changed_;
+  DisplayFactory* display_factory_;
+  VisualizationManagerPrivate* private_;
+  uint32_t default_visibility_bit_;
+  BitAllocator visibility_bit_allocator_;
+  QString help_path_;
+  Ogre::Light* directional_light_;
 };
 
 }

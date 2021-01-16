@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, Willow Garage, Inc.
+ * Copyright (c) 2012, Willow Garage, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,97 +30,23 @@
 #ifndef RVIZ_SELECTION_PANEL_H
 #define RVIZ_SELECTION_PANEL_H
 
-#include "generated/rviz_generated.h"
-
-#include <mutex>
-
-#include <vector>
-#include <map>
-
-namespace ogre_tools
-{
-class wxOgreRenderWindow;
-class FPSCamera;
-class OrbitCamera;
-class CameraBase;
-class OrthoCamera;
-}
-
-namespace Ogre
-{
-class Root;
-class SceneManager;
-class Camera;
-class RaySceneQuery;
-class ParticleSystem;
-}
-
-class wxTimerEvent;
-class wxKeyEvent;
-class wxSizeEvent;
-class wxTimer;
-class wxPropertyGrid;
-class wxPropertyGridEvent;
-class wxConfigBase;
+#include "rviz/panel.h"
 
 namespace rviz
 {
 
-class VisualizationManager;
-class PropertyManager;
+class PropertyTreeWidget;
 
-class SelectionAddedArgs;
-class SelectionRemovedArgs;
-class SelectionSettingArgs;
-class SelectionSetArgs;
-
-/**
- * \class SelectionPanel
- *
- */
-class SelectionPanel : public wxPanel
+class SelectionPanel: public Panel
 {
+Q_OBJECT
 public:
-  /**
-   * \brief Constructor
-   *
-   * @param parent Parent window
-   * @return
-   */
-  SelectionPanel( wxWindow* parent );
-  virtual ~SelectionPanel();
+  SelectionPanel( QWidget* parent = 0 );
 
-  void initialize(VisualizationManager* manager);
+  virtual void onInitialize();
 
-  wxPropertyGrid* getPropertyGrid() { return property_grid_; }
-  VisualizationManager* getManager() { return manager_; }
-
-protected:
-  // wx callbacks
-  /// Called when a property from the wxPropertyGrid is changing
-  void onPropertyChanging( wxPropertyGridEvent& event );
-  /// Called when a property from the wxProperty
-  void onPropertyChanged( wxPropertyGridEvent& event );
-  /// Called when a property is selected
-  void onPropertySelected( wxPropertyGridEvent& event );
-
-  // Other callbacks
-  void onSelectionSetting(const SelectionSettingArgs& args);
-  void onSelectionSet(const SelectionSetArgs& args);
-  void onSelectionAdded(const SelectionAddedArgs& args);
-  void onSelectionRemoved(const SelectionRemovedArgs& args);
-
-  /// Called from the refresh timer
-  void onUpdate( wxTimerEvent& event );
-
-  wxPropertyGrid* property_grid_;
-  PropertyManager* property_manager_;
-
-  VisualizationManager* manager_;
-
-  wxTimer* refresh_timer_;
-
-  bool setting_;
+private:
+  PropertyTreeWidget* tree_widget_;
 };
 
 } // namespace rviz

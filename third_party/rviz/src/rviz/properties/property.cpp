@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, Willow Garage, Inc.
+ * Copyright (c) 2012, Willow Garage, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,828 +27,532 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "property.h"
-#include "ros_topic_property.h"
+#include <stdio.h> // for printf()
+#include <limits.h> // for INT_MIN and INT_MAX
 
-#include <wx/wx.h>
-#include <wx/propgrid/propgrid.h>
-#include <wx/propgrid/advprops.h>
-#include <wx/config.h>
+#include <QLineEdit>
+#include <QSpinBox>
+
+#include "rviz/properties/float_edit.h"
+#include "rviz/properties/property_tree_model.h"
+
+#include "rviz/properties/property.h"
 
 namespace rviz
 {
 
-wxPGProperty* getCategoryPGProperty(const CategoryPropertyWPtr& wprop)
+class FailureProperty: public Property
 {
-  CategoryPropertyPtr prop = wprop.lock();
+public:
+  virtual Property* subProp( const QString& sub_name ) { return this; }
+};
 
-  if (prop)
+/** @brief The property returned by subProp() when the requested
+ * name is not found. */
+Property* Property::failprop_ = new FailureProperty;
+
+Property::Property( const QString& name,
+                    const QVariant default_value,
+                    const QString& description,
+                    Property* parent,
+                    const char *changed_slot,
+                    QObject* receiver )
+  : value_( default_value )
+  , model_( 0 )
+  , child_indexes_valid_( false )
+  , parent_( 0 )
+  , description_( description )
+  , hidden_( false )
+  , is_read_only_( false )
+  , save_( true )
+{
+  setName( name );
+  if( parent )
   {
-    return prop->getPGProperty();
+    parent->addChild( this );
+  }
+  if( receiver == 0 )
+  {
+    receiver = parent;
+  }
+  if( receiver && changed_slot )
+  {
+    connect( this, SIGNAL( changed() ), receiver, changed_slot );
+  }
+}
+
+Property::~Property()
+{
+  // Disconnect myself from my parent.
+  if( getParent() )
+  {
+    getParent()->takeChild( this );
+  }
+  // Destroy my children.
+  for( int i = children_.size() - 1; i >= 0; i-- )
+  {
+    Property* child = children_.takeAt( i );
+    child->setParent( NULL );
+    delete child;
+  }
+}
+
+void Property::removeChildren( int start_index, int count )
+{
+  if( count < 0 )
+  {
+    count = children_.size() - start_index;
   }
 
+  if( count == 0 )
+    return;
+
+  if( model_ )
+  {
+    model_->beginRemove( this, start_index, count );
+  }
+  // Destroy my children.
+  for( int i = start_index; i < start_index + count; i++ )
+  {
+    Property* child = children_.at( i );
+    child->setParent( NULL ); // prevent child destructor from calling getParent()->takeChild().
+    delete child;
+  }
+  children_.erase( children_.begin() + start_index, children_.begin() + start_index + count );
+  child_indexes_valid_ = false;
+  if( model_ )
+  {
+    model_->endRemove();
+  }
+  Q_EMIT childListChanged( this );
+}
+
+bool Property::setValue( const QVariant& new_value )
+{
+  if( new_value != value_ ) {
+    Q_EMIT aboutToChange();
+    value_ = new_value;
+    Q_EMIT changed();
+    if( model_ )
+    {
+      model_->emitDataChanged( this );
+    }
+    return true;
+  }
+  return false;
+}
+
+QVariant Property::getValue() const
+{
+  return value_;
+}
+
+void Property::setName( const QString& name )
+{
+  setObjectName( name );
+  if( model_ )
+  {
+    model_->emitDataChanged( this );
+  }
+}
+
+QString Property::getName() const
+{
+  return objectName();
+}
+
+void Property::setDescription( const QString& description )
+{
+  description_ = description;
+}
+
+QString Property::getDescription() const
+{
+  return description_;
+}
+
+Property* Property::subProp( const QString& sub_name )
+{
+  int size = numChildren();
+  for( int i = 0; i < size; i++ )
+  {
+    Property* prop = childAtUnchecked( i );
+    if( prop->getName() == sub_name )
+    {
+      return prop;
+    }
+  }
+
+  // Print a useful error message showing the whole ancestry of this
+  // property, but don't crash.
+  QString ancestry = "";
+  for( Property* prop = this; prop != NULL; prop = prop->getParent() )
+  {
+    ancestry = "\"" + prop->getName() + "\"->" + ancestry;
+  }
+  printf( "ERROR: Undefined property %s \"%s\" accessed.\n", qPrintable( ancestry ), qPrintable( sub_name ));
+  return failprop_;
+}
+
+Property* Property::childAt( int index ) const
+{
+  // numChildren() and childAtUnchecked() can both be overridden, so
+  // call them instead of accessing our children_ list directly.
+  if( 0 <= index && index < numChildren() )
+  {
+    return childAtUnchecked( index );
+  }
   return NULL;
 }
 
-PropertyBase::PropertyBase()
-: grid_(NULL)
-, property_(NULL)
+Property* Property::childAtUnchecked( int index ) const
 {
-
+  return children_.at( index );
 }
 
-PropertyBase::~PropertyBase()
+bool Property::contains( Property* possible_child ) const
 {
-  if (property_ && grid_)
+  int num_children = numChildren();
+  for( int i = 0; i < num_children; i++ )
   {
-    grid_->DeleteProperty( property_ );
-  }
-}
-
-void PropertyBase::setPropertyGrid(wxPropertyGrid* grid)
-{
-  grid_ = grid;
-}
-
-void PropertyBase::setPGClientData()
-{
-  if (property_)
-  {
-    property_->SetClientData( this );
-  }
-}
-
-void BoolProperty::writeToGrid()
-{
-  if ( !property_ )
-  {
-    property_ = grid_->AppendIn( getCategoryPGProperty(parent_), new wxBoolProperty( name_, prefix_ + name_, get() ) );
-    property_->SetAttribute( wxPG_BOOL_USE_CHECKBOX, true );
-
-    if ( !hasSetter() )
+    if( childAtUnchecked( i ) == possible_child )
     {
-      grid_->DisableProperty( property_ );
+      return true;
     }
   }
-  else
+  return false;
+}
+
+Property* Property::getParent() const
+{
+  return parent_;
+}
+
+void Property::setParent( Property* new_parent )
+{
+  parent_ = new_parent;
+}
+
+QVariant Property::getViewData( int column, int role ) const
+{
+  if ( role == Qt::TextColorRole &&
+       ( parent_ && parent_->getDisableChildren() ) )
   {
-    grid_->SetPropertyValue(property_, get());
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    return Qt::gray;
+#else
+    return QColor(Qt::gray);
+#endif
+  }
+
+  switch( column )
+  {
+  case 0: // left column: names
+    switch( role )
+    {
+    case Qt::DisplayRole: return getName();
+    case Qt::DecorationRole: return icon_;
+    default: return QVariant();
+    }
+    break;
+  case 1: // right column: values
+    switch( role )
+    {
+    case Qt::DisplayRole:
+    case Qt::EditRole: return (value_.type() == QVariant::Bool ? QVariant() : getValue());
+    case Qt::CheckStateRole:
+      if( value_.type() == QVariant::Bool )
+        return (value_.toBool() ? Qt::Checked : Qt::Unchecked);
+      else
+        return QVariant();
+    default: return QVariant();
+    }
+    break;
+  default: return QVariant();
   }
 }
 
-void BoolProperty::readFromGrid()
+bool Property::getDisableChildren()
 {
-  wxVariant var = property_->GetValue();
-  set( var.GetBool() );
-}
-
-void BoolProperty::saveToConfig( wxConfigBase* config )
-{
-  config->Write( prefix_ + name_, (int)get() );
-}
-
-void BoolProperty::loadFromConfig( wxConfigBase* config )
-{
-  bool val;
-  if (!config->Read( prefix_ + name_, &val, get() ))
+  // Pass down the disableChildren flag
+  if ( parent_ )
   {
-    V_wxString::iterator it = legacy_names_.begin();
-    V_wxString::iterator end = legacy_names_.end();
-    for (; it != end; ++it)
+    return parent_->getDisableChildren();
+  }
+  return false;
+}
+
+Qt::ItemFlags Property::getViewFlags( int column ) const
+{
+  // if the parent propery is a disabled bool property or
+  // has its own enabled view flag not set, disable this property as well
+  Qt::ItemFlags enabled_flag = ( parent_ && parent_->getDisableChildren() ) ? Qt::NoItemFlags : Qt::ItemIsEnabled;
+
+  if( column == 0 )
+  {
+    return enabled_flag | Qt::ItemIsSelectable;
+  }
+  if( value_.isValid() )
+  {
+    if( value_.type() == QVariant::Bool )
     {
-      if (config->Read( prefix_ + *it, &val, get() ))
+      return Qt::ItemIsUserCheckable | enabled_flag | Qt::ItemIsSelectable;
+    }
+    return Qt::ItemIsEditable | enabled_flag | Qt::ItemIsSelectable;
+  }
+  return enabled_flag | Qt::ItemIsSelectable;
+}
+
+bool Property::isAncestorOf( Property* possible_child ) const
+{
+  Property* prop = possible_child->getParent();
+  while( prop != NULL && prop != this )
+  {
+    prop = prop->getParent();
+  }
+  return prop == this;
+}
+
+Property* Property::takeChild( Property* child )
+{
+  for( int i = 0; i < numChildren(); i++ )
+  {
+    if( childAtUnchecked( i ) == child )
+    {
+      return takeChildAt( i );
+    }
+  }
+  return NULL;
+}
+
+Property* Property::takeChildAt( int index )
+{
+  if( index < 0 || index >= children_.size() )
+  {
+    return NULL;
+  }
+  if( model_ )
+  {
+    model_->beginRemove( this, index, 1 );
+  }
+  Property* child = children_.takeAt( index );
+  child->setModel( NULL );
+  child->parent_ = NULL;
+  child_indexes_valid_ = false;
+  if( model_ )
+  {
+    model_->endRemove();
+  }
+  Q_EMIT childListChanged( this );
+  return child;
+}
+
+void Property::addChild( Property* child, int index )
+{
+  if( !child )
+  {
+    return;
+  }
+  int num_children = children_.size();
+  if( index < 0 || index > num_children )
+  {
+    index = num_children;
+  }
+  if( model_ )
+  {
+    model_->beginInsert( this, index );
+  }
+
+  children_.insert( index, child );
+  child_indexes_valid_ = false;
+  child->setModel( model_ );
+  child->parent_ = this;
+
+  if( model_ )
+  {
+    model_->endInsert();
+  }
+
+  Q_EMIT childListChanged( this );
+}
+
+void Property::setModel( PropertyTreeModel* model )
+{
+  model_ = model;
+  if( model_ && hidden_ )
+  {
+    model_->emitPropertyHiddenChanged( this );
+  }
+  int num_children = numChildren();
+  for( int i = 0; i < num_children; i++ )
+  {
+    Property* child = childAtUnchecked( i );
+    child->setModel( model );
+  }
+}
+
+void Property::reindexChildren()
+{
+  int num_children = numChildren();
+  for( int i = 0; i < num_children; i++ )
+  {
+    Property* child = childAtUnchecked( i );
+    child->row_number_within_parent_ = i;
+  }
+  child_indexes_valid_ = true;
+}
+
+int Property::rowNumberInParent() const
+{
+  Property* parent = getParent();
+  if( !parent )
+  {
+    return -1;
+  }
+  if( !parent->child_indexes_valid_ )
+  {
+    parent->reindexChildren();
+  }
+  return row_number_within_parent_;
+}
+
+void Property::moveChild( int from_index, int to_index )
+{
+  children_.move( from_index, to_index );
+  child_indexes_valid_ = false;
+  Q_EMIT childListChanged( this );
+}
+
+void Property::load( const Config& config )
+{
+  if( config.getType() == Config::Value )
+  {
+    loadValue( config );
+  }
+  else if( config.getType() == Config::Map )
+  {
+    // A special map entry named "Value" means the value of this property, not a child.
+    // (If child "Value"does not exist, loadValue() will do nothing.)
+    loadValue( config.mapGetChild( "Value" ));
+
+    // Loop over all child Properties.
+    int num_property_children = children_.size();
+    for( int i = 0; i < num_property_children; i++ )
+    {
+      Property* child = children_.at( i );
+      // Load the child Property with the config under the child property's name.
+      child->load( config.mapGetChild( child->getName() ));
+    }
+  }
+}
+
+void Property::loadValue( const Config& config )
+{
+  if( config.getType() == Config::Value )
+  {
+    switch( int( value_.type() ))
+    {
+    case QVariant::Int: setValue( config.getValue().toInt() ); break;
+    case QMetaType::Float:
+    case QVariant::Double: setValue( config.getValue().toDouble() ); break;
+    case QVariant::String: setValue( config.getValue().toString() ); break;
+    case QVariant::Bool: setValue( config.getValue().toBool() ); break;
+    default:
+      printf( "Property::loadValue() TODO: error handling - unexpected QVariant type %d.\n", int( value_.type() ));
+      break;
+    }
+  }
+}
+
+void Property::save( Config config ) const
+{
+  // If there are child properties, save them in a map from names to children.
+  if( children_.size() > 0 )
+  {
+    // If this property has child properties *and* a value itself,
+    // save the value in a special map entry named "Value".
+    if( value_.isValid() )
+    {
+      config.mapSetValue( "Value", value_ );
+    }
+    int num_properties = children_.size();
+    for( int i = 0; i < num_properties; i++ )
+    {
+      Property* prop = children_.at( i );
+      if( prop && prop->shouldBeSaved() )
       {
-        break;
+        prop->save( config.mapMakeChild( prop->getName() ));
       }
     }
   }
-
-  set( val );
-}
-
-void IntProperty::setMin( int min )
-{
-  if (property_)
+  else // Else there are no child properties, so just save the value itself.
   {
-    property_->SetAttribute( wxT("Min"), min );
-  }
-}
-
-void IntProperty::setMax( int max )
-{
-  if (property_)
-  {
-    property_->SetAttribute( wxT("Max"), max );
-  }
-}
-
-void IntProperty::writeToGrid()
-{
-  if ( !property_ )
-  {
-    property_ = grid_->AppendIn( getCategoryPGProperty(parent_), new wxIntProperty( name_, prefix_ + name_, get() ) );
-
-    if ( !hasSetter() )
+    if( value_.isValid() )
     {
-      grid_->DisableProperty( property_ );
-    }
-  }
-  else
-  {
-    grid_->SetPropertyValue(property_, (long)get());
-  }
-}
-
-void IntProperty::readFromGrid()
-{
-  wxVariant var = property_->GetValue();
-  set( var.GetLong() );
-}
-
-void IntProperty::saveToConfig( wxConfigBase* config )
-{
-  config->Write( prefix_ + name_, (int)get() );
-}
-
-void IntProperty::loadFromConfig( wxConfigBase* config )
-{
-  long val;
-  if (!config->Read( prefix_ + name_, &val, get() ))
-  {
-    V_wxString::iterator it = legacy_names_.begin();
-    V_wxString::iterator end = legacy_names_.end();
-    for (; it != end; ++it)
-    {
-      if (config->Read( prefix_ + *it, &val, get() ))
-      {
-        break;
-      }
-    }
-  }
-
-  set( val );
-}
-
-void FloatProperty::setMin( float min )
-{
-  if (property_)
-  {
-    property_->SetAttribute( wxT("Min"), min );
-  }
-}
-
-void FloatProperty::setMax( float max )
-{
-  if (property_)
-  {
-    property_->SetAttribute( wxT("Max"), max );
-  }
-}
-
-
-void FloatProperty::writeToGrid()
-{
-  if ( !property_ )
-  {
-    property_ = grid_->AppendIn( getCategoryPGProperty(parent_), new wxFloatProperty( name_, prefix_ + name_, get() ) );
-
-    if ( !hasSetter() )
-    {
-      grid_->DisableProperty( property_ );
-    }
-  }
-  else
-  {
-    grid_->SetPropertyValue(property_, (double)get());
-  }
-}
-
-void FloatProperty::readFromGrid()
-{
-  wxVariant var = property_->GetValue();
-  set( var.GetDouble() );
-}
-
-void FloatProperty::saveToConfig( wxConfigBase* config )
-{
-  config->Write( prefix_ + name_, (float)get() );
-}
-
-void FloatProperty::loadFromConfig( wxConfigBase* config )
-{
-  double val;
-  if (!config->Read( prefix_ + name_, &val, get() ))
-  {
-    V_wxString::iterator it = legacy_names_.begin();
-    V_wxString::iterator end = legacy_names_.end();
-    for (; it != end; ++it)
-    {
-      if (config->Read( prefix_ + *it, &val, get() ))
-      {
-        break;
-      }
-    }
-  }
-
-  set( val );
-}
-
-void DoubleProperty::setMin( double min )
-{
-  if (property_)
-  {
-    property_->SetAttribute( wxT("Min"), min );
-  }
-}
-
-void DoubleProperty::setMax( double max )
-{
-  if (property_)
-  {
-    property_->SetAttribute( wxT("Max"), max );
-  }
-}
-
-
-void DoubleProperty::writeToGrid()
-{
-  if ( !property_ )
-  {
-    property_ = grid_->AppendIn( getCategoryPGProperty(parent_), new wxFloatProperty( name_, prefix_ + name_, get() ) );
-
-    if ( !hasSetter() )
-    {
-      grid_->DisableProperty( property_ );
-    }
-  }
-  else
-  {
-    grid_->SetPropertyValue(property_, (double)get());
-  }
-}
-
-void DoubleProperty::readFromGrid()
-{
-  wxVariant var = property_->GetValue();
-  set( var.GetDouble() );
-}
-
-void DoubleProperty::saveToConfig( wxConfigBase* config )
-{
-  config->Write( prefix_ + name_, (float)get() );
-}
-
-void DoubleProperty::loadFromConfig( wxConfigBase* config )
-{
-  double val;
-  if (!config->Read( prefix_ + name_, &val, get() ))
-  {
-    V_wxString::iterator it = legacy_names_.begin();
-    V_wxString::iterator end = legacy_names_.end();
-    for (; it != end; ++it)
-    {
-      if (config->Read( prefix_ + *it, &val, get() ))
-      {
-        break;
-      }
-    }
-  }
-
-  set( val );
-}
-
-void StringProperty::writeToGrid()
-{
-  if ( !property_ )
-  {
-    property_ = grid_->AppendIn( getCategoryPGProperty(parent_), new wxStringProperty( name_, prefix_ + name_, wxString::FromAscii( get().c_str() ) ) );
-
-    if ( !hasSetter() )
-    {
-      grid_->DisableProperty( property_ );
-    }
-  }
-  else
-  {
-    grid_->SetPropertyValue(property_, wxString::FromAscii( get().c_str() ));
-  }
-}
-
-void StringProperty::readFromGrid()
-{
-  wxVariant var = property_->GetValue();
-  set( (const char*)var.GetString().mb_str() );
-}
-
-void StringProperty::saveToConfig( wxConfigBase* config )
-{
-  config->Write( prefix_ + name_, wxString::FromAscii( get().c_str() ) );
-}
-
-void StringProperty::loadFromConfig( wxConfigBase* config )
-{
-  wxString val;
-  if (!config->Read( prefix_ + name_, &val, wxString::FromAscii( get().c_str() ) ))
-  {
-    V_wxString::iterator it = legacy_names_.begin();
-    V_wxString::iterator end = legacy_names_.end();
-    for (; it != end; ++it)
-    {
-      if (config->Read( prefix_ + *it, &val, wxString::FromAscii( get().c_str() ) ))
-      {
-        break;
-      }
-    }
-  }
-
-  set( (const char*)val.mb_str() );
-}
-
-void ROSTopicStringProperty::setMessageType(const std::string& message_type)
-{
-  message_type_ = message_type;
-  ros_topic_property_->setMessageType(message_type);
-}
-
-void ROSTopicStringProperty::writeToGrid()
-{
-  if ( !property_ )
-  {
-    ros_topic_property_ = new ROSTopicProperty( message_type_, name_, prefix_ + name_, wxString::FromAscii( get().c_str() ) );
-    property_ = grid_->AppendIn( getCategoryPGProperty(parent_), ros_topic_property_ );
-
-    if ( !hasSetter() )
-    {
-      grid_->DisableProperty( property_ );
-    }
-  }
-  else
-  {
-    grid_->SetPropertyValue(property_, wxString::FromAscii( get().c_str() ));
-  }
-}
-
-void ColorProperty::writeToGrid()
-{
-  if ( !property_ )
-  {
-    Color c = get();
-    property_ = grid_->AppendIn( getCategoryPGProperty(parent_), new wxColourProperty( name_, prefix_ + name_, wxColour( c.r_ * 255, c.g_ * 255, c.b_ * 255 ) ) );
-
-    if ( !hasSetter() )
-    {
-      grid_->DisableProperty( property_ );
-    }
-  }
-  else
-  {
-    Color c = get();
-    wxVariant var;
-    var << wxColour( c.r_ * 255, c.g_ * 255, c.b_ * 255 );
-    grid_->SetPropertyValue(property_, var);
-  }
-}
-
-void ColorProperty::readFromGrid()
-{
-  wxVariant var = property_->GetValue();
-  wxColour col;
-  col << var;
-  set( Color( col.Red() / 255.0f, col.Green() / 255.0f, col.Blue() / 255.0f ) );
-}
-
-void ColorProperty::saveToConfig( wxConfigBase* config )
-{
-  Color c = get();
-
-  config->Write( prefix_ + name_ + wxT("R"), c.r_ );
-  config->Write( prefix_ + name_ + wxT("G"), c.g_ );
-  config->Write( prefix_ + name_ + wxT("B"), c.b_ );
-}
-
-void ColorProperty::loadFromConfig( wxConfigBase* config )
-{
-  Color c = get();
-  double r, g, b;
-  bool found = true;
-  found &= config->Read( prefix_ + name_ + wxT("R"), &r, c.r_ );
-  found &= config->Read( prefix_ + name_ + wxT("G"), &g, c.g_ );
-  found &= config->Read( prefix_ + name_ + wxT("B"), &b, c.b_ );
-
-  if (!found)
-  {
-    V_wxString::iterator it = legacy_names_.begin();
-    V_wxString::iterator end = legacy_names_.end();
-    for (; it != end; ++it)
-    {
-      found = true;
-      found &= config->Read( prefix_ + *it + wxT("R"), &r, c.r_ );
-      found &= config->Read( prefix_ + *it + wxT("G"), &g, c.g_ );
-      found &= config->Read( prefix_ + *it + wxT("B"), &b, c.b_ );
-
-      if (found)
-      {
-        break;
-      }
-    }
-  }
-
-  set( Color( r, g, b ) );
-}
-
-void EnumProperty::addOption( const std::string& name, int value )
-{
-  if (grid_)
-  {
-    wxPGChoices& choices = grid_->GetPropertyChoices( property_ );
-    choices.Add( wxString::FromAscii( name.c_str() ), value );
-
-    writeToGrid();
-  }
-}
-
-void EnumProperty::clear ()
-{
-  if (grid_)
-  {
-    wxPGChoices& choices = grid_->GetPropertyChoices( property_ );
-    choices.Clear ();
-
-    writeToGrid();
-  }
-}
-
-void EnumProperty::writeToGrid()
-{
-  if ( !property_ )
-  {
-    property_ = grid_->AppendIn( getCategoryPGProperty(parent_), new wxEnumProperty( name_, prefix_ + name_ ) );
-
-    if ( !hasSetter() )
-    {
-      grid_->DisableProperty( property_ );
-    }
-  }
-  else
-  {
-    grid_->SetPropertyValue(property_, (long)get());
-  }
-}
-
-void EnumProperty::readFromGrid()
-{
-  wxVariant var = property_->GetValue();
-  set( var.GetLong() );
-}
-
-void EnumProperty::saveToConfig( wxConfigBase* config )
-{
-  config->Write( prefix_ + name_, (int)get() );
-}
-
-void EnumProperty::loadFromConfig( wxConfigBase* config )
-{
-  long val = 0xffffffff;
-  if (!config->Read( prefix_ + name_, &val, get() ))
-  {
-    V_wxString::iterator it = legacy_names_.begin();
-    V_wxString::iterator end = legacy_names_.end();
-    for (; it != end; ++it)
-    {
-      if (config->Read( prefix_ + *it, &val, get() ))
-      {
-        break;
-      }
-    }
-  }
-
-  set( val );
-}
-
-void EditEnumProperty::addOption( const std::string& name )
-{
-  if (grid_)
-  {
-    wxPGChoices& choices = grid_->GetPropertyChoices( property_ );
-    choices.Add( wxString::FromAscii( name.c_str() ) );
-
-    writeToGrid();
-  }
-}
-
-void EditEnumProperty::clear ()
-{
-  if (grid_)
-  {
-    wxPGChoices& choices = grid_->GetPropertyChoices( property_ );
-    choices.Clear ();
-
-    writeToGrid();
-  }
-}
-
-void EditEnumProperty::writeToGrid()
-{
-  if ( !property_ )
-  {
-    property_ = grid_->AppendIn( getCategoryPGProperty(parent_), new wxEditEnumProperty( name_, prefix_ + name_ ) );
-
-    if ( !hasSetter() )
-    {
-      grid_->DisableProperty( property_ );
-    }
-  }
-  else
-  {
-    grid_->SetPropertyValue(property_, wxString::FromAscii( get().c_str() ));
-  }
-}
-
-void EditEnumProperty::readFromGrid()
-{
-  wxString str = property_->GetValueString();
-  set( (const char*)str.mb_str() );
-}
-
-void EditEnumProperty::saveToConfig( wxConfigBase* config )
-{
-  config->Write( prefix_ + name_, wxString::FromAscii( get().c_str() ) );
-}
-
-void EditEnumProperty::loadFromConfig( wxConfigBase* config )
-{
-  wxString val;
-  if (!config->Read( prefix_ + name_, &val, wxString::FromAscii( get().c_str() ) ))
-  {
-    V_wxString::iterator it = legacy_names_.begin();
-    V_wxString::iterator end = legacy_names_.end();
-    for (; it != end; ++it)
-    {
-      if (config->Read( prefix_ + *it, &val, wxString::FromAscii( get().c_str() ) ))
-      {
-        break;
-      }
-    }
-  }
-
-  set( (const char*)val.mb_str() );
-}
-
-void CategoryProperty::setLabel( const std::string& label )
-{
-  grid_->SetPropertyLabel( property_, wxString::FromAscii( label.c_str() ) );
-
-  wxPGCell* cell = property_->GetCell( 0 );
-  if ( cell )
-  {
-    cell->SetText( wxString::FromAscii( label.c_str() ) );
-  }
-}
-
-void CategoryProperty::expand()
-{
-  grid_->Expand( property_ );
-}
-
-void CategoryProperty::collapse()
-{
-  grid_->Collapse( property_ );
-}
-
-void CategoryProperty::writeToGrid()
-{
-  if ( !property_ )
-  {
-    if ( parent_.lock() )
-    {
-      property_ = grid_->AppendIn( getCategoryPGProperty(parent_), new wxPropertyCategory( name_, prefix_ + name_ ) );
+      config.setValue( value_ );
     }
     else
     {
-      property_ = grid_->Append( new wxPropertyCategory( name_, prefix_ + name_ ) );
+      // Empty Properties get saved as empty Maps instead of null values.
+      config.setType( Config::Map );
     }
   }
 }
 
-
-Vector3Property::~Vector3Property()
+QWidget* Property::createEditor( QWidget* parent,
+                                 const QStyleOptionViewItem& option )
 {
-  if (composed_parent_)
+  switch( int( value_.type() ))
   {
-    grid_->DeleteProperty( composed_parent_ );
+  case QVariant::Int:
+  {
+    QSpinBox* editor = new QSpinBox( parent );
+    editor->setFrame( false );
+    editor->setRange( INT_MIN, INT_MAX );
+    return editor;
+  }
+  case QMetaType::Float:
+  case QVariant::Double:
+  {
+    FloatEdit* editor = new FloatEdit( parent );
+    return editor;
+  }
+  case QVariant::String:
+  default:
+  {
+    QLineEdit* editor = new QLineEdit( parent );
+    editor->setFrame( false );
+    return editor;
+  }
   }
 }
 
-void Vector3Property::writeToGrid()
+void Property::setHidden( bool hidden )
 {
-  if ( !composed_parent_ )
+  if( hidden != hidden_ )
   {
-    Ogre::Vector3 v = get();
-
-    wxString composed_name = name_ + wxT("Composed");
-    composed_parent_ = grid_->AppendIn( getCategoryPGProperty(parent_), new wxStringProperty( name_, prefix_ + composed_name, wxT("<composed>")) );
-    composed_parent_->SetClientData( this );
-
-    x_ = grid_->AppendIn( composed_parent_, new wxFloatProperty( wxT("X"), prefix_ + name_ + wxT("X"), v.x ) );
-    y_ = grid_->AppendIn( composed_parent_, new wxFloatProperty( wxT("Y"), prefix_ + name_ + wxT("Y"), v.y ) );
-    z_ = grid_->AppendIn( composed_parent_, new wxFloatProperty( wxT("Z"), prefix_ + name_ + wxT("Z"), v.z ) );
-
-    if ( !hasSetter() )
+    hidden_ = hidden;
+    if( model_ )
     {
-      grid_->DisableProperty( composed_parent_ );
-      grid_->DisableProperty( x_ );
-      grid_->DisableProperty( y_ );
-      grid_->DisableProperty( z_ );
-    }
-
-    grid_->Collapse( composed_parent_ );
-  }
-  else
-  {
-    Ogre::Vector3 v = get();
-    grid_->SetPropertyValue(x_, v.x);
-    grid_->SetPropertyValue(y_, v.y);
-    grid_->SetPropertyValue(z_, v.z);
-  }
-}
-
-void Vector3Property::readFromGrid()
-{
-  set( Ogre::Vector3( x_->GetValue().GetDouble(), y_->GetValue().GetDouble(), z_->GetValue().GetDouble() ) );
-}
-
-void Vector3Property::saveToConfig( wxConfigBase* config )
-{
-  Ogre::Vector3 v = get();
-
-  config->Write( prefix_ + name_ + wxT("X"), v.x );
-  config->Write( prefix_ + name_ + wxT("Y"), v.y );
-  config->Write( prefix_ + name_ + wxT("Z"), v.z );
-}
-
-void Vector3Property::loadFromConfig( wxConfigBase* config )
-{
-  Ogre::Vector3 v = get();
-  double x, y, z;
-  bool found = true;
-  found &= config->Read( prefix_ + name_ + wxT("X"), &x, v.x );
-  found &= config->Read( prefix_ + name_ + wxT("Y"), &y, v.y );
-  found &= config->Read( prefix_ + name_ + wxT("Z"), &z, v.z );
-
-  if (!found)
-  {
-    V_wxString::iterator it = legacy_names_.begin();
-    V_wxString::iterator end = legacy_names_.end();
-    for (; it != end; ++it)
-    {
-      found = true;
-      found &= config->Read( prefix_ + *it + wxT("X"), &x, v.x );
-      found &= config->Read( prefix_ + *it + wxT("Y"), &y, v.y );
-      found &= config->Read( prefix_ + *it + wxT("Z"), &z, v.z );
-
-      if (found)
-      {
-        break;
-      }
+      model_->emitPropertyHiddenChanged( this );
     }
   }
-
-  set( Ogre::Vector3( x, y, z ) );
 }
 
-void Vector3Property::setPGClientData()
+void Property::expand()
 {
-  if (composed_parent_)
+  if( model_ )
   {
-    composed_parent_->SetClientData(this);
-    x_->SetClientData( this );
-    y_->SetClientData( this );
-    z_->SetClientData( this );
+    model_->expandProperty( this );
   }
 }
 
-void Vector3Property::reset()
+void Property::collapse()
 {
-  Property<Ogre::Vector3>::reset();
-
-  composed_parent_ = 0;
-  x_ = 0;
-  y_ = 0;
-  z_ = 0;
-}
-
-QuaternionProperty::~QuaternionProperty()
-{
-  if (composed_parent_)
+  if( model_ )
   {
-    grid_->DeleteProperty( composed_parent_ );
+    model_->collapseProperty( this );
   }
 }
 
-void QuaternionProperty::writeToGrid()
-{
-  if ( !composed_parent_ )
-  {
-    Ogre::Quaternion q = get();
-
-    wxString composed_name = name_ + wxT("Composed");
-    composed_parent_ = grid_->AppendIn( getCategoryPGProperty(parent_), new wxStringProperty( name_, prefix_ + composed_name, wxT("<composed>")) );
-    composed_parent_->SetClientData( this );
-
-    x_ = grid_->AppendIn( composed_parent_, new wxFloatProperty( wxT("X"), prefix_ + name_ + wxT("X"), q.x ) );
-    y_ = grid_->AppendIn( composed_parent_, new wxFloatProperty( wxT("Y"), prefix_ + name_ + wxT("Y"), q.y ) );
-    z_ = grid_->AppendIn( composed_parent_, new wxFloatProperty( wxT("Z"), prefix_ + name_ + wxT("Z"), q.z ) );
-    w_ = grid_->AppendIn( composed_parent_, new wxFloatProperty( wxT("W"), prefix_ + name_ + wxT("W"), q.z ) );
-
-    if ( !hasSetter() )
-    {
-      grid_->DisableProperty( composed_parent_ );
-      grid_->DisableProperty( x_ );
-      grid_->DisableProperty( y_ );
-      grid_->DisableProperty( z_ );
-      grid_->DisableProperty( w_ );
-    }
-
-    grid_->Collapse( composed_parent_ );
-  }
-  else
-  {
-    Ogre::Quaternion q = get();
-    grid_->SetPropertyValue(x_, q.x);
-    grid_->SetPropertyValue(y_, q.y);
-    grid_->SetPropertyValue(z_, q.z);
-    grid_->SetPropertyValue(w_, q.w);
-  }
-}
-
-void QuaternionProperty::readFromGrid()
-{
-  set( Ogre::Quaternion( x_->GetValue().GetDouble(), y_->GetValue().GetDouble(), z_->GetValue().GetDouble(), w_->GetValue().GetDouble() ) );
-}
-
-void QuaternionProperty::saveToConfig( wxConfigBase* config )
-{
-  Ogre::Quaternion q = get();
-
-  config->Write( prefix_ + name_ + wxT("X"), q.x );
-  config->Write( prefix_ + name_ + wxT("Y"), q.y );
-  config->Write( prefix_ + name_ + wxT("Z"), q.z );
-  config->Write( prefix_ + name_ + wxT("W"), q.w );
-}
-
-void QuaternionProperty::loadFromConfig( wxConfigBase* config )
-{
-  Ogre::Quaternion q = get();
-  double x, y, z, w;
-  bool found = true;
-  found &= config->Read( prefix_ + name_ + wxT("X"), &x, q.x );
-  found &= config->Read( prefix_ + name_ + wxT("Y"), &y, q.y );
-  found &= config->Read( prefix_ + name_ + wxT("Z"), &z, q.z );
-  found &= config->Read( prefix_ + name_ + wxT("W"), &w, q.w );
-
-  if (!found)
-  {
-    V_wxString::iterator it = legacy_names_.begin();
-    V_wxString::iterator end = legacy_names_.end();
-    for (; it != end; ++it)
-    {
-      found = true;
-      found &= config->Read( prefix_ + *it + wxT("X"), &x, q.x );
-      found &= config->Read( prefix_ + *it + wxT("Y"), &y, q.y );
-      found &= config->Read( prefix_ + *it + wxT("Z"), &z, q.z );
-      found &= config->Read( prefix_ + *it + wxT("W"), &w, q.w );
-
-      if (found)
-      {
-        break;
-      }
-    }
-  }
-
-  set( Ogre::Quaternion( x, y, z, w ) );
-}
-
-void QuaternionProperty::setPGClientData()
-{
-  if (composed_parent_)
-  {
-    composed_parent_->SetClientData(this);
-    x_->SetClientData( this );
-    y_->SetClientData( this );
-    z_->SetClientData( this );
-    w_->SetClientData( this );
-  }
-}
-
-void QuaternionProperty::reset()
-{
-  Property<Ogre::Quaternion>::reset();
-
-  composed_parent_ = 0;
-  x_ = 0;
-  y_ = 0;
-  z_ = 0;
-  w_ = 0;
-}
-
-}
+} // end namespace rviz

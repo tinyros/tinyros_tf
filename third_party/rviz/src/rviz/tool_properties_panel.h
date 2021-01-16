@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, Willow Garage, Inc.
+ * Copyright (c) 2012, Willow Garage, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,84 +30,33 @@
 #ifndef RVIZ_TOOL_PROPERTIES_PANEL_H
 #define RVIZ_TOOL_PROPERTIES_PANEL_H
 
-#include "generated/rviz_generated.h"
-
-#include <mutex>
-#include <memory>
-
-#include <vector>
-#include <map>
-
-namespace ogre_tools
-{
-class wxOgreRenderWindow;
-class FPSCamera;
-class OrbitCamera;
-class CameraBase;
-class OrthoCamera;
-}
-
-namespace Ogre
-{
-class Root;
-class SceneManager;
-class Camera;
-class RaySceneQuery;
-class ParticleSystem;
-}
-
-class wxTimerEvent;
-class wxKeyEvent;
-class wxSizeEvent;
-class wxTimer;
-class wxPropertyGrid;
-class wxPropertyGridEvent;
-class wxConfigBase;
+#include "rviz/panel.h"
 
 namespace rviz
 {
 
-class VisualizationManager;
-class Tool;
+class DisplayContext;
+class PropertyTreeWidget;
 
-/**
- * \class ToolPropertiesPanel
- *
+/** A place to edit properties of all of the Tools.
  */
-class ToolPropertiesPanel : public wxPanel
+class ToolPropertiesPanel: public Panel
 {
+Q_OBJECT
 public:
-  /**
-   * \brief Constructor
-   *
-   * @param parent Parent window
-   * @return
-   */
-  ToolPropertiesPanel( wxWindow* parent );
-  virtual ~ToolPropertiesPanel();
+  ToolPropertiesPanel( QWidget* parent = 0 );
+  virtual ~ToolPropertiesPanel() {}
 
-  void initialize(VisualizationManager* manager);
+  virtual void onInitialize();
 
-  wxPropertyGrid* getPropertyGrid() { return property_grid_; }
-  VisualizationManager* getManager() { return manager_; }
+  /** @brief Load configuration data, specifically the PropertyTreeWidget view settings. */
+  virtual void load( const Config& config );
 
-protected:
+  /** @brief Save configuration data, specifically the PropertyTreeWidget view settings. */
+  virtual void save( Config config ) const;
 
-  void onToolAdded(Tool* tool);
-
-  // wx callbacks
-  /// Called when a property from the wxPropertyGrid is changing
-  void onPropertyChanging( wxPropertyGridEvent& event );
-  /// Called when a property from the wxProperty
-  void onPropertyChanged( wxPropertyGridEvent& event );
-  /// Called when a property is selected
-  void onPropertySelected( wxPropertyGridEvent& event );
-
-  void onDisplaysConfigLoaded(const std::shared_ptr<wxConfigBase>& config);
-  void onDisplaysConfigSaving(const std::shared_ptr<wxConfigBase>& config);
-
-  wxPropertyGrid* property_grid_;                         ///< Display property grid
-  VisualizationManager* manager_;
+private:
+  PropertyTreeWidget* tree_widget_;
 };
 
 } // namespace rviz

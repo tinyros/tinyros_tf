@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, Willow Garage, Inc.
+ * Copyright (c) 2012, Willow Garage, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,50 +30,75 @@
 #ifndef RVIZ_TIME_PANEL_H
 #define RVIZ_TIME_PANEL_H
 
-#include "generated/rviz_generated.h"
+#include "rviz/panel.h"
+#include "ros/time.h"
 
-#include "properties/forwards.h"
-
-#include <mutex>
-
-#include <vector>
-#include <map>
-
-class wxCommandEvent;
+class QLineEdit;
+class QComboBox;
+class QCheckBox;
+class QPushButton;
+class QHBoxLayout;
+class QWidget;
 
 namespace rviz
 {
 
 class VisualizationManager;
+class Display;
 
 /**
  * \class TimePanel
  *
  */
-class TimePanel : public TimePanelGenerated
+class TimePanel: public Panel
 {
+Q_OBJECT
 public:
-  /**
-   * \brief Constructor
-   *
-   * @param parent Parent window
-   * @return
-   */
-  TimePanel( wxWindow* parent );
-  virtual ~TimePanel();
+  TimePanel( QWidget* parent = 0 );
 
-  void initialize(VisualizationManager* manager);
+  virtual void onInitialize();
 
-  VisualizationManager* getManager() { return manager_; }
+protected Q_SLOTS:
+
+  void pauseToggled( bool checked );
+  void syncModeSelected( int index );
+  void syncSourceSelected( int index );
+  void experimentalToggled( bool checked );
+
+  /** Read time values from VisualizationManager and update displays. */
+  void update();
+
+  void onDisplayAdded( rviz::Display* display );
+  void onDisplayRemoved( rviz::Display* display );
+
+  void onTimeSignal( rviz::Display* display, ros::Time time );
+
+  virtual void load( const Config& config );
+  virtual void save( Config config ) const;
 
 protected:
-  // wx callbacks
-  virtual void onReset(wxCommandEvent& event);
 
-  // Other callbacks
-  void onTimeChanged();
+  /** Create, configure, and return a single label for showing a time value. */
+  QLineEdit* makeTimeLabel();
 
-  VisualizationManager* manager_;
+  /** Fill a single time label with the given time value (in seconds). */
+  void fillTimeLabel( QLineEdit* label, double time );
+
+  QWidget* old_widget_;
+  QWidget* experimental_widget_;
+
+  QString config_sync_source_;
+
+  QCheckBox* experimental_cb_;
+
+  QPushButton* pause_button_;
+  QComboBox* sync_source_selector_;
+  QComboBox* sync_mode_selector_;
+
+  QLineEdit* ros_time_label_;
+  QLineEdit* ros_elapsed_label_;
+  QLineEdit* wall_time_label_;
+  QLineEdit* wall_elapsed_label_;
 };
 
 } // namespace rviz
