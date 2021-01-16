@@ -35,8 +35,8 @@
 #include "rviz/ogre_helpers/initialization.h"
 #include "rviz/image/ros_image_texture.h"
 
-#include "ros/ros.h"
-#include <ros/package.h>
+#include "tiny_ros/ros.h"
+#include "utils/utils.h"
 
 #include <OgreRoot.h>
 #include <OgreRenderWindow.h>
@@ -52,11 +52,13 @@
 
 #include "image_view.h"
 
+#include <exception>
+
 using namespace rviz;
 
 ImageView::ImageView( QWidget* parent )
   : QtOgreRenderWindow( parent )
-  , texture_it_(nh_)
+  , texture_sub_("/image", &ImageView::textureCallback, this)
 {
   setAutoRender(false);
   scene_manager_ = ogre_root_->createSceneManager( Ogre::ST_GENERIC, "TestSceneManager" );
@@ -72,16 +74,12 @@ void ImageView::showEvent( QShowEvent* event )
   QtOgreRenderWindow::showEvent( event );
 
   V_string paths;
-  paths.push_back(ros::package::getPath(ROS_PACKAGE_NAME) + "/ogre_media/textures");
+  paths.push_back(rviz::utils::getPath() + "/ogre_media/textures");
   initializeResources(paths);
 
   setCamera( scene_manager_->createCamera( "Camera" ));
 
-  std::string resolved_image = nh_.resolveName("image");
-  if( resolved_image == "/image" )
-  {
-    ROS_WARN("image topic has not been remapped");
-  }
+  std::string resolved_image = "/image";
 
   std::stringstream title;
   title << "rviz Image Viewer [" << resolved_image << "]";
@@ -92,14 +90,11 @@ void ImageView::showEvent( QShowEvent* event )
   try
   {
     texture_->clear();
-
-    texture_sub_.reset(new image_transport::SubscriberFilter());
-    texture_sub_->subscribe(texture_it_, "image", 1, image_transport::TransportHints("raw"));
-    texture_sub_->registerCallback(boost::bind(&ImageView::textureCallback, this, _1));
+    tinyros::nh()->subscribe(texture_sub_);
   }
-  catch (ros::Exception& e)
+  catch (std::exception& e)
   {
-    ROS_ERROR("%s", (std::string("Error subscribing: ") + e.what()).c_str());
+    tinyros_log_error("%s", (std::string("Error subscribing: ") + e.what()).c_str());
   }
 
   Ogre::MaterialPtr material =
@@ -131,8 +126,6 @@ void ImageView::showEvent( QShowEvent* event )
 
 void ImageView::onTimer()
 {
-  ros::spinOnce();
-
   static bool first = true;
   try
   {
@@ -150,10 +143,10 @@ void ImageView::onTimer()
   }
   catch( UnsupportedImageEncoding& e )
   {
-    ROS_ERROR("%s", e.what());
+    tinyros_log_error("%s", e.what());
   }
 
-  if( !nh_.ok() )
+  if( !tinyros::nh()->ok() )
   {
     close();
   }

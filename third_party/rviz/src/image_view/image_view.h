@@ -32,8 +32,8 @@
 # include "rviz/ogre_helpers/initialization.h"
 # include "rviz/image/ros_image_texture.h"
 
-# include "ros/ros.h"
-# include <ros/package.h>
+# include "tiny_ros/ros.h"
+# include "utils/utils.h"
 
 # include <OgreRoot.h>
 # include <OgreSceneManager.h>
@@ -43,8 +43,6 @@
 # include <OgreMaterialManager.h>
 # include <OgreTextureUnitState.h>
 
-# include <image_transport/image_transport.h>
-# include <image_transport/subscriber_filter.h>
 #endif
 
 #ifdef Q_OS_MAC
@@ -67,14 +65,10 @@ private Q_SLOTS:
   void onTimer();
 
 private:
-  void textureCallback(const sensor_msgs::Image::ConstPtr& msg);
+  void textureCallback(const tinyros::sensor_msgs::ImageConstPtr& msg);
 
   Ogre::SceneManager* scene_manager_;
   Ogre::Camera* camera_;
   ROSImageTexture* texture_;
-
-  ros::NodeHandle nh_;
-
-  image_transport::ImageTransport texture_it_;
-  boost::shared_ptr<image_transport::SubscriberFilter> texture_sub_;
+  tinyros::Subscriber<tinyros::sensor_msgs::Image, ImageView> texture_sub_;
 };

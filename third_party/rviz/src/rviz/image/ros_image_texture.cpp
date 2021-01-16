@@ -37,7 +37,7 @@
 
 #include <OgreTextureManager.h>
 
-#include <sensor_msgs/image_encodings.h>
+#include "utils/image_encodings.h"
 
 #include "rviz/image/ros_image_texture.h"
 
@@ -249,8 +249,6 @@ bool ROSImageTexture::update()
   width_ = image->width;
   height_ = image->height;
 
-  // TODO: Support different steps/strides
-
   Ogre::DataStreamPtr pixel_stream;
   pixel_stream.bind(new Ogre::MemoryDataStream(imageDataPtr, imageDataSize));
 
@@ -260,8 +258,7 @@ bool ROSImageTexture::update()
   }
   catch (Ogre::Exception& e)
   {
-    // TODO: signal error better
-    ROS_ERROR("Error loading image: %s", e.what());
+    tinyros_log_error("Error loading image: %s", e.what());
     return false;
   }
 
@@ -271,7 +268,7 @@ bool ROSImageTexture::update()
   return true;
 }
 
-void ROSImageTexture::addMessage(const sensor_msgs::Image::ConstPtr& msg)
+void ROSImageTexture::addMessage(const tinyros::sensor_msgs::ImageConstPtr& msg)
 {
   boost::mutex::scoped_lock lock(mutex_);
   current_image_ = msg;

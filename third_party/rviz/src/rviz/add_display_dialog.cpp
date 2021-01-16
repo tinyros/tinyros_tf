@@ -31,8 +31,8 @@
 
 #include <boost/filesystem.hpp>
 
-#include <ros/package.h>
-#include <ros/ros.h>
+#include "utils/utils.h"
+#include <tiny_ros/ros.h>
 
 #include <QGroupBox>
 #include <QLabel>
@@ -57,8 +57,8 @@ namespace rviz
 // Utilities for grouping topics together
 
 struct LexicalTopicInfo {
-  bool operator()(const ros::master::TopicInfo &a, const ros::master::TopicInfo &b) {
-    return a.name < b.name;
+  bool operator()(const std::string &topic_a, const std::string &topic_b) {
+    return topic_a < topic_b;
   }
 };
 
@@ -79,14 +79,14 @@ struct LexicalTopicInfo {
 bool isSubtopic( const std::string &base, const std::string &topic )
 {
   std::string error;
-  if ( !ros::names::validate(base, error) )
+  if ( !rviz::utils::validate(base, error) )
   {
-    ROS_ERROR_STREAM("isSubtopic() Invalid basename: " << error);
+    tinyros_log_error("isSubtopic() Invalid basename: %s", error.c_str());
     return false;
   }
   if ( !ros::names::validate(topic, error) )
   {
-    ROS_ERROR_STREAM("isSubtopic() Invalid topic: " << error);
+    tinyros_log_error("isSubtopic() Invalid topic: %s", error.c_str());
     return false;
   }
 
@@ -97,7 +97,7 @@ bool isSubtopic( const std::string &base, const std::string &topic )
     {
       return true;
     }
-    query = ros::names::parentNamespace( query );
+    query = rviz::utils::parentNamespace( query );
   }
   return false;
 }
@@ -115,12 +115,12 @@ struct PluginGroup {
 
 void getPluginGroups( const QMap<QString, QString> &datatype_plugins,
                       QList<PluginGroup> *groups,
-                      QList<ros::master::TopicInfo> *unvisualizable )
+                      QList<rviz::utils::TopicInfo> *unvisualizable )
 {
-  ros::master::V_TopicInfo all_topics;
-  ros::master::getTopics( all_topics );
+  rviz::utils::V_TopicInfo all_topics;
+  rviz::utils::getTopics( all_topics );
   std::sort( all_topics.begin(), all_topics.end(), LexicalTopicInfo() );
-  ros::master::V_TopicInfo::iterator topic_it;
+  rviz::utils::V_TopicInfo::iterator topic_it;
 
   for ( topic_it = all_topics.begin(); topic_it != all_topics.end(); ++topic_it )
   {
@@ -293,7 +293,7 @@ void AddDisplayDialog::updateDisplay()
   }
   else
   {
-    ROS_WARN("Unknown tab index: %i", tab_widget_->currentIndex());
+    tinyros_log_warn("Unknown tab index: %i", tab_widget_->currentIndex());
     return;
   }
 

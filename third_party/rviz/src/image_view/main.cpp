@@ -33,7 +33,7 @@
 
 #include <QApplication>
 
-#include <ros/ros.h>
+#include <tiny_ros/ros.h>
 
 #ifdef Q_OS_MAC
 #include <ApplicationServices/ApplicationServices.h>
@@ -52,7 +52,7 @@ int main( int argc, char** argv )
   SetFrontProcess(&PSN);
 #endif
 
-  ros::init( argc, argv, "rviz_image_view", ros::init_options::AnonymousName );
+  tinyros::init("tinyros_rviz_image_view");
 
   ImageView window;
   window.show();
