@@ -30,15 +30,6 @@ static const char SETBOOL[] = "std_srvs/SetBool";
       this->__id__ = 0;
     }
 
-    ~SetBoolRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -123,15 +114,6 @@ typedef std::shared_ptr<tinyros::std_srvs::SetBoolRequest const> SetBoolRequestC
       message("")
     {
       this->__id__ = 0;
-    }
-
-    ~SetBoolResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

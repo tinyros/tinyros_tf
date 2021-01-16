@@ -19,20 +19,12 @@ namespace geometry_msgs
     public:
       typedef tinyros::geometry_msgs::Twist _twist_type;
       _twist_type twist;
-      double covariance[36];
+      typedef double _covariance_type;
+      std::vector<_covariance_type> covariance;
 
     TwistWithCovariance():
       twist(),
-      covariance()
-    {
-    }
-
-    ~TwistWithCovariance()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
+      covariance(36)
     {
     }
 

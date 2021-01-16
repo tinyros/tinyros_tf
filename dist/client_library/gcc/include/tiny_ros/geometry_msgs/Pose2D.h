@@ -30,15 +30,6 @@ namespace geometry_msgs
     {
     }
 
-    ~Pose2D()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;

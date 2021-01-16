@@ -31,15 +31,6 @@ namespace sensor_msgs
     {
     }
 
-    ~RelativeHumidity()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;

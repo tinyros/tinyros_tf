@@ -23,31 +23,25 @@ namespace sensor_msgs
       _header_type header;
       typedef tinyros::geometry_msgs::Quaternion _orientation_type;
       _orientation_type orientation;
-      double orientation_covariance[9];
+      typedef double _orientation_covariance_type;
+      std::vector<_orientation_covariance_type> orientation_covariance;
       typedef tinyros::geometry_msgs::Vector3 _angular_velocity_type;
       _angular_velocity_type angular_velocity;
-      double angular_velocity_covariance[9];
+      typedef double _angular_velocity_covariance_type;
+      std::vector<_angular_velocity_covariance_type> angular_velocity_covariance;
       typedef tinyros::geometry_msgs::Vector3 _linear_acceleration_type;
       _linear_acceleration_type linear_acceleration;
-      double linear_acceleration_covariance[9];
+      typedef double _linear_acceleration_covariance_type;
+      std::vector<_linear_acceleration_covariance_type> linear_acceleration_covariance;
 
     Imu():
       header(),
       orientation(),
-      orientation_covariance(),
+      orientation_covariance(9),
       angular_velocity(),
-      angular_velocity_covariance(),
+      angular_velocity_covariance(9),
       linear_acceleration(),
-      linear_acceleration_covariance()
-    {
-    }
-
-    ~Imu()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
+      linear_acceleration_covariance(9)
     {
     }
 

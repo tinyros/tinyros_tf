@@ -27,15 +27,6 @@ static const char TRIGGER[] = "std_srvs/Trigger";
       this->__id__ = 0;
     }
 
-    ~TriggerRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -102,15 +93,6 @@ typedef std::shared_ptr<tinyros::std_srvs::TriggerRequest const> TriggerRequestC
       message("")
     {
       this->__id__ = 0;
-    }
-
-    ~TriggerResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

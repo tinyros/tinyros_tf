@@ -236,7 +236,7 @@ private:
     last_update_ros_time_ = time_now;
 
     const tinyros::tf::tfMessage& msg_in = msg;
-    for (unsigned int i = 0; i < msg_in.transforms_length; i++)
+    for (unsigned int i = 0; i < msg_in.transforms.size(); i++)
     {
       StampedTransform trans;
       transformStampedMsgToTF(msg_in.transforms[i], trans);
@@ -263,18 +263,18 @@ private:
     tinyros::tf::Vector3 origin = net_transform.getOrigin();
     tinyros::tf::Matrix3x3 basis  = net_transform.getBasis();
 
-    unsigned int length = cloudIn.points_length;
+    unsigned int length = cloudIn.points.size();
 
     // Copy relevant data from cloudIn, if needed
     if (&cloudIn != &cloudOut)
     {
       cloudOut.header = cloudIn.header;
-      cloudOut.points_length = length;
-      cloudOut.points = (tinyros::geometry_msgs::Point32*)realloc(cloudOut.points, cloudOut.points_length * sizeof(tinyros::geometry_msgs::Point32));
-      cloudOut.channels_length = cloudIn.channels_length;
-      cloudOut.channels = (tinyros::sensor_msgs::ChannelFloat32*)realloc(cloudOut.channels, cloudOut.channels_length * sizeof(tinyros::sensor_msgs::ChannelFloat32));
-      for (unsigned int i = 0 ; i < cloudIn.channels_length ; ++i)
+      cloudOut.points.resize(length);
+      cloudOut.channels.resize(cloudIn.channels.size());
+      for (unsigned int i = 0 ; i < cloudIn.channels.size() ; ++i)
+      {
         cloudOut.channels[i] = cloudIn.channels[i];
+      }
     }
 
     // Transform points

@@ -30,15 +30,6 @@ static const char BODYREQUEST[] = "gazebo_msgs/BodyRequest";
       this->__id__ = 0;
     }
 
-    ~BodyRequestRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -124,15 +115,6 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::BodyRequestRequest const> BodyRequ
     BodyRequestResponse()
     {
       this->__id__ = 0;
-    }
-
-    ~BodyRequestResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

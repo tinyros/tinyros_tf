@@ -96,7 +96,7 @@
    ROS_COMPILE_ASSERT(sizeof(A) == 4);
  @endverbatim
  */
-#define TINYROS_COMPILE_ASSERT(cond) static_assert(cond)
+#define TINYROS_COMPILE_ASSERT(cond) static_assert(cond, "TINYROS_COMPILE_ASSERT")
 
 /**
  * \def ROS_STATIC_ASSERT(cond)
@@ -111,6 +111,6 @@
    ROS_STATIC_ASSERT(sizeof(A) == 4);
  @endverbatim
  */
-#define TINYROS_STATIC_ASSERT(cond) static_assert(cond)
+#define TINYROS_STATIC_ASSERT(cond) static_assert(cond, "TINYROS_STATIC_ASSERT")
 
 #endif // TINYROS_TF_STATIC_ASSERT_H

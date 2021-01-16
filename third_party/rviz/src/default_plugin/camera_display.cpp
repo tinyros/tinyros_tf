@@ -35,7 +35,7 @@
 #include "rviz/common.h"
 #include "rviz/window_manager_interface.h"
 
-#include <tf/transform_listener.h>
+#include <tiny_ros/tf/transform_listener.h>
 
 #include <functional>
 
@@ -51,8 +51,6 @@
 #include <OGRE/OgreManualObject.h>
 #include <OGRE/OgreRoot.h>
 #include <OGRE/OgreRenderSystem.h>
-
-#include <wx/frame.h>
 
 namespace rviz
 {
@@ -324,7 +322,7 @@ void CameraDisplay::updateCamera()
   tinyros::sensor_msgs::CameraInfoConstPtr info;
   tinyros::sensor_msgs::ImageConstPtr image;
   {
-    std::unique_lock<std::mutex> lock(caminfo_mutex_);
+    std::scoped_lock lock(caminfo_mutex_);
 
     info = current_caminfo_;
     image = texture_.getImage();
@@ -341,7 +339,7 @@ void CameraDisplay::updateCamera()
   {
     vis_manager_->getTFClient()->transformPose(fixed_frame_, pose, pose);
   }
-  catch (tf::TransformException& e)
+  catch (tinyros::tf::TransformException& e)
   {
     tinyros_log_error("Failed to transform camera [%s]: %s", name_.c_str(), e.what());
   }
@@ -412,9 +410,9 @@ void CameraDisplay::updateCamera()
 #endif
 }
 
-void CameraDisplay::caminfoCallback(const sensor_msgs::CameraInfo::ConstPtr& msg)
+void CameraDisplay::caminfoCallback(const tinyros::sensor_msgs::CameraInfoConstPtr& msg)
 {
-  std::unique_lock<std::mutex> lock(caminfo_mutex_);
+  std::scoped_lock lock(caminfo_mutex_);
   current_caminfo_ = msg;
   new_caminfo_ = true;
 }
@@ -424,7 +422,7 @@ void CameraDisplay::createProperties()
   topic_property_ = property_manager_->createProperty<ROSTopicStringProperty>( "Image Topic", property_prefix_, std::bind( &CameraDisplay::getTopic, this ),
                                                                          std::bind( &CameraDisplay::setTopic, this, std::placeholders::_1 ), parent_category_, this );
   ROSTopicStringPropertyPtr topic_prop = topic_property_.lock();
-  topic_prop->setMessageType(sensor_msgs::Image::__s_getDataType());
+  topic_prop->setMessageType(tinyros::sensor_msgs::Image::getTypeStatic());
 
   alpha_property_ = property_manager_->createProperty<FloatProperty>( "Alpha", property_prefix_, std::bind( &CameraDisplay::getAlpha, this ),
                                                                       std::bind( &CameraDisplay::setAlpha, this, std::placeholders::_1 ), parent_category_, this );

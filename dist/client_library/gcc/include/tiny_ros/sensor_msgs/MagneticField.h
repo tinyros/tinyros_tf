@@ -22,21 +22,13 @@ namespace sensor_msgs
       _header_type header;
       typedef tinyros::geometry_msgs::Vector3 _magnetic_field_type;
       _magnetic_field_type magnetic_field;
-      double magnetic_field_covariance[9];
+      typedef double _magnetic_field_covariance_type;
+      std::vector<_magnetic_field_covariance_type> magnetic_field_covariance;
 
     MagneticField():
       header(),
       magnetic_field(),
-      magnetic_field_covariance()
-    {
-    }
-
-    ~MagneticField()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
+      magnetic_field_covariance(9)
     {
     }
 

@@ -156,14 +156,14 @@ public:
 
   bool OnInit()
   {
+    tinyros::init("tinyros_rviz_image_view");
+
 #ifdef __WXMAC__
     ProcessSerialNumber PSN;
     GetCurrentProcess(&PSN);
     TransformProcessType(&PSN,kProcessTransformToForegroundApplication);
     SetFrontProcess(&PSN);
 #endif
-
-    tinyros::init("tinyros_rviz_image_view");
 
     wxFrame* frame = new MyFrame(NULL);
     SetTopWindow(frame);

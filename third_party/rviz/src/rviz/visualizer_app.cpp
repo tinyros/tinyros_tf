@@ -40,14 +40,14 @@
 #include <tiny_ros/ros.h>
 
 #include <thread>
-#include <boost/program_options.hpp>
+#include <program_options.h>
 #include <signal.h>
 
 #ifdef __WXMAC__
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
-namespace po = boost::program_options;
+namespace po = rviz::program_options;
 
 namespace rviz
 {
@@ -109,18 +109,18 @@ public:
       local_argv_[ i ] = strdup( wxString( argv[ i ] ).mb_str() );
     }
 
-    po::options_description options;
-    options.add_options()
-             ("help,h", "Produce this help message")
-             ("display-config,d", po::value<std::string>(), "A display config file (.vcg) to load")
-             ("target-frame,t", po::value<std::string>(), "Set the target frame")
-             ("fixed-frame,f", po::value<std::string>(), "Set the fixed frame");
+    po::options_description options({
+      {'h', "help", "Produce this help message"},
+      {'d', "display-config", po::option_value<std::string>(), "A display config file (.vcg) to load"},
+      {'t', "target-frame", po::option_value<std::string>(), "Set the target frame"},
+      {'f', "fixed-frame", po::option_value<std::string>(), "Set the fixed frame"}
+    });
+    
     po::variables_map vm;
     std::string display_config, target_frame, fixed_frame;
     try
     {
-      po::store(po::parse_command_line(argc, local_argv_, options), vm);
-      po::notify(vm);
+      vm = po::parse_command_line(argc, local_argv_, options);
 
       if (vm.count("help"))
       {
@@ -206,8 +206,6 @@ public:
       case SIGINT:
         {
           continue_ = false;
-
-          ros::shutdown();
           return;
         }
         break;

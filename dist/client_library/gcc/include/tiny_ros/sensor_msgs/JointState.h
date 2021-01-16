@@ -19,74 +19,34 @@ namespace sensor_msgs
     public:
       typedef tinyros::std_msgs::Header _header_type;
       _header_type header;
-      uint32_t name_length;
       typedef std::string _name_type;
-      _name_type st_name;
-      _name_type * name;
-      uint32_t position_length;
+      std::vector<_name_type> name;
       typedef double _position_type;
-      _position_type st_position;
-      _position_type * position;
-      uint32_t velocity_length;
+      std::vector<_position_type> position;
       typedef double _velocity_type;
-      _velocity_type st_velocity;
-      _velocity_type * velocity;
-      uint32_t effort_length;
+      std::vector<_velocity_type> velocity;
       typedef double _effort_type;
-      _effort_type st_effort;
-      _effort_type * effort;
+      std::vector<_effort_type> effort;
 
     JointState():
       header(),
-      name_length(0), name(NULL),
-      position_length(0), position(NULL),
-      velocity_length(0), velocity(NULL),
-      effort_length(0), effort(NULL)
+      name(0),
+      position(0),
+      velocity(0),
+      effort(0)
     {
-    }
-
-    ~JointState()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->name != NULL)
-      {
-        delete[] this->name;
-      }
-      this->name = NULL;
-      this->name_length = 0;
-      if(this->position != NULL)
-      {
-        delete[] this->position;
-      }
-      this->position = NULL;
-      this->position_length = 0;
-      if(this->velocity != NULL)
-      {
-        delete[] this->velocity;
-      }
-      this->velocity = NULL;
-      this->velocity_length = 0;
-      if(this->effort != NULL)
-      {
-        delete[] this->effort;
-      }
-      this->effort = NULL;
-      this->effort_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
       offset += this->header.serialize(outbuffer + offset);
-      *(outbuffer + offset + 0) = (this->name_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->name_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->name_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->name_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->name_length);
+      uint32_t name_length = this->name.size();
+      *(outbuffer + offset + 0) = (name_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (name_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (name_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (name_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(name_length);
       for( uint32_t i = 0; i < name_length; i++) {
         uint32_t length_namei = this->name[i].size();
         varToArr(outbuffer + offset, length_namei);
@@ -94,11 +54,12 @@ namespace sensor_msgs
         memcpy(outbuffer + offset, this->name[i].c_str(), length_namei);
         offset += length_namei;
       }
-      *(outbuffer + offset + 0) = (this->position_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->position_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->position_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->position_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->position_length);
+      uint32_t position_length = this->position.size();
+      *(outbuffer + offset + 0) = (position_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (position_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (position_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (position_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(position_length);
       for( uint32_t i = 0; i < position_length; i++) {
         union {
           double real;
@@ -115,11 +76,12 @@ namespace sensor_msgs
         *(outbuffer + offset + 7) = (u_positioni.base >> (8 * 7)) & 0xFF;
         offset += sizeof(this->position[i]);
       }
-      *(outbuffer + offset + 0) = (this->velocity_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->velocity_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->velocity_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->velocity_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->velocity_length);
+      uint32_t velocity_length = this->velocity.size();
+      *(outbuffer + offset + 0) = (velocity_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (velocity_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (velocity_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (velocity_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(velocity_length);
       for( uint32_t i = 0; i < velocity_length; i++) {
         union {
           double real;
@@ -136,11 +98,12 @@ namespace sensor_msgs
         *(outbuffer + offset + 7) = (u_velocityi.base >> (8 * 7)) & 0xFF;
         offset += sizeof(this->velocity[i]);
       }
-      *(outbuffer + offset + 0) = (this->effort_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->effort_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->effort_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->effort_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->effort_length);
+      uint32_t effort_length = this->effort.size();
+      *(outbuffer + offset + 0) = (effort_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (effort_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (effort_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (effort_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(effort_length);
       for( uint32_t i = 0; i < effort_length; i++) {
         union {
           double real;
@@ -164,111 +127,91 @@ namespace sensor_msgs
     {
       int offset = 0;
       offset += this->header.deserialize(inbuffer + offset);
-      uint32_t name_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      name_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      name_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      name_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->name_length);
-      if(!this->name || name_lengthT > this->name_length) {
-        this->deconstructor();
-        this->name = new std::string[name_lengthT];
-      }
-      this->name_length = name_lengthT;
+      uint32_t name_length = ((uint32_t) (*(inbuffer + offset))); 
+      name_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      name_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      name_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->name.resize(name_length); 
+      offset += sizeof(name_length);
       for( uint32_t i = 0; i < name_length; i++) {
-        uint32_t length_st_name;
-        arrToVar(length_st_name, (inbuffer + offset));
+        uint32_t length_namei;
+        arrToVar(length_namei, (inbuffer + offset));
         offset += 4;
-        for(unsigned int k= offset; k< offset+length_st_name; ++k){
+        for(unsigned int k= offset; k< offset+length_namei; ++k){
           inbuffer[k-1]=inbuffer[k];
         }
-        inbuffer[offset+length_st_name-1]=0;
-        this->st_name = (char *)(inbuffer + offset-1);
-        offset += length_st_name;
-        this->name[i] = this->st_name;
+        inbuffer[offset+length_namei-1]=0;
+        this->name[i] = (char *)(inbuffer + offset-1);
+        offset += length_namei;
       }
-      uint32_t position_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      position_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      position_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      position_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->position_length);
-      if(!this->position || position_lengthT > this->position_length) {
-        this->deconstructor();
-        this->position = new double[position_lengthT];
-      }
-      this->position_length = position_lengthT;
+      uint32_t position_length = ((uint32_t) (*(inbuffer + offset))); 
+      position_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      position_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      position_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->position.resize(position_length); 
+      offset += sizeof(position_length);
       for( uint32_t i = 0; i < position_length; i++) {
         union {
           double real;
           uint64_t base;
-        } u_st_position;
-        u_st_position.base = 0;
-        u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
-        u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
-        u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
-        u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
-        u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
-        u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
-        u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
-        u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
-        this->st_position = u_st_position.real;
-        offset += sizeof(this->st_position);
-        this->position[i] = this->st_position;
+        } u_positioni;
+        u_positioni.base = 0;
+        u_positioni.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+        u_positioni.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+        u_positioni.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+        u_positioni.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+        u_positioni.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+        u_positioni.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+        u_positioni.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+        u_positioni.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+        this->position[i] = u_positioni.real;
+        offset += sizeof(this->position[i]);
       }
-      uint32_t velocity_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      velocity_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      velocity_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      velocity_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->velocity_length);
-      if(!this->velocity || velocity_lengthT > this->velocity_length) {
-        this->deconstructor();
-        this->velocity = new double[velocity_lengthT];
-      }
-      this->velocity_length = velocity_lengthT;
+      uint32_t velocity_length = ((uint32_t) (*(inbuffer + offset))); 
+      velocity_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      velocity_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      velocity_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->velocity.resize(velocity_length); 
+      offset += sizeof(velocity_length);
       for( uint32_t i = 0; i < velocity_length; i++) {
         union {
           double real;
           uint64_t base;
-        } u_st_velocity;
-        u_st_velocity.base = 0;
-        u_st_velocity.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
-        u_st_velocity.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
-        u_st_velocity.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
-        u_st_velocity.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
-        u_st_velocity.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
-        u_st_velocity.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
-        u_st_velocity.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
-        u_st_velocity.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
-        this->st_velocity = u_st_velocity.real;
-        offset += sizeof(this->st_velocity);
-        this->velocity[i] = this->st_velocity;
+        } u_velocityi;
+        u_velocityi.base = 0;
+        u_velocityi.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+        u_velocityi.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+        u_velocityi.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+        u_velocityi.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+        u_velocityi.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+        u_velocityi.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+        u_velocityi.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+        u_velocityi.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+        this->velocity[i] = u_velocityi.real;
+        offset += sizeof(this->velocity[i]);
       }
-      uint32_t effort_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      effort_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      effort_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      effort_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->effort_length);
-      if(!this->effort || effort_lengthT > this->effort_length) {
-        this->deconstructor();
-        this->effort = new double[effort_lengthT];
-      }
-      this->effort_length = effort_lengthT;
+      uint32_t effort_length = ((uint32_t) (*(inbuffer + offset))); 
+      effort_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      effort_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      effort_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->effort.resize(effort_length); 
+      offset += sizeof(effort_length);
       for( uint32_t i = 0; i < effort_length; i++) {
         union {
           double real;
           uint64_t base;
-        } u_st_effort;
-        u_st_effort.base = 0;
-        u_st_effort.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
-        u_st_effort.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
-        u_st_effort.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
-        u_st_effort.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
-        u_st_effort.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
-        u_st_effort.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
-        u_st_effort.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
-        u_st_effort.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
-        this->st_effort = u_st_effort.real;
-        offset += sizeof(this->st_effort);
-        this->effort[i] = this->st_effort;
+        } u_efforti;
+        u_efforti.base = 0;
+        u_efforti.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+        u_efforti.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+        u_efforti.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+        u_efforti.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+        u_efforti.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+        u_efforti.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+        u_efforti.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+        u_efforti.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+        this->effort[i] = u_efforti.real;
+        offset += sizeof(this->effort[i]);
       }
       return offset;
     }
@@ -277,21 +220,25 @@ namespace sensor_msgs
     {
       int length = 0;
       length += this->header.serializedLength();
-      length += sizeof(this->name_length);
+      uint32_t name_length = this->name.size();
+      length += sizeof(name_length);
       for( uint32_t i = 0; i < name_length; i++) {
         uint32_t length_namei = this->name[i].size();
         length += 4;
         length += length_namei;
       }
-      length += sizeof(this->position_length);
+      uint32_t position_length = this->position.size();
+      length += sizeof(position_length);
       for( uint32_t i = 0; i < position_length; i++) {
         length += sizeof(this->position[i]);
       }
-      length += sizeof(this->velocity_length);
+      uint32_t velocity_length = this->velocity.size();
+      length += sizeof(velocity_length);
       for( uint32_t i = 0; i < velocity_length; i++) {
         length += sizeof(this->velocity[i]);
       }
-      length += sizeof(this->effort_length);
+      uint32_t effort_length = this->effort.size();
+      length += sizeof(effort_length);
       for( uint32_t i = 0; i < effort_length; i++) {
         length += sizeof(this->effort[i]);
       }
@@ -304,6 +251,7 @@ namespace sensor_msgs
       string_echo += "\"header\":";
       string_echo += this->header.echo();
       string_echo += ",";
+      uint32_t name_length = this->name.size();
       string_echo += "name:[";
       for( uint32_t i = 0; i < name_length; i++) {
         if( i == (name_length - 1)) {
@@ -329,6 +277,7 @@ namespace sensor_msgs
         }
       }
       string_echo += "],";
+      uint32_t position_length = this->position.size();
       string_echo += "position:[";
       for( uint32_t i = 0; i < position_length; i++) {
         if( i == (position_length - 1)) {
@@ -340,6 +289,7 @@ namespace sensor_msgs
         }
       }
       string_echo += "],";
+      uint32_t velocity_length = this->velocity.size();
       string_echo += "velocity:[";
       for( uint32_t i = 0; i < velocity_length; i++) {
         if( i == (velocity_length - 1)) {
@@ -351,6 +301,7 @@ namespace sensor_msgs
         }
       }
       string_echo += "],";
+      uint32_t effort_length = this->effort.size();
       string_echo += "effort:[";
       for( uint32_t i = 0; i < effort_length; i++) {
         if( i == (effort_length - 1)) {

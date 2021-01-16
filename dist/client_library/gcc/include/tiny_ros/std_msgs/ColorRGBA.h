@@ -33,15 +33,6 @@ namespace std_msgs
     {
     }
 
-    ~ColorRGBA()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;

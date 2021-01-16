@@ -28,7 +28,8 @@ namespace sensor_msgs
       _longitude_type longitude;
       typedef double _altitude_type;
       _altitude_type altitude;
-      double position_covariance[9];
+      typedef double _position_covariance_type;
+      std::vector<_position_covariance_type> position_covariance;
       typedef uint8_t _position_covariance_type_type;
       _position_covariance_type_type position_covariance_type;
       enum { COVARIANCE_TYPE_UNKNOWN =  0 };
@@ -42,17 +43,8 @@ namespace sensor_msgs
       latitude(0),
       longitude(0),
       altitude(0),
-      position_covariance(),
+      position_covariance(9),
       position_covariance_type(0)
-    {
-    }
-
-    ~NavSatFix()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
     {
     }
 

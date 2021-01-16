@@ -29,10 +29,8 @@ namespace sensor_msgs
       _is_bigendian_type is_bigendian;
       typedef uint32_t _step_type;
       _step_type step;
-      uint32_t data_length;
       typedef uint8_t _data_type;
-      _data_type st_data;
-      _data_type * data;
+      std::vector<_data_type> data;
 
     Image():
       header(),
@@ -41,23 +39,8 @@ namespace sensor_msgs
       encoding(""),
       is_bigendian(0),
       step(0),
-      data_length(0), data(NULL)
+      data(0)
     {
-    }
-
-    ~Image()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->data != NULL)
-      {
-        delete[] this->data;
-      }
-      this->data = NULL;
-      this->data_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -86,11 +69,12 @@ namespace sensor_msgs
       *(outbuffer + offset + 2) = (this->step >> (8 * 2)) & 0xFF;
       *(outbuffer + offset + 3) = (this->step >> (8 * 3)) & 0xFF;
       offset += sizeof(this->step);
-      *(outbuffer + offset + 0) = (this->data_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->data_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->data_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->data_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->data_length);
+      uint32_t data_length = this->data.size();
+      *(outbuffer + offset + 0) = (data_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (data_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (data_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (data_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(data_length);
       for( uint32_t i = 0; i < data_length; i++) {
         *(outbuffer + offset + 0) = (this->data[i] >> (8 * 0)) & 0xFF;
         offset += sizeof(this->data[i]);
@@ -128,20 +112,15 @@ namespace sensor_msgs
       this->step |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
       this->step |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
       offset += sizeof(this->step);
-      uint32_t data_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      data_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      data_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      data_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->data_length);
-      if(!this->data || data_lengthT > this->data_length) {
-        this->deconstructor();
-        this->data = new uint8_t[data_lengthT];
-      }
-      this->data_length = data_lengthT;
+      uint32_t data_length = ((uint32_t) (*(inbuffer + offset))); 
+      data_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      data_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      data_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->data.resize(data_length); 
+      offset += sizeof(data_length);
       for( uint32_t i = 0; i < data_length; i++) {
-        this->st_data =  ((uint8_t) (*(inbuffer + offset)));
-        offset += sizeof(this->st_data);
-        this->data[i] = this->st_data;
+        this->data[i] =  ((uint8_t) (*(inbuffer + offset)));
+        offset += sizeof(this->data[i]);
       }
       return offset;
     }
@@ -157,7 +136,8 @@ namespace sensor_msgs
       length += length_encoding;
       length += sizeof(this->is_bigendian);
       length += sizeof(this->step);
-      length += sizeof(this->data_length);
+      uint32_t data_length = this->data.size();
+      length += sizeof(data_length);
       for( uint32_t i = 0; i < data_length; i++) {
         length += sizeof(this->data[i]);
       }
@@ -186,6 +166,7 @@ namespace sensor_msgs
       string_echo += ss_is_bigendian.str();
       std::stringstream ss_step; ss_step << "\"step\":" << step <<",";
       string_echo += ss_step.str();
+      uint32_t data_length = this->data.size();
       string_echo += "data:[";
       for( uint32_t i = 0; i < data_length; i++) {
         if( i == (data_length - 1)) {

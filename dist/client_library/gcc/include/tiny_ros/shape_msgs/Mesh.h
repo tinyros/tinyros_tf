@@ -18,64 +18,35 @@ namespace shape_msgs
   class Mesh : public tinyros::Msg
   {
     public:
-      uint32_t triangles_length;
       typedef tinyros::shape_msgs::MeshTriangle _triangles_type;
-      _triangles_type st_triangles;
-      _triangles_type * triangles;
-      uint32_t vertices_length;
+      std::vector<_triangles_type> triangles;
       typedef tinyros::geometry_msgs::Point _vertices_type;
-      _vertices_type st_vertices;
-      _vertices_type * vertices;
+      std::vector<_vertices_type> vertices;
 
     Mesh():
-      triangles_length(0), triangles(NULL),
-      vertices_length(0), vertices(NULL)
+      triangles(0),
+      vertices(0)
     {
-    }
-
-    ~Mesh()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->triangles != NULL)
-      {
-        for( uint32_t i = 0; i < this->triangles_length; i++){
-          this->triangles[i].deconstructor();
-        }
-        delete[] this->triangles;
-      }
-      this->triangles = NULL;
-      this->triangles_length = 0;
-      if(this->vertices != NULL)
-      {
-        for( uint32_t i = 0; i < this->vertices_length; i++){
-          this->vertices[i].deconstructor();
-        }
-        delete[] this->vertices;
-      }
-      this->vertices = NULL;
-      this->vertices_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
-      *(outbuffer + offset + 0) = (this->triangles_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->triangles_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->triangles_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->triangles_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->triangles_length);
+      uint32_t triangles_length = this->triangles.size();
+      *(outbuffer + offset + 0) = (triangles_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (triangles_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (triangles_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (triangles_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(triangles_length);
       for( uint32_t i = 0; i < triangles_length; i++) {
         offset += this->triangles[i].serialize(outbuffer + offset);
       }
-      *(outbuffer + offset + 0) = (this->vertices_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->vertices_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->vertices_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->vertices_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->vertices_length);
+      uint32_t vertices_length = this->vertices.size();
+      *(outbuffer + offset + 0) = (vertices_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (vertices_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (vertices_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (vertices_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(vertices_length);
       for( uint32_t i = 0; i < vertices_length; i++) {
         offset += this->vertices[i].serialize(outbuffer + offset);
       }
@@ -85,33 +56,23 @@ namespace shape_msgs
     virtual int deserialize(unsigned char *inbuffer)
     {
       int offset = 0;
-      uint32_t triangles_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      triangles_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      triangles_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      triangles_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->triangles_length);
-      if(!this->triangles || triangles_lengthT > this->triangles_length) {
-        this->deconstructor();
-        this->triangles = new tinyros::shape_msgs::MeshTriangle[triangles_lengthT];
-      }
-      this->triangles_length = triangles_lengthT;
+      uint32_t triangles_length = ((uint32_t) (*(inbuffer + offset))); 
+      triangles_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      triangles_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      triangles_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->triangles.resize(triangles_length); 
+      offset += sizeof(triangles_length);
       for( uint32_t i = 0; i < triangles_length; i++) {
-        offset += this->st_triangles.deserialize(inbuffer + offset);
-        this->triangles[i] = this->st_triangles;
+        offset += this->triangles[i].deserialize(inbuffer + offset);
       }
-      uint32_t vertices_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      vertices_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      vertices_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      vertices_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->vertices_length);
-      if(!this->vertices || vertices_lengthT > this->vertices_length) {
-        this->deconstructor();
-        this->vertices = new tinyros::geometry_msgs::Point[vertices_lengthT];
-      }
-      this->vertices_length = vertices_lengthT;
+      uint32_t vertices_length = ((uint32_t) (*(inbuffer + offset))); 
+      vertices_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      vertices_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      vertices_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->vertices.resize(vertices_length); 
+      offset += sizeof(vertices_length);
       for( uint32_t i = 0; i < vertices_length; i++) {
-        offset += this->st_vertices.deserialize(inbuffer + offset);
-        this->vertices[i] = this->st_vertices;
+        offset += this->vertices[i].deserialize(inbuffer + offset);
       }
       return offset;
     }
@@ -119,11 +80,13 @@ namespace shape_msgs
     virtual int serializedLength() const
     {
       int length = 0;
-      length += sizeof(this->triangles_length);
+      uint32_t triangles_length = this->triangles.size();
+      length += sizeof(triangles_length);
       for( uint32_t i = 0; i < triangles_length; i++) {
         length += this->triangles[i].serializedLength();
       }
-      length += sizeof(this->vertices_length);
+      uint32_t vertices_length = this->vertices.size();
+      length += sizeof(vertices_length);
       for( uint32_t i = 0; i < vertices_length; i++) {
         length += this->vertices[i].serializedLength();
       }
@@ -133,6 +96,7 @@ namespace shape_msgs
     virtual std::string echo()
     {
       std::string string_echo = "{";
+      uint32_t triangles_length = this->triangles.size();
       string_echo += "triangles:[";
       for( uint32_t i = 0; i < triangles_length; i++) {
         if( i == (triangles_length - 1)) {
@@ -144,6 +108,7 @@ namespace shape_msgs
         }
       }
       string_echo += "],";
+      uint32_t vertices_length = this->vertices.size();
       string_echo += "vertices:[";
       for( uint32_t i = 0; i < vertices_length; i++) {
         if( i == (vertices_length - 1)) {

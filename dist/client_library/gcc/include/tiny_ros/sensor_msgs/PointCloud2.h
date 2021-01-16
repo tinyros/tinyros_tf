@@ -24,20 +24,16 @@ namespace sensor_msgs
       _height_type height;
       typedef uint32_t _width_type;
       _width_type width;
-      uint32_t fields_length;
       typedef tinyros::sensor_msgs::PointField _fields_type;
-      _fields_type st_fields;
-      _fields_type * fields;
+      std::vector<_fields_type> fields;
       typedef bool _is_bigendian_type;
       _is_bigendian_type is_bigendian;
       typedef uint32_t _point_step_type;
       _point_step_type point_step;
       typedef uint32_t _row_step_type;
       _row_step_type row_step;
-      uint32_t data_length;
       typedef uint8_t _data_type;
-      _data_type st_data;
-      _data_type * data;
+      std::vector<_data_type> data;
       typedef bool _is_dense_type;
       _is_dense_type is_dense;
 
@@ -45,37 +41,13 @@ namespace sensor_msgs
       header(),
       height(0),
       width(0),
-      fields_length(0), fields(NULL),
+      fields(0),
       is_bigendian(0),
       point_step(0),
       row_step(0),
-      data_length(0), data(NULL),
+      data(0),
       is_dense(0)
     {
-    }
-
-    ~PointCloud2()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->fields != NULL)
-      {
-        for( uint32_t i = 0; i < this->fields_length; i++){
-          this->fields[i].deconstructor();
-        }
-        delete[] this->fields;
-      }
-      this->fields = NULL;
-      this->fields_length = 0;
-      if(this->data != NULL)
-      {
-        delete[] this->data;
-      }
-      this->data = NULL;
-      this->data_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -92,11 +64,12 @@ namespace sensor_msgs
       *(outbuffer + offset + 2) = (this->width >> (8 * 2)) & 0xFF;
       *(outbuffer + offset + 3) = (this->width >> (8 * 3)) & 0xFF;
       offset += sizeof(this->width);
-      *(outbuffer + offset + 0) = (this->fields_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->fields_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->fields_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->fields_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->fields_length);
+      uint32_t fields_length = this->fields.size();
+      *(outbuffer + offset + 0) = (fields_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (fields_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (fields_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (fields_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(fields_length);
       for( uint32_t i = 0; i < fields_length; i++) {
         offset += this->fields[i].serialize(outbuffer + offset);
       }
@@ -117,11 +90,12 @@ namespace sensor_msgs
       *(outbuffer + offset + 2) = (this->row_step >> (8 * 2)) & 0xFF;
       *(outbuffer + offset + 3) = (this->row_step >> (8 * 3)) & 0xFF;
       offset += sizeof(this->row_step);
-      *(outbuffer + offset + 0) = (this->data_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->data_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->data_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->data_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->data_length);
+      uint32_t data_length = this->data.size();
+      *(outbuffer + offset + 0) = (data_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (data_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (data_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (data_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(data_length);
       for( uint32_t i = 0; i < data_length; i++) {
         *(outbuffer + offset + 0) = (this->data[i] >> (8 * 0)) & 0xFF;
         offset += sizeof(this->data[i]);
@@ -150,19 +124,14 @@ namespace sensor_msgs
       this->width |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
       this->width |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
       offset += sizeof(this->width);
-      uint32_t fields_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      fields_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      fields_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      fields_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->fields_length);
-      if(!this->fields || fields_lengthT > this->fields_length) {
-        this->deconstructor();
-        this->fields = new tinyros::sensor_msgs::PointField[fields_lengthT];
-      }
-      this->fields_length = fields_lengthT;
+      uint32_t fields_length = ((uint32_t) (*(inbuffer + offset))); 
+      fields_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      fields_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      fields_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->fields.resize(fields_length); 
+      offset += sizeof(fields_length);
       for( uint32_t i = 0; i < fields_length; i++) {
-        offset += this->st_fields.deserialize(inbuffer + offset);
-        this->fields[i] = this->st_fields;
+        offset += this->fields[i].deserialize(inbuffer + offset);
       }
       union {
         bool real;
@@ -182,20 +151,15 @@ namespace sensor_msgs
       this->row_step |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
       this->row_step |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
       offset += sizeof(this->row_step);
-      uint32_t data_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      data_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      data_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      data_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->data_length);
-      if(!this->data || data_lengthT > this->data_length) {
-        this->deconstructor();
-        this->data = new uint8_t[data_lengthT];
-      }
-      this->data_length = data_lengthT;
+      uint32_t data_length = ((uint32_t) (*(inbuffer + offset))); 
+      data_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      data_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      data_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->data.resize(data_length); 
+      offset += sizeof(data_length);
       for( uint32_t i = 0; i < data_length; i++) {
-        this->st_data =  ((uint8_t) (*(inbuffer + offset)));
-        offset += sizeof(this->st_data);
-        this->data[i] = this->st_data;
+        this->data[i] =  ((uint8_t) (*(inbuffer + offset)));
+        offset += sizeof(this->data[i]);
       }
       union {
         bool real;
@@ -214,14 +178,16 @@ namespace sensor_msgs
       length += this->header.serializedLength();
       length += sizeof(this->height);
       length += sizeof(this->width);
-      length += sizeof(this->fields_length);
+      uint32_t fields_length = this->fields.size();
+      length += sizeof(fields_length);
       for( uint32_t i = 0; i < fields_length; i++) {
         length += this->fields[i].serializedLength();
       }
       length += sizeof(this->is_bigendian);
       length += sizeof(this->point_step);
       length += sizeof(this->row_step);
-      length += sizeof(this->data_length);
+      uint32_t data_length = this->data.size();
+      length += sizeof(data_length);
       for( uint32_t i = 0; i < data_length; i++) {
         length += sizeof(this->data[i]);
       }
@@ -239,6 +205,7 @@ namespace sensor_msgs
       string_echo += ss_height.str();
       std::stringstream ss_width; ss_width << "\"width\":" << width <<",";
       string_echo += ss_width.str();
+      uint32_t fields_length = this->fields.size();
       string_echo += "fields:[";
       for( uint32_t i = 0; i < fields_length; i++) {
         if( i == (fields_length - 1)) {
@@ -256,6 +223,7 @@ namespace sensor_msgs
       string_echo += ss_point_step.str();
       std::stringstream ss_row_step; ss_row_step << "\"row_step\":" << row_step <<",";
       string_echo += ss_row_step.str();
+      uint32_t data_length = this->data.size();
       string_echo += "data:[";
       for( uint32_t i = 0; i < data_length; i++) {
         if( i == (data_length - 1)) {

@@ -18,33 +18,16 @@ namespace smach_msgs
     public:
       typedef std::string _path_type;
       _path_type path;
-      uint32_t initial_states_length;
       typedef std::string _initial_states_type;
-      _initial_states_type st_initial_states;
-      _initial_states_type * initial_states;
+      std::vector<_initial_states_type> initial_states;
       typedef std::string _local_data_type;
       _local_data_type local_data;
 
     SmachContainerInitialStatusCmd():
       path(""),
-      initial_states_length(0), initial_states(NULL),
+      initial_states(0),
       local_data("")
     {
-    }
-
-    ~SmachContainerInitialStatusCmd()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->initial_states != NULL)
-      {
-        delete[] this->initial_states;
-      }
-      this->initial_states = NULL;
-      this->initial_states_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -55,11 +38,12 @@ namespace smach_msgs
       offset += 4;
       memcpy(outbuffer + offset, this->path.c_str(), length_path);
       offset += length_path;
-      *(outbuffer + offset + 0) = (this->initial_states_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->initial_states_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->initial_states_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->initial_states_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->initial_states_length);
+      uint32_t initial_states_length = this->initial_states.size();
+      *(outbuffer + offset + 0) = (initial_states_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (initial_states_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (initial_states_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (initial_states_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(initial_states_length);
       for( uint32_t i = 0; i < initial_states_length; i++) {
         uint32_t length_initial_statesi = this->initial_states[i].size();
         varToArr(outbuffer + offset, length_initial_statesi);
@@ -87,27 +71,22 @@ namespace smach_msgs
       inbuffer[offset+length_path-1]=0;
       this->path = (char *)(inbuffer + offset-1);
       offset += length_path;
-      uint32_t initial_states_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      initial_states_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      initial_states_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      initial_states_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->initial_states_length);
-      if(!this->initial_states || initial_states_lengthT > this->initial_states_length) {
-        this->deconstructor();
-        this->initial_states = new std::string[initial_states_lengthT];
-      }
-      this->initial_states_length = initial_states_lengthT;
+      uint32_t initial_states_length = ((uint32_t) (*(inbuffer + offset))); 
+      initial_states_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      initial_states_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      initial_states_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->initial_states.resize(initial_states_length); 
+      offset += sizeof(initial_states_length);
       for( uint32_t i = 0; i < initial_states_length; i++) {
-        uint32_t length_st_initial_states;
-        arrToVar(length_st_initial_states, (inbuffer + offset));
+        uint32_t length_initial_statesi;
+        arrToVar(length_initial_statesi, (inbuffer + offset));
         offset += 4;
-        for(unsigned int k= offset; k< offset+length_st_initial_states; ++k){
+        for(unsigned int k= offset; k< offset+length_initial_statesi; ++k){
           inbuffer[k-1]=inbuffer[k];
         }
-        inbuffer[offset+length_st_initial_states-1]=0;
-        this->st_initial_states = (char *)(inbuffer + offset-1);
-        offset += length_st_initial_states;
-        this->initial_states[i] = this->st_initial_states;
+        inbuffer[offset+length_initial_statesi-1]=0;
+        this->initial_states[i] = (char *)(inbuffer + offset-1);
+        offset += length_initial_statesi;
       }
       uint32_t length_local_data;
       arrToVar(length_local_data, (inbuffer + offset));
@@ -127,7 +106,8 @@ namespace smach_msgs
       uint32_t length_path = this->path.size();
       length += 4;
       length += length_path;
-      length += sizeof(this->initial_states_length);
+      uint32_t initial_states_length = this->initial_states.size();
+      length += sizeof(initial_states_length);
       for( uint32_t i = 0; i < initial_states_length; i++) {
         uint32_t length_initial_statesi = this->initial_states[i].size();
         length += 4;
@@ -150,6 +130,7 @@ namespace smach_msgs
       string_echo += "\"path\":\"";
       string_echo += path;
       string_echo += "\",";
+      uint32_t initial_states_length = this->initial_states.size();
       string_echo += "initial_states:[";
       for( uint32_t i = 0; i < initial_states_length; i++) {
         if( i == (initial_states_length - 1)) {

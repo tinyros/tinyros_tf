@@ -19,20 +19,12 @@ namespace geometry_msgs
     public:
       typedef tinyros::geometry_msgs::Pose _pose_type;
       _pose_type pose;
-      double covariance[36];
+      typedef double _covariance_type;
+      std::vector<_covariance_type> covariance;
 
     PoseWithCovariance():
       pose(),
-      covariance()
-    {
-    }
-
-    ~PoseWithCovariance()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
+      covariance(36)
     {
     }
 

@@ -375,7 +375,7 @@ void VisualizationManager::onUpdate( wxTimerEvent& event )
       render_requested_ = 0;
       render_timer_ = 0.0f;
 
-      std::unique_lock<std::mutex> lock(render_mutex_);
+      std::scoped_lock lock(render_mutex_);
 
       tinyros::Time start = tinyros::Time::now();
       ogre_root_->renderOneFrame();
@@ -648,7 +648,7 @@ DisplayWrapper* VisualizationManager::getDisplayWrapper( Display* display )
 #define CAMERA_TYPE wxT("Camera Type")
 #define CAMERA_CONFIG wxT("Camera Config")
 
-void VisualizationManager::loadGeneralConfig( const boost::shared_ptr<wxConfigBase>& config, const StatusCallback& cb )
+void VisualizationManager::loadGeneralConfig( const std::shared_ptr<wxConfigBase>& config, const StatusCallback& cb )
 {
   // Legacy... read camera config from the general config (camera config is now saved in the display config).
   /// \todo Remove this once some time has passed
@@ -675,13 +675,13 @@ void VisualizationManager::loadGeneralConfig( const boost::shared_ptr<wxConfigBa
   general_config_loaded_(config);
 }
 
-void VisualizationManager::saveGeneralConfig( const boost::shared_ptr<wxConfigBase>& config )
+void VisualizationManager::saveGeneralConfig( const std::shared_ptr<wxConfigBase>& config )
 {
   plugin_manager_->saveConfig(config);
   general_config_saving_(config);
 }
 
-void VisualizationManager::loadDisplayConfig( const boost::shared_ptr<wxConfigBase>& config, const StatusCallback& cb )
+void VisualizationManager::loadDisplayConfig( const std::shared_ptr<wxConfigBase>& config, const StatusCallback& cb )
 {
   disable_update_ = true;
 
@@ -758,7 +758,7 @@ void VisualizationManager::loadDisplayConfig( const boost::shared_ptr<wxConfigBa
   disable_update_ = false;
 }
 
-void VisualizationManager::saveDisplayConfig( const boost::shared_ptr<wxConfigBase>& config )
+void VisualizationManager::saveDisplayConfig( const std::shared_ptr<wxConfigBase>& config )
 {
   int i = 0;
   V_DisplayWrapper::iterator vis_it = displays_.begin();

@@ -82,7 +82,7 @@ void RobotModelDisplay::setRobotDescription( const std::string& description_para
 
   if ( isEnabled() )
   {
-    load();
+    load(description_param_);
     causeRender();
   }
 }
@@ -148,9 +148,9 @@ void RobotModelDisplay::load(std::string content)
   robot_->update( TFLinkUpdater(vis_manager_->getTFClient(), target_frame_) );
 }
 
-void RobotModelDisplay::onEnable()
+void RobotModelDisplay::onEnable(std::string robot_description)
 {
-  load();
+  load(robot_description);
   robot_->setVisible( true );
 }
 

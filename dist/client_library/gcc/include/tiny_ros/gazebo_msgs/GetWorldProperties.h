@@ -27,15 +27,6 @@ static const char GETWORLDPROPERTIES[] = "gazebo_msgs/GetWorldProperties";
       this->__id__ = 0;
     }
 
-    ~GetWorldPropertiesRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -94,10 +85,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesRequest const> G
     public:
       typedef double _sim_time_type;
       _sim_time_type sim_time;
-      uint32_t model_names_length;
       typedef std::string _model_names_type;
-      _model_names_type st_model_names;
-      _model_names_type * model_names;
+      std::vector<_model_names_type> model_names;
       typedef bool _rendering_enabled_type;
       _rendering_enabled_type rendering_enabled;
       typedef bool _success_type;
@@ -107,27 +96,12 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesRequest const> G
 
     GetWorldPropertiesResponse():
       sim_time(0),
-      model_names_length(0), model_names(NULL),
+      model_names(0),
       rendering_enabled(0),
       success(0),
       status_message("")
     {
       this->__id__ = 0;
-    }
-
-    ~GetWorldPropertiesResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->model_names != NULL)
-      {
-        delete[] this->model_names;
-      }
-      this->model_names = NULL;
-      this->model_names_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -152,11 +126,12 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesRequest const> G
       *(outbuffer + offset + 6) = (u_sim_time.base >> (8 * 6)) & 0xFF;
       *(outbuffer + offset + 7) = (u_sim_time.base >> (8 * 7)) & 0xFF;
       offset += sizeof(this->sim_time);
-      *(outbuffer + offset + 0) = (this->model_names_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->model_names_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->model_names_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->model_names_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->model_names_length);
+      uint32_t model_names_length = this->model_names.size();
+      *(outbuffer + offset + 0) = (model_names_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (model_names_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (model_names_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (model_names_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(model_names_length);
       for( uint32_t i = 0; i < model_names_length; i++) {
         uint32_t length_model_namesi = this->model_names[i].size();
         varToArr(outbuffer + offset, length_model_namesi);
@@ -209,27 +184,22 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesRequest const> G
       u_sim_time.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
       this->sim_time = u_sim_time.real;
       offset += sizeof(this->sim_time);
-      uint32_t model_names_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      model_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      model_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      model_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->model_names_length);
-      if(!this->model_names || model_names_lengthT > this->model_names_length) {
-        this->deconstructor();
-        this->model_names = new std::string[model_names_lengthT];
-      }
-      this->model_names_length = model_names_lengthT;
+      uint32_t model_names_length = ((uint32_t) (*(inbuffer + offset))); 
+      model_names_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      model_names_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      model_names_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->model_names.resize(model_names_length); 
+      offset += sizeof(model_names_length);
       for( uint32_t i = 0; i < model_names_length; i++) {
-        uint32_t length_st_model_names;
-        arrToVar(length_st_model_names, (inbuffer + offset));
+        uint32_t length_model_namesi;
+        arrToVar(length_model_namesi, (inbuffer + offset));
         offset += 4;
-        for(unsigned int k= offset; k< offset+length_st_model_names; ++k){
+        for(unsigned int k= offset; k< offset+length_model_namesi; ++k){
           inbuffer[k-1]=inbuffer[k];
         }
-        inbuffer[offset+length_st_model_names-1]=0;
-        this->st_model_names = (char *)(inbuffer + offset-1);
-        offset += length_st_model_names;
-        this->model_names[i] = this->st_model_names;
+        inbuffer[offset+length_model_namesi-1]=0;
+        this->model_names[i] = (char *)(inbuffer + offset-1);
+        offset += length_model_namesi;
       }
       union {
         bool real;
@@ -263,7 +233,8 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesRequest const> G
     {
       int length = 0;
       length += sizeof(this->sim_time);
-      length += sizeof(this->model_names_length);
+      uint32_t model_names_length = this->model_names.size();
+      length += sizeof(model_names_length);
       for( uint32_t i = 0; i < model_names_length; i++) {
         uint32_t length_model_namesi = this->model_names[i].size();
         length += 4;
@@ -282,6 +253,7 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesRequest const> G
       std::string string_echo = "{";
       std::stringstream ss_sim_time; ss_sim_time << "\"sim_time\":" << sim_time <<",";
       string_echo += ss_sim_time.str();
+      uint32_t model_names_length = this->model_names.size();
       string_echo += "model_names:[";
       for( uint32_t i = 0; i < model_names_length; i++) {
         if( i == (model_names_length - 1)) {

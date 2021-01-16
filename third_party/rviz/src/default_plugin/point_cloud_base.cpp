@@ -116,7 +116,7 @@ void PointCloudSelectionHandler::postRenderPass(uint32_t pass)
 
 void PointCloudSelectionHandler::getCloudAndLocalIndexByGlobalIndex(int global_index, std::shared_ptr<tinyros::sensor_msgs::PointCloud>& cloud_out, int& index_out)
 {
-  std::unique_lock<std::mutex> lock(display_->clouds_mutex_);
+  std::scoped_lock lock(display_->clouds_mutex_);
 
   int count = 0;
 
@@ -521,7 +521,7 @@ void PointCloudBase::update(float wall_dt, float ros_dt)
   }
 
   {
-    std::unique_lock<std::mutex> lock(clouds_mutex_);
+    std::scoped_lock lock(clouds_mutex_);
 
     D_CloudInfo::iterator cloud_it = clouds_.begin();
     D_CloudInfo::iterator cloud_end = clouds_.end();
@@ -551,7 +551,7 @@ void PointCloudBase::update(float wall_dt, float ros_dt)
 
   if (new_cloud_)
   {
-    std::unique_lock<std::mutex> lock(new_clouds_mutex_);
+    std::scoped_lock lock(new_clouds_mutex_);
 
     if (point_decay_time_ == 0.0f)
     {
@@ -712,7 +712,7 @@ void PointCloudBase::processMessage(const tinyros::sensor_msgs::PointCloudConstP
   transformCloud(info, points);
 
   {
-    std::unique_lock<std::mutex> lock(new_clouds_mutex_);
+    std::scoped_lock lock(new_clouds_mutex_);
 
     new_clouds_.push_back(info);
     new_points_.push_back(V_Point());
@@ -759,7 +759,7 @@ void PointCloudBase::transformCloud(const CloudInfoPtr& info, V_Point& points)
     tinyros::sensor_msgs::ChannelFloat32& chan = *chan_it;
     uint32_t val_count = chan.values.size();
     bool channel_size_correct = val_count == point_count;
-	if (!channel_size_correct)
+  if (!channel_size_correct)
     {
       tinyros_log_error("Point cloud '%s' has channel with fewer values than points (%d values, %d points)", name_.c_str(), val_count, point_count);
     }

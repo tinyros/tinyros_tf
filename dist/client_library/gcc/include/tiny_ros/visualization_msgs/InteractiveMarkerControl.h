@@ -28,10 +28,8 @@ namespace visualization_msgs
       _interaction_mode_type interaction_mode;
       typedef bool _always_visible_type;
       _always_visible_type always_visible;
-      uint32_t markers_length;
       typedef tinyros::visualization_msgs::Marker _markers_type;
-      _markers_type st_markers;
-      _markers_type * markers;
+      std::vector<_markers_type> markers;
       typedef bool _independent_marker_orientation_type;
       _independent_marker_orientation_type independent_marker_orientation;
       typedef std::string _description_type;
@@ -56,28 +54,10 @@ namespace visualization_msgs
       orientation_mode(0),
       interaction_mode(0),
       always_visible(0),
-      markers_length(0), markers(NULL),
+      markers(0),
       independent_marker_orientation(0),
       description("")
     {
-    }
-
-    ~InteractiveMarkerControl()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->markers != NULL)
-      {
-        for( uint32_t i = 0; i < this->markers_length; i++){
-          this->markers[i].deconstructor();
-        }
-        delete[] this->markers;
-      }
-      this->markers = NULL;
-      this->markers_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -100,11 +80,12 @@ namespace visualization_msgs
       u_always_visible.real = this->always_visible;
       *(outbuffer + offset + 0) = (u_always_visible.base >> (8 * 0)) & 0xFF;
       offset += sizeof(this->always_visible);
-      *(outbuffer + offset + 0) = (this->markers_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->markers_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->markers_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->markers_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->markers_length);
+      uint32_t markers_length = this->markers.size();
+      *(outbuffer + offset + 0) = (markers_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (markers_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (markers_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (markers_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(markers_length);
       for( uint32_t i = 0; i < markers_length; i++) {
         offset += this->markers[i].serialize(outbuffer + offset);
       }
@@ -148,19 +129,14 @@ namespace visualization_msgs
       u_always_visible.base |= ((uint8_t) (*(inbuffer + offset + 0))) << (8 * 0);
       this->always_visible = u_always_visible.real;
       offset += sizeof(this->always_visible);
-      uint32_t markers_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      markers_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      markers_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      markers_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->markers_length);
-      if(!this->markers || markers_lengthT > this->markers_length) {
-        this->deconstructor();
-        this->markers = new tinyros::visualization_msgs::Marker[markers_lengthT];
-      }
-      this->markers_length = markers_lengthT;
+      uint32_t markers_length = ((uint32_t) (*(inbuffer + offset))); 
+      markers_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      markers_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      markers_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->markers.resize(markers_length); 
+      offset += sizeof(markers_length);
       for( uint32_t i = 0; i < markers_length; i++) {
-        offset += this->st_markers.deserialize(inbuffer + offset);
-        this->markers[i] = this->st_markers;
+        offset += this->markers[i].deserialize(inbuffer + offset);
       }
       union {
         bool real;
@@ -192,7 +168,8 @@ namespace visualization_msgs
       length += sizeof(this->orientation_mode);
       length += sizeof(this->interaction_mode);
       length += sizeof(this->always_visible);
-      length += sizeof(this->markers_length);
+      uint32_t markers_length = this->markers.size();
+      length += sizeof(markers_length);
       for( uint32_t i = 0; i < markers_length; i++) {
         length += this->markers[i].serializedLength();
       }
@@ -223,6 +200,7 @@ namespace visualization_msgs
       string_echo += ss_interaction_mode.str();
       std::stringstream ss_always_visible; ss_always_visible << "\"always_visible\":" << always_visible <<",";
       string_echo += ss_always_visible.str();
+      uint32_t markers_length = this->markers.size();
       string_echo += "markers:[";
       for( uint32_t i = 0; i < markers_length; i++) {
         if( i == (markers_length - 1)) {

@@ -22,33 +22,13 @@ static const char PROJECTEDMAPSINFO[] = "map_msgs/ProjectedMapsInfo";
       ___id___type __id__;
 
     public:
-      uint32_t projected_maps_info_length;
       typedef tinyros::map_msgs::ProjectedMapInfo _projected_maps_info_type;
-      _projected_maps_info_type st_projected_maps_info;
-      _projected_maps_info_type * projected_maps_info;
+      std::vector<_projected_maps_info_type> projected_maps_info;
 
     ProjectedMapsInfoRequest():
-      projected_maps_info_length(0), projected_maps_info(NULL)
+      projected_maps_info(0)
     {
       this->__id__ = 0;
-    }
-
-    ~ProjectedMapsInfoRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->projected_maps_info != NULL)
-      {
-        for( uint32_t i = 0; i < this->projected_maps_info_length; i++){
-          this->projected_maps_info[i].deconstructor();
-        }
-        delete[] this->projected_maps_info;
-      }
-      this->projected_maps_info = NULL;
-      this->projected_maps_info_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -59,11 +39,12 @@ static const char PROJECTEDMAPSINFO[] = "map_msgs/ProjectedMapsInfo";
       *(outbuffer + offset + 2) = (this->__id__ >> (8 * 2)) & 0xFF;
       *(outbuffer + offset + 3) = (this->__id__ >> (8 * 3)) & 0xFF;
       offset += sizeof(this->__id__);
-      *(outbuffer + offset + 0) = (this->projected_maps_info_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->projected_maps_info_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->projected_maps_info_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->projected_maps_info_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->projected_maps_info_length);
+      uint32_t projected_maps_info_length = this->projected_maps_info.size();
+      *(outbuffer + offset + 0) = (projected_maps_info_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (projected_maps_info_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (projected_maps_info_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (projected_maps_info_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(projected_maps_info_length);
       for( uint32_t i = 0; i < projected_maps_info_length; i++) {
         offset += this->projected_maps_info[i].serialize(outbuffer + offset);
       }
@@ -78,19 +59,14 @@ static const char PROJECTEDMAPSINFO[] = "map_msgs/ProjectedMapsInfo";
       this->__id__ |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
       this->__id__ |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
       offset += sizeof(this->__id__);
-      uint32_t projected_maps_info_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      projected_maps_info_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      projected_maps_info_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      projected_maps_info_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->projected_maps_info_length);
-      if(!this->projected_maps_info || projected_maps_info_lengthT > this->projected_maps_info_length) {
-        this->deconstructor();
-        this->projected_maps_info = new tinyros::map_msgs::ProjectedMapInfo[projected_maps_info_lengthT];
-      }
-      this->projected_maps_info_length = projected_maps_info_lengthT;
+      uint32_t projected_maps_info_length = ((uint32_t) (*(inbuffer + offset))); 
+      projected_maps_info_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      projected_maps_info_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      projected_maps_info_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->projected_maps_info.resize(projected_maps_info_length); 
+      offset += sizeof(projected_maps_info_length);
       for( uint32_t i = 0; i < projected_maps_info_length; i++) {
-        offset += this->st_projected_maps_info.deserialize(inbuffer + offset);
-        this->projected_maps_info[i] = this->st_projected_maps_info;
+        offset += this->projected_maps_info[i].deserialize(inbuffer + offset);
       }
       return offset;
     }
@@ -98,7 +74,8 @@ static const char PROJECTEDMAPSINFO[] = "map_msgs/ProjectedMapsInfo";
     virtual int serializedLength() const
     {
       int length = 0;
-      length += sizeof(this->projected_maps_info_length);
+      uint32_t projected_maps_info_length = this->projected_maps_info.size();
+      length += sizeof(projected_maps_info_length);
       for( uint32_t i = 0; i < projected_maps_info_length; i++) {
         length += this->projected_maps_info[i].serializedLength();
       }
@@ -108,6 +85,7 @@ static const char PROJECTEDMAPSINFO[] = "map_msgs/ProjectedMapsInfo";
     virtual std::string echo()
     {
       std::string string_echo = "{";
+      uint32_t projected_maps_info_length = this->projected_maps_info.size();
       string_echo += "projected_maps_info:[";
       for( uint32_t i = 0; i < projected_maps_info_length; i++) {
         if( i == (projected_maps_info_length - 1)) {
@@ -148,15 +126,6 @@ typedef std::shared_ptr<tinyros::map_msgs::ProjectedMapsInfoRequest const> Proje
     ProjectedMapsInfoResponse()
     {
       this->__id__ = 0;
-    }
-
-    ~ProjectedMapsInfoResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

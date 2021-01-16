@@ -35,11 +35,11 @@
 #include "rviz/helpers/color.h"
 #include "rviz/properties/forwards.h"
 
-#include <tint_ros/ros.h>
-#include <tint_ros/nav_msgs/GridCells.h>
-#include <tint_ros/nav_msgs/MapMetaData.h>
+#include <tiny_ros/ros.h>
+#include <tiny_ros/nav_msgs/GridCells.h>
+#include <tiny_ros/nav_msgs/MapMetaData.h>
 
-#include <tint_ros/tf/message_filter.h>
+#include <tiny_ros/tf/message_filter.h>
 
 #include <memory>
 

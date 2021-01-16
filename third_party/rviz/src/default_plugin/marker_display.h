@@ -40,10 +40,9 @@
 #include <functional>
 #include <memory>
 
-#include <visualization_msgs/Marker.h>
-#include <visualization_msgs/MarkerArray.h>
+#include <tiny_ros/visualization_msgs/Marker.h>
+#include <tiny_ros/visualization_msgs/MarkerArray.h>
 
-#include <message_filters/subscriber.h>
 #include <tiny_ros/tf/message_filter.h>
 
 namespace Ogre

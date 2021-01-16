@@ -94,13 +94,14 @@ public:
   void sendTransform(const std::vector<tinyros::geometry_msgs::TransformStamped> & msgtf)
   {
     tinyros::tf::tfMessage message;
-    message.transforms_length = msgtf.size();
-    message.transforms = new tinyros::geometry_msgs::TransformStamped[message.transforms_length];
-    TINYROS_ASSERT(message.transforms);
-    for (unsigned int i = 0; i < message.transforms_length; i++)
+    for (std::vector<tinyros::geometry_msgs::TransformStamped>::const_iterator it = msgtf.begin(); it != msgtf.end(); ++it)
     {
-      message.transforms[i] = msgtf[i];
+      message.transforms.push_back(*it);
+      //Make sure to resolve anything published
+      message.transforms.back().header.frame_id = tinyros::tf::resolve(tf_prefix_, message.transforms.back().header.frame_id);
+      message.transforms.back().child_frame_id = tinyros::tf::resolve(tf_prefix_, message.transforms.back().child_frame_id);
     }
+
     publisher_.publish(&message);
   }
 

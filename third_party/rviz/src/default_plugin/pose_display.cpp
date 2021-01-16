@@ -98,7 +98,7 @@ PoseDisplay::PoseDisplay( const std::string& name, VisualizationManager* manager
 , shaft_length_(1.0)
 , axes_length_(1.0)
 , axes_radius_(0.1)
-, tf_filter_(*manager->getTFClient(), "", 5, update_nh_)
+, tf_filter_(*manager->getTFClient(), "", 5)
 {
   scene_node_ = scene_manager_->getRootSceneNode()->createChildSceneNode();
 
@@ -326,7 +326,7 @@ void PoseDisplay::createProperties()
   topic_property_ = property_manager_->createProperty<ROSTopicStringProperty>( "Topic", property_prefix_, std::bind( &PoseDisplay::getTopic, this ),
                                                                                 std::bind( &PoseDisplay::setTopic, this, std::placeholders::_1 ), parent_category_, this );
   ROSTopicStringPropertyPtr topic_prop = topic_property_.lock();
-  topic_prop->setMessageType(geometry_msgs::PoseStamped::__s_getDataType());
+  topic_prop->setMessageType(tinyros::geometry_msgs::PoseStamped::getTypeStatic());
 
   shape_property_ = property_manager_->createProperty<EnumProperty>( "Shape", property_prefix_, std::bind( &PoseDisplay::getShape, this ),
                                                                      std::bind( &PoseDisplay::setShape, this, std::placeholders::_1 ), parent_category_, this );

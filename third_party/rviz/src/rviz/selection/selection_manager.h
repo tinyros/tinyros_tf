@@ -36,6 +36,7 @@
 #include <memory>
 #include <unordered_map>
 #include <mutex>
+#include <tiny_ros/ros.h>
 #include <tiny_ros/tf/signals.h>
 
 #include <OGRE/OgreTexture.h>

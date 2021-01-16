@@ -43,15 +43,6 @@ static const char SPAWNMODEL[] = "gazebo_msgs/SpawnModel";
       this->__id__ = 0;
     }
 
-    ~SpawnModelRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -224,15 +215,6 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::SpawnModelRequest const> SpawnMode
       status_message("")
     {
       this->__id__ = 0;
-    }
-
-    ~SpawnModelResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

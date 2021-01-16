@@ -27,15 +27,6 @@ static const char EMPTY[] = "std_srvs/Empty";
       this->__id__ = 0;
     }
 
-    ~EmptyRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -96,15 +87,6 @@ typedef std::shared_ptr<tinyros::std_srvs::EmptyRequest const> EmptyRequestConst
     EmptyResponse()
     {
       this->__id__ = 0;
-    }
-
-    ~EmptyResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

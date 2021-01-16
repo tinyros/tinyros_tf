@@ -18,30 +18,13 @@ namespace sensor_msgs
     public:
       typedef std::string _name_type;
       _name_type name;
-      uint32_t values_length;
       typedef float _values_type;
-      _values_type st_values;
-      _values_type * values;
+      std::vector<_values_type> values;
 
     ChannelFloat32():
       name(""),
-      values_length(0), values(NULL)
+      values(0)
     {
-    }
-
-    ~ChannelFloat32()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->values != NULL)
-      {
-        delete[] this->values;
-      }
-      this->values = NULL;
-      this->values_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -52,11 +35,12 @@ namespace sensor_msgs
       offset += 4;
       memcpy(outbuffer + offset, this->name.c_str(), length_name);
       offset += length_name;
-      *(outbuffer + offset + 0) = (this->values_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->values_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->values_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->values_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->values_length);
+      uint32_t values_length = this->values.size();
+      *(outbuffer + offset + 0) = (values_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (values_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (values_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (values_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(values_length);
       for( uint32_t i = 0; i < values_length; i++) {
         union {
           float real;
@@ -84,29 +68,24 @@ namespace sensor_msgs
       inbuffer[offset+length_name-1]=0;
       this->name = (char *)(inbuffer + offset-1);
       offset += length_name;
-      uint32_t values_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      values_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      values_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      values_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->values_length);
-      if(!this->values || values_lengthT > this->values_length) {
-        this->deconstructor();
-        this->values = new float[values_lengthT];
-      }
-      this->values_length = values_lengthT;
+      uint32_t values_length = ((uint32_t) (*(inbuffer + offset))); 
+      values_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      values_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      values_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->values.resize(values_length); 
+      offset += sizeof(values_length);
       for( uint32_t i = 0; i < values_length; i++) {
         union {
           float real;
           uint32_t base;
-        } u_st_values;
-        u_st_values.base = 0;
-        u_st_values.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
-        u_st_values.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
-        u_st_values.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
-        u_st_values.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
-        this->st_values = u_st_values.real;
-        offset += sizeof(this->st_values);
-        this->values[i] = this->st_values;
+        } u_valuesi;
+        u_valuesi.base = 0;
+        u_valuesi.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+        u_valuesi.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+        u_valuesi.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+        u_valuesi.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+        this->values[i] = u_valuesi.real;
+        offset += sizeof(this->values[i]);
       }
       return offset;
     }
@@ -117,7 +96,8 @@ namespace sensor_msgs
       uint32_t length_name = this->name.size();
       length += 4;
       length += length_name;
-      length += sizeof(this->values_length);
+      uint32_t values_length = this->values.size();
+      length += sizeof(values_length);
       for( uint32_t i = 0; i < values_length; i++) {
         length += sizeof(this->values[i]);
       }
@@ -135,6 +115,7 @@ namespace sensor_msgs
       string_echo += "\"name\":\"";
       string_echo += name;
       string_echo += "\",";
+      uint32_t values_length = this->values.size();
       string_echo += "values:[";
       for( uint32_t i = 0; i < values_length; i++) {
         if( i == (values_length - 1)) {

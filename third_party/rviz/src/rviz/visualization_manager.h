@@ -33,12 +33,12 @@
 
 #include "helpers/color.h"
 #include "properties/forwards.h"
+#include "thread_group.h"
 
 #include <wx/event.h>
 #include <wx/stopwatch.h>
 
 #include <tiny_ros/tf/signals.h>
-#include <thread>
 
 #include <vector>
 #include <map>
@@ -298,7 +298,7 @@ protected:
 
   tinyros::tf::CallbackQueue update_queue_;
   tinyros::tf::CallbackQueue threaded_queue_;
-  std::thread_group threaded_queue_threads_;
+  rviz::thread_group threaded_queue_threads_;
   bool shutting_down_;
   tinyros::tf::TransformListener* tf_;
   tinyros::tf::TransformListener* threaded_tf_;

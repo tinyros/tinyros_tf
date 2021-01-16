@@ -59,7 +59,7 @@ namespace rviz
 
 MarkerDisplay::MarkerDisplay( const std::string& name, VisualizationManager* manager )
 : Display( name, manager )
-, tf_filter_(*manager->getTFClient(), "", 1000, update_nh_)
+, tf_filter_(*manager->getTFClient(), "", 1000)
 , marker_topic_("visualization_marker")
 , array_sub_(new tinyros::Subscriber<tinyros::visualization_msgs::MarkerArray, MarkerDisplay>("", &MarkerDisplay::incomingMarkerArray, this))
 {
@@ -128,26 +128,26 @@ void MarkerDisplay::subscribe()
 
   if (!marker_topic_.empty())
   {
-	tf_filter_.connectInput(marker_topic_);
-	tf_filter_.connectEnable(true);
-	
+  tf_filter_.connectInput(marker_topic_);
+  tf_filter_.connectEnable(true);
+  
     if (array_sub_->topic_.empty()) {
       array_sub_->topic_ = marker_topic_ + "_array";
       tinyros::nh()->subscribe(*array_sub_);
     } else if (array_sub_->topic_ != (marker_topic_ + "_array")) {
-	  array_sub_->setEnabled(false);
+    array_sub_->setEnabled(false);
       array_sub_ = new tinyros::Subscriber<tinyros::visualization_msgs::MarkerArray, MarkerDisplay>
-	  	(marker_topic_ + "_array", &MarkerDisplay::incomingMarkerArray, this);
+      (marker_topic_ + "_array", &MarkerDisplay::incomingMarkerArray, this);
       tinyros::nh()->subscribe(*array_sub_);
     }
-	array_sub_->setEnabled(true);
+  array_sub_->setEnabled(true);
   }
 }
 
 void MarkerDisplay::unsubscribe()
 {
   tf_filter_.connectEnable(false);
-  array_sub_.setEnabled(false);
+  array_sub_->setEnabled(false);
 }
 
 void MarkerDisplay::incomingMarkerArray(const tinyros::visualization_msgs::MarkerArrayConstPtr& array)
@@ -163,7 +163,7 @@ void MarkerDisplay::incomingMarkerArray(const tinyros::visualization_msgs::Marke
 
 void MarkerDisplay::incomingMarker( const tinyros::visualization_msgs::MarkerConstPtr& message )
 {
-  std::unique_lock<std::mutex> lock(queue_mutex_);
+  std::scoped_lock lock(queue_mutex_);
 
   message_queue_.push_back( message );
 }
@@ -285,7 +285,7 @@ void MarkerDisplay::update(float wall_dt, float ros_dt)
   V_MarkerMessage local_queue;
 
   {
-    std::unique_lock<std::mutex> lock(queue_mutex_);
+    std::scoped_lock lock(queue_mutex_);
 
     local_queue.swap( message_queue_ );
   }

@@ -21,66 +21,37 @@ namespace sensor_msgs
     public:
       typedef tinyros::std_msgs::Header _header_type;
       _header_type header;
-      uint32_t points_length;
       typedef tinyros::geometry_msgs::Point32 _points_type;
-      _points_type st_points;
-      _points_type * points;
-      uint32_t channels_length;
+      std::vector<_points_type> points;
       typedef tinyros::sensor_msgs::ChannelFloat32 _channels_type;
-      _channels_type st_channels;
-      _channels_type * channels;
+      std::vector<_channels_type> channels;
 
     PointCloud():
       header(),
-      points_length(0), points(NULL),
-      channels_length(0), channels(NULL)
+      points(0),
+      channels(0)
     {
-    }
-
-    ~PointCloud()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->points != NULL)
-      {
-        for( uint32_t i = 0; i < this->points_length; i++){
-          this->points[i].deconstructor();
-        }
-        delete[] this->points;
-      }
-      this->points = NULL;
-      this->points_length = 0;
-      if(this->channels != NULL)
-      {
-        for( uint32_t i = 0; i < this->channels_length; i++){
-          this->channels[i].deconstructor();
-        }
-        delete[] this->channels;
-      }
-      this->channels = NULL;
-      this->channels_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
       offset += this->header.serialize(outbuffer + offset);
-      *(outbuffer + offset + 0) = (this->points_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->points_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->points_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->points_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->points_length);
+      uint32_t points_length = this->points.size();
+      *(outbuffer + offset + 0) = (points_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (points_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (points_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (points_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(points_length);
       for( uint32_t i = 0; i < points_length; i++) {
         offset += this->points[i].serialize(outbuffer + offset);
       }
-      *(outbuffer + offset + 0) = (this->channels_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->channels_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->channels_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->channels_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->channels_length);
+      uint32_t channels_length = this->channels.size();
+      *(outbuffer + offset + 0) = (channels_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (channels_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (channels_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (channels_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(channels_length);
       for( uint32_t i = 0; i < channels_length; i++) {
         offset += this->channels[i].serialize(outbuffer + offset);
       }
@@ -91,33 +62,23 @@ namespace sensor_msgs
     {
       int offset = 0;
       offset += this->header.deserialize(inbuffer + offset);
-      uint32_t points_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      points_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      points_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      points_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->points_length);
-      if(!this->points || points_lengthT > this->points_length) {
-        this->deconstructor();
-        this->points = new tinyros::geometry_msgs::Point32[points_lengthT];
-      }
-      this->points_length = points_lengthT;
+      uint32_t points_length = ((uint32_t) (*(inbuffer + offset))); 
+      points_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      points_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      points_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->points.resize(points_length); 
+      offset += sizeof(points_length);
       for( uint32_t i = 0; i < points_length; i++) {
-        offset += this->st_points.deserialize(inbuffer + offset);
-        this->points[i] = this->st_points;
+        offset += this->points[i].deserialize(inbuffer + offset);
       }
-      uint32_t channels_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      channels_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      channels_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      channels_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->channels_length);
-      if(!this->channels || channels_lengthT > this->channels_length) {
-        this->deconstructor();
-        this->channels = new tinyros::sensor_msgs::ChannelFloat32[channels_lengthT];
-      }
-      this->channels_length = channels_lengthT;
+      uint32_t channels_length = ((uint32_t) (*(inbuffer + offset))); 
+      channels_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      channels_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      channels_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->channels.resize(channels_length); 
+      offset += sizeof(channels_length);
       for( uint32_t i = 0; i < channels_length; i++) {
-        offset += this->st_channels.deserialize(inbuffer + offset);
-        this->channels[i] = this->st_channels;
+        offset += this->channels[i].deserialize(inbuffer + offset);
       }
       return offset;
     }
@@ -126,11 +87,13 @@ namespace sensor_msgs
     {
       int length = 0;
       length += this->header.serializedLength();
-      length += sizeof(this->points_length);
+      uint32_t points_length = this->points.size();
+      length += sizeof(points_length);
       for( uint32_t i = 0; i < points_length; i++) {
         length += this->points[i].serializedLength();
       }
-      length += sizeof(this->channels_length);
+      uint32_t channels_length = this->channels.size();
+      length += sizeof(channels_length);
       for( uint32_t i = 0; i < channels_length; i++) {
         length += this->channels[i].serializedLength();
       }
@@ -143,6 +106,7 @@ namespace sensor_msgs
       string_echo += "\"header\":";
       string_echo += this->header.echo();
       string_echo += ",";
+      uint32_t points_length = this->points.size();
       string_echo += "points:[";
       for( uint32_t i = 0; i < points_length; i++) {
         if( i == (points_length - 1)) {
@@ -154,6 +118,7 @@ namespace sensor_msgs
         }
       }
       string_echo += "],";
+      uint32_t channels_length = this->channels.size();
       string_echo += "channels:[";
       for( uint32_t i = 0; i < channels_length; i++) {
         if( i == (channels_length - 1)) {

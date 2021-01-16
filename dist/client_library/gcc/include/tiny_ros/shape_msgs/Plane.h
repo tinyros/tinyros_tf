@@ -16,19 +16,11 @@ namespace shape_msgs
   class Plane : public tinyros::Msg
   {
     public:
-      double coef[4];
+      typedef double _coef_type;
+      std::vector<_coef_type> coef;
 
     Plane():
-      coef()
-    {
-    }
-
-    ~Plane()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
+      coef(4)
     {
     }
 

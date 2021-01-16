@@ -144,11 +144,11 @@ void PoseArrayDisplay::subscribe()
       sub_->topic_ = topic_;
       tinyros::nh()->subscribe(*sub_);
     } else if (sub_->topic_ != topic_) {
-	  sub_->setEnabled(false);
+    sub_->setEnabled(false);
       sub_ = new tinyros::Subscriber<tinyros::geometry_msgs::PoseArray, PoseArrayDisplay>(topic_, &PoseArrayDisplay::incomingMessage, this);
       tinyros::nh()->subscribe(*sub_);
     }
-	sub_->setEnabled(true);
+  sub_->setEnabled(true);
   }
 }
 

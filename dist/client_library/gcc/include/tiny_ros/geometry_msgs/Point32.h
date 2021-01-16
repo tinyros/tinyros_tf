@@ -30,15 +30,6 @@ namespace geometry_msgs
     {
     }
 
-    ~Point32()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;

@@ -348,7 +348,8 @@ void SelectionManager::initialize()
 
 void SelectionManager::clearHandlers()
 {
-  std::unique_lock<std::recursive_mutex> lock(global_mutex_);
+  std::scoped_lock lock(global_mutex_);
+
   objects_.clear();
 }
 
@@ -360,7 +361,7 @@ void SelectionManager::addObject(CollObjectHandle obj, const SelectionHandlerPtr
     return;
   }
 
-  std::unique_lock<std::recursive_mutex> lock(global_mutex_);
+  std::scoped_lock lock(global_mutex_);
 
   handler->initialize(vis_manager_);
 
@@ -375,7 +376,7 @@ void SelectionManager::removeObject(CollObjectHandle obj)
     return;
   }
 
-  std::unique_lock<std::recursive_mutex> lock(global_mutex_);
+  std::scoped_lock lock(global_mutex_);
 
   M_Picked::iterator it = selection_.find(obj);
   if (it != selection_.end())
@@ -391,7 +392,7 @@ void SelectionManager::removeObject(CollObjectHandle obj)
 
 void SelectionManager::update()
 {
-  std::unique_lock<std::recursive_mutex> lock(global_mutex_);
+  std::scoped_lock lock(global_mutex_);
 
   highlight_node_->setVisible(highlight_enabled_);
 
@@ -410,7 +411,7 @@ void SelectionManager::update()
 
 void SelectionManager::highlight(Ogre::Viewport* viewport, int x1, int y1, int x2, int y2)
 {
-  std::unique_lock<std::recursive_mutex> lock(global_mutex_);
+  std::scoped_lock lock(global_mutex_);
 
   highlight_enabled_ = true;
 
@@ -423,14 +424,14 @@ void SelectionManager::highlight(Ogre::Viewport* viewport, int x1, int y1, int x
 
 void SelectionManager::removeHighlight()
 {
-  std::unique_lock<std::recursive_mutex> lock(global_mutex_);
+  std::scoped_lock lock(global_mutex_);
 
   highlight_enabled_ = false;
 }
 
 void SelectionManager::select(Ogre::Viewport* viewport, int x1, int y1, int x2, int y2, SelectType type)
 {
-  std::unique_lock<std::recursive_mutex> lock(global_mutex_);
+  std::scoped_lock lock(global_mutex_);
 
   vis_manager_->lockRender();
 
@@ -564,7 +565,7 @@ void SelectionManager::renderAndUnpack(Ogre::Viewport* viewport, uint32_t pass, 
 
 void SelectionManager::pick(Ogre::Viewport* viewport, int x1, int y1, int x2, int y2, M_Picked& results)
 {
-  std::unique_lock<std::recursive_mutex> lock(global_mutex_);
+  std::scoped_lock lock(global_mutex_);
 
 #if defined(PICKING_DEBUG)
   for (int i = 0; i < s_num_render_textures_; ++i)
@@ -787,7 +788,7 @@ void SelectionManager::addPickTechnique(CollObjectHandle handle, const Ogre::Mat
 
 CollObjectHandle SelectionManager::createCollisionForObject(ogre_tools::Object* obj, const SelectionHandlerPtr& handler, CollObjectHandle coll)
 {
-  std::unique_lock<std::recursive_mutex> lock(global_mutex_);
+  std::scoped_lock lock(global_mutex_);
 
   bool use_original = false;
 
@@ -846,7 +847,7 @@ CollObjectHandle SelectionManager::createCollisionForObject(ogre_tools::Object* 
 
 CollObjectHandle SelectionManager::createCollisionForEntity(Ogre::Entity* entity, const SelectionHandlerPtr& handler, CollObjectHandle coll)
 {
-  std::unique_lock<std::recursive_mutex> lock(global_mutex_);
+  std::scoped_lock lock(global_mutex_);
 
   bool use_original = false;
 
@@ -886,7 +887,7 @@ CollObjectHandle SelectionManager::createCollisionForEntity(Ogre::Entity* entity
 
 SelectionHandlerPtr SelectionManager::getHandler(CollObjectHandle obj)
 {
-  std::unique_lock<std::recursive_mutex> lock(global_mutex_);
+  std::scoped_lock lock(global_mutex_);
 
   M_CollisionObjectToSelectionHandler::iterator it = objects_.find(obj);
   if (it != objects_.end())
@@ -899,7 +900,7 @@ SelectionHandlerPtr SelectionManager::getHandler(CollObjectHandle obj)
 
 void SelectionManager::removeSelection(const M_Picked& objs)
 {
-  std::unique_lock<std::recursive_mutex> lock(global_mutex_);
+  std::scoped_lock lock(global_mutex_);
 
   M_Picked::const_iterator it = objs.begin();
   M_Picked::const_iterator end = objs.end();
@@ -913,7 +914,7 @@ void SelectionManager::removeSelection(const M_Picked& objs)
 
 void SelectionManager::addSelection(const M_Picked& objs)
 {
-  std::unique_lock<std::recursive_mutex> lock(global_mutex_);
+  std::scoped_lock lock(global_mutex_);
 
   M_Picked added;
   M_Picked::const_iterator it = objs.begin();
@@ -932,7 +933,7 @@ void SelectionManager::addSelection(const M_Picked& objs)
 
 void SelectionManager::setSelection(const M_Picked& objs)
 {
-  std::unique_lock<std::recursive_mutex> lock(global_mutex_);
+  std::scoped_lock lock(global_mutex_);
 
   selection_setting_.emit(SelectionSettingArgs());
 
@@ -946,7 +947,7 @@ void SelectionManager::setSelection(const M_Picked& objs)
 
 std::pair<Picked, bool> SelectionManager::addSelection(const Picked& obj)
 {
-  std::unique_lock<std::recursive_mutex> lock(global_mutex_);
+  std::scoped_lock lock(global_mutex_);
 
   std::pair<M_Picked::iterator, bool> pib = selection_.insert(std::make_pair(obj.handle, obj));
 
@@ -985,7 +986,7 @@ std::pair<Picked, bool> SelectionManager::addSelection(const Picked& obj)
 
 void SelectionManager::removeSelection(const Picked& obj)
 {
-  std::unique_lock<std::recursive_mutex> lock(global_mutex_);
+  std::scoped_lock lock(global_mutex_);
 
   M_Picked::iterator sel_it = selection_.find(obj.handle);
   if (sel_it != selection_.end())
@@ -1009,7 +1010,7 @@ void SelectionManager::removeSelection(const Picked& obj)
 
 void SelectionManager::focusOnSelection()
 {
-  std::unique_lock<std::recursive_mutex> lock(global_mutex_);
+  std::scoped_lock lock(global_mutex_);
 
   if (selection_.empty())
   {

@@ -21,34 +21,14 @@ namespace visualization_msgs
       _server_id_type server_id;
       typedef uint64_t _seq_num_type;
       _seq_num_type seq_num;
-      uint32_t markers_length;
       typedef tinyros::visualization_msgs::InteractiveMarker _markers_type;
-      _markers_type st_markers;
-      _markers_type * markers;
+      std::vector<_markers_type> markers;
 
     InteractiveMarkerInit():
       server_id(""),
       seq_num(0),
-      markers_length(0), markers(NULL)
+      markers(0)
     {
-    }
-
-    ~InteractiveMarkerInit()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->markers != NULL)
-      {
-        for( uint32_t i = 0; i < this->markers_length; i++){
-          this->markers[i].deconstructor();
-        }
-        delete[] this->markers;
-      }
-      this->markers = NULL;
-      this->markers_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -68,11 +48,12 @@ namespace visualization_msgs
       *(outbuffer + offset + 6) = (this->seq_num >> (8 * 6)) & 0xFF;
       *(outbuffer + offset + 7) = (this->seq_num >> (8 * 7)) & 0xFF;
       offset += sizeof(this->seq_num);
-      *(outbuffer + offset + 0) = (this->markers_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->markers_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->markers_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->markers_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->markers_length);
+      uint32_t markers_length = this->markers.size();
+      *(outbuffer + offset + 0) = (markers_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (markers_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (markers_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (markers_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(markers_length);
       for( uint32_t i = 0; i < markers_length; i++) {
         offset += this->markers[i].serialize(outbuffer + offset);
       }
@@ -100,19 +81,14 @@ namespace visualization_msgs
       this->seq_num |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
       this->seq_num |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
       offset += sizeof(this->seq_num);
-      uint32_t markers_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      markers_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      markers_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      markers_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->markers_length);
-      if(!this->markers || markers_lengthT > this->markers_length) {
-        this->deconstructor();
-        this->markers = new tinyros::visualization_msgs::InteractiveMarker[markers_lengthT];
-      }
-      this->markers_length = markers_lengthT;
+      uint32_t markers_length = ((uint32_t) (*(inbuffer + offset))); 
+      markers_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      markers_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      markers_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->markers.resize(markers_length); 
+      offset += sizeof(markers_length);
       for( uint32_t i = 0; i < markers_length; i++) {
-        offset += this->st_markers.deserialize(inbuffer + offset);
-        this->markers[i] = this->st_markers;
+        offset += this->markers[i].deserialize(inbuffer + offset);
       }
       return offset;
     }
@@ -124,7 +100,8 @@ namespace visualization_msgs
       length += 4;
       length += length_server_id;
       length += sizeof(this->seq_num);
-      length += sizeof(this->markers_length);
+      uint32_t markers_length = this->markers.size();
+      length += sizeof(markers_length);
       for( uint32_t i = 0; i < markers_length; i++) {
         length += this->markers[i].serializedLength();
       }
@@ -144,6 +121,7 @@ namespace visualization_msgs
       string_echo += "\",";
       std::stringstream ss_seq_num; ss_seq_num << "\"seq_num\":" << seq_num <<",";
       string_echo += ss_seq_num.str();
+      uint32_t markers_length = this->markers.size();
       string_echo += "markers:[";
       for( uint32_t i = 0; i < markers_length; i++) {
         if( i == (markers_length - 1)) {

@@ -38,15 +38,6 @@ static const char GETPLAN[] = "nav_msgs/GetPlan";
       this->__id__ = 0;
     }
 
-    ~GetPlanRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -146,15 +137,6 @@ typedef std::shared_ptr<tinyros::nav_msgs::GetPlanRequest const> GetPlanRequestC
       plan()
     {
       this->__id__ = 0;
-    }
-
-    ~GetPlanResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

@@ -49,15 +49,6 @@ static const char APPLYBODYWRENCH[] = "gazebo_msgs/ApplyBodyWrench";
       this->__id__ = 0;
     }
 
-    ~ApplyBodyWrenchRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -238,15 +229,6 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyBodyWrenchRequest const> Appl
       status_message("")
     {
       this->__id__ = 0;
-    }
-
-    ~ApplyBodyWrenchResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

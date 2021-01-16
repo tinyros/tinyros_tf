@@ -94,9 +94,6 @@ class PrimitiveDataType:
     def make_initializer(self, f, trailer):
         f.write('      %s(0)%s\n' % (self.name, trailer))
 
-    def make_deinitializer(self, f, header):
-        pass
-
     def make_declaration(self, f):
         f.write('      typedef %s _%s_type;\n      _%s_type %s;\n' % (self.type, self.name, self.name, self.name) )
 
@@ -164,9 +161,6 @@ class MessageDataType(PrimitiveDataType):
     def make_initializer(self, f, trailer):
         f.write('      %s()%s\n' % (self.name, trailer))
 
-    def make_deinitializer(self, f, header):
-        pass
-
     def serialize(self, f, header):
         f.write('%s      offset += this->%s.serialize(outbuffer + offset);\n' % (header, self.name))
 
@@ -188,9 +182,6 @@ class MessageDataType(PrimitiveDataType):
 class StringDataType(PrimitiveDataType):
     def make_initializer(self, f, trailer):
         f.write('      %s("")%s\n' % (self.name, trailer))
-
-    def make_deinitializer(self, f, header):
-        pass
 
     def make_declaration(self, f):
         f.write('      typedef std::string _%s_type;\n      _%s_type %s;\n' % (self.name, self.name, self.name) )
@@ -254,9 +245,6 @@ class TimeDataType(PrimitiveDataType):
     def make_initializer(self, f, trailer):
         f.write('      %s()%s\n' % (self.name, trailer))
 
-    def make_deinitializer(self, f, header):
-        pass
-
     def make_declaration(self, f):
         f.write('      typedef %s _%s_type;\n      _%s_type %s;\n' % (self.type, self.name, self.name, self.name) )
 
@@ -296,42 +284,24 @@ class ArrayDataType(PrimitiveDataType):
 
     def make_initializer(self, f, trailer):
         if self.size == None:
-            f.write('      %s_length(0), %s(NULL)%s\n' % (self.name, self.name, trailer))
+            f.write('      %s(0)%s\n' % (self.name, trailer))
         else:
-            f.write('      %s()%s\n' % (self.name, trailer))
-
-    def make_deinitializer(self, f, header):
-        if self.size == None:
-            ty = self.type.replace("[","").replace("]","")
-            f.write('%s      if(this->%s != NULL)\n' % (header, self.name))
-            f.write('%s      {\n' % header)
-            if not primitiveType(ty):
-                f.write('%s        for( uint32_t i = 0; i < this->%s_length; i++){\n' % (header, self.name) )
-                f.write('%s          this->%s[i].deconstructor();\n' % (header, self.name))
-                f.write('%s        }\n' % header)
-            f.write('%s        delete[] this->%s;\n' % (header, self.name))
-            f.write('%s      }\n' % header)
-            f.write('%s      this->%s = NULL;\n' % (header, self.name))
-            f.write('%s      this->%s_length = 0;\n' % (header, self.name))
+            f.write('      %s(%s)%s\n' % (self.name, self.size, trailer))
 
     def make_declaration(self, f):
-        if self.size == None:
-            f.write('      uint32_t %s_length;\n' % self.name)
-            f.write('      typedef %s _%s_type;\n' % (self.type, self.name))
-            f.write('      _%s_type st_%s;\n' % (self.name, self.name)) # static instance for copy
-            f.write('      _%s_type * %s;\n' % (self.name, self.name))
-        else:
-            f.write('      %s %s[%d];\n' % (self.type, self.name, self.size))
+        f.write('      typedef %s _%s_type;\n' % (self.type, self.name))
+        f.write('      std::vector<_%s_type> %s;\n' % (self.name, self.name))
 
     def serialize(self, f, header):
         c = self.cls(self.name+"[i]", self.type, self.bytes)
         if self.size == None:
             # serialize length
-            f.write('%s      *(outbuffer + offset + 0) = (this->%s_length >> (8 * 0)) & 0xFF;\n' % (header, self.name))
-            f.write('%s      *(outbuffer + offset + 1) = (this->%s_length >> (8 * 1)) & 0xFF;\n' % (header, self.name))
-            f.write('%s      *(outbuffer + offset + 2) = (this->%s_length >> (8 * 2)) & 0xFF;\n' % (header, self.name))
-            f.write('%s      *(outbuffer + offset + 3) = (this->%s_length >> (8 * 3)) & 0xFF;\n' % (header, self.name))
-            f.write('%s      offset += sizeof(this->%s_length);\n' % (header, self.name))
+            f.write('%s      uint32_t %s_length = this->%s.size();\n' % (header, self.name, self.name))
+            f.write('%s      *(outbuffer + offset + 0) = (%s_length >> (8 * 0)) & 0xFF;\n' % (header, self.name))
+            f.write('%s      *(outbuffer + offset + 1) = (%s_length >> (8 * 1)) & 0xFF;\n' % (header, self.name))
+            f.write('%s      *(outbuffer + offset + 2) = (%s_length >> (8 * 2)) & 0xFF;\n' % (header, self.name))
+            f.write('%s      *(outbuffer + offset + 3) = (%s_length >> (8 * 3)) & 0xFF;\n' % (header, self.name))
+            f.write('%s      offset += sizeof(%s_length);\n' % (header, self.name))
             f.write('%s      for( uint32_t i = 0; i < %s_length; i++) {\n' % (header, self.name))
             c.serialize(f, header + "  ")
             f.write('%s      }\n' % header)
@@ -341,25 +311,19 @@ class ArrayDataType(PrimitiveDataType):
             f.write('%s      }\n' % header)
 
     def deserialize(self, f, header):
+        c = self.cls(self.name+"[i]", self.type, self.bytes)
         if self.size == None:
-            c = self.cls("st_"+self.name, self.type, self.bytes)
             # deserialize length
-            f.write('%s      uint32_t %s_lengthT = ((uint32_t) (*(inbuffer + offset))); \n' % (header, self.name))
-            f.write('%s      %s_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); \n' % (header, self.name))
-            f.write('%s      %s_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); \n' % (header, self.name))
-            f.write('%s      %s_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); \n' % (header, self.name))
-            f.write('%s      offset += sizeof(this->%s_length);\n' % (header, self.name))
-            f.write('%s      if(!this->%s || %s_lengthT > this->%s_length) {\n' % (header, self.name, self.name, self.name))
-            f.write('%s        this->deconstructor();\n' % header)
-            f.write('%s        this->%s = new %s[%s_lengthT];\n' % (header, self.name, self.type, self.name))
-            f.write('%s      }\n' % header)
-            f.write('%s      this->%s_length = %s_lengthT;\n' % (header, self.name, self.name))
+            f.write('%s      uint32_t %s_length = ((uint32_t) (*(inbuffer + offset))); \n' % (header, self.name))
+            f.write('%s      %s_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); \n' % (header, self.name))
+            f.write('%s      %s_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); \n' % (header, self.name))
+            f.write('%s      %s_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); \n' % (header, self.name))
+            f.write('%s      this->%s.resize(%s_length); \n' % (header, self.name, self.name))
+            f.write('%s      offset += sizeof(%s_length);\n' % (header, self.name))
             f.write('%s      for( uint32_t i = 0; i < %s_length; i++) {\n' % (header, self.name))
             c.deserialize(f, header + "  ")
-            f.write('%s        this->%s[i] = this->st_%s;\n' % (header, self.name, self.name))
             f.write('%s      }\n' % header)
         else:
-            c = self.cls(self.name+"[i]", self.type, self.bytes)
             f.write('%s      for( uint32_t i = 0; i < %d; i++){\n' % (header, self.size) )
             c.deserialize(f, header + "  ")
             f.write('%s      }\n' % header)
@@ -368,7 +332,8 @@ class ArrayDataType(PrimitiveDataType):
         c = self.cls(self.name+"[i]", self.type, self.bytes)
         if self.size == None:
             # serialize length
-            f.write('%s      length += sizeof(this->%s_length);\n' % (header, self.name))
+            f.write('%s      uint32_t %s_length = this->%s.size();\n' % (header, self.name, self.name))
+            f.write('%s      length += sizeof(%s_length);\n' % (header, self.name))
             f.write('%s      for( uint32_t i = 0; i < %s_length; i++) {\n' % (header, self.name))
             c.serializedLength(f, header + "  ")
             f.write('%s      }\n' % header)
@@ -380,6 +345,7 @@ class ArrayDataType(PrimitiveDataType):
     def echo(self, f, header, trailer):
         c = self.cls(self.name+"[i]", self.type, self.bytes)
         if self.size == None:
+            f.write('%s      uint32_t %s_length = this->%s.size();\n' % (header, self.name, self.name))
             f.write('%s      string_echo += "%s:[";\n' % (header, self.name))
             f.write('%s      for( uint32_t i = 0; i < %s_length; i++) {\n' % (header, self.name))
             f.write('%s        if( i == (%s_length - 1)) {\n' % (header, self.name))
@@ -589,18 +555,6 @@ class Message:
         f.write('    {\n')
         self._write_id_initializer(f)
         f.write('    }\n\n')
-        f.write('    ~%s()\n' % self.name)
-        f.write('    {\n')
-        f.write('      deconstructor();\n')
-        f.write('    }\n\n')
-
-    def _write_deconstructor(self, f):
-        f.write('    void deconstructor()\n')
-        f.write('    {\n')
-        if self.data:
-            for d in self.data:
-                d.make_deinitializer(f, "")
-        f.write('    }\n\n')
 
     def _write_data(self, f):
         for d in self.data:
@@ -631,7 +585,6 @@ class Message:
         f.write('    public:\n')
         self._write_data(f)
         self._write_constructor(f)
-        self._write_deconstructor(f)
         self._write_serializer(f)
         self._write_deserializer(f)
         self._write_serializedLength(f)

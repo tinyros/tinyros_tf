@@ -106,11 +106,11 @@ void MapDisplay::subscribe()
       map_sub_->topic_ = topic_;
       tinyros::nh()->subscribe(*map_sub_);
     } else if (map_sub_->topic_ != topic_) {
-	  map_sub_->setEnabled(false);
+    map_sub_->setEnabled(false);
       map_sub_ = new tinyros::Subscriber<tinyros::nav_msgs::OccupancyGrid, MapDisplay>(topic_, &MapDisplay::incomingMap, this);
       tinyros::nh()->subscribe(*map_sub_);
     }
-	map_sub_->setEnabled(true);
+  map_sub_->setEnabled(true);
   }
 }
 
@@ -388,7 +388,7 @@ void MapDisplay::createProperties()
   topic_property_ = property_manager_->createProperty<ROSTopicStringProperty>( "Topic", property_prefix_, std::bind( &MapDisplay::getTopic, this ),
                                                                          std::bind( &MapDisplay::setTopic, this, std::placeholders::_1 ), parent_category_, this );
   ROSTopicStringPropertyPtr topic_prop = topic_property_.lock();
-  topic_prop->setMessageType(nav_msgs::OccupancyGrid::__s_getDataType());
+  topic_prop->setMessageType(nav_msgs::OccupancyGrid::getTypeStatic());
   topic_prop->addLegacyName("Service"); // something of a hack, but should provide reasonable backwards compatibility
 
   alpha_property_ = property_manager_->createProperty<FloatProperty>( "Alpha", property_prefix_, std::bind( &MapDisplay::getAlpha, this ),

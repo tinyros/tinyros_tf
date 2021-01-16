@@ -49,7 +49,7 @@ OdometryDisplay::OdometryDisplay( const std::string& name, VisualizationManager*
 , keep_(100)
 , position_tolerance_( 0.1 )
 , angle_tolerance_( 0.1 )
-, tf_filter_(*manager->getTFClient(), "", 5, update_nh_)
+, tf_filter_(*manager->getTFClient(), "", 5)
 {
   scene_node_ = scene_manager_->getRootSceneNode()->createChildSceneNode();
 
@@ -165,7 +165,7 @@ void OdometryDisplay::createProperties()
   topic_property_ = property_manager_->createProperty<ROSTopicStringProperty>( "Topic", property_prefix_, std::bind( &OdometryDisplay::getTopic, this ),
                                                                                 std::bind( &OdometryDisplay::setTopic, this, std::placeholders::_1 ), parent_category_, this );
   ROSTopicStringPropertyPtr topic_prop = topic_property_.lock();
-  topic_prop->setMessageType(nav_msgs::Odometry::__s_getDataType());
+  topic_prop->setMessageType(tinyros::nav_msgs::Odometry::getTypeStatic());
 
   position_tolerance_property_ = property_manager_->createProperty<FloatProperty>( "Position Tolerance", property_prefix_, std::bind( &OdometryDisplay::getPositionTolerance, this ),
                                                                                std::bind( &OdometryDisplay::setPositionTolerance, this, std::placeholders::_1 ), parent_category_, this );

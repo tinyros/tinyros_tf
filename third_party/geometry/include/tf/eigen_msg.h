@@ -125,20 +125,14 @@ void wrenchEigenToMsg(const Eigen::Matrix<double,6,1> &e, tinyros::geometry_msgs
 template <class Derived>
 void matrixEigenToMsg(const Eigen::MatrixBase<Derived> &e, tinyros::std_msgs::Float64MultiArray &m)
 {
-  if (m.layout.dim_length != 2)
-  {
-    m.layout.dim_length = 2;
-    m.layout.dim = (tinyros::std_msgs::MultiArrayDimension*)realloc(m.layout.dim, m.layout.dim_length*sizeof(tinyros::std_msgs::MultiArrayDimension));
-  }
+  if (m.layout.dim.size() != 2)
+    m.layout.dim.resize(2);
   m.layout.dim[0].stride = e.rows() * e.cols();
   m.layout.dim[0].size = e.rows();
   m.layout.dim[1].stride = e.cols();
   m.layout.dim[1].size = e.cols();
-  if ((int)m.data_length != e.size()) 
-  {
-    m.data_length = e.size();
-    m.data = (double*)realloc(m.data, m.data_length*sizeof(double));
-  }
+  if ((int)m.data.size() != e.size())
+    m.data.resize(e.size());
   int ii = 0;
   for (int i = 0; i < e.rows(); ++i)
     for (int j = 0; j < e.cols(); ++j)

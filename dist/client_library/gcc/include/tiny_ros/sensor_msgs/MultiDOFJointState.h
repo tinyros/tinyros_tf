@@ -22,83 +22,34 @@ namespace sensor_msgs
     public:
       typedef tinyros::std_msgs::Header _header_type;
       _header_type header;
-      uint32_t joint_names_length;
       typedef std::string _joint_names_type;
-      _joint_names_type st_joint_names;
-      _joint_names_type * joint_names;
-      uint32_t transforms_length;
+      std::vector<_joint_names_type> joint_names;
       typedef tinyros::geometry_msgs::Transform _transforms_type;
-      _transforms_type st_transforms;
-      _transforms_type * transforms;
-      uint32_t twist_length;
+      std::vector<_transforms_type> transforms;
       typedef tinyros::geometry_msgs::Twist _twist_type;
-      _twist_type st_twist;
-      _twist_type * twist;
-      uint32_t wrench_length;
+      std::vector<_twist_type> twist;
       typedef tinyros::geometry_msgs::Wrench _wrench_type;
-      _wrench_type st_wrench;
-      _wrench_type * wrench;
+      std::vector<_wrench_type> wrench;
 
     MultiDOFJointState():
       header(),
-      joint_names_length(0), joint_names(NULL),
-      transforms_length(0), transforms(NULL),
-      twist_length(0), twist(NULL),
-      wrench_length(0), wrench(NULL)
+      joint_names(0),
+      transforms(0),
+      twist(0),
+      wrench(0)
     {
-    }
-
-    ~MultiDOFJointState()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->joint_names != NULL)
-      {
-        delete[] this->joint_names;
-      }
-      this->joint_names = NULL;
-      this->joint_names_length = 0;
-      if(this->transforms != NULL)
-      {
-        for( uint32_t i = 0; i < this->transforms_length; i++){
-          this->transforms[i].deconstructor();
-        }
-        delete[] this->transforms;
-      }
-      this->transforms = NULL;
-      this->transforms_length = 0;
-      if(this->twist != NULL)
-      {
-        for( uint32_t i = 0; i < this->twist_length; i++){
-          this->twist[i].deconstructor();
-        }
-        delete[] this->twist;
-      }
-      this->twist = NULL;
-      this->twist_length = 0;
-      if(this->wrench != NULL)
-      {
-        for( uint32_t i = 0; i < this->wrench_length; i++){
-          this->wrench[i].deconstructor();
-        }
-        delete[] this->wrench;
-      }
-      this->wrench = NULL;
-      this->wrench_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
       offset += this->header.serialize(outbuffer + offset);
-      *(outbuffer + offset + 0) = (this->joint_names_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->joint_names_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->joint_names_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->joint_names_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->joint_names_length);
+      uint32_t joint_names_length = this->joint_names.size();
+      *(outbuffer + offset + 0) = (joint_names_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (joint_names_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (joint_names_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (joint_names_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(joint_names_length);
       for( uint32_t i = 0; i < joint_names_length; i++) {
         uint32_t length_joint_namesi = this->joint_names[i].size();
         varToArr(outbuffer + offset, length_joint_namesi);
@@ -106,27 +57,30 @@ namespace sensor_msgs
         memcpy(outbuffer + offset, this->joint_names[i].c_str(), length_joint_namesi);
         offset += length_joint_namesi;
       }
-      *(outbuffer + offset + 0) = (this->transforms_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->transforms_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->transforms_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->transforms_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->transforms_length);
+      uint32_t transforms_length = this->transforms.size();
+      *(outbuffer + offset + 0) = (transforms_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (transforms_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (transforms_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (transforms_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(transforms_length);
       for( uint32_t i = 0; i < transforms_length; i++) {
         offset += this->transforms[i].serialize(outbuffer + offset);
       }
-      *(outbuffer + offset + 0) = (this->twist_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->twist_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->twist_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->twist_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->twist_length);
+      uint32_t twist_length = this->twist.size();
+      *(outbuffer + offset + 0) = (twist_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (twist_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (twist_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (twist_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(twist_length);
       for( uint32_t i = 0; i < twist_length; i++) {
         offset += this->twist[i].serialize(outbuffer + offset);
       }
-      *(outbuffer + offset + 0) = (this->wrench_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->wrench_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->wrench_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->wrench_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->wrench_length);
+      uint32_t wrench_length = this->wrench.size();
+      *(outbuffer + offset + 0) = (wrench_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (wrench_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (wrench_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (wrench_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(wrench_length);
       for( uint32_t i = 0; i < wrench_length; i++) {
         offset += this->wrench[i].serialize(outbuffer + offset);
       }
@@ -137,69 +91,49 @@ namespace sensor_msgs
     {
       int offset = 0;
       offset += this->header.deserialize(inbuffer + offset);
-      uint32_t joint_names_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      joint_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      joint_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      joint_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->joint_names_length);
-      if(!this->joint_names || joint_names_lengthT > this->joint_names_length) {
-        this->deconstructor();
-        this->joint_names = new std::string[joint_names_lengthT];
-      }
-      this->joint_names_length = joint_names_lengthT;
+      uint32_t joint_names_length = ((uint32_t) (*(inbuffer + offset))); 
+      joint_names_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      joint_names_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      joint_names_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->joint_names.resize(joint_names_length); 
+      offset += sizeof(joint_names_length);
       for( uint32_t i = 0; i < joint_names_length; i++) {
-        uint32_t length_st_joint_names;
-        arrToVar(length_st_joint_names, (inbuffer + offset));
+        uint32_t length_joint_namesi;
+        arrToVar(length_joint_namesi, (inbuffer + offset));
         offset += 4;
-        for(unsigned int k= offset; k< offset+length_st_joint_names; ++k){
+        for(unsigned int k= offset; k< offset+length_joint_namesi; ++k){
           inbuffer[k-1]=inbuffer[k];
         }
-        inbuffer[offset+length_st_joint_names-1]=0;
-        this->st_joint_names = (char *)(inbuffer + offset-1);
-        offset += length_st_joint_names;
-        this->joint_names[i] = this->st_joint_names;
+        inbuffer[offset+length_joint_namesi-1]=0;
+        this->joint_names[i] = (char *)(inbuffer + offset-1);
+        offset += length_joint_namesi;
       }
-      uint32_t transforms_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      transforms_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      transforms_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      transforms_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->transforms_length);
-      if(!this->transforms || transforms_lengthT > this->transforms_length) {
-        this->deconstructor();
-        this->transforms = new tinyros::geometry_msgs::Transform[transforms_lengthT];
-      }
-      this->transforms_length = transforms_lengthT;
+      uint32_t transforms_length = ((uint32_t) (*(inbuffer + offset))); 
+      transforms_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      transforms_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      transforms_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->transforms.resize(transforms_length); 
+      offset += sizeof(transforms_length);
       for( uint32_t i = 0; i < transforms_length; i++) {
-        offset += this->st_transforms.deserialize(inbuffer + offset);
-        this->transforms[i] = this->st_transforms;
+        offset += this->transforms[i].deserialize(inbuffer + offset);
       }
-      uint32_t twist_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      twist_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      twist_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      twist_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->twist_length);
-      if(!this->twist || twist_lengthT > this->twist_length) {
-        this->deconstructor();
-        this->twist = new tinyros::geometry_msgs::Twist[twist_lengthT];
-      }
-      this->twist_length = twist_lengthT;
+      uint32_t twist_length = ((uint32_t) (*(inbuffer + offset))); 
+      twist_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      twist_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      twist_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->twist.resize(twist_length); 
+      offset += sizeof(twist_length);
       for( uint32_t i = 0; i < twist_length; i++) {
-        offset += this->st_twist.deserialize(inbuffer + offset);
-        this->twist[i] = this->st_twist;
+        offset += this->twist[i].deserialize(inbuffer + offset);
       }
-      uint32_t wrench_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      wrench_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      wrench_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      wrench_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->wrench_length);
-      if(!this->wrench || wrench_lengthT > this->wrench_length) {
-        this->deconstructor();
-        this->wrench = new tinyros::geometry_msgs::Wrench[wrench_lengthT];
-      }
-      this->wrench_length = wrench_lengthT;
+      uint32_t wrench_length = ((uint32_t) (*(inbuffer + offset))); 
+      wrench_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      wrench_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      wrench_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->wrench.resize(wrench_length); 
+      offset += sizeof(wrench_length);
       for( uint32_t i = 0; i < wrench_length; i++) {
-        offset += this->st_wrench.deserialize(inbuffer + offset);
-        this->wrench[i] = this->st_wrench;
+        offset += this->wrench[i].deserialize(inbuffer + offset);
       }
       return offset;
     }
@@ -208,21 +142,25 @@ namespace sensor_msgs
     {
       int length = 0;
       length += this->header.serializedLength();
-      length += sizeof(this->joint_names_length);
+      uint32_t joint_names_length = this->joint_names.size();
+      length += sizeof(joint_names_length);
       for( uint32_t i = 0; i < joint_names_length; i++) {
         uint32_t length_joint_namesi = this->joint_names[i].size();
         length += 4;
         length += length_joint_namesi;
       }
-      length += sizeof(this->transforms_length);
+      uint32_t transforms_length = this->transforms.size();
+      length += sizeof(transforms_length);
       for( uint32_t i = 0; i < transforms_length; i++) {
         length += this->transforms[i].serializedLength();
       }
-      length += sizeof(this->twist_length);
+      uint32_t twist_length = this->twist.size();
+      length += sizeof(twist_length);
       for( uint32_t i = 0; i < twist_length; i++) {
         length += this->twist[i].serializedLength();
       }
-      length += sizeof(this->wrench_length);
+      uint32_t wrench_length = this->wrench.size();
+      length += sizeof(wrench_length);
       for( uint32_t i = 0; i < wrench_length; i++) {
         length += this->wrench[i].serializedLength();
       }
@@ -235,6 +173,7 @@ namespace sensor_msgs
       string_echo += "\"header\":";
       string_echo += this->header.echo();
       string_echo += ",";
+      uint32_t joint_names_length = this->joint_names.size();
       string_echo += "joint_names:[";
       for( uint32_t i = 0; i < joint_names_length; i++) {
         if( i == (joint_names_length - 1)) {
@@ -260,6 +199,7 @@ namespace sensor_msgs
         }
       }
       string_echo += "],";
+      uint32_t transforms_length = this->transforms.size();
       string_echo += "transforms:[";
       for( uint32_t i = 0; i < transforms_length; i++) {
         if( i == (transforms_length - 1)) {
@@ -271,6 +211,7 @@ namespace sensor_msgs
         }
       }
       string_echo += "],";
+      uint32_t twist_length = this->twist.size();
       string_echo += "twist:[";
       for( uint32_t i = 0; i < twist_length; i++) {
         if( i == (twist_length - 1)) {
@@ -282,6 +223,7 @@ namespace sensor_msgs
         }
       }
       string_echo += "],";
+      uint32_t wrench_length = this->wrench.size();
       string_echo += "wrench:[";
       for( uint32_t i = 0; i < wrench_length; i++) {
         if( i == (wrench_length - 1)) {

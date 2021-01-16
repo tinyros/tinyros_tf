@@ -31,15 +31,6 @@ static const char SAVEMAP[] = "map_msgs/SaveMap";
       this->__id__ = 0;
     }
 
-    ~SaveMapRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -106,15 +97,6 @@ typedef std::shared_ptr<tinyros::map_msgs::SaveMapRequest const> SaveMapRequestC
     SaveMapResponse()
     {
       this->__id__ = 0;
-    }
-
-    ~SaveMapResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

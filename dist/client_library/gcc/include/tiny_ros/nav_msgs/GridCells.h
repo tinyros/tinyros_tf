@@ -24,35 +24,15 @@ namespace nav_msgs
       _cell_width_type cell_width;
       typedef float _cell_height_type;
       _cell_height_type cell_height;
-      uint32_t cells_length;
       typedef tinyros::geometry_msgs::Point _cells_type;
-      _cells_type st_cells;
-      _cells_type * cells;
+      std::vector<_cells_type> cells;
 
     GridCells():
       header(),
       cell_width(0),
       cell_height(0),
-      cells_length(0), cells(NULL)
+      cells(0)
     {
-    }
-
-    ~GridCells()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->cells != NULL)
-      {
-        for( uint32_t i = 0; i < this->cells_length; i++){
-          this->cells[i].deconstructor();
-        }
-        delete[] this->cells;
-      }
-      this->cells = NULL;
-      this->cells_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -79,11 +59,12 @@ namespace nav_msgs
       *(outbuffer + offset + 2) = (u_cell_height.base >> (8 * 2)) & 0xFF;
       *(outbuffer + offset + 3) = (u_cell_height.base >> (8 * 3)) & 0xFF;
       offset += sizeof(this->cell_height);
-      *(outbuffer + offset + 0) = (this->cells_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->cells_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->cells_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->cells_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->cells_length);
+      uint32_t cells_length = this->cells.size();
+      *(outbuffer + offset + 0) = (cells_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (cells_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (cells_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (cells_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(cells_length);
       for( uint32_t i = 0; i < cells_length; i++) {
         offset += this->cells[i].serialize(outbuffer + offset);
       }
@@ -116,19 +97,14 @@ namespace nav_msgs
       u_cell_height.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
       this->cell_height = u_cell_height.real;
       offset += sizeof(this->cell_height);
-      uint32_t cells_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      cells_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      cells_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      cells_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->cells_length);
-      if(!this->cells || cells_lengthT > this->cells_length) {
-        this->deconstructor();
-        this->cells = new tinyros::geometry_msgs::Point[cells_lengthT];
-      }
-      this->cells_length = cells_lengthT;
+      uint32_t cells_length = ((uint32_t) (*(inbuffer + offset))); 
+      cells_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      cells_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      cells_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->cells.resize(cells_length); 
+      offset += sizeof(cells_length);
       for( uint32_t i = 0; i < cells_length; i++) {
-        offset += this->st_cells.deserialize(inbuffer + offset);
-        this->cells[i] = this->st_cells;
+        offset += this->cells[i].deserialize(inbuffer + offset);
       }
       return offset;
     }
@@ -139,7 +115,8 @@ namespace nav_msgs
       length += this->header.serializedLength();
       length += sizeof(this->cell_width);
       length += sizeof(this->cell_height);
-      length += sizeof(this->cells_length);
+      uint32_t cells_length = this->cells.size();
+      length += sizeof(cells_length);
       for( uint32_t i = 0; i < cells_length; i++) {
         length += this->cells[i].serializedLength();
       }
@@ -156,6 +133,7 @@ namespace nav_msgs
       string_echo += ss_cell_width.str();
       std::stringstream ss_cell_height; ss_cell_height << "\"cell_height\":" << cell_height <<",";
       string_echo += ss_cell_height.str();
+      uint32_t cells_length = this->cells.size();
       string_echo += "cells:[";
       for( uint32_t i = 0; i < cells_length; i++) {
         if( i == (cells_length - 1)) {

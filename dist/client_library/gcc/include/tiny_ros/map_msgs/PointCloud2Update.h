@@ -34,15 +34,6 @@ namespace map_msgs
     {
     }
 
-    ~PointCloud2Update()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;

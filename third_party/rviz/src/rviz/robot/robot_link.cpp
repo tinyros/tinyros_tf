@@ -52,11 +52,11 @@
 #include <OGRE/OgreTextureManager.h>
 #include <OGRE/OgreMeshManager.h>
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 #include <resource_retriever/retriever.h>
 
-namespace fs=boost::filesystem;
+namespace fs=std::filesystem;
 
 namespace rviz
 {

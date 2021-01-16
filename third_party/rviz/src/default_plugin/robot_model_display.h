@@ -36,6 +36,7 @@
 #include <OGRE/OgreVector3.h>
 
 #include <map>
+#include <tinyxml.h>
 
 namespace Ogre
 {
@@ -111,7 +112,7 @@ protected:
   void load(std::string content);
 
   // overrides from Display
-  virtual void onEnable();
+  virtual void onEnable(std::string robot_description = "");
   virtual void onDisable();
 
   std::string description_param_;             ///< ROS parameter that contains the robot xml description

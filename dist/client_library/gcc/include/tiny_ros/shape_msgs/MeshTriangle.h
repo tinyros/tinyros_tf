@@ -16,19 +16,11 @@ namespace shape_msgs
   class MeshTriangle : public tinyros::Msg
   {
     public:
-      uint32_t vertex_indices[3];
+      typedef uint32_t _vertex_indices_type;
+      std::vector<_vertex_indices_type> vertex_indices;
 
     MeshTriangle():
-      vertex_indices()
-    {
-    }
-
-    ~MeshTriangle()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
+      vertex_indices(3)
     {
     }
 

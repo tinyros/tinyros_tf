@@ -34,9 +34,9 @@
 #include <fstream>
 #include <yaml-cpp/yaml.h>
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
 namespace rviz
 {

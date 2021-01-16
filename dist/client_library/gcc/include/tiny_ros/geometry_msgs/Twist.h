@@ -28,15 +28,6 @@ namespace geometry_msgs
     {
     }
 
-    ~Twist()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;

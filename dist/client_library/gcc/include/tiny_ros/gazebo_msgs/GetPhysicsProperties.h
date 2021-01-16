@@ -29,15 +29,6 @@ static const char GETPHYSICSPROPERTIES[] = "gazebo_msgs/GetPhysicsProperties";
       this->__id__ = 0;
     }
 
-    ~GetPhysicsPropertiesRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -119,15 +110,6 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetPhysicsPropertiesRequest const>
       status_message("")
     {
       this->__id__ = 0;
-    }
-
-    ~GetPhysicsPropertiesResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

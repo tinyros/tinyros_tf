@@ -30,15 +30,6 @@ static const char DELETEMODEL[] = "gazebo_msgs/DeleteModel";
       this->__id__ = 0;
     }
 
-    ~DeleteModelRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -130,15 +121,6 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::DeleteModelRequest const> DeleteMo
       status_message("")
     {
       this->__id__ = 0;
-    }
-
-    ~DeleteModelResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

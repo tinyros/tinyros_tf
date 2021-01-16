@@ -34,15 +34,6 @@ static const char SETJOINTPROPERTIES[] = "gazebo_msgs/SetJointProperties";
       this->__id__ = 0;
     }
 
-    ~SetJointPropertiesRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -140,15 +131,6 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointPropertiesRequest const> S
       status_message("")
     {
       this->__id__ = 0;
-    }
-
-    ~SetJointPropertiesResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

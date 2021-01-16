@@ -34,14 +34,10 @@ namespace sensor_msgs
       _range_min_type range_min;
       typedef float _range_max_type;
       _range_max_type range_max;
-      uint32_t ranges_length;
       typedef tinyros::sensor_msgs::LaserEcho _ranges_type;
-      _ranges_type st_ranges;
-      _ranges_type * ranges;
-      uint32_t intensities_length;
+      std::vector<_ranges_type> ranges;
       typedef tinyros::sensor_msgs::LaserEcho _intensities_type;
-      _intensities_type st_intensities;
-      _intensities_type * intensities;
+      std::vector<_intensities_type> intensities;
 
     MultiEchoLaserScan():
       header(),
@@ -52,36 +48,9 @@ namespace sensor_msgs
       scan_time(0),
       range_min(0),
       range_max(0),
-      ranges_length(0), ranges(NULL),
-      intensities_length(0), intensities(NULL)
+      ranges(0),
+      intensities(0)
     {
-    }
-
-    ~MultiEchoLaserScan()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->ranges != NULL)
-      {
-        for( uint32_t i = 0; i < this->ranges_length; i++){
-          this->ranges[i].deconstructor();
-        }
-        delete[] this->ranges;
-      }
-      this->ranges = NULL;
-      this->ranges_length = 0;
-      if(this->intensities != NULL)
-      {
-        for( uint32_t i = 0; i < this->intensities_length; i++){
-          this->intensities[i].deconstructor();
-        }
-        delete[] this->intensities;
-      }
-      this->intensities = NULL;
-      this->intensities_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -158,19 +127,21 @@ namespace sensor_msgs
       *(outbuffer + offset + 2) = (u_range_max.base >> (8 * 2)) & 0xFF;
       *(outbuffer + offset + 3) = (u_range_max.base >> (8 * 3)) & 0xFF;
       offset += sizeof(this->range_max);
-      *(outbuffer + offset + 0) = (this->ranges_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->ranges_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->ranges_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->ranges_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->ranges_length);
+      uint32_t ranges_length = this->ranges.size();
+      *(outbuffer + offset + 0) = (ranges_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (ranges_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (ranges_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (ranges_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(ranges_length);
       for( uint32_t i = 0; i < ranges_length; i++) {
         offset += this->ranges[i].serialize(outbuffer + offset);
       }
-      *(outbuffer + offset + 0) = (this->intensities_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->intensities_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->intensities_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->intensities_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->intensities_length);
+      uint32_t intensities_length = this->intensities.size();
+      *(outbuffer + offset + 0) = (intensities_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (intensities_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (intensities_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (intensities_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(intensities_length);
       for( uint32_t i = 0; i < intensities_length; i++) {
         offset += this->intensities[i].serialize(outbuffer + offset);
       }
@@ -258,33 +229,23 @@ namespace sensor_msgs
       u_range_max.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
       this->range_max = u_range_max.real;
       offset += sizeof(this->range_max);
-      uint32_t ranges_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      ranges_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      ranges_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      ranges_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->ranges_length);
-      if(!this->ranges || ranges_lengthT > this->ranges_length) {
-        this->deconstructor();
-        this->ranges = new tinyros::sensor_msgs::LaserEcho[ranges_lengthT];
-      }
-      this->ranges_length = ranges_lengthT;
+      uint32_t ranges_length = ((uint32_t) (*(inbuffer + offset))); 
+      ranges_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      ranges_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      ranges_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->ranges.resize(ranges_length); 
+      offset += sizeof(ranges_length);
       for( uint32_t i = 0; i < ranges_length; i++) {
-        offset += this->st_ranges.deserialize(inbuffer + offset);
-        this->ranges[i] = this->st_ranges;
+        offset += this->ranges[i].deserialize(inbuffer + offset);
       }
-      uint32_t intensities_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      intensities_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      intensities_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      intensities_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->intensities_length);
-      if(!this->intensities || intensities_lengthT > this->intensities_length) {
-        this->deconstructor();
-        this->intensities = new tinyros::sensor_msgs::LaserEcho[intensities_lengthT];
-      }
-      this->intensities_length = intensities_lengthT;
+      uint32_t intensities_length = ((uint32_t) (*(inbuffer + offset))); 
+      intensities_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      intensities_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      intensities_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->intensities.resize(intensities_length); 
+      offset += sizeof(intensities_length);
       for( uint32_t i = 0; i < intensities_length; i++) {
-        offset += this->st_intensities.deserialize(inbuffer + offset);
-        this->intensities[i] = this->st_intensities;
+        offset += this->intensities[i].deserialize(inbuffer + offset);
       }
       return offset;
     }
@@ -300,11 +261,13 @@ namespace sensor_msgs
       length += sizeof(this->scan_time);
       length += sizeof(this->range_min);
       length += sizeof(this->range_max);
-      length += sizeof(this->ranges_length);
+      uint32_t ranges_length = this->ranges.size();
+      length += sizeof(ranges_length);
       for( uint32_t i = 0; i < ranges_length; i++) {
         length += this->ranges[i].serializedLength();
       }
-      length += sizeof(this->intensities_length);
+      uint32_t intensities_length = this->intensities.size();
+      length += sizeof(intensities_length);
       for( uint32_t i = 0; i < intensities_length; i++) {
         length += this->intensities[i].serializedLength();
       }
@@ -331,6 +294,7 @@ namespace sensor_msgs
       string_echo += ss_range_min.str();
       std::stringstream ss_range_max; ss_range_max << "\"range_max\":" << range_max <<",";
       string_echo += ss_range_max.str();
+      uint32_t ranges_length = this->ranges.size();
       string_echo += "ranges:[";
       for( uint32_t i = 0; i < ranges_length; i++) {
         if( i == (ranges_length - 1)) {
@@ -342,6 +306,7 @@ namespace sensor_msgs
         }
       }
       string_echo += "],";
+      uint32_t intensities_length = this->intensities.size();
       string_echo += "intensities:[";
       for( uint32_t i = 0; i < intensities_length; i++) {
         if( i == (intensities_length - 1)) {

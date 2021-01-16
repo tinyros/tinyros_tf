@@ -20,44 +20,25 @@ namespace diagnostic_msgs
     public:
       typedef tinyros::std_msgs::Header _header_type;
       _header_type header;
-      uint32_t status_length;
       typedef tinyros::diagnostic_msgs::DiagnosticStatus _status_type;
-      _status_type st_status;
-      _status_type * status;
+      std::vector<_status_type> status;
 
     DiagnosticArray():
       header(),
-      status_length(0), status(NULL)
+      status(0)
     {
-    }
-
-    ~DiagnosticArray()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->status != NULL)
-      {
-        for( uint32_t i = 0; i < this->status_length; i++){
-          this->status[i].deconstructor();
-        }
-        delete[] this->status;
-      }
-      this->status = NULL;
-      this->status_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
       offset += this->header.serialize(outbuffer + offset);
-      *(outbuffer + offset + 0) = (this->status_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->status_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->status_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->status_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->status_length);
+      uint32_t status_length = this->status.size();
+      *(outbuffer + offset + 0) = (status_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (status_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (status_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (status_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(status_length);
       for( uint32_t i = 0; i < status_length; i++) {
         offset += this->status[i].serialize(outbuffer + offset);
       }
@@ -68,19 +49,14 @@ namespace diagnostic_msgs
     {
       int offset = 0;
       offset += this->header.deserialize(inbuffer + offset);
-      uint32_t status_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      status_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      status_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      status_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->status_length);
-      if(!this->status || status_lengthT > this->status_length) {
-        this->deconstructor();
-        this->status = new tinyros::diagnostic_msgs::DiagnosticStatus[status_lengthT];
-      }
-      this->status_length = status_lengthT;
+      uint32_t status_length = ((uint32_t) (*(inbuffer + offset))); 
+      status_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      status_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      status_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->status.resize(status_length); 
+      offset += sizeof(status_length);
       for( uint32_t i = 0; i < status_length; i++) {
-        offset += this->st_status.deserialize(inbuffer + offset);
-        this->status[i] = this->st_status;
+        offset += this->status[i].deserialize(inbuffer + offset);
       }
       return offset;
     }
@@ -89,7 +65,8 @@ namespace diagnostic_msgs
     {
       int length = 0;
       length += this->header.serializedLength();
-      length += sizeof(this->status_length);
+      uint32_t status_length = this->status.size();
+      length += sizeof(status_length);
       for( uint32_t i = 0; i < status_length; i++) {
         length += this->status[i].serializedLength();
       }
@@ -102,6 +79,7 @@ namespace diagnostic_msgs
       string_echo += "\"header\":";
       string_echo += this->header.echo();
       string_echo += ",";
+      uint32_t status_length = this->status.size();
       string_echo += "status:[";
       for( uint32_t i = 0; i < status_length; i++) {
         if( i == (status_length - 1)) {

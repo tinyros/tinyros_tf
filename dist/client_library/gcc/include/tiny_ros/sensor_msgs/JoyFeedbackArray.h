@@ -17,42 +17,23 @@ namespace sensor_msgs
   class JoyFeedbackArray : public tinyros::Msg
   {
     public:
-      uint32_t array_length;
       typedef tinyros::sensor_msgs::JoyFeedback _array_type;
-      _array_type st_array;
-      _array_type * array;
+      std::vector<_array_type> array;
 
     JoyFeedbackArray():
-      array_length(0), array(NULL)
+      array(0)
     {
-    }
-
-    ~JoyFeedbackArray()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->array != NULL)
-      {
-        for( uint32_t i = 0; i < this->array_length; i++){
-          this->array[i].deconstructor();
-        }
-        delete[] this->array;
-      }
-      this->array = NULL;
-      this->array_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
-      *(outbuffer + offset + 0) = (this->array_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->array_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->array_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->array_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->array_length);
+      uint32_t array_length = this->array.size();
+      *(outbuffer + offset + 0) = (array_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (array_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (array_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (array_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(array_length);
       for( uint32_t i = 0; i < array_length; i++) {
         offset += this->array[i].serialize(outbuffer + offset);
       }
@@ -62,19 +43,14 @@ namespace sensor_msgs
     virtual int deserialize(unsigned char *inbuffer)
     {
       int offset = 0;
-      uint32_t array_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      array_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      array_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      array_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->array_length);
-      if(!this->array || array_lengthT > this->array_length) {
-        this->deconstructor();
-        this->array = new tinyros::sensor_msgs::JoyFeedback[array_lengthT];
-      }
-      this->array_length = array_lengthT;
+      uint32_t array_length = ((uint32_t) (*(inbuffer + offset))); 
+      array_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      array_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      array_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->array.resize(array_length); 
+      offset += sizeof(array_length);
       for( uint32_t i = 0; i < array_length; i++) {
-        offset += this->st_array.deserialize(inbuffer + offset);
-        this->array[i] = this->st_array;
+        offset += this->array[i].deserialize(inbuffer + offset);
       }
       return offset;
     }
@@ -82,7 +58,8 @@ namespace sensor_msgs
     virtual int serializedLength() const
     {
       int length = 0;
-      length += sizeof(this->array_length);
+      uint32_t array_length = this->array.size();
+      length += sizeof(array_length);
       for( uint32_t i = 0; i < array_length; i++) {
         length += this->array[i].serializedLength();
       }
@@ -92,6 +69,7 @@ namespace sensor_msgs
     virtual std::string echo()
     {
       std::string string_echo = "{";
+      uint32_t array_length = this->array.size();
       string_echo += "array:[";
       for( uint32_t i = 0; i < array_length; i++) {
         if( i == (array_length - 1)) {

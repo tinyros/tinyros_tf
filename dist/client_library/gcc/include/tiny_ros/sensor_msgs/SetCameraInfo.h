@@ -31,15 +31,6 @@ static const char SETCAMERAINFO[] = "sensor_msgs/SetCameraInfo";
       this->__id__ = 0;
     }
 
-    ~SetCameraInfoRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -112,15 +103,6 @@ typedef std::shared_ptr<tinyros::sensor_msgs::SetCameraInfoRequest const> SetCam
       status_message("")
     {
       this->__id__ = 0;
-    }
-
-    ~SetCameraInfoResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

@@ -34,13 +34,15 @@
 #include "rviz/properties/forwards.h"
 #include "rviz/image/ros_image_texture.h"
 
-#include <tint_ros/ros.h>
+#include <tiny_ros/ros.h>
 #include <tiny_ros/sensor_msgs/CameraInfo.h>
 
 #include <OGRE/OgreMaterial.h>
 #include <OGRE/OgreRenderTargetListener.h>
 
 #include <tiny_ros/tf/message_filter.h>
+
+#include <wx/frame.h>
 
 namespace Ogre
 {

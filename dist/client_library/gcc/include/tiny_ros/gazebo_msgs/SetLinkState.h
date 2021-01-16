@@ -31,15 +31,6 @@ static const char SETLINKSTATE[] = "gazebo_msgs/SetLinkState";
       this->__id__ = 0;
     }
 
-    ~SetLinkStateRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -112,15 +103,6 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::SetLinkStateRequest const> SetLink
       status_message("")
     {
       this->__id__ = 0;
-    }
-
-    ~SetLinkStateResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

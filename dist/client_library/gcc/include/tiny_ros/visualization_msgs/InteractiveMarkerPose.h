@@ -32,15 +32,6 @@ namespace visualization_msgs
     {
     }
 
-    ~InteractiveMarkerPose()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;

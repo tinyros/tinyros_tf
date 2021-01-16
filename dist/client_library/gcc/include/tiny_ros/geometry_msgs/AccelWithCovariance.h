@@ -19,20 +19,12 @@ namespace geometry_msgs
     public:
       typedef tinyros::geometry_msgs::Accel _accel_type;
       _accel_type accel;
-      double covariance[36];
+      typedef double _covariance_type;
+      std::vector<_covariance_type> covariance;
 
     AccelWithCovariance():
       accel(),
-      covariance()
-    {
-    }
-
-    ~AccelWithCovariance()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
+      covariance(36)
     {
     }
 

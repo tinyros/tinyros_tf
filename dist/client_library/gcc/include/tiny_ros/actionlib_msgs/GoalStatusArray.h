@@ -20,44 +20,25 @@ namespace actionlib_msgs
     public:
       typedef tinyros::std_msgs::Header _header_type;
       _header_type header;
-      uint32_t status_list_length;
       typedef tinyros::actionlib_msgs::GoalStatus _status_list_type;
-      _status_list_type st_status_list;
-      _status_list_type * status_list;
+      std::vector<_status_list_type> status_list;
 
     GoalStatusArray():
       header(),
-      status_list_length(0), status_list(NULL)
+      status_list(0)
     {
-    }
-
-    ~GoalStatusArray()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->status_list != NULL)
-      {
-        for( uint32_t i = 0; i < this->status_list_length; i++){
-          this->status_list[i].deconstructor();
-        }
-        delete[] this->status_list;
-      }
-      this->status_list = NULL;
-      this->status_list_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
       offset += this->header.serialize(outbuffer + offset);
-      *(outbuffer + offset + 0) = (this->status_list_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->status_list_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->status_list_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->status_list_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->status_list_length);
+      uint32_t status_list_length = this->status_list.size();
+      *(outbuffer + offset + 0) = (status_list_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (status_list_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (status_list_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (status_list_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(status_list_length);
       for( uint32_t i = 0; i < status_list_length; i++) {
         offset += this->status_list[i].serialize(outbuffer + offset);
       }
@@ -68,19 +49,14 @@ namespace actionlib_msgs
     {
       int offset = 0;
       offset += this->header.deserialize(inbuffer + offset);
-      uint32_t status_list_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      status_list_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      status_list_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      status_list_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->status_list_length);
-      if(!this->status_list || status_list_lengthT > this->status_list_length) {
-        this->deconstructor();
-        this->status_list = new tinyros::actionlib_msgs::GoalStatus[status_list_lengthT];
-      }
-      this->status_list_length = status_list_lengthT;
+      uint32_t status_list_length = ((uint32_t) (*(inbuffer + offset))); 
+      status_list_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      status_list_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      status_list_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->status_list.resize(status_list_length); 
+      offset += sizeof(status_list_length);
       for( uint32_t i = 0; i < status_list_length; i++) {
-        offset += this->st_status_list.deserialize(inbuffer + offset);
-        this->status_list[i] = this->st_status_list;
+        offset += this->status_list[i].deserialize(inbuffer + offset);
       }
       return offset;
     }
@@ -89,7 +65,8 @@ namespace actionlib_msgs
     {
       int length = 0;
       length += this->header.serializedLength();
-      length += sizeof(this->status_list_length);
+      uint32_t status_list_length = this->status_list.size();
+      length += sizeof(status_list_length);
       for( uint32_t i = 0; i < status_list_length; i++) {
         length += this->status_list[i].serializedLength();
       }
@@ -102,6 +79,7 @@ namespace actionlib_msgs
       string_echo += "\"header\":";
       string_echo += this->header.echo();
       string_echo += ",";
+      uint32_t status_list_length = this->status_list.size();
       string_echo += "status_list:[";
       for( uint32_t i = 0; i < status_list_length; i++) {
         if( i == (status_list_length - 1)) {

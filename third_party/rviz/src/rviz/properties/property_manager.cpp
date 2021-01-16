@@ -51,7 +51,7 @@ void PropertyManager::update()
 {
   S_PropertyBaseWPtr local_props;
   {
-    std::unique_lock<std::mutex> lock(changed_mutex_);
+    std::scoped_lock lock(changed_mutex_);
 
     local_props.swap(changed_properties_);
   }
@@ -236,7 +236,7 @@ void PropertyManager::propertyChanged( wxPropertyGridEvent& event )
 
 void PropertyManager::propertySet( const PropertyBasePtr& property )
 {
-  std::unique_lock<std::mutex> lock(changed_mutex_);
+  std::scoped_lock lock(changed_mutex_);
 
   changed_properties_.insert(property);
 }

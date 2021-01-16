@@ -32,15 +32,6 @@ namespace geometry_msgs
     {
     }
 
-    ~TransformStamped()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;

@@ -42,15 +42,6 @@ namespace map_msgs
     {
     }
 
-    ~ProjectedMapInfo()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;

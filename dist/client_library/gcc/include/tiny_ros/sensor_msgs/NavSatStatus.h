@@ -35,15 +35,6 @@ namespace sensor_msgs
     {
     }
 
-    ~NavSatStatus()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;

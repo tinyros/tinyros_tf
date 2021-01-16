@@ -24,15 +24,6 @@ namespace std_msgs
     {
     }
 
-    ~UInt16()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;

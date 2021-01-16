@@ -31,15 +31,6 @@ static const char GETLINKPROPERTIES[] = "gazebo_msgs/GetLinkProperties";
       this->__id__ = 0;
     }
 
-    ~GetLinkPropertiesRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -158,15 +149,6 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetLinkPropertiesRequest const> Ge
       status_message("")
     {
       this->__id__ = 0;
-    }
-
-    ~GetLinkPropertiesResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

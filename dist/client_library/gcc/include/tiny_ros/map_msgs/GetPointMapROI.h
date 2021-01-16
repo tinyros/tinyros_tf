@@ -49,15 +49,6 @@ static const char GETPOINTMAPROI[] = "map_msgs/GetPointMapROI";
       this->__id__ = 0;
     }
 
-    ~GetPointMapROIRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -345,15 +336,6 @@ typedef std::shared_ptr<tinyros::map_msgs::GetPointMapROIRequest const> GetPoint
       sub_map()
     {
       this->__id__ = 0;
-    }
-
-    ~GetPointMapROIResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

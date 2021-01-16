@@ -129,8 +129,8 @@ public:
    * @param prefix Prefix for this property (eg, "Head Laser Scan")
    * @param grid The wxPropertyGrid to use
    * @param parent The parent to put this property under
-   * @param getter Getter function/method.  See boost::function and boost::bind for more information
-   * @param setter Setter function/method.  See boost::function and boost::bind for more information
+   * @param getter Getter function/method.  See std::function and std::bind for more information
+   * @param setter Setter function/method.  See std::function and std::bind for more information
    * @return
    */
   Property( const std::string& name, const std::string& prefix, const CategoryPropertyWPtr& parent, const Getter& getter, const Setter& setter )
@@ -157,7 +157,7 @@ public:
 
   /**
    * \brief Add a listener function/method to be called whenever the value in this property has changed.
-   * @param slot The function/method to call.  See boost::signals
+   * @param slot The function/method to call.
    */
   void addChangedListener( const std::function<void(const PropertyBasePtr&)>& slot)
   {

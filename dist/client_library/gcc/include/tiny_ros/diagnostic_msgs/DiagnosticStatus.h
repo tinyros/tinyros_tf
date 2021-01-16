@@ -25,10 +25,8 @@ namespace diagnostic_msgs
       _message_type message;
       typedef std::string _hardware_id_type;
       _hardware_id_type hardware_id;
-      uint32_t values_length;
       typedef tinyros::diagnostic_msgs::KeyValue _values_type;
-      _values_type st_values;
-      _values_type * values;
+      std::vector<_values_type> values;
       enum { OK = 0 };
       enum { WARN = 1 };
       enum { ERROR = 2 };
@@ -39,26 +37,8 @@ namespace diagnostic_msgs
       name(""),
       message(""),
       hardware_id(""),
-      values_length(0), values(NULL)
+      values(0)
     {
-    }
-
-    ~DiagnosticStatus()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->values != NULL)
-      {
-        for( uint32_t i = 0; i < this->values_length; i++){
-          this->values[i].deconstructor();
-        }
-        delete[] this->values;
-      }
-      this->values = NULL;
-      this->values_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -86,11 +66,12 @@ namespace diagnostic_msgs
       offset += 4;
       memcpy(outbuffer + offset, this->hardware_id.c_str(), length_hardware_id);
       offset += length_hardware_id;
-      *(outbuffer + offset + 0) = (this->values_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->values_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->values_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->values_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->values_length);
+      uint32_t values_length = this->values.size();
+      *(outbuffer + offset + 0) = (values_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (values_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (values_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (values_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(values_length);
       for( uint32_t i = 0; i < values_length; i++) {
         offset += this->values[i].serialize(outbuffer + offset);
       }
@@ -135,19 +116,14 @@ namespace diagnostic_msgs
       inbuffer[offset+length_hardware_id-1]=0;
       this->hardware_id = (char *)(inbuffer + offset-1);
       offset += length_hardware_id;
-      uint32_t values_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      values_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      values_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      values_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->values_length);
-      if(!this->values || values_lengthT > this->values_length) {
-        this->deconstructor();
-        this->values = new tinyros::diagnostic_msgs::KeyValue[values_lengthT];
-      }
-      this->values_length = values_lengthT;
+      uint32_t values_length = ((uint32_t) (*(inbuffer + offset))); 
+      values_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      values_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      values_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->values.resize(values_length); 
+      offset += sizeof(values_length);
       for( uint32_t i = 0; i < values_length; i++) {
-        offset += this->st_values.deserialize(inbuffer + offset);
-        this->values[i] = this->st_values;
+        offset += this->values[i].deserialize(inbuffer + offset);
       }
       return offset;
     }
@@ -165,7 +141,8 @@ namespace diagnostic_msgs
       uint32_t length_hardware_id = this->hardware_id.size();
       length += 4;
       length += length_hardware_id;
-      length += sizeof(this->values_length);
+      uint32_t values_length = this->values.size();
+      length += sizeof(values_length);
       for( uint32_t i = 0; i < values_length; i++) {
         length += this->values[i].serializedLength();
       }
@@ -201,6 +178,7 @@ namespace diagnostic_msgs
       string_echo += "\"hardware_id\":\"";
       string_echo += hardware_id;
       string_echo += "\",";
+      uint32_t values_length = this->values.size();
       string_echo += "values:[";
       for( uint32_t i = 0; i < values_length; i++) {
         if( i == (values_length - 1)) {

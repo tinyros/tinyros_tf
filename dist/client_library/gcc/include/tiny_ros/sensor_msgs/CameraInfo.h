@@ -26,13 +26,14 @@ namespace sensor_msgs
       _width_type width;
       typedef std::string _distortion_model_type;
       _distortion_model_type distortion_model;
-      uint32_t D_length;
       typedef double _D_type;
-      _D_type st_D;
-      _D_type * D;
-      double K[9];
-      double R[9];
-      double P[12];
+      std::vector<_D_type> D;
+      typedef double _K_type;
+      std::vector<_K_type> K;
+      typedef double _R_type;
+      std::vector<_R_type> R;
+      typedef double _P_type;
+      std::vector<_P_type> P;
       typedef uint32_t _binning_x_type;
       _binning_x_type binning_x;
       typedef uint32_t _binning_y_type;
@@ -45,29 +46,14 @@ namespace sensor_msgs
       height(0),
       width(0),
       distortion_model(""),
-      D_length(0), D(NULL),
-      K(),
-      R(),
-      P(),
+      D(0),
+      K(9),
+      R(9),
+      P(12),
       binning_x(0),
       binning_y(0),
       roi()
     {
-    }
-
-    ~CameraInfo()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->D != NULL)
-      {
-        delete[] this->D;
-      }
-      this->D = NULL;
-      this->D_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -89,11 +75,12 @@ namespace sensor_msgs
       offset += 4;
       memcpy(outbuffer + offset, this->distortion_model.c_str(), length_distortion_model);
       offset += length_distortion_model;
-      *(outbuffer + offset + 0) = (this->D_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->D_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->D_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->D_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->D_length);
+      uint32_t D_length = this->D.size();
+      *(outbuffer + offset + 0) = (D_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (D_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (D_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (D_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(D_length);
       for( uint32_t i = 0; i < D_length; i++) {
         union {
           double real;
@@ -195,33 +182,28 @@ namespace sensor_msgs
       inbuffer[offset+length_distortion_model-1]=0;
       this->distortion_model = (char *)(inbuffer + offset-1);
       offset += length_distortion_model;
-      uint32_t D_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      D_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      D_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      D_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->D_length);
-      if(!this->D || D_lengthT > this->D_length) {
-        this->deconstructor();
-        this->D = new double[D_lengthT];
-      }
-      this->D_length = D_lengthT;
+      uint32_t D_length = ((uint32_t) (*(inbuffer + offset))); 
+      D_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      D_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      D_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->D.resize(D_length); 
+      offset += sizeof(D_length);
       for( uint32_t i = 0; i < D_length; i++) {
         union {
           double real;
           uint64_t base;
-        } u_st_D;
-        u_st_D.base = 0;
-        u_st_D.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
-        u_st_D.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
-        u_st_D.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
-        u_st_D.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
-        u_st_D.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
-        u_st_D.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
-        u_st_D.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
-        u_st_D.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
-        this->st_D = u_st_D.real;
-        offset += sizeof(this->st_D);
-        this->D[i] = this->st_D;
+        } u_Di;
+        u_Di.base = 0;
+        u_Di.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+        u_Di.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+        u_Di.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+        u_Di.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+        u_Di.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+        u_Di.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+        u_Di.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+        u_Di.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+        this->D[i] = u_Di.real;
+        offset += sizeof(this->D[i]);
       }
       for( uint32_t i = 0; i < 9; i++){
         union {
@@ -297,7 +279,8 @@ namespace sensor_msgs
       uint32_t length_distortion_model = this->distortion_model.size();
       length += 4;
       length += length_distortion_model;
-      length += sizeof(this->D_length);
+      uint32_t D_length = this->D.size();
+      length += sizeof(D_length);
       for( uint32_t i = 0; i < D_length; i++) {
         length += sizeof(this->D[i]);
       }
@@ -334,6 +317,7 @@ namespace sensor_msgs
       string_echo += "\"distortion_model\":\"";
       string_echo += distortion_model;
       string_echo += "\",";
+      uint32_t D_length = this->D.size();
       string_echo += "D:[";
       for( uint32_t i = 0; i < D_length; i++) {
         if( i == (D_length - 1)) {

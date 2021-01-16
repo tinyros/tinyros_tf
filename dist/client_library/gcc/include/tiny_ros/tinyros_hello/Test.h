@@ -30,15 +30,6 @@ static const char TEST[] = "tinyros_hello/Test";
       this->__id__ = 0;
     }
 
-    ~TestRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -127,15 +118,6 @@ typedef std::shared_ptr<tinyros::tinyros_hello::TestRequest const> TestRequestCo
       output("")
     {
       this->__id__ = 0;
-    }
-
-    ~TestResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

@@ -18,10 +18,8 @@ namespace shape_msgs
     public:
       typedef uint8_t _type_type;
       _type_type type;
-      uint32_t dimensions_length;
       typedef double _dimensions_type;
-      _dimensions_type st_dimensions;
-      _dimensions_type * dimensions;
+      std::vector<_dimensions_type> dimensions;
       enum { BOX = 1 };
       enum { SPHERE = 2 };
       enum { CYLINDER = 3 };
@@ -37,23 +35,8 @@ namespace shape_msgs
 
     SolidPrimitive():
       type(0),
-      dimensions_length(0), dimensions(NULL)
+      dimensions(0)
     {
-    }
-
-    ~SolidPrimitive()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->dimensions != NULL)
-      {
-        delete[] this->dimensions;
-      }
-      this->dimensions = NULL;
-      this->dimensions_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -61,11 +44,12 @@ namespace shape_msgs
       int offset = 0;
       *(outbuffer + offset + 0) = (this->type >> (8 * 0)) & 0xFF;
       offset += sizeof(this->type);
-      *(outbuffer + offset + 0) = (this->dimensions_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->dimensions_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->dimensions_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->dimensions_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->dimensions_length);
+      uint32_t dimensions_length = this->dimensions.size();
+      *(outbuffer + offset + 0) = (dimensions_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (dimensions_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (dimensions_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (dimensions_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(dimensions_length);
       for( uint32_t i = 0; i < dimensions_length; i++) {
         union {
           double real;
@@ -90,33 +74,28 @@ namespace shape_msgs
       int offset = 0;
       this->type =  ((uint8_t) (*(inbuffer + offset)));
       offset += sizeof(this->type);
-      uint32_t dimensions_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      dimensions_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      dimensions_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      dimensions_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->dimensions_length);
-      if(!this->dimensions || dimensions_lengthT > this->dimensions_length) {
-        this->deconstructor();
-        this->dimensions = new double[dimensions_lengthT];
-      }
-      this->dimensions_length = dimensions_lengthT;
+      uint32_t dimensions_length = ((uint32_t) (*(inbuffer + offset))); 
+      dimensions_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      dimensions_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      dimensions_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->dimensions.resize(dimensions_length); 
+      offset += sizeof(dimensions_length);
       for( uint32_t i = 0; i < dimensions_length; i++) {
         union {
           double real;
           uint64_t base;
-        } u_st_dimensions;
-        u_st_dimensions.base = 0;
-        u_st_dimensions.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
-        u_st_dimensions.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
-        u_st_dimensions.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
-        u_st_dimensions.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
-        u_st_dimensions.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
-        u_st_dimensions.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
-        u_st_dimensions.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
-        u_st_dimensions.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
-        this->st_dimensions = u_st_dimensions.real;
-        offset += sizeof(this->st_dimensions);
-        this->dimensions[i] = this->st_dimensions;
+        } u_dimensionsi;
+        u_dimensionsi.base = 0;
+        u_dimensionsi.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+        u_dimensionsi.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+        u_dimensionsi.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+        u_dimensionsi.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+        u_dimensionsi.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+        u_dimensionsi.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+        u_dimensionsi.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+        u_dimensionsi.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+        this->dimensions[i] = u_dimensionsi.real;
+        offset += sizeof(this->dimensions[i]);
       }
       return offset;
     }
@@ -125,7 +104,8 @@ namespace shape_msgs
     {
       int length = 0;
       length += sizeof(this->type);
-      length += sizeof(this->dimensions_length);
+      uint32_t dimensions_length = this->dimensions.size();
+      length += sizeof(dimensions_length);
       for( uint32_t i = 0; i < dimensions_length; i++) {
         length += sizeof(this->dimensions[i]);
       }
@@ -137,6 +117,7 @@ namespace shape_msgs
       std::string string_echo = "{";
       std::stringstream ss_type; ss_type << "\"type\":" << (uint16_t)type <<",";
       string_echo += ss_type.str();
+      uint32_t dimensions_length = this->dimensions.size();
       string_echo += "dimensions:[";
       for( uint32_t i = 0; i < dimensions_length; i++) {
         if( i == (dimensions_length - 1)) {

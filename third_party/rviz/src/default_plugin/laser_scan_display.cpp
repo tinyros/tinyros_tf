@@ -26,7 +26,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-	 
+   
 #include "laser_geometry.h"
 #include "laser_scan_display.h"
 #include "rviz/visualization_manager.h"

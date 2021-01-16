@@ -28,15 +28,6 @@ static const char SELFTEST[] = "diagnostic_msgs/SelfTest";
       this->__id__ = 0;
     }
 
-    ~SelfTestRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -97,35 +88,15 @@ typedef std::shared_ptr<tinyros::diagnostic_msgs::SelfTestRequest const> SelfTes
       _id_type id;
       typedef int8_t _passed_type;
       _passed_type passed;
-      uint32_t status_length;
       typedef tinyros::diagnostic_msgs::DiagnosticStatus _status_type;
-      _status_type st_status;
-      _status_type * status;
+      std::vector<_status_type> status;
 
     SelfTestResponse():
       id(""),
       passed(0),
-      status_length(0), status(NULL)
+      status(0)
     {
       this->__id__ = 0;
-    }
-
-    ~SelfTestResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->status != NULL)
-      {
-        for( uint32_t i = 0; i < this->status_length; i++){
-          this->status[i].deconstructor();
-        }
-        delete[] this->status;
-      }
-      this->status = NULL;
-      this->status_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -148,11 +119,12 @@ typedef std::shared_ptr<tinyros::diagnostic_msgs::SelfTestRequest const> SelfTes
       u_passed.real = this->passed;
       *(outbuffer + offset + 0) = (u_passed.base >> (8 * 0)) & 0xFF;
       offset += sizeof(this->passed);
-      *(outbuffer + offset + 0) = (this->status_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->status_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->status_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->status_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->status_length);
+      uint32_t status_length = this->status.size();
+      *(outbuffer + offset + 0) = (status_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (status_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (status_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (status_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(status_length);
       for( uint32_t i = 0; i < status_length; i++) {
         offset += this->status[i].serialize(outbuffer + offset);
       }
@@ -184,19 +156,14 @@ typedef std::shared_ptr<tinyros::diagnostic_msgs::SelfTestRequest const> SelfTes
       u_passed.base |= ((uint8_t) (*(inbuffer + offset + 0))) << (8 * 0);
       this->passed = u_passed.real;
       offset += sizeof(this->passed);
-      uint32_t status_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      status_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      status_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      status_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->status_length);
-      if(!this->status || status_lengthT > this->status_length) {
-        this->deconstructor();
-        this->status = new tinyros::diagnostic_msgs::DiagnosticStatus[status_lengthT];
-      }
-      this->status_length = status_lengthT;
+      uint32_t status_length = ((uint32_t) (*(inbuffer + offset))); 
+      status_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      status_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      status_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->status.resize(status_length); 
+      offset += sizeof(status_length);
       for( uint32_t i = 0; i < status_length; i++) {
-        offset += this->st_status.deserialize(inbuffer + offset);
-        this->status[i] = this->st_status;
+        offset += this->status[i].deserialize(inbuffer + offset);
       }
       return offset;
     }
@@ -208,7 +175,8 @@ typedef std::shared_ptr<tinyros::diagnostic_msgs::SelfTestRequest const> SelfTes
       length += 4;
       length += length_id;
       length += sizeof(this->passed);
-      length += sizeof(this->status_length);
+      uint32_t status_length = this->status.size();
+      length += sizeof(status_length);
       for( uint32_t i = 0; i < status_length; i++) {
         length += this->status[i].serializedLength();
       }
@@ -228,6 +196,7 @@ typedef std::shared_ptr<tinyros::diagnostic_msgs::SelfTestRequest const> SelfTes
       string_echo += "\",";
       std::stringstream ss_passed; ss_passed << "\"passed\":" << (int16_t)passed <<",";
       string_echo += ss_passed.str();
+      uint32_t status_length = this->status.size();
       string_echo += "status:[";
       for( uint32_t i = 0; i < status_length; i++) {
         if( i == (status_length - 1)) {

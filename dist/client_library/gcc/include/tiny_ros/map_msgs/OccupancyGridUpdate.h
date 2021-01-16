@@ -27,10 +27,8 @@ namespace map_msgs
       _width_type width;
       typedef uint32_t _height_type;
       _height_type height;
-      uint32_t data_length;
       typedef int8_t _data_type;
-      _data_type st_data;
-      _data_type * data;
+      std::vector<_data_type> data;
 
     OccupancyGridUpdate():
       header(),
@@ -38,23 +36,8 @@ namespace map_msgs
       y(0),
       width(0),
       height(0),
-      data_length(0), data(NULL)
+      data(0)
     {
-    }
-
-    ~OccupancyGridUpdate()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->data != NULL)
-      {
-        delete[] this->data;
-      }
-      this->data = NULL;
-      this->data_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -91,11 +74,12 @@ namespace map_msgs
       *(outbuffer + offset + 2) = (this->height >> (8 * 2)) & 0xFF;
       *(outbuffer + offset + 3) = (this->height >> (8 * 3)) & 0xFF;
       offset += sizeof(this->height);
-      *(outbuffer + offset + 0) = (this->data_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->data_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->data_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->data_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->data_length);
+      uint32_t data_length = this->data.size();
+      *(outbuffer + offset + 0) = (data_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (data_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (data_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (data_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(data_length);
       for( uint32_t i = 0; i < data_length; i++) {
         union {
           int8_t real;
@@ -144,26 +128,21 @@ namespace map_msgs
       this->height |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
       this->height |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
       offset += sizeof(this->height);
-      uint32_t data_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      data_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      data_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      data_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->data_length);
-      if(!this->data || data_lengthT > this->data_length) {
-        this->deconstructor();
-        this->data = new int8_t[data_lengthT];
-      }
-      this->data_length = data_lengthT;
+      uint32_t data_length = ((uint32_t) (*(inbuffer + offset))); 
+      data_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      data_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      data_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->data.resize(data_length); 
+      offset += sizeof(data_length);
       for( uint32_t i = 0; i < data_length; i++) {
         union {
           int8_t real;
           uint8_t base;
-        } u_st_data;
-        u_st_data.base = 0;
-        u_st_data.base |= ((uint8_t) (*(inbuffer + offset + 0))) << (8 * 0);
-        this->st_data = u_st_data.real;
-        offset += sizeof(this->st_data);
-        this->data[i] = this->st_data;
+        } u_datai;
+        u_datai.base = 0;
+        u_datai.base |= ((uint8_t) (*(inbuffer + offset + 0))) << (8 * 0);
+        this->data[i] = u_datai.real;
+        offset += sizeof(this->data[i]);
       }
       return offset;
     }
@@ -176,7 +155,8 @@ namespace map_msgs
       length += sizeof(this->y);
       length += sizeof(this->width);
       length += sizeof(this->height);
-      length += sizeof(this->data_length);
+      uint32_t data_length = this->data.size();
+      length += sizeof(data_length);
       for( uint32_t i = 0; i < data_length; i++) {
         length += sizeof(this->data[i]);
       }
@@ -197,6 +177,7 @@ namespace map_msgs
       string_echo += ss_width.str();
       std::stringstream ss_height; ss_height << "\"height\":" << height <<",";
       string_echo += ss_height.str();
+      uint32_t data_length = this->data.size();
       string_echo += "data:[";
       for( uint32_t i = 0; i < data_length; i++) {
         if( i == (data_length - 1)) {

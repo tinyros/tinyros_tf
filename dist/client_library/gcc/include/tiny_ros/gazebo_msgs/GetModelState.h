@@ -35,15 +35,6 @@ static const char GETMODELSTATE[] = "gazebo_msgs/GetModelState";
       this->__id__ = 0;
     }
 
-    ~GetModelStateRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -166,15 +157,6 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetModelStateRequest const> GetMod
       status_message("")
     {
       this->__id__ = 0;
-    }
-
-    ~GetModelStateResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

@@ -25,43 +25,18 @@ static const char SETMODELCONFIGURATION[] = "gazebo_msgs/SetModelConfiguration";
       _model_name_type model_name;
       typedef std::string _urdf_param_name_type;
       _urdf_param_name_type urdf_param_name;
-      uint32_t joint_names_length;
       typedef std::string _joint_names_type;
-      _joint_names_type st_joint_names;
-      _joint_names_type * joint_names;
-      uint32_t joint_positions_length;
+      std::vector<_joint_names_type> joint_names;
       typedef double _joint_positions_type;
-      _joint_positions_type st_joint_positions;
-      _joint_positions_type * joint_positions;
+      std::vector<_joint_positions_type> joint_positions;
 
     SetModelConfigurationRequest():
       model_name(""),
       urdf_param_name(""),
-      joint_names_length(0), joint_names(NULL),
-      joint_positions_length(0), joint_positions(NULL)
+      joint_names(0),
+      joint_positions(0)
     {
       this->__id__ = 0;
-    }
-
-    ~SetModelConfigurationRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->joint_names != NULL)
-      {
-        delete[] this->joint_names;
-      }
-      this->joint_names = NULL;
-      this->joint_names_length = 0;
-      if(this->joint_positions != NULL)
-      {
-        delete[] this->joint_positions;
-      }
-      this->joint_positions = NULL;
-      this->joint_positions_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -82,11 +57,12 @@ static const char SETMODELCONFIGURATION[] = "gazebo_msgs/SetModelConfiguration";
       offset += 4;
       memcpy(outbuffer + offset, this->urdf_param_name.c_str(), length_urdf_param_name);
       offset += length_urdf_param_name;
-      *(outbuffer + offset + 0) = (this->joint_names_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->joint_names_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->joint_names_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->joint_names_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->joint_names_length);
+      uint32_t joint_names_length = this->joint_names.size();
+      *(outbuffer + offset + 0) = (joint_names_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (joint_names_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (joint_names_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (joint_names_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(joint_names_length);
       for( uint32_t i = 0; i < joint_names_length; i++) {
         uint32_t length_joint_namesi = this->joint_names[i].size();
         varToArr(outbuffer + offset, length_joint_namesi);
@@ -94,11 +70,12 @@ static const char SETMODELCONFIGURATION[] = "gazebo_msgs/SetModelConfiguration";
         memcpy(outbuffer + offset, this->joint_names[i].c_str(), length_joint_namesi);
         offset += length_joint_namesi;
       }
-      *(outbuffer + offset + 0) = (this->joint_positions_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->joint_positions_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->joint_positions_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->joint_positions_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->joint_positions_length);
+      uint32_t joint_positions_length = this->joint_positions.size();
+      *(outbuffer + offset + 0) = (joint_positions_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (joint_positions_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (joint_positions_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (joint_positions_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(joint_positions_length);
       for( uint32_t i = 0; i < joint_positions_length; i++) {
         union {
           double real;
@@ -144,55 +121,45 @@ static const char SETMODELCONFIGURATION[] = "gazebo_msgs/SetModelConfiguration";
       inbuffer[offset+length_urdf_param_name-1]=0;
       this->urdf_param_name = (char *)(inbuffer + offset-1);
       offset += length_urdf_param_name;
-      uint32_t joint_names_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      joint_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      joint_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      joint_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->joint_names_length);
-      if(!this->joint_names || joint_names_lengthT > this->joint_names_length) {
-        this->deconstructor();
-        this->joint_names = new std::string[joint_names_lengthT];
-      }
-      this->joint_names_length = joint_names_lengthT;
+      uint32_t joint_names_length = ((uint32_t) (*(inbuffer + offset))); 
+      joint_names_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      joint_names_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      joint_names_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->joint_names.resize(joint_names_length); 
+      offset += sizeof(joint_names_length);
       for( uint32_t i = 0; i < joint_names_length; i++) {
-        uint32_t length_st_joint_names;
-        arrToVar(length_st_joint_names, (inbuffer + offset));
+        uint32_t length_joint_namesi;
+        arrToVar(length_joint_namesi, (inbuffer + offset));
         offset += 4;
-        for(unsigned int k= offset; k< offset+length_st_joint_names; ++k){
+        for(unsigned int k= offset; k< offset+length_joint_namesi; ++k){
           inbuffer[k-1]=inbuffer[k];
         }
-        inbuffer[offset+length_st_joint_names-1]=0;
-        this->st_joint_names = (char *)(inbuffer + offset-1);
-        offset += length_st_joint_names;
-        this->joint_names[i] = this->st_joint_names;
+        inbuffer[offset+length_joint_namesi-1]=0;
+        this->joint_names[i] = (char *)(inbuffer + offset-1);
+        offset += length_joint_namesi;
       }
-      uint32_t joint_positions_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      joint_positions_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      joint_positions_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      joint_positions_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->joint_positions_length);
-      if(!this->joint_positions || joint_positions_lengthT > this->joint_positions_length) {
-        this->deconstructor();
-        this->joint_positions = new double[joint_positions_lengthT];
-      }
-      this->joint_positions_length = joint_positions_lengthT;
+      uint32_t joint_positions_length = ((uint32_t) (*(inbuffer + offset))); 
+      joint_positions_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      joint_positions_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      joint_positions_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->joint_positions.resize(joint_positions_length); 
+      offset += sizeof(joint_positions_length);
       for( uint32_t i = 0; i < joint_positions_length; i++) {
         union {
           double real;
           uint64_t base;
-        } u_st_joint_positions;
-        u_st_joint_positions.base = 0;
-        u_st_joint_positions.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
-        u_st_joint_positions.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
-        u_st_joint_positions.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
-        u_st_joint_positions.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
-        u_st_joint_positions.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
-        u_st_joint_positions.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
-        u_st_joint_positions.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
-        u_st_joint_positions.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
-        this->st_joint_positions = u_st_joint_positions.real;
-        offset += sizeof(this->st_joint_positions);
-        this->joint_positions[i] = this->st_joint_positions;
+        } u_joint_positionsi;
+        u_joint_positionsi.base = 0;
+        u_joint_positionsi.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+        u_joint_positionsi.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+        u_joint_positionsi.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+        u_joint_positionsi.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+        u_joint_positionsi.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+        u_joint_positionsi.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+        u_joint_positionsi.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+        u_joint_positionsi.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+        this->joint_positions[i] = u_joint_positionsi.real;
+        offset += sizeof(this->joint_positions[i]);
       }
       return offset;
     }
@@ -206,13 +173,15 @@ static const char SETMODELCONFIGURATION[] = "gazebo_msgs/SetModelConfiguration";
       uint32_t length_urdf_param_name = this->urdf_param_name.size();
       length += 4;
       length += length_urdf_param_name;
-      length += sizeof(this->joint_names_length);
+      uint32_t joint_names_length = this->joint_names.size();
+      length += sizeof(joint_names_length);
       for( uint32_t i = 0; i < joint_names_length; i++) {
         uint32_t length_joint_namesi = this->joint_names[i].size();
         length += 4;
         length += length_joint_namesi;
       }
-      length += sizeof(this->joint_positions_length);
+      uint32_t joint_positions_length = this->joint_positions.size();
+      length += sizeof(joint_positions_length);
       for( uint32_t i = 0; i < joint_positions_length; i++) {
         length += sizeof(this->joint_positions[i]);
       }
@@ -238,6 +207,7 @@ static const char SETMODELCONFIGURATION[] = "gazebo_msgs/SetModelConfiguration";
       string_echo += "\"urdf_param_name\":\"";
       string_echo += urdf_param_name;
       string_echo += "\",";
+      uint32_t joint_names_length = this->joint_names.size();
       string_echo += "joint_names:[";
       for( uint32_t i = 0; i < joint_names_length; i++) {
         if( i == (joint_names_length - 1)) {
@@ -263,6 +233,7 @@ static const char SETMODELCONFIGURATION[] = "gazebo_msgs/SetModelConfiguration";
         }
       }
       string_echo += "],";
+      uint32_t joint_positions_length = this->joint_positions.size();
       string_echo += "joint_positions:[";
       for( uint32_t i = 0; i < joint_positions_length; i++) {
         if( i == (joint_positions_length - 1)) {
@@ -309,15 +280,6 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::SetModelConfigurationRequest const
       status_message("")
     {
       this->__id__ = 0;
-    }
-
-    ~SetModelConfigurationResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

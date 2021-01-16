@@ -36,7 +36,7 @@
 #include "properties/property_manager.h"
 #include "properties/property.h"
 
-#include <ros/assert.h>
+#include <tiny_ros/tf/static_assert.h>
 
 #include <wx/confbase.h>
 
@@ -51,8 +51,8 @@ DisplayWrapper::DisplayWrapper(const std::string& package, const std::string& cl
 , display_(0)
 , property_manager_(0)
 {
-  manager->getDisplaysConfigLoadedSignal().connect(boost::bind(&DisplayWrapper::onDisplaysConfigLoaded, this, _1));
-  manager->getDisplaysConfigSavingSignal().connect(boost::bind(&DisplayWrapper::onDisplaysConfigSaved, this, _1));
+  manager->getDisplaysConfigLoadedSignal().connect(std::bind(&DisplayWrapper::onDisplaysConfigLoaded, this, std::placeholders::_1));
+  manager->getDisplaysConfigSavingSignal().connect(std::bind(&DisplayWrapper::onDisplaysConfigSaved, this, std::placeholders::_1));
 
   if (plugin)
   {
@@ -72,14 +72,14 @@ DisplayWrapper::~DisplayWrapper()
 
 void DisplayWrapper::setPlugin(const PluginPtr& plugin)
 {
-  ROS_ASSERT(!plugin_);
+  TINYROS_ASSERT(!plugin_);
 
   plugin_ = plugin;
 
   if (plugin_)
   {
-    plugin_->getLoadedSignal().connect(boost::bind(&DisplayWrapper::onPluginLoaded, this, _1));
-    plugin_->getUnloadingSignal().connect(boost::bind(&DisplayWrapper::onPluginUnloading, this, _1));
+    plugin_->getLoadedSignal().connect(std::bind(&DisplayWrapper::onPluginLoaded, this, std::placeholders::_1));
+    plugin_->getUnloadingSignal().connect(std::bind(&DisplayWrapper::onPluginUnloading, this, std::placeholders::_1));
   }
 
   plugin_->autoLoad();
@@ -118,14 +118,14 @@ void DisplayWrapper::loadProperties()
   }
 }
 
-void DisplayWrapper::onDisplaysConfigLoaded(const boost::shared_ptr<wxConfigBase>& config)
+void DisplayWrapper::onDisplaysConfigLoaded(const std::shared_ptr<wxConfigBase>& config)
 {
   config_ = config;
 
   loadProperties();
 }
 
-void DisplayWrapper::onDisplaysConfigSaved(const boost::shared_ptr<wxConfigBase>& config)
+void DisplayWrapper::onDisplaysConfigSaved(const std::shared_ptr<wxConfigBase>& config)
 {
   if (display_)
   {
@@ -189,16 +189,16 @@ void DisplayWrapper::destroyDisplay()
 
 void DisplayWrapper::onPluginLoaded(const PluginStatus& st)
 {
-  ROS_ASSERT(st.plugin == plugin_.get());
-  ROS_ASSERT(display_ == 0);
+  TINYROS_ASSERT(st.plugin == plugin_.get());
+  TINYROS_ASSERT(display_ == 0);
 
   createDisplay();
 }
 
 void DisplayWrapper::onPluginUnloading(const PluginStatus& st)
 {
-  ROS_ASSERT(st.plugin == plugin_.get());
-  ROS_ASSERT(display_ != 0);
+  TINYROS_ASSERT(st.plugin == plugin_.get());
+  TINYROS_ASSERT(display_ != 0);
 
   loadProperties();
   destroyDisplay();
@@ -206,7 +206,7 @@ void DisplayWrapper::onPluginUnloading(const PluginStatus& st)
 
 void DisplayWrapper::setPropertyManager(PropertyManager* property_manager, const CategoryPropertyWPtr& parent)
 {
-  ROS_ASSERT(!property_manager_);
+  TINYROS_ASSERT(!property_manager_);
 
   property_manager_ = property_manager;
 

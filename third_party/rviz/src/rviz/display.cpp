@@ -101,17 +101,17 @@ void Display::setEnabled(bool en, bool force)
   }
 }
 
-void Display::setRenderCallback( boost::function<void ()> func )
+void Display::setRenderCallback( std::function<void ()> func )
 {
   render_callback_ = func;
 }
 
-void Display::setLockRenderCallback( boost::function<void ()> func )
+void Display::setLockRenderCallback( std::function<void ()> func )
 {
   render_lock_ = func;
 }
 
-void Display::setUnlockRenderCallback( boost::function<void ()> func )
+void Display::setUnlockRenderCallback( std::function<void ()> func )
 {
   render_unlock_ = func;
 }

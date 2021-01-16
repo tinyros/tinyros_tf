@@ -30,15 +30,6 @@ static const char ADDDIAGNOSTICS[] = "diagnostic_msgs/AddDiagnostics";
       this->__id__ = 0;
     }
 
-    ~AddDiagnosticsRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -130,15 +121,6 @@ typedef std::shared_ptr<tinyros::diagnostic_msgs::AddDiagnosticsRequest const> A
       message("")
     {
       this->__id__ = 0;
-    }
-
-    ~AddDiagnosticsResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

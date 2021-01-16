@@ -50,7 +50,7 @@ namespace rviz
 PathDisplay::PathDisplay( const std::string& name, VisualizationManager* manager )
 : Display( name, manager )
 , color_( 0.1f, 1.0f, 0.0f )
-, tf_filter_(*manager->getTFClient(), "", 10, update_nh_)
+, tf_filter_(*manager->getTFClient(), "", 10)
 {
   scene_node_ = scene_manager_->getRootSceneNode()->createChildSceneNode();
 

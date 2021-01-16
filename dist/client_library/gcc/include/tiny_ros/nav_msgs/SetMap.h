@@ -35,15 +35,6 @@ static const char SETMAP[] = "nav_msgs/SetMap";
       this->__id__ = 0;
     }
 
-    ~SetMapRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -119,15 +110,6 @@ typedef std::shared_ptr<tinyros::nav_msgs::SetMapRequest const> SetMapRequestCon
       success(0)
     {
       this->__id__ = 0;
-    }
-
-    ~SetMapResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

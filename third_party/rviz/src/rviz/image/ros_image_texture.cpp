@@ -95,18 +95,18 @@ void ROSImageTexture::setTopic(const std::string& topic)
         sub_->topic_ = topic_;
         tinyros::nh()->subscribe(*sub_);
       } else if (sub_->topic_ != topic_) {
-  	    sub_->setEnabled(false);
+        sub_->setEnabled(false);
         sub_ = new tinyros::Subscriber<tinyros::sensor_msgs::Image, ROSImageTexture>(topic_, &ROSImageTexture::callback, this);
         tinyros::nh()->subscribe(*sub_);
       }
-  	  sub_->setEnabled(true);
+      sub_->setEnabled(true);
     }
     else
     {
       TINYROS_ASSERT(tf_client_);
       tf_filter_.reset(new tinyros::tf::MessageFilter<tinyros::sensor_msgs::Image>((tinyros::tf::Transformer&)*tf_client_, frame_, 2));
       tf_filter_->registerCallback(std::bind(&ROSImageTexture::callback, this, std::placeholders::_1));
-	    tf_filter_->connectInput(topic);
+      tf_filter_->connectInput(topic);
       tf_filter_->connectEnable(true);
     }
   }
@@ -114,7 +114,7 @@ void ROSImageTexture::setTopic(const std::string& topic)
 
 const tinyros::sensor_msgs::ImageConstPtr& ROSImageTexture::getImage()
 {
-  std::unique_lock<std::mutex> lock(mutex_);
+  std::scoped_lock lock(mutex_);
 
   return current_image_;
 }
@@ -124,7 +124,7 @@ bool ROSImageTexture::update()
   tinyros::sensor_msgs::ImageConstPtr image;
   bool new_image = false;
   {
-    std::unique_lock<std::mutex> lock(mutex_);
+    std::scoped_lock lock(mutex_);
 
     image = current_image_;
     new_image = new_image_;
@@ -181,7 +181,7 @@ bool ROSImageTexture::update()
 
 void ROSImageTexture::callback(const tinyros::sensor_msgs::ImageConstPtr& msg)
 {
-  std::unique_lock<std::mutex> lock(mutex_);
+  std::scoped_lock lock(mutex_);
   current_image_ = msg;
   new_image_ = true;
 }

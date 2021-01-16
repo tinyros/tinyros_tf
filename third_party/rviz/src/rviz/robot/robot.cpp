@@ -38,7 +38,7 @@
 #include "ogre_tools/shape.h"
 #include "ogre_tools/axes.h"
 
-#include <urdf/model.h>
+#include <urdf_model/model.h>
 
 #include <OGRE/OgreSceneNode.h>
 #include <OGRE/OgreSceneManager.h>

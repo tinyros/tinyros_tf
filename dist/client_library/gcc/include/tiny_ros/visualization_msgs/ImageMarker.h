@@ -42,14 +42,10 @@ namespace visualization_msgs
       _fill_color_type fill_color;
       typedef tinyros::Duration _lifetime_type;
       _lifetime_type lifetime;
-      uint32_t points_length;
       typedef tinyros::geometry_msgs::Point _points_type;
-      _points_type st_points;
-      _points_type * points;
-      uint32_t outline_colors_length;
+      std::vector<_points_type> points;
       typedef tinyros::std_msgs::ColorRGBA _outline_colors_type;
-      _outline_colors_type st_outline_colors;
-      _outline_colors_type * outline_colors;
+      std::vector<_outline_colors_type> outline_colors;
       enum { CIRCLE = 0 };
       enum { LINE_STRIP = 1 };
       enum { LINE_LIST = 2 };
@@ -70,36 +66,9 @@ namespace visualization_msgs
       filled(0),
       fill_color(),
       lifetime(),
-      points_length(0), points(NULL),
-      outline_colors_length(0), outline_colors(NULL)
+      points(0),
+      outline_colors(0)
     {
-    }
-
-    ~ImageMarker()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->points != NULL)
-      {
-        for( uint32_t i = 0; i < this->points_length; i++){
-          this->points[i].deconstructor();
-        }
-        delete[] this->points;
-      }
-      this->points = NULL;
-      this->points_length = 0;
-      if(this->outline_colors != NULL)
-      {
-        for( uint32_t i = 0; i < this->outline_colors_length; i++){
-          this->outline_colors[i].deconstructor();
-        }
-        delete[] this->outline_colors;
-      }
-      this->outline_colors = NULL;
-      this->outline_colors_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -166,19 +135,21 @@ namespace visualization_msgs
       *(outbuffer + offset + 2) = (this->lifetime.nsec >> (8 * 2)) & 0xFF;
       *(outbuffer + offset + 3) = (this->lifetime.nsec >> (8 * 3)) & 0xFF;
       offset += sizeof(this->lifetime.nsec);
-      *(outbuffer + offset + 0) = (this->points_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->points_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->points_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->points_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->points_length);
+      uint32_t points_length = this->points.size();
+      *(outbuffer + offset + 0) = (points_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (points_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (points_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (points_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(points_length);
       for( uint32_t i = 0; i < points_length; i++) {
         offset += this->points[i].serialize(outbuffer + offset);
       }
-      *(outbuffer + offset + 0) = (this->outline_colors_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->outline_colors_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->outline_colors_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->outline_colors_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->outline_colors_length);
+      uint32_t outline_colors_length = this->outline_colors.size();
+      *(outbuffer + offset + 0) = (outline_colors_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (outline_colors_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (outline_colors_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (outline_colors_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(outline_colors_length);
       for( uint32_t i = 0; i < outline_colors_length; i++) {
         offset += this->outline_colors[i].serialize(outbuffer + offset);
       }
@@ -257,33 +228,23 @@ namespace visualization_msgs
       this->lifetime.nsec |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
       this->lifetime.nsec |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
       offset += sizeof(this->lifetime.nsec);
-      uint32_t points_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      points_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      points_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      points_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->points_length);
-      if(!this->points || points_lengthT > this->points_length) {
-        this->deconstructor();
-        this->points = new tinyros::geometry_msgs::Point[points_lengthT];
-      }
-      this->points_length = points_lengthT;
+      uint32_t points_length = ((uint32_t) (*(inbuffer + offset))); 
+      points_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      points_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      points_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->points.resize(points_length); 
+      offset += sizeof(points_length);
       for( uint32_t i = 0; i < points_length; i++) {
-        offset += this->st_points.deserialize(inbuffer + offset);
-        this->points[i] = this->st_points;
+        offset += this->points[i].deserialize(inbuffer + offset);
       }
-      uint32_t outline_colors_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      outline_colors_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      outline_colors_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      outline_colors_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->outline_colors_length);
-      if(!this->outline_colors || outline_colors_lengthT > this->outline_colors_length) {
-        this->deconstructor();
-        this->outline_colors = new tinyros::std_msgs::ColorRGBA[outline_colors_lengthT];
-      }
-      this->outline_colors_length = outline_colors_lengthT;
+      uint32_t outline_colors_length = ((uint32_t) (*(inbuffer + offset))); 
+      outline_colors_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      outline_colors_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      outline_colors_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->outline_colors.resize(outline_colors_length); 
+      offset += sizeof(outline_colors_length);
       for( uint32_t i = 0; i < outline_colors_length; i++) {
-        offset += this->st_outline_colors.deserialize(inbuffer + offset);
-        this->outline_colors[i] = this->st_outline_colors;
+        offset += this->outline_colors[i].deserialize(inbuffer + offset);
       }
       return offset;
     }
@@ -305,11 +266,13 @@ namespace visualization_msgs
       length += this->fill_color.serializedLength();
       length += sizeof(this->lifetime.sec);
       length += sizeof(this->lifetime.nsec);
-      length += sizeof(this->points_length);
+      uint32_t points_length = this->points.size();
+      length += sizeof(points_length);
       for( uint32_t i = 0; i < points_length; i++) {
         length += this->points[i].serializedLength();
       }
-      length += sizeof(this->outline_colors_length);
+      uint32_t outline_colors_length = this->outline_colors.size();
+      length += sizeof(outline_colors_length);
       for( uint32_t i = 0; i < outline_colors_length; i++) {
         length += this->outline_colors[i].serializedLength();
       }
@@ -353,6 +316,7 @@ namespace visualization_msgs
       ss_lifetime << "\"lifetime\":{\"sec\":" << lifetime.sec;
       ss_lifetime << ",\"nsec\":" << lifetime.nsec << "},";
       string_echo += ss_lifetime.str();
+      uint32_t points_length = this->points.size();
       string_echo += "points:[";
       for( uint32_t i = 0; i < points_length; i++) {
         if( i == (points_length - 1)) {
@@ -364,6 +328,7 @@ namespace visualization_msgs
         }
       }
       string_echo += "],";
+      uint32_t outline_colors_length = this->outline_colors.size();
       string_echo += "outline_colors:[";
       for( uint32_t i = 0; i < outline_colors_length; i++) {
         if( i == (outline_colors_length - 1)) {

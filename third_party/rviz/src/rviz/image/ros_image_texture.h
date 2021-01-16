@@ -31,7 +31,6 @@
 #define RVIZ_ROS_IMAGE_TEXTURE_H
 
 #include <tiny_ros/sensor_msgs/Image.h>
-#include "tiny_ros/sensor_msgs/image_encodings.h"
 
 #include <OGRE/OgreTexture.h>
 

@@ -30,14 +30,10 @@ namespace visualization_msgs
       _description_type description;
       typedef float _scale_type;
       _scale_type scale;
-      uint32_t menu_entries_length;
       typedef tinyros::visualization_msgs::MenuEntry _menu_entries_type;
-      _menu_entries_type st_menu_entries;
-      _menu_entries_type * menu_entries;
-      uint32_t controls_length;
+      std::vector<_menu_entries_type> menu_entries;
       typedef tinyros::visualization_msgs::InteractiveMarkerControl _controls_type;
-      _controls_type st_controls;
-      _controls_type * controls;
+      std::vector<_controls_type> controls;
 
     InteractiveMarker():
       header(),
@@ -45,36 +41,9 @@ namespace visualization_msgs
       name(""),
       description(""),
       scale(0),
-      menu_entries_length(0), menu_entries(NULL),
-      controls_length(0), controls(NULL)
+      menu_entries(0),
+      controls(0)
     {
-    }
-
-    ~InteractiveMarker()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->menu_entries != NULL)
-      {
-        for( uint32_t i = 0; i < this->menu_entries_length; i++){
-          this->menu_entries[i].deconstructor();
-        }
-        delete[] this->menu_entries;
-      }
-      this->menu_entries = NULL;
-      this->menu_entries_length = 0;
-      if(this->controls != NULL)
-      {
-        for( uint32_t i = 0; i < this->controls_length; i++){
-          this->controls[i].deconstructor();
-        }
-        delete[] this->controls;
-      }
-      this->controls = NULL;
-      this->controls_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -102,19 +71,21 @@ namespace visualization_msgs
       *(outbuffer + offset + 2) = (u_scale.base >> (8 * 2)) & 0xFF;
       *(outbuffer + offset + 3) = (u_scale.base >> (8 * 3)) & 0xFF;
       offset += sizeof(this->scale);
-      *(outbuffer + offset + 0) = (this->menu_entries_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->menu_entries_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->menu_entries_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->menu_entries_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->menu_entries_length);
+      uint32_t menu_entries_length = this->menu_entries.size();
+      *(outbuffer + offset + 0) = (menu_entries_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (menu_entries_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (menu_entries_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (menu_entries_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(menu_entries_length);
       for( uint32_t i = 0; i < menu_entries_length; i++) {
         offset += this->menu_entries[i].serialize(outbuffer + offset);
       }
-      *(outbuffer + offset + 0) = (this->controls_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->controls_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->controls_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->controls_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->controls_length);
+      uint32_t controls_length = this->controls.size();
+      *(outbuffer + offset + 0) = (controls_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (controls_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (controls_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (controls_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(controls_length);
       for( uint32_t i = 0; i < controls_length; i++) {
         offset += this->controls[i].serialize(outbuffer + offset);
       }
@@ -155,33 +126,23 @@ namespace visualization_msgs
       u_scale.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
       this->scale = u_scale.real;
       offset += sizeof(this->scale);
-      uint32_t menu_entries_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      menu_entries_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      menu_entries_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      menu_entries_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->menu_entries_length);
-      if(!this->menu_entries || menu_entries_lengthT > this->menu_entries_length) {
-        this->deconstructor();
-        this->menu_entries = new tinyros::visualization_msgs::MenuEntry[menu_entries_lengthT];
-      }
-      this->menu_entries_length = menu_entries_lengthT;
+      uint32_t menu_entries_length = ((uint32_t) (*(inbuffer + offset))); 
+      menu_entries_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      menu_entries_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      menu_entries_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->menu_entries.resize(menu_entries_length); 
+      offset += sizeof(menu_entries_length);
       for( uint32_t i = 0; i < menu_entries_length; i++) {
-        offset += this->st_menu_entries.deserialize(inbuffer + offset);
-        this->menu_entries[i] = this->st_menu_entries;
+        offset += this->menu_entries[i].deserialize(inbuffer + offset);
       }
-      uint32_t controls_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      controls_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      controls_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      controls_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->controls_length);
-      if(!this->controls || controls_lengthT > this->controls_length) {
-        this->deconstructor();
-        this->controls = new tinyros::visualization_msgs::InteractiveMarkerControl[controls_lengthT];
-      }
-      this->controls_length = controls_lengthT;
+      uint32_t controls_length = ((uint32_t) (*(inbuffer + offset))); 
+      controls_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      controls_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      controls_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->controls.resize(controls_length); 
+      offset += sizeof(controls_length);
       for( uint32_t i = 0; i < controls_length; i++) {
-        offset += this->st_controls.deserialize(inbuffer + offset);
-        this->controls[i] = this->st_controls;
+        offset += this->controls[i].deserialize(inbuffer + offset);
       }
       return offset;
     }
@@ -198,11 +159,13 @@ namespace visualization_msgs
       length += 4;
       length += length_description;
       length += sizeof(this->scale);
-      length += sizeof(this->menu_entries_length);
+      uint32_t menu_entries_length = this->menu_entries.size();
+      length += sizeof(menu_entries_length);
       for( uint32_t i = 0; i < menu_entries_length; i++) {
         length += this->menu_entries[i].serializedLength();
       }
-      length += sizeof(this->controls_length);
+      uint32_t controls_length = this->controls.size();
+      length += sizeof(controls_length);
       for( uint32_t i = 0; i < controls_length; i++) {
         length += this->controls[i].serializedLength();
       }
@@ -236,6 +199,7 @@ namespace visualization_msgs
       string_echo += "\",";
       std::stringstream ss_scale; ss_scale << "\"scale\":" << scale <<",";
       string_echo += ss_scale.str();
+      uint32_t menu_entries_length = this->menu_entries.size();
       string_echo += "menu_entries:[";
       for( uint32_t i = 0; i < menu_entries_length; i++) {
         if( i == (menu_entries_length - 1)) {
@@ -247,6 +211,7 @@ namespace visualization_msgs
         }
       }
       string_echo += "],";
+      uint32_t controls_length = this->controls.size();
       string_echo += "controls:[";
       for( uint32_t i = 0; i < controls_length; i++) {
         if( i == (controls_length - 1)) {

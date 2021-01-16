@@ -16,39 +16,23 @@ namespace sensor_msgs
   class LaserEcho : public tinyros::Msg
   {
     public:
-      uint32_t echoes_length;
       typedef float _echoes_type;
-      _echoes_type st_echoes;
-      _echoes_type * echoes;
+      std::vector<_echoes_type> echoes;
 
     LaserEcho():
-      echoes_length(0), echoes(NULL)
+      echoes(0)
     {
-    }
-
-    ~LaserEcho()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->echoes != NULL)
-      {
-        delete[] this->echoes;
-      }
-      this->echoes = NULL;
-      this->echoes_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
-      *(outbuffer + offset + 0) = (this->echoes_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->echoes_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->echoes_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->echoes_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->echoes_length);
+      uint32_t echoes_length = this->echoes.size();
+      *(outbuffer + offset + 0) = (echoes_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (echoes_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (echoes_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (echoes_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(echoes_length);
       for( uint32_t i = 0; i < echoes_length; i++) {
         union {
           float real;
@@ -67,29 +51,24 @@ namespace sensor_msgs
     virtual int deserialize(unsigned char *inbuffer)
     {
       int offset = 0;
-      uint32_t echoes_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      echoes_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      echoes_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      echoes_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->echoes_length);
-      if(!this->echoes || echoes_lengthT > this->echoes_length) {
-        this->deconstructor();
-        this->echoes = new float[echoes_lengthT];
-      }
-      this->echoes_length = echoes_lengthT;
+      uint32_t echoes_length = ((uint32_t) (*(inbuffer + offset))); 
+      echoes_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      echoes_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      echoes_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->echoes.resize(echoes_length); 
+      offset += sizeof(echoes_length);
       for( uint32_t i = 0; i < echoes_length; i++) {
         union {
           float real;
           uint32_t base;
-        } u_st_echoes;
-        u_st_echoes.base = 0;
-        u_st_echoes.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
-        u_st_echoes.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
-        u_st_echoes.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
-        u_st_echoes.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
-        this->st_echoes = u_st_echoes.real;
-        offset += sizeof(this->st_echoes);
-        this->echoes[i] = this->st_echoes;
+        } u_echoesi;
+        u_echoesi.base = 0;
+        u_echoesi.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+        u_echoesi.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+        u_echoesi.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+        u_echoesi.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+        this->echoes[i] = u_echoesi.real;
+        offset += sizeof(this->echoes[i]);
       }
       return offset;
     }
@@ -97,7 +76,8 @@ namespace sensor_msgs
     virtual int serializedLength() const
     {
       int length = 0;
-      length += sizeof(this->echoes_length);
+      uint32_t echoes_length = this->echoes.size();
+      length += sizeof(echoes_length);
       for( uint32_t i = 0; i < echoes_length; i++) {
         length += sizeof(this->echoes[i]);
       }
@@ -107,6 +87,7 @@ namespace sensor_msgs
     virtual std::string echo()
     {
       std::string string_echo = "{";
+      uint32_t echoes_length = this->echoes.size();
       string_echo += "echoes:[";
       for( uint32_t i = 0; i < echoes_length; i++) {
         if( i == (echoes_length - 1)) {

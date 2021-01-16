@@ -444,7 +444,7 @@ void TFDisplay::updateFrame(FrameInfo* frame)
   tinyros::tf::TransformListener* tf = vis_manager_->getTFClient();
 
   tinyros::tf::Stamped<tinyros::tf::Pose> pose( tinyros::tf::Transform( tinyros::tf::Quaternion( 0, 0, 0, 1 ), 
-  	tinyros::tf::Vector3( 0, 0, 0 ) ), tinyros::Time(), frame->name_ );
+    tinyros::tf::Vector3( 0, 0, 0 ) ), tinyros::Time(), frame->name_ );
 
   if (tf->canTransform(fixed_frame_, frame->name_, tinyros::Time()))
   {
@@ -507,7 +507,7 @@ void TFDisplay::updateFrame(FrameInfo* frame)
     if ( show_arrows_ )
     {
       tinyros::tf::Stamped<tinyros::tf::Pose> parent_pose( tinyros::tf::Transform(
-	  	tinyros::tf::Quaternion( 0, 0, 0, 1 ), tinyros::tf::Vector3( 0, 0, 0 ) ), tinyros::Time(), frame->parent_ );
+      tinyros::tf::Quaternion( 0, 0, 0, 1 ), tinyros::tf::Vector3( 0, 0, 0 ) ), tinyros::Time(), frame->parent_ );
 
       if (tf->canTransform(fixed_frame_, frame->parent_, tinyros::Time()))
       {

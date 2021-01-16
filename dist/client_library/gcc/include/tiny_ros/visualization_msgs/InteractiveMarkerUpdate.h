@@ -24,18 +24,12 @@ namespace visualization_msgs
       _seq_num_type seq_num;
       typedef uint8_t _type_type;
       _type_type type;
-      uint32_t markers_length;
       typedef tinyros::visualization_msgs::InteractiveMarker _markers_type;
-      _markers_type st_markers;
-      _markers_type * markers;
-      uint32_t poses_length;
+      std::vector<_markers_type> markers;
       typedef tinyros::visualization_msgs::InteractiveMarkerPose _poses_type;
-      _poses_type st_poses;
-      _poses_type * poses;
-      uint32_t erases_length;
+      std::vector<_poses_type> poses;
       typedef std::string _erases_type;
-      _erases_type st_erases;
-      _erases_type * erases;
+      std::vector<_erases_type> erases;
       enum { KEEP_ALIVE =  0 };
       enum { UPDATE =  1 };
 
@@ -43,43 +37,10 @@ namespace visualization_msgs
       server_id(""),
       seq_num(0),
       type(0),
-      markers_length(0), markers(NULL),
-      poses_length(0), poses(NULL),
-      erases_length(0), erases(NULL)
+      markers(0),
+      poses(0),
+      erases(0)
     {
-    }
-
-    ~InteractiveMarkerUpdate()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->markers != NULL)
-      {
-        for( uint32_t i = 0; i < this->markers_length; i++){
-          this->markers[i].deconstructor();
-        }
-        delete[] this->markers;
-      }
-      this->markers = NULL;
-      this->markers_length = 0;
-      if(this->poses != NULL)
-      {
-        for( uint32_t i = 0; i < this->poses_length; i++){
-          this->poses[i].deconstructor();
-        }
-        delete[] this->poses;
-      }
-      this->poses = NULL;
-      this->poses_length = 0;
-      if(this->erases != NULL)
-      {
-        delete[] this->erases;
-      }
-      this->erases = NULL;
-      this->erases_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -101,27 +62,30 @@ namespace visualization_msgs
       offset += sizeof(this->seq_num);
       *(outbuffer + offset + 0) = (this->type >> (8 * 0)) & 0xFF;
       offset += sizeof(this->type);
-      *(outbuffer + offset + 0) = (this->markers_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->markers_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->markers_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->markers_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->markers_length);
+      uint32_t markers_length = this->markers.size();
+      *(outbuffer + offset + 0) = (markers_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (markers_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (markers_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (markers_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(markers_length);
       for( uint32_t i = 0; i < markers_length; i++) {
         offset += this->markers[i].serialize(outbuffer + offset);
       }
-      *(outbuffer + offset + 0) = (this->poses_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->poses_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->poses_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->poses_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->poses_length);
+      uint32_t poses_length = this->poses.size();
+      *(outbuffer + offset + 0) = (poses_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (poses_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (poses_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (poses_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(poses_length);
       for( uint32_t i = 0; i < poses_length; i++) {
         offset += this->poses[i].serialize(outbuffer + offset);
       }
-      *(outbuffer + offset + 0) = (this->erases_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->erases_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->erases_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->erases_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->erases_length);
+      uint32_t erases_length = this->erases.size();
+      *(outbuffer + offset + 0) = (erases_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (erases_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (erases_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (erases_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(erases_length);
       for( uint32_t i = 0; i < erases_length; i++) {
         uint32_t length_erasesi = this->erases[i].size();
         varToArr(outbuffer + offset, length_erasesi);
@@ -155,55 +119,40 @@ namespace visualization_msgs
       offset += sizeof(this->seq_num);
       this->type =  ((uint8_t) (*(inbuffer + offset)));
       offset += sizeof(this->type);
-      uint32_t markers_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      markers_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      markers_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      markers_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->markers_length);
-      if(!this->markers || markers_lengthT > this->markers_length) {
-        this->deconstructor();
-        this->markers = new tinyros::visualization_msgs::InteractiveMarker[markers_lengthT];
-      }
-      this->markers_length = markers_lengthT;
+      uint32_t markers_length = ((uint32_t) (*(inbuffer + offset))); 
+      markers_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      markers_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      markers_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->markers.resize(markers_length); 
+      offset += sizeof(markers_length);
       for( uint32_t i = 0; i < markers_length; i++) {
-        offset += this->st_markers.deserialize(inbuffer + offset);
-        this->markers[i] = this->st_markers;
+        offset += this->markers[i].deserialize(inbuffer + offset);
       }
-      uint32_t poses_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      poses_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      poses_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      poses_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->poses_length);
-      if(!this->poses || poses_lengthT > this->poses_length) {
-        this->deconstructor();
-        this->poses = new tinyros::visualization_msgs::InteractiveMarkerPose[poses_lengthT];
-      }
-      this->poses_length = poses_lengthT;
+      uint32_t poses_length = ((uint32_t) (*(inbuffer + offset))); 
+      poses_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      poses_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      poses_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->poses.resize(poses_length); 
+      offset += sizeof(poses_length);
       for( uint32_t i = 0; i < poses_length; i++) {
-        offset += this->st_poses.deserialize(inbuffer + offset);
-        this->poses[i] = this->st_poses;
+        offset += this->poses[i].deserialize(inbuffer + offset);
       }
-      uint32_t erases_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      erases_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      erases_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      erases_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->erases_length);
-      if(!this->erases || erases_lengthT > this->erases_length) {
-        this->deconstructor();
-        this->erases = new std::string[erases_lengthT];
-      }
-      this->erases_length = erases_lengthT;
+      uint32_t erases_length = ((uint32_t) (*(inbuffer + offset))); 
+      erases_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      erases_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      erases_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->erases.resize(erases_length); 
+      offset += sizeof(erases_length);
       for( uint32_t i = 0; i < erases_length; i++) {
-        uint32_t length_st_erases;
-        arrToVar(length_st_erases, (inbuffer + offset));
+        uint32_t length_erasesi;
+        arrToVar(length_erasesi, (inbuffer + offset));
         offset += 4;
-        for(unsigned int k= offset; k< offset+length_st_erases; ++k){
+        for(unsigned int k= offset; k< offset+length_erasesi; ++k){
           inbuffer[k-1]=inbuffer[k];
         }
-        inbuffer[offset+length_st_erases-1]=0;
-        this->st_erases = (char *)(inbuffer + offset-1);
-        offset += length_st_erases;
-        this->erases[i] = this->st_erases;
+        inbuffer[offset+length_erasesi-1]=0;
+        this->erases[i] = (char *)(inbuffer + offset-1);
+        offset += length_erasesi;
       }
       return offset;
     }
@@ -216,15 +165,18 @@ namespace visualization_msgs
       length += length_server_id;
       length += sizeof(this->seq_num);
       length += sizeof(this->type);
-      length += sizeof(this->markers_length);
+      uint32_t markers_length = this->markers.size();
+      length += sizeof(markers_length);
       for( uint32_t i = 0; i < markers_length; i++) {
         length += this->markers[i].serializedLength();
       }
-      length += sizeof(this->poses_length);
+      uint32_t poses_length = this->poses.size();
+      length += sizeof(poses_length);
       for( uint32_t i = 0; i < poses_length; i++) {
         length += this->poses[i].serializedLength();
       }
-      length += sizeof(this->erases_length);
+      uint32_t erases_length = this->erases.size();
+      length += sizeof(erases_length);
       for( uint32_t i = 0; i < erases_length; i++) {
         uint32_t length_erasesi = this->erases[i].size();
         length += 4;
@@ -248,6 +200,7 @@ namespace visualization_msgs
       string_echo += ss_seq_num.str();
       std::stringstream ss_type; ss_type << "\"type\":" << (uint16_t)type <<",";
       string_echo += ss_type.str();
+      uint32_t markers_length = this->markers.size();
       string_echo += "markers:[";
       for( uint32_t i = 0; i < markers_length; i++) {
         if( i == (markers_length - 1)) {
@@ -259,6 +212,7 @@ namespace visualization_msgs
         }
       }
       string_echo += "],";
+      uint32_t poses_length = this->poses.size();
       string_echo += "poses:[";
       for( uint32_t i = 0; i < poses_length; i++) {
         if( i == (poses_length - 1)) {
@@ -270,6 +224,7 @@ namespace visualization_msgs
         }
       }
       string_echo += "],";
+      uint32_t erases_length = this->erases.size();
       string_echo += "erases:[";
       for( uint32_t i = 0; i < erases_length; i++) {
         if( i == (erases_length - 1)) {

@@ -41,15 +41,6 @@ static const char APPLYJOINTEFFORT[] = "gazebo_msgs/ApplyJointEffort";
       this->__id__ = 0;
     }
 
-    ~ApplyJointEffortRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -225,15 +216,6 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyJointEffortRequest const> App
       status_message("")
     {
       this->__id__ = 0;
-    }
-
-    ~ApplyJointEffortResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

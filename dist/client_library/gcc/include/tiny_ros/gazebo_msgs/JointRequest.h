@@ -30,15 +30,6 @@ static const char JOINTREQUEST[] = "gazebo_msgs/JointRequest";
       this->__id__ = 0;
     }
 
-    ~JointRequestRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -124,15 +115,6 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::JointRequestRequest const> JointRe
     JointRequestResponse()
     {
       this->__id__ = 0;
-    }
-
-    ~JointRequestResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

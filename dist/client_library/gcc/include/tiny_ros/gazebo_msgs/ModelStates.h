@@ -18,67 +18,29 @@ namespace gazebo_msgs
   class ModelStates : public tinyros::Msg
   {
     public:
-      uint32_t name_length;
       typedef std::string _name_type;
-      _name_type st_name;
-      _name_type * name;
-      uint32_t pose_length;
+      std::vector<_name_type> name;
       typedef tinyros::geometry_msgs::Pose _pose_type;
-      _pose_type st_pose;
-      _pose_type * pose;
-      uint32_t twist_length;
+      std::vector<_pose_type> pose;
       typedef tinyros::geometry_msgs::Twist _twist_type;
-      _twist_type st_twist;
-      _twist_type * twist;
+      std::vector<_twist_type> twist;
 
     ModelStates():
-      name_length(0), name(NULL),
-      pose_length(0), pose(NULL),
-      twist_length(0), twist(NULL)
+      name(0),
+      pose(0),
+      twist(0)
     {
-    }
-
-    ~ModelStates()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->name != NULL)
-      {
-        delete[] this->name;
-      }
-      this->name = NULL;
-      this->name_length = 0;
-      if(this->pose != NULL)
-      {
-        for( uint32_t i = 0; i < this->pose_length; i++){
-          this->pose[i].deconstructor();
-        }
-        delete[] this->pose;
-      }
-      this->pose = NULL;
-      this->pose_length = 0;
-      if(this->twist != NULL)
-      {
-        for( uint32_t i = 0; i < this->twist_length; i++){
-          this->twist[i].deconstructor();
-        }
-        delete[] this->twist;
-      }
-      this->twist = NULL;
-      this->twist_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
-      *(outbuffer + offset + 0) = (this->name_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->name_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->name_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->name_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->name_length);
+      uint32_t name_length = this->name.size();
+      *(outbuffer + offset + 0) = (name_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (name_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (name_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (name_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(name_length);
       for( uint32_t i = 0; i < name_length; i++) {
         uint32_t length_namei = this->name[i].size();
         varToArr(outbuffer + offset, length_namei);
@@ -86,19 +48,21 @@ namespace gazebo_msgs
         memcpy(outbuffer + offset, this->name[i].c_str(), length_namei);
         offset += length_namei;
       }
-      *(outbuffer + offset + 0) = (this->pose_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->pose_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->pose_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->pose_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->pose_length);
+      uint32_t pose_length = this->pose.size();
+      *(outbuffer + offset + 0) = (pose_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (pose_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (pose_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (pose_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(pose_length);
       for( uint32_t i = 0; i < pose_length; i++) {
         offset += this->pose[i].serialize(outbuffer + offset);
       }
-      *(outbuffer + offset + 0) = (this->twist_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->twist_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->twist_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->twist_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->twist_length);
+      uint32_t twist_length = this->twist.size();
+      *(outbuffer + offset + 0) = (twist_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (twist_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (twist_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (twist_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(twist_length);
       for( uint32_t i = 0; i < twist_length; i++) {
         offset += this->twist[i].serialize(outbuffer + offset);
       }
@@ -108,55 +72,40 @@ namespace gazebo_msgs
     virtual int deserialize(unsigned char *inbuffer)
     {
       int offset = 0;
-      uint32_t name_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      name_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      name_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      name_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->name_length);
-      if(!this->name || name_lengthT > this->name_length) {
-        this->deconstructor();
-        this->name = new std::string[name_lengthT];
-      }
-      this->name_length = name_lengthT;
+      uint32_t name_length = ((uint32_t) (*(inbuffer + offset))); 
+      name_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      name_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      name_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->name.resize(name_length); 
+      offset += sizeof(name_length);
       for( uint32_t i = 0; i < name_length; i++) {
-        uint32_t length_st_name;
-        arrToVar(length_st_name, (inbuffer + offset));
+        uint32_t length_namei;
+        arrToVar(length_namei, (inbuffer + offset));
         offset += 4;
-        for(unsigned int k= offset; k< offset+length_st_name; ++k){
+        for(unsigned int k= offset; k< offset+length_namei; ++k){
           inbuffer[k-1]=inbuffer[k];
         }
-        inbuffer[offset+length_st_name-1]=0;
-        this->st_name = (char *)(inbuffer + offset-1);
-        offset += length_st_name;
-        this->name[i] = this->st_name;
+        inbuffer[offset+length_namei-1]=0;
+        this->name[i] = (char *)(inbuffer + offset-1);
+        offset += length_namei;
       }
-      uint32_t pose_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      pose_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      pose_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      pose_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->pose_length);
-      if(!this->pose || pose_lengthT > this->pose_length) {
-        this->deconstructor();
-        this->pose = new tinyros::geometry_msgs::Pose[pose_lengthT];
-      }
-      this->pose_length = pose_lengthT;
+      uint32_t pose_length = ((uint32_t) (*(inbuffer + offset))); 
+      pose_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      pose_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      pose_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->pose.resize(pose_length); 
+      offset += sizeof(pose_length);
       for( uint32_t i = 0; i < pose_length; i++) {
-        offset += this->st_pose.deserialize(inbuffer + offset);
-        this->pose[i] = this->st_pose;
+        offset += this->pose[i].deserialize(inbuffer + offset);
       }
-      uint32_t twist_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      twist_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      twist_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      twist_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->twist_length);
-      if(!this->twist || twist_lengthT > this->twist_length) {
-        this->deconstructor();
-        this->twist = new tinyros::geometry_msgs::Twist[twist_lengthT];
-      }
-      this->twist_length = twist_lengthT;
+      uint32_t twist_length = ((uint32_t) (*(inbuffer + offset))); 
+      twist_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      twist_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      twist_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->twist.resize(twist_length); 
+      offset += sizeof(twist_length);
       for( uint32_t i = 0; i < twist_length; i++) {
-        offset += this->st_twist.deserialize(inbuffer + offset);
-        this->twist[i] = this->st_twist;
+        offset += this->twist[i].deserialize(inbuffer + offset);
       }
       return offset;
     }
@@ -164,17 +113,20 @@ namespace gazebo_msgs
     virtual int serializedLength() const
     {
       int length = 0;
-      length += sizeof(this->name_length);
+      uint32_t name_length = this->name.size();
+      length += sizeof(name_length);
       for( uint32_t i = 0; i < name_length; i++) {
         uint32_t length_namei = this->name[i].size();
         length += 4;
         length += length_namei;
       }
-      length += sizeof(this->pose_length);
+      uint32_t pose_length = this->pose.size();
+      length += sizeof(pose_length);
       for( uint32_t i = 0; i < pose_length; i++) {
         length += this->pose[i].serializedLength();
       }
-      length += sizeof(this->twist_length);
+      uint32_t twist_length = this->twist.size();
+      length += sizeof(twist_length);
       for( uint32_t i = 0; i < twist_length; i++) {
         length += this->twist[i].serializedLength();
       }
@@ -184,6 +136,7 @@ namespace gazebo_msgs
     virtual std::string echo()
     {
       std::string string_echo = "{";
+      uint32_t name_length = this->name.size();
       string_echo += "name:[";
       for( uint32_t i = 0; i < name_length; i++) {
         if( i == (name_length - 1)) {
@@ -209,6 +162,7 @@ namespace gazebo_msgs
         }
       }
       string_echo += "],";
+      uint32_t pose_length = this->pose.size();
       string_echo += "pose:[";
       for( uint32_t i = 0; i < pose_length; i++) {
         if( i == (pose_length - 1)) {
@@ -220,6 +174,7 @@ namespace gazebo_msgs
         }
       }
       string_echo += "],";
+      uint32_t twist_length = this->twist.size();
       string_echo += "twist:[";
       for( uint32_t i = 0; i < twist_length; i++) {
         if( i == (twist_length - 1)) {

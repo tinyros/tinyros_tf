@@ -42,15 +42,6 @@ namespace sensor_msgs
     {
     }
 
-    ~Range()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;

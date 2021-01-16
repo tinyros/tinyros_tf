@@ -71,8 +71,8 @@ public:
    * \brief Create a property.
    * @param name Name of the property (eg, "Color")
    * @param prefix Prefix for the property (eg, "Head Laser Scan")
-   * @param getter Getter object (see boost::function and boost::bind).  Must be compatible with Property<T>::Getter
-   * @param setter Setter object (see boost::function and boost::bind).  Must be compatible with Property<T>::Setter
+   * @param getter Getter object (see std::function and std::bind).  Must be compatible with Property<T>::Getter
+   * @param setter Setter object (see std::function and std::bind).  Must be compatible with Property<T>::Setter
    * @param parent Parent category
    * @param user_data User data to associate with the created property
    * @return The new property
@@ -90,7 +90,7 @@ public:
     }
 
     property->setUserData( user_data );
-    property->addChangedListener( std::bind( &PropertyManager::propertySet, this, _1 ) );
+    property->addChangedListener( std::bind( &PropertyManager::propertySet, this, std::placeholders::_1 ) );
 
     if (config_ && property->getSave())
     {
@@ -104,7 +104,7 @@ public:
       property->setPGClientData();
     }
 
-    return boost::weak_ptr<T>(property);
+    return std::weak_ptr<T>(property);
   }
 
   /**
@@ -160,7 +160,7 @@ public:
    * \brief Save all properties into a wxConfig
    * @param config The config to save to
    */
-  void save(const boost::shared_ptr<wxConfigBase>& config);
+  void save(const std::shared_ptr<wxConfigBase>& config);
   /**
    * \brief Load all existing properties' values from a wxConfig
    * @param config The config to load from

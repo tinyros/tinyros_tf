@@ -52,10 +52,10 @@
 #include <wx/filedlg.h>
 #include <wx/artprov.h>
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <functional>
 
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
 #define CONFIG_WINDOW_X wxT("/Window/X")
 #define CONFIG_WINDOW_Y wxT("/Window/Y")

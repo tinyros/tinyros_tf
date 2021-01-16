@@ -54,7 +54,7 @@ void MarkerBase::setMessage(const MarkerConstPtr& message)
   MarkerConstPtr old = message_;
   message_ = message;
 
-  expiration_ = ros::Time::now() + message->lifetime;
+  expiration_ = tinyros::Time::now() + message->lifetime;
 
   onNewMessage(old, message);
 }

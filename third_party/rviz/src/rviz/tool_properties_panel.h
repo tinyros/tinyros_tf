@@ -103,8 +103,8 @@ protected:
   /// Called when a property is selected
   void onPropertySelected( wxPropertyGridEvent& event );
 
-  void onDisplaysConfigLoaded(const boost::shared_ptr<wxConfigBase>& config);
-  void onDisplaysConfigSaving(const boost::shared_ptr<wxConfigBase>& config);
+  void onDisplaysConfigLoaded(const std::shared_ptr<wxConfigBase>& config);
+  void onDisplaysConfigSaving(const std::shared_ptr<wxConfigBase>& config);
 
   wxPropertyGrid* property_grid_;                         ///< Display property grid
   VisualizationManager* manager_;

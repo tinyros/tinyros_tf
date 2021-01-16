@@ -100,15 +100,12 @@ int main(int argc, char** argv)
   // Advertise the service
   tinyros::Publisher pub ("/tf_changes", new tinyros::tf::tfMessage());
   tinyros::nh()->advertise(pub);
-  
-  tinyros::tf::tfMessage msg;
-  msg.transforms_length = 0;
-  msg.transforms = new tinyros::geometry_msgs::TransformStamped[frame_pairs.size()];
+    
   while (tinyros::nh()->ok())
   {
     try
     {
-      msg.transforms_length = 0;
+      tinyros::tf::tfMessage msg;
 
       for (std::vector<FramePair>::iterator i = frame_pairs.begin(); i != frame_pairs.end(); i++)
       {
@@ -126,12 +123,11 @@ int main(int argc, char** argv)
           tinyros::tf::StampedTransform stampedTf(tinyros::tf::Transform(rotation, origin), fp.pose_out_.stamp_, "/" + fp.target_frame_, "/" + fp.source_frame_);
           tinyros::geometry_msgs::TransformStamped msgtf;
           tinyros::tf::transformStampedTFToMsg(stampedTf, msgtf);
-          msg.transforms[msg.transforms_length] = msgtf;
-          msg.transforms_length += 1;
+          msg.transforms.push_back(msgtf);
         }
       }
 
-      if (msg.transforms_length > 0)
+      if (msg.transforms.size() > 0)
         pub.publish(&msg);
     }
     catch (tinyros::tf::TransformException& ex)

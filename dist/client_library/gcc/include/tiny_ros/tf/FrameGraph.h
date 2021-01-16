@@ -27,15 +27,6 @@ static const char FRAMEGRAPH[] = "tf/FrameGraph";
       this->__id__ = 0;
     }
 
-    ~FrameGraphRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -99,15 +90,6 @@ typedef std::shared_ptr<tinyros::tf::FrameGraphRequest const> FrameGraphRequestC
       dot_graph("")
     {
       this->__id__ = 0;
-    }
-
-    ~FrameGraphResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

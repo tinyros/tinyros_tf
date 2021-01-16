@@ -30,15 +30,6 @@ static const char GETJOINTPROPERTIES[] = "gazebo_msgs/GetJointProperties";
       this->__id__ = 0;
     }
 
-    ~GetJointPropertiesRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -122,18 +113,12 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetJointPropertiesRequest const> G
     public:
       typedef uint8_t _type_type;
       _type_type type;
-      uint32_t damping_length;
       typedef double _damping_type;
-      _damping_type st_damping;
-      _damping_type * damping;
-      uint32_t position_length;
+      std::vector<_damping_type> damping;
       typedef double _position_type;
-      _position_type st_position;
-      _position_type * position;
-      uint32_t rate_length;
+      std::vector<_position_type> position;
       typedef double _rate_type;
-      _rate_type st_rate;
-      _rate_type * rate;
+      std::vector<_rate_type> rate;
       typedef bool _success_type;
       _success_type success;
       typedef std::string _status_message_type;
@@ -147,40 +132,13 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetJointPropertiesRequest const> G
 
     GetJointPropertiesResponse():
       type(0),
-      damping_length(0), damping(NULL),
-      position_length(0), position(NULL),
-      rate_length(0), rate(NULL),
+      damping(0),
+      position(0),
+      rate(0),
       success(0),
       status_message("")
     {
       this->__id__ = 0;
-    }
-
-    ~GetJointPropertiesResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->damping != NULL)
-      {
-        delete[] this->damping;
-      }
-      this->damping = NULL;
-      this->damping_length = 0;
-      if(this->position != NULL)
-      {
-        delete[] this->position;
-      }
-      this->position = NULL;
-      this->position_length = 0;
-      if(this->rate != NULL)
-      {
-        delete[] this->rate;
-      }
-      this->rate = NULL;
-      this->rate_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
@@ -193,11 +151,12 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetJointPropertiesRequest const> G
       offset += sizeof(this->__id__);
       *(outbuffer + offset + 0) = (this->type >> (8 * 0)) & 0xFF;
       offset += sizeof(this->type);
-      *(outbuffer + offset + 0) = (this->damping_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->damping_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->damping_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->damping_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->damping_length);
+      uint32_t damping_length = this->damping.size();
+      *(outbuffer + offset + 0) = (damping_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (damping_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (damping_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (damping_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(damping_length);
       for( uint32_t i = 0; i < damping_length; i++) {
         union {
           double real;
@@ -214,11 +173,12 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetJointPropertiesRequest const> G
         *(outbuffer + offset + 7) = (u_dampingi.base >> (8 * 7)) & 0xFF;
         offset += sizeof(this->damping[i]);
       }
-      *(outbuffer + offset + 0) = (this->position_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->position_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->position_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->position_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->position_length);
+      uint32_t position_length = this->position.size();
+      *(outbuffer + offset + 0) = (position_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (position_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (position_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (position_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(position_length);
       for( uint32_t i = 0; i < position_length; i++) {
         union {
           double real;
@@ -235,11 +195,12 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetJointPropertiesRequest const> G
         *(outbuffer + offset + 7) = (u_positioni.base >> (8 * 7)) & 0xFF;
         offset += sizeof(this->position[i]);
       }
-      *(outbuffer + offset + 0) = (this->rate_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->rate_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->rate_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->rate_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->rate_length);
+      uint32_t rate_length = this->rate.size();
+      *(outbuffer + offset + 0) = (rate_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (rate_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (rate_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (rate_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(rate_length);
       for( uint32_t i = 0; i < rate_length; i++) {
         union {
           double real;
@@ -281,89 +242,74 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetJointPropertiesRequest const> G
       offset += sizeof(this->__id__);
       this->type =  ((uint8_t) (*(inbuffer + offset)));
       offset += sizeof(this->type);
-      uint32_t damping_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      damping_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      damping_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      damping_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->damping_length);
-      if(!this->damping || damping_lengthT > this->damping_length) {
-        this->deconstructor();
-        this->damping = new double[damping_lengthT];
-      }
-      this->damping_length = damping_lengthT;
+      uint32_t damping_length = ((uint32_t) (*(inbuffer + offset))); 
+      damping_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      damping_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      damping_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->damping.resize(damping_length); 
+      offset += sizeof(damping_length);
       for( uint32_t i = 0; i < damping_length; i++) {
         union {
           double real;
           uint64_t base;
-        } u_st_damping;
-        u_st_damping.base = 0;
-        u_st_damping.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
-        u_st_damping.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
-        u_st_damping.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
-        u_st_damping.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
-        u_st_damping.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
-        u_st_damping.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
-        u_st_damping.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
-        u_st_damping.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
-        this->st_damping = u_st_damping.real;
-        offset += sizeof(this->st_damping);
-        this->damping[i] = this->st_damping;
+        } u_dampingi;
+        u_dampingi.base = 0;
+        u_dampingi.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+        u_dampingi.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+        u_dampingi.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+        u_dampingi.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+        u_dampingi.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+        u_dampingi.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+        u_dampingi.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+        u_dampingi.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+        this->damping[i] = u_dampingi.real;
+        offset += sizeof(this->damping[i]);
       }
-      uint32_t position_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      position_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      position_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      position_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->position_length);
-      if(!this->position || position_lengthT > this->position_length) {
-        this->deconstructor();
-        this->position = new double[position_lengthT];
-      }
-      this->position_length = position_lengthT;
+      uint32_t position_length = ((uint32_t) (*(inbuffer + offset))); 
+      position_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      position_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      position_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->position.resize(position_length); 
+      offset += sizeof(position_length);
       for( uint32_t i = 0; i < position_length; i++) {
         union {
           double real;
           uint64_t base;
-        } u_st_position;
-        u_st_position.base = 0;
-        u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
-        u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
-        u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
-        u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
-        u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
-        u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
-        u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
-        u_st_position.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
-        this->st_position = u_st_position.real;
-        offset += sizeof(this->st_position);
-        this->position[i] = this->st_position;
+        } u_positioni;
+        u_positioni.base = 0;
+        u_positioni.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+        u_positioni.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+        u_positioni.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+        u_positioni.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+        u_positioni.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+        u_positioni.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+        u_positioni.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+        u_positioni.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+        this->position[i] = u_positioni.real;
+        offset += sizeof(this->position[i]);
       }
-      uint32_t rate_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      rate_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      rate_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      rate_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->rate_length);
-      if(!this->rate || rate_lengthT > this->rate_length) {
-        this->deconstructor();
-        this->rate = new double[rate_lengthT];
-      }
-      this->rate_length = rate_lengthT;
+      uint32_t rate_length = ((uint32_t) (*(inbuffer + offset))); 
+      rate_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      rate_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      rate_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->rate.resize(rate_length); 
+      offset += sizeof(rate_length);
       for( uint32_t i = 0; i < rate_length; i++) {
         union {
           double real;
           uint64_t base;
-        } u_st_rate;
-        u_st_rate.base = 0;
-        u_st_rate.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
-        u_st_rate.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
-        u_st_rate.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
-        u_st_rate.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
-        u_st_rate.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
-        u_st_rate.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
-        u_st_rate.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
-        u_st_rate.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
-        this->st_rate = u_st_rate.real;
-        offset += sizeof(this->st_rate);
-        this->rate[i] = this->st_rate;
+        } u_ratei;
+        u_ratei.base = 0;
+        u_ratei.base |= ((uint64_t) (*(inbuffer + offset + 0))) << (8 * 0);
+        u_ratei.base |= ((uint64_t) (*(inbuffer + offset + 1))) << (8 * 1);
+        u_ratei.base |= ((uint64_t) (*(inbuffer + offset + 2))) << (8 * 2);
+        u_ratei.base |= ((uint64_t) (*(inbuffer + offset + 3))) << (8 * 3);
+        u_ratei.base |= ((uint64_t) (*(inbuffer + offset + 4))) << (8 * 4);
+        u_ratei.base |= ((uint64_t) (*(inbuffer + offset + 5))) << (8 * 5);
+        u_ratei.base |= ((uint64_t) (*(inbuffer + offset + 6))) << (8 * 6);
+        u_ratei.base |= ((uint64_t) (*(inbuffer + offset + 7))) << (8 * 7);
+        this->rate[i] = u_ratei.real;
+        offset += sizeof(this->rate[i]);
       }
       union {
         bool real;
@@ -389,15 +335,18 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetJointPropertiesRequest const> G
     {
       int length = 0;
       length += sizeof(this->type);
-      length += sizeof(this->damping_length);
+      uint32_t damping_length = this->damping.size();
+      length += sizeof(damping_length);
       for( uint32_t i = 0; i < damping_length; i++) {
         length += sizeof(this->damping[i]);
       }
-      length += sizeof(this->position_length);
+      uint32_t position_length = this->position.size();
+      length += sizeof(position_length);
       for( uint32_t i = 0; i < position_length; i++) {
         length += sizeof(this->position[i]);
       }
-      length += sizeof(this->rate_length);
+      uint32_t rate_length = this->rate.size();
+      length += sizeof(rate_length);
       for( uint32_t i = 0; i < rate_length; i++) {
         length += sizeof(this->rate[i]);
       }
@@ -413,6 +362,7 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetJointPropertiesRequest const> G
       std::string string_echo = "{";
       std::stringstream ss_type; ss_type << "\"type\":" << (uint16_t)type <<",";
       string_echo += ss_type.str();
+      uint32_t damping_length = this->damping.size();
       string_echo += "damping:[";
       for( uint32_t i = 0; i < damping_length; i++) {
         if( i == (damping_length - 1)) {
@@ -424,6 +374,7 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetJointPropertiesRequest const> G
         }
       }
       string_echo += "],";
+      uint32_t position_length = this->position.size();
       string_echo += "position:[";
       for( uint32_t i = 0; i < position_length; i++) {
         if( i == (position_length - 1)) {
@@ -435,6 +386,7 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetJointPropertiesRequest const> G
         }
       }
       string_echo += "],";
+      uint32_t rate_length = this->rate.size();
       string_echo += "rate:[";
       for( uint32_t i = 0; i < rate_length; i++) {
         if( i == (rate_length - 1)) {

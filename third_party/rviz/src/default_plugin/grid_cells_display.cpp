@@ -52,7 +52,7 @@ namespace rviz
 GridCellsDisplay::GridCellsDisplay( const std::string& name, VisualizationManager* manager )
 : Display( name, manager )
 , color_( 0.1f, 1.0f, 0.0f )
-, tf_filter_(*manager->getTFClient(), "", 10, update_nh_)
+, tf_filter_(*manager->getTFClient(), "", 10)
 {
   scene_node_ = scene_manager_->getRootSceneNode()->createChildSceneNode();
 
@@ -189,7 +189,7 @@ void GridCellsDisplay::processMessage(const tinyros::nav_msgs::GridCellsConstPtr
     }
   }
 
-  Ogre::Vector3 position = Ogre::Vector3( pose.getOrigin().x(), pose.getOrigin().y), pose.getOrigin().z() );
+  Ogre::Vector3 position = Ogre::Vector3( pose.getOrigin().x(), pose.getOrigin().y(), pose.getOrigin().z() );
   robotToOgre( position );
 
   tinyros::tf::Quaternion quat;
@@ -252,7 +252,7 @@ void GridCellsDisplay::createProperties()
   topic_property_ = property_manager_->createProperty<ROSTopicStringProperty>( "Topic", property_prefix_, std::bind( &GridCellsDisplay::getTopic, this ),
                                                                                 std::bind( &GridCellsDisplay::setTopic, this, std::placeholders::_1 ), parent_category_, this );
   ROSTopicStringPropertyPtr topic_prop = topic_property_.lock();
-  topic_prop->setMessageType(nav_msgs::GridCells::__s_getDataType());
+  topic_prop->setMessageType(tinyros::nav_msgs::GridCells::getTypeStatic());
 }
 
 const char* GridCellsDisplay::getDescription()

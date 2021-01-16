@@ -44,15 +44,6 @@ static const char SETJOINTTRAJECTORY[] = "gazebo_msgs/SetJointTrajectory";
       this->__id__ = 0;
     }
 
-    ~SetJointTrajectoryRequest()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-    }
-
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
@@ -192,15 +183,6 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointTrajectoryRequest const> S
       status_message("")
     {
       this->__id__ = 0;
-    }
-
-    ~SetJointTrajectoryResponse()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
     }
 
     virtual int serialize(unsigned char *outbuffer) const

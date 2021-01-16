@@ -17,42 +17,23 @@ namespace tf
   class tfMessage : public tinyros::Msg
   {
     public:
-      uint32_t transforms_length;
       typedef tinyros::geometry_msgs::TransformStamped _transforms_type;
-      _transforms_type st_transforms;
-      _transforms_type * transforms;
+      std::vector<_transforms_type> transforms;
 
     tfMessage():
-      transforms_length(0), transforms(NULL)
+      transforms(0)
     {
-    }
-
-    ~tfMessage()
-    {
-      deconstructor();
-    }
-
-    void deconstructor()
-    {
-      if(this->transforms != NULL)
-      {
-        for( uint32_t i = 0; i < this->transforms_length; i++){
-          this->transforms[i].deconstructor();
-        }
-        delete[] this->transforms;
-      }
-      this->transforms = NULL;
-      this->transforms_length = 0;
     }
 
     virtual int serialize(unsigned char *outbuffer) const
     {
       int offset = 0;
-      *(outbuffer + offset + 0) = (this->transforms_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->transforms_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->transforms_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->transforms_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->transforms_length);
+      uint32_t transforms_length = this->transforms.size();
+      *(outbuffer + offset + 0) = (transforms_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (transforms_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (transforms_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (transforms_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(transforms_length);
       for( uint32_t i = 0; i < transforms_length; i++) {
         offset += this->transforms[i].serialize(outbuffer + offset);
       }
@@ -62,19 +43,14 @@ namespace tf
     virtual int deserialize(unsigned char *inbuffer)
     {
       int offset = 0;
-      uint32_t transforms_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      transforms_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      transforms_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      transforms_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->transforms_length);
-      if(!this->transforms || transforms_lengthT > this->transforms_length) {
-        this->deconstructor();
-        this->transforms = new tinyros::geometry_msgs::TransformStamped[transforms_lengthT];
-      }
-      this->transforms_length = transforms_lengthT;
+      uint32_t transforms_length = ((uint32_t) (*(inbuffer + offset))); 
+      transforms_length |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      transforms_length |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      transforms_length |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      this->transforms.resize(transforms_length); 
+      offset += sizeof(transforms_length);
       for( uint32_t i = 0; i < transforms_length; i++) {
-        offset += this->st_transforms.deserialize(inbuffer + offset);
-        this->transforms[i] = this->st_transforms;
+        offset += this->transforms[i].deserialize(inbuffer + offset);
       }
       return offset;
     }
@@ -82,7 +58,8 @@ namespace tf
     virtual int serializedLength() const
     {
       int length = 0;
-      length += sizeof(this->transforms_length);
+      uint32_t transforms_length = this->transforms.size();
+      length += sizeof(transforms_length);
       for( uint32_t i = 0; i < transforms_length; i++) {
         length += this->transforms[i].serializedLength();
       }
@@ -92,6 +69,7 @@ namespace tf
     virtual std::string echo()
     {
       std::string string_echo = "{";
+      uint32_t transforms_length = this->transforms.size();
       string_echo += "transforms:[";
       for( uint32_t i = 0; i < transforms_length; i++) {
         if( i == (transforms_length - 1)) {
