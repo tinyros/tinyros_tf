@@ -927,7 +927,7 @@ def roslib_copy_roslib_files(path):
              'ros/hardware_tcp.h',
              'ros/time.h']
 
-    mydir = sys.argv[3] + "/roslib/gcc/"
+    mydir = sys.argv[3] + "/roslib/cpp/"
     for f in files:
         if not os.path.exists(path+f):
             shutil.copy(mydir+f, path+f)
@@ -1007,8 +1007,8 @@ print("\nExporting to %s" % path)
 
 roslib_copy_roslib_files(path+"/include/tiny_ros/")
 roslib_copy_examples_files(path+"/src/")
-messages_generate(path+"/include/tiny_ros/", sys.argv[1] + "/build/CMake/gcc_msgs", sys.argv[3] + "/msgs")
+messages_generate(path+"/include/tiny_ros/", sys.argv[1] + "/build/CMake/cpp_msgs", sys.argv[3] + "/msgs")
 subscribers_generate(path+"/include/tiny_ros/", sys.argv[3] + "/msgs")
-if os.path.exists(sys.argv[1] + "/build/CMake/gcc_msgs"):
-    shutil.rmtree(sys.argv[1] + "/build/CMake/gcc_msgs")
-shutil.copytree(sys.argv[3] + "/msgs", sys.argv[1] + "/build/CMake/gcc_msgs")
+if os.path.exists(sys.argv[1] + "/build/CMake/cpp_msgs"):
+    shutil.rmtree(sys.argv[1] + "/build/CMake/cpp_msgs")
+shutil.copytree(sys.argv[3] + "/msgs", sys.argv[1] + "/build/CMake/cpp_msgs")

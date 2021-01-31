@@ -12,7 +12,7 @@ option(TINYROS_SUPPORT_TF "Tf support? (ON/OFF)" ON)
 option(TINYROS_SUPPORT_RVIZ "RVIZ support? (ON/OFF)" OFF)
 
 set(OUTPUT_PATHS ${PROJECT_SOURCE_DIR}/build/output)
-set(ROSLIB_PATHS ${OUTPUT_PATHS}/client_library/gcc/include/tiny_ros)
+set(ROSLIB_PATHS ${OUTPUT_PATHS}/client_library/cpp/include/tiny_ros)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -O3")
 
 add_definitions(-DSPDLOG_COMPILED_LIB)
@@ -22,7 +22,7 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/third_party/spdlog/src SPDLOG_SRC_LIS
 aux_source_directory(${PROJECT_SOURCE_DIR}/third_party/uWebSockets UWS_SRC_LIST)
 
 include_directories(
-  ${OUTPUT_PATHS}/client_library/gcc/include
+  ${OUTPUT_PATHS}/client_library/cpp/include
   ${PROJECT_SOURCE_DIR}/third_party/spdlog/include
   ${PROJECT_SOURCE_DIR}/third_party/uWebSockets
 )

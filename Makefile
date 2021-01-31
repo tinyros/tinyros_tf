@@ -8,7 +8,7 @@ target:
 	@echo -e "\nGenerating tiny-ros..."
 	@mkdir -p $(BASEDIR)/build/CMake
 	@mkdir -p $(BASEDIR)/build/output/bin
-	@python $(BASEDIR)/scripts/make_library_gcc.py $(BASEDIR) $(BASEDIR)/build/output/client_library/gcc $(BASEDIR)
+	@python $(BASEDIR)/scripts/make_library_cpp.py $(BASEDIR) $(BASEDIR)/build/output/client_library/cpp $(BASEDIR)
 	@python $(BASEDIR)/scripts/make_library_rtthread.py $(BASEDIR) $(BASEDIR)/build/output/client_library/rtthread $(BASEDIR)
 	@python $(BASEDIR)/scripts/make_library_java.py $(BASEDIR) $(BASEDIR)/build/output/client_library/java $(BASEDIR)
 	@python $(BASEDIR)/scripts/make_library_python.py $(BASEDIR) $(BASEDIR)/build/output/client_library/python $(BASEDIR)
