@@ -595,7 +595,9 @@ class Message:
         self._write_has_header(f)
         self._write_getID(f)
         self._write_setID(f)
-        f.write('  };\n\n')
+        f.write('    typedef std::shared_ptr<tinyros::%s::%s> Ptr;\n' % (self.package, self.name))
+        f.write('    typedef std::shared_ptr<tinyros::%s::%s const> ConstPtr;\n' % (self.package, self.name))
+        f.write('  };\n')
         f.write('typedef std::shared_ptr<tinyros::%s::%s> %sPtr;\n' % (self.package, self.name, self.name))
         f.write('typedef std::shared_ptr<tinyros::%s::%s const> %sConstPtr;\n' % (self.package, self.name, self.name))
 

@@ -162,6 +162,11 @@ public:
     input_sub_->setEnabled(enable);
   }
 
+  std::string getTopic()
+  {
+    return input_sub_->topic_;
+  }
+
   /**
    * \brief Destructor
    */

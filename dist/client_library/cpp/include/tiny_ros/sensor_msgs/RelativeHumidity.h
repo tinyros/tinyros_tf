@@ -133,8 +133,9 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "Header header\nfloat64 relative_humidity\nfloat64 variance\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nfloat64 relative_humidity\nfloat64 variance\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::sensor_msgs::RelativeHumidity> Ptr;
+    typedef std::shared_ptr<tinyros::sensor_msgs::RelativeHumidity const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::sensor_msgs::RelativeHumidity> RelativeHumidityPtr;
 typedef std::shared_ptr<tinyros::sensor_msgs::RelativeHumidity const> RelativeHumidityConstPtr;
 

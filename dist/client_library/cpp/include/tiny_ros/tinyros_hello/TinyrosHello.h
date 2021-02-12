@@ -81,8 +81,9 @@ namespace tinyros_hello
     virtual std::string getDefinition(){ return "string  hello\n"; }
     static std::string getDefinitionStatic(){ return "string  hello\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::tinyros_hello::TinyrosHello> Ptr;
+    typedef std::shared_ptr<tinyros::tinyros_hello::TinyrosHello const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::tinyros_hello::TinyrosHello> TinyrosHelloPtr;
 typedef std::shared_ptr<tinyros::tinyros_hello::TinyrosHello const> TinyrosHelloConstPtr;
 

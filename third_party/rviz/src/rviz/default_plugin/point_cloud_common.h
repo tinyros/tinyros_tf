@@ -42,15 +42,8 @@
 # include <boost/thread/mutex.hpp>
 # include <boost/thread/recursive_mutex.hpp>
 
-# include <ros/spinner.h>
-# include <ros/callback_queue.h>
-
-# include <message_filters/time_sequencer.h>
-
-# include <pluginlib/class_loader.h>
-
-# include <sensor_msgs/PointCloud.h>
-# include <sensor_msgs/PointCloud2.h>
+# include <tiny_ros/sensor_msgs/PointCloud.h>
+# include <tiny_ros/sensor_msgs/PointCloud2.h>
 
 # include "rviz/selection/selection_manager.h"
 # include "rviz/default_plugin/point_cloud_transformer.h"
@@ -94,11 +87,11 @@ public:
     // clear the point cloud, but keep selection handler around
     void clear();
 
-    ros::Time receive_time_;
+    tinyros::Time receive_time_;
 
     Ogre::SceneManager *manager_;
 
-    sensor_msgs::PointCloud2ConstPtr message_;
+    tinyros::sensor_msgs::PointCloud2ConstPtr message_;
 
     Ogre::SceneNode *scene_node_;
     boost::shared_ptr<PointCloud> cloud_;
@@ -165,23 +158,20 @@ private:
    */
   bool transformCloud(const CloudInfoPtr& cloud, bool fully_update_transformers);
 
-  void processMessage(const sensor_msgs::PointCloud2ConstPtr& cloud);
+  void processMessage(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud);
   void updateStatus();
 
-  PointCloudTransformerPtr getXYZTransformer(const sensor_msgs::PointCloud2ConstPtr& cloud);
-  PointCloudTransformerPtr getColorTransformer(const sensor_msgs::PointCloud2ConstPtr& cloud);
-  void updateTransformers( const sensor_msgs::PointCloud2ConstPtr& cloud );
+  PointCloudTransformerPtr getXYZTransformer(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud);
+  PointCloudTransformerPtr getColorTransformer(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud);
+  void updateTransformers( const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud );
   void retransform();
   void onTransformerOptions(V_string& ops, uint32_t mask);
 
-  void loadTransformers();
+  void loadTransformers(std::string lookup_name, std::string name, const PointCloudTransformerPtr& trans);
 
   float getSelectionBoxSize();
   void setPropertiesHidden( const QList<Property*>& props, bool hide );
   void fillTransformerOptions( EnumProperty* prop, uint32_t mask );
-
-  ros::AsyncSpinner spinner_;
-  ros::CallbackQueue cbqueue_;
 
   D_CloudInfo cloud_infos_;
 
@@ -208,8 +198,6 @@ private:
   bool new_xyz_transformer_;
   bool new_color_transformer_;
   bool needs_retransform_;
-
-  pluginlib::ClassLoader<PointCloudTransformer>* transformer_class_loader_;
 
   Display* display_;
   DisplayContext* context_;

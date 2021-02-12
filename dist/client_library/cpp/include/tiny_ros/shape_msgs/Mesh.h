@@ -131,8 +131,9 @@ namespace shape_msgs
     virtual std::string getDefinition(){ return "MeshTriangle[] triangles\ngeometry_msgs/Point[] vertices\n"; }
     static std::string getDefinitionStatic(){ return "MeshTriangle[] triangles\ngeometry_msgs/Point[] vertices\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::shape_msgs::Mesh> Ptr;
+    typedef std::shared_ptr<tinyros::shape_msgs::Mesh const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::shape_msgs::Mesh> MeshPtr;
 typedef std::shared_ptr<tinyros::shape_msgs::Mesh const> MeshConstPtr;
 

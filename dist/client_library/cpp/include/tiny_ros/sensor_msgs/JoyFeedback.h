@@ -103,8 +103,9 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "uint8 type\nuint8 id\nfloat32 intensity\n"; }
     static std::string getDefinitionStatic(){ return "uint8 type\nuint8 id\nfloat32 intensity\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::sensor_msgs::JoyFeedback> Ptr;
+    typedef std::shared_ptr<tinyros::sensor_msgs::JoyFeedback const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::sensor_msgs::JoyFeedback> JoyFeedbackPtr;
 typedef std::shared_ptr<tinyros::sensor_msgs::JoyFeedback const> JoyFeedbackConstPtr;
 

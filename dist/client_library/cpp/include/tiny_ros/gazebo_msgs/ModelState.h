@@ -129,8 +129,9 @@ namespace gazebo_msgs
     virtual std::string getDefinition(){ return "string model_name\ngeometry_msgs/Pose pose\ngeometry_msgs/Twist twist\nstring reference_frame\n"; }
     static std::string getDefinitionStatic(){ return "string model_name\ngeometry_msgs/Pose pose\ngeometry_msgs/Twist twist\nstring reference_frame\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::ModelState> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::ModelState const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::ModelState> ModelStatePtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::ModelState const> ModelStateConstPtr;
 

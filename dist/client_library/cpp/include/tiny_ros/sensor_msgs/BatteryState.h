@@ -410,8 +410,9 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "Header  header\nfloat32 voltage\nfloat32 current\nfloat32 charge\nfloat32 capacity\nfloat32 design_capacity\nfloat32 percentage\nuint8   power_supply_status\nuint8   power_supply_health\nuint8   power_supply_technology\nbool    present\nfloat32[] cell_voltage\nstring location\nstring serial_number\n"; }
     static std::string getDefinitionStatic(){ return "Header  header\nfloat32 voltage\nfloat32 current\nfloat32 charge\nfloat32 capacity\nfloat32 design_capacity\nfloat32 percentage\nuint8   power_supply_status\nuint8   power_supply_health\nuint8   power_supply_technology\nbool    present\nfloat32[] cell_voltage\nstring location\nstring serial_number\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::sensor_msgs::BatteryState> Ptr;
+    typedef std::shared_ptr<tinyros::sensor_msgs::BatteryState const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::sensor_msgs::BatteryState> BatteryStatePtr;
 typedef std::shared_ptr<tinyros::sensor_msgs::BatteryState const> BatteryStateConstPtr;
 

@@ -32,8 +32,6 @@
 
 #include <QObject>
 
-#include <ros/message_forward.h>
-
 #ifndef Q_MOC_RUN
 #include <OgreVector3.h>
 #include <OgreColourValue.h>
@@ -41,15 +39,13 @@
 #include <rviz/ogre_helpers/point_cloud.h>
 #endif
 
+#include <tiny_ros/sensor_msgs/PointCloud2.h>
+
 namespace Ogre
 {
 class Matrix4;
 }
 
-namespace sensor_msgs
-{
-ROS_DECLARE_MESSAGE(PointCloud2);
-}
 
 namespace rviz
 {
@@ -78,20 +74,20 @@ public:
   /**
    * \brief Returns a level of support for a specific cloud.  This level of support is a mask using the SupportLevel enum.
    */
-  virtual uint8_t supports(const sensor_msgs::PointCloud2ConstPtr& cloud) = 0;
+  virtual uint8_t supports(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud) = 0;
   /**
    * \brief Transforms a PointCloud2 into an rviz::PointCloud.  The rviz::PointCloud is assumed to have been preallocated into the correct
    * size.  The mask determines which part of the cloud should be output (xyz or color).  This method will only be called if supports() of the same
    * cloud has returned a non-zero mask, and will only be called with masks compatible with the one returned from supports()
    */
-  virtual bool transform(const sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t mask, const Ogre::Matrix4& transform, V_PointCloudPoint& out) = 0;
+  virtual bool transform(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t mask, const Ogre::Matrix4& transform, V_PointCloudPoint& out) = 0;
 
   /**
    * \brief "Score" a message for how well supported the message is.  For example, a "flat color" transformer can support any cloud, but will
    * return a score of 0 here since it should not be preferred over others that explicitly support fields in the message.  This allows that
    * "flat color" transformer to still be selectable, but generally not chosen automatically.
    */
-  virtual uint8_t score(const sensor_msgs::PointCloud2ConstPtr& cloud) { return 0; }
+  virtual uint8_t score(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud) { return 0; }
 
   /**
    * \brief Create any properties necessary for this transformer.

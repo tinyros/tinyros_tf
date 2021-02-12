@@ -73,8 +73,9 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Vector3 translation\nQuaternion rotation\n"; }
     static std::string getDefinitionStatic(){ return "Vector3 translation\nQuaternion rotation\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::geometry_msgs::Transform> Ptr;
+    typedef std::shared_ptr<tinyros::geometry_msgs::Transform const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::geometry_msgs::Transform> TransformPtr;
 typedef std::shared_ptr<tinyros::geometry_msgs::Transform const> TransformConstPtr;
 

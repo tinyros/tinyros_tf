@@ -32,8 +32,6 @@
 
 #include <ros/time.h>
 
-#include <laser_geometry/laser_geometry.h>
-
 #include "rviz/default_plugin/point_cloud_common.h"
 #include "rviz/display_context.h"
 #include "rviz/frame_manager.h"
@@ -41,6 +39,7 @@
 #include "rviz/properties/int_property.h"
 #include "rviz/validate_floats.h"
 
+#include "laser_geometry.h"
 #include "laser_scan_display.h"
 
 namespace rviz
@@ -48,17 +47,13 @@ namespace rviz
 
 LaserScanDisplay::LaserScanDisplay()
   : point_cloud_common_( new PointCloudCommon( this ))
-  , projector_( new laser_geometry::LaserProjection() )
+  , projector_( new LaserProjection() )
 {
   queue_size_property_ = new IntProperty( "Queue Size", 10,
                                           "Advanced: set the size of the incoming LaserScan message queue. "
                                           " Increasing this is useful if your incoming TF data is delayed significantly "
                                           "from your LaserScan data, but it can greatly increase memory usage if the messages are big.",
                                           this, SLOT( updateQueueSize() ));
-
-  // PointCloudCommon sets up a callback queue with a thread for each
-  // instance.  Use that for processing incoming messages.
-  update_nh_.setCallbackQueue( point_cloud_common_->getCallbackQueue() );
 }
 
 LaserScanDisplay::~LaserScanDisplay()
@@ -78,14 +73,14 @@ void LaserScanDisplay::updateQueueSize()
   tf_filter_->setQueueSize( (uint32_t) queue_size_property_->getInt() );
 }
 
-void LaserScanDisplay::processMessage( const sensor_msgs::LaserScanConstPtr& scan )
+void LaserScanDisplay::processMessage( const tinyros::sensor_msgs::LaserScanConstPtr& scan )
 {
-  sensor_msgs::PointCloudPtr cloud( new sensor_msgs::PointCloud );
+  tinyros::sensor_msgs::PointCloudPtr cloud( new tinyros::sensor_msgs::PointCloud );
 
   std::string frame_id = scan->header.frame_id;
 
   // Compute tolerance necessary for this scan
-  ros::Duration tolerance(scan->time_increment * scan->ranges.size());
+  tinyros::Duration tolerance(scan->time_increment * scan->ranges.size());
   if (tolerance > filter_tolerance_)
   {
     filter_tolerance_ = tolerance;
@@ -95,11 +90,11 @@ void LaserScanDisplay::processMessage( const sensor_msgs::LaserScanConstPtr& sca
   try
   {
     projector_->transformLaserScanToPointCloud( fixed_frame_.toStdString(), *scan, *cloud, *context_->getTFClient(),
-                                                laser_geometry::channel_option::Intensity );
+                                                channel_option::Intensity );
   }
   catch (tf::TransformException& e)
   {
-    ROS_DEBUG( "LaserScan [%s]: failed to transform scan: %s.  This message should not repeat (tolerance should now be set on our tf::MessageFilter).",
+    tinyros_log_debug( "LaserScan [%s]: failed to transform scan: %s.  This message should not repeat (tolerance should now be set on our tf::MessageFilter).",
                qPrintable( getName() ), e.what() );
     return;
   }
@@ -120,5 +115,3 @@ void LaserScanDisplay::reset()
 
 } // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::LaserScanDisplay, rviz::Display )

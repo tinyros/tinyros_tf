@@ -218,8 +218,9 @@ namespace stereo_msgs
     virtual std::string getDefinition(){ return "Header header\nsensor_msgs/Image image\nfloat32 f\nfloat32 T\nsensor_msgs/RegionOfInterest valid_window\nfloat32 min_disparity\nfloat32 max_disparity\nfloat32 delta_d\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nsensor_msgs/Image image\nfloat32 f\nfloat32 T\nsensor_msgs/RegionOfInterest valid_window\nfloat32 min_disparity\nfloat32 max_disparity\nfloat32 delta_d\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::stereo_msgs::DisparityImage> Ptr;
+    typedef std::shared_ptr<tinyros::stereo_msgs::DisparityImage const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::stereo_msgs::DisparityImage> DisparityImagePtr;
 typedef std::shared_ptr<tinyros::stereo_msgs::DisparityImage const> DisparityImageConstPtr;
 

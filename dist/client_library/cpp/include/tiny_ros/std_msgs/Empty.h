@@ -53,8 +53,9 @@ namespace std_msgs
     virtual std::string getDefinition(){ return ""; }
     static std::string getDefinitionStatic(){ return ""; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::std_msgs::Empty> Ptr;
+    typedef std::shared_ptr<tinyros::std_msgs::Empty const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::std_msgs::Empty> EmptyPtr;
 typedef std::shared_ptr<tinyros::std_msgs::Empty const> EmptyConstPtr;
 

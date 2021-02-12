@@ -200,8 +200,9 @@ namespace map_msgs
     virtual std::string getDefinition(){ return "Header header\nint32 x\nint32 y\nuint32 width\nuint32 height\nint8[] data\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nint32 x\nint32 y\nuint32 width\nuint32 height\nint8[] data\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::map_msgs::OccupancyGridUpdate> Ptr;
+    typedef std::shared_ptr<tinyros::map_msgs::OccupancyGridUpdate const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::map_msgs::OccupancyGridUpdate> OccupancyGridUpdatePtr;
 typedef std::shared_ptr<tinyros::map_msgs::OccupancyGridUpdate const> OccupancyGridUpdateConstPtr;
 

@@ -154,6 +154,7 @@ public:
       input_sub_ = new tinyros::Subscriber<M, tinyros::tf::MessageFilter<M> >(topic, &MessageFilter<M>::incomingMessage, this);
       tinyros::nh()->subscribe(*input_sub_);
     }
+    input_sub_->setEnabled(true);
   }
 
   void connectEnable(bool enable)
@@ -161,11 +162,17 @@ public:
     input_sub_->setEnabled(enable);
   }
 
+  std::string getTopic()
+  {
+    return input_sub_->topic_;
+  }
+
   /**
    * \brief Destructor
    */
   ~MessageFilter()
   {
+    input_sub_->setEnabled(false);
     message_connection_.disconnect();
     tf_.removeTransformsChangedListener(tf_connection_);
 

@@ -4,6 +4,7 @@
 #include <fstream>
 #include <mutex>
 #include <yaml-cpp/yaml.h>
+#include <sys/stat.h>
 #include <tiny_ros/ros.h>
 #include "tiny_ros/package.h"
 
@@ -49,11 +50,57 @@ static YAML::Node doc;
     return false; \
   }
 
+static int createDir(std::string dirname) {
+  if(access(dirname.c_str(), F_OK) == 0 ) {
+    return 0;
+  }
+  
+  char* dir = strdup(dirname.c_str());
+  if (!dir) {
+    tinyros_log_error("%s no memory error", __FUNCTION__);
+    return -1;
+  }
+
+  int i, ret = -1, len = strlen(dir);
+
+  for(i=1; i < len; i++) {
+    if(dir[i]=='/') {
+      dir[i] = 0;
+      if(access((const char*)dir, F_OK) != 0 ) {
+        if(mkdir(dir, 0777) == -1) {
+          tinyros_log_error("%s mkdir: %s", __FUNCTION__, dir);
+          goto beach;
+        }
+      }
+      dir[i] = '/';
+    }
+  }
+
+  if(access((const char*)dir, F_OK) != 0 ) {
+    if(mkdir(dir, 0777) == -1) {
+      tinyros_log_error("%s mkdir: %s", __FUNCTION__, dir);
+      goto beach;
+    }
+  }
+
+  ret = 0;
+
+beach:
+  if (!dir) {
+    free(dir);
+  }
+  return ret;
+}
+
 bool load(const std::string& path) {
   std::unique_lock<std::mutex> lock(param_mutex_);
   std::ifstream fin(path.c_str());
   if (fin.fail()) {
-    std::fstream fc(path.c_str(), std::ios_base::out);
+    std::size_t idx = path.rfind("/");
+    if (idx != std::string::npos) {
+      createDir(path.substr(0, idx));
+    }
+    std::fstream fc(path.c_str(), std::ios::out);
     tinyros_log_error("%s file could not open %s.", __FUNCTION__, path.c_str());
     return false;
   }

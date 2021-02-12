@@ -41,15 +41,17 @@
 
 #include <boost/thread/mutex.hpp>
 
-#include <geometry_msgs/Pose.h>
+#include <tiny_ros/geometry_msgs/Pose.h>
 
 #ifndef Q_MOC_RUN
-#include <tf/message_filter.h>
+#include <tiny_ros/tf/message_filter.h>
 #endif
-
+namespace tinyros
+{
 namespace tf
 {
 class TransformListener;
+}
 }
 
 namespace rviz
@@ -74,7 +76,7 @@ public:
   /** @brief Constructor
    * @param tf a pointer to tf::TransformListener (should not be used anywhere else because of thread safety)
    */
-  FrameManager(boost::shared_ptr<tf::TransformListener> tf = boost::shared_ptr<tf::TransformListener>());
+  FrameManager(boost::shared_ptr<tinyros::tf::TransformListener> tf = boost::shared_ptr<tinyros::tf::TransformListener>());
 
   /** @brief Destructor.
    *
@@ -131,7 +133,7 @@ public:
    * @param[out] orientation: Orientation part of pose relative to the fixed frame.
    * @return true on success, false on failure. */
   template<typename Header>
-  bool transform(const Header& header, const geometry_msgs::Pose& pose, Ogre::Vector3& position, Ogre::Quaternion& orientation)
+  bool transform(const Header& header, const tinyros::geometry_msgs::Pose& pose, Ogre::Vector3& position, Ogre::Quaternion& orientation)
   {
     return transform(header.frame_id, header.stamp, pose, position, orientation);
   }
@@ -143,7 +145,7 @@ public:
    * @param[out] position Position part of pose relative to the fixed frame.
    * @param[out] orientation: Orientation part of pose relative to the fixed frame.
    * @return true on success, false on failure. */
-  bool transform(const std::string& frame, ros::Time time, const geometry_msgs::Pose& pose, Ogre::Vector3& position, Ogre::Quaternion& orientation);
+  bool transform(const std::string& frame, ros::Time time, const tinyros::geometry_msgs::Pose& pose, Ogre::Vector3& position, Ogre::Quaternion& orientation);
 
   /** @brief Clear the internal cache. */
   void update();
@@ -160,7 +162,7 @@ public:
    * @param[in] time The time at which the transform is desired.
    * @param[out] error If the transform is not known, an error message is stored here.
    * @return true if the transform is not known, false if it is. */
-  bool transformHasProblems(const std::string& frame, ros::Time time, std::string& error);
+  bool transformHasProblems(const std::string& frame, tinyros::Time time, std::string& error);
 
   /** @brief Connect a tf::MessageFilter's callbacks to success and failure handler functions in this FrameManager. 
    * @param filter The tf::MessageFilter to connect to.
@@ -171,10 +173,10 @@ public:
    * based on success or failure of the filter, including appropriate
    * error messages. */
   template<class M>
-  void registerFilterForTransformStatusCheck(tf::MessageFilter<M>* filter, Display* display)
+  void registerFilterForTransformStatusCheck(tinyros::tf::MessageFilter<M>* filter, Display* display)
   {
-    filter->registerCallback(boost::bind(&FrameManager::messageCallback<M>, this, _1, display));
-    filter->registerFailureCallback(boost::bind(&FrameManager::failureCallback<M>, this, _1, _2, display));
+    filter->registerCallback(std::bind(&FrameManager::messageCallback<M>, this, std::placeholders::_1, display));
+    filter->registerFailureCallback(std::bind(&FrameManager::failureCallback<M>, this, std::placeholders::_1, std::placeholders::_2, display));
   }
 
   /** @brief Return the current fixed frame name. */
@@ -184,7 +186,7 @@ public:
   tf::TransformListener* getTFClient() { return tf_.get(); }
 
   /** @brief Return a boost shared pointer to the tf::TransformListener used to receive transform data. */
-  const boost::shared_ptr<tf::TransformListener>& getTFClientPtr() { return tf_; }
+  const boost::shared_ptr<tinyros::tf::TransformListener>& getTFClientPtr() { return tf_; }
 
   /** @brief Create a description of a transform problem.
    * @param frame_id The name of the frame with issues.
@@ -196,9 +198,9 @@ public:
    * Once a problem has been detected with a given frame or transform,
    * call this to get an error message describing the problem. */
   std::string discoverFailureReason(const std::string& frame_id,
-                                    const ros::Time& stamp,
+                                    const tinyros::Time& stamp,
                                     const std::string& caller_id,
-                                    tf::FilterFailureReason reason);
+                                    tinyros::tf::FilterFailureReason reason);
 
 Q_SIGNALS:
   /** @brief Emitted whenever the fixed frame changes. */
@@ -206,10 +208,10 @@ Q_SIGNALS:
 
 private:
 
-  bool adjustTime( const std::string &frame, ros::Time &time );
+  bool adjustTime( const std::string &frame, tinyros::Time &time );
 
   template<class M>
-  void messageCallback(const ros::MessageEvent<M const>& msg_evt, Display* display)
+  void messageCallback(const tinyros::tf::MessageEvent<M const>& msg_evt, Display* display)
   {
     boost::shared_ptr<M const> const &msg = msg_evt.getConstMessage();
     std::string authority = msg_evt.getPublisherName();
@@ -218,7 +220,7 @@ private:
   }
 
   template<class M>
-  void failureCallback(const ros::MessageEvent<M const>& msg_evt, tf::FilterFailureReason reason, Display* display)
+  void failureCallback(const tinyros::::MessageEvent<M const>& msg_evt, tinyros::tf::FilterFailureReason reason, Display* display)
   {
     boost::shared_ptr<M const> const &msg = msg_evt.getConstMessage();
     std::string authority = msg_evt.getPublisherName();
@@ -227,11 +229,11 @@ private:
   }
 
   void messageArrived(const std::string& frame_id, const ros::Time& stamp, const std::string& caller_id, Display* display);
-  void messageFailed(const std::string& frame_id, const ros::Time& stamp, const std::string& caller_id, tf::FilterFailureReason reason, Display* display);
+  void messageFailed(const std::string& frame_id, const ros::Time& stamp, const std::string& caller_id, tinyros::tf::FilterFailureReason reason, Display* display);
 
   struct CacheKey
   {
-    CacheKey(const std::string& f, ros::Time t)
+    CacheKey(const std::string& f, tinyros::Time t)
     : frame(f)
     , time(t)
     {}
@@ -247,7 +249,7 @@ private:
     }
 
     std::string frame;
-    ros::Time time;
+    tinyros::Time time;
   };
 
   struct CacheEntry
@@ -265,7 +267,7 @@ private:
   boost::mutex cache_mutex_;
   M_Cache cache_;
 
-  boost::shared_ptr<tf::TransformListener> tf_;
+  boost::shared_ptr<tinyros::tf::TransformListener> tf_;
   std::string fixed_frame_;
 
   bool pause_;
@@ -273,7 +275,7 @@ private:
   SyncMode sync_mode_;
 
   // the current synchronized time, used to overwrite ros:Time(0)
-  ros::Time sync_time_;
+  tinyros::Time sync_time_;
 
   // used for approx. syncing
   double sync_delta_;

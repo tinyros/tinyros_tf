@@ -30,7 +30,7 @@
 
 #include <boost/bind.hpp>
 
-#include <tf/transform_listener.h>
+#include <tiny_ros/tf/transform_listener.h>
 
 #include "rviz/frame_manager.h"
 #include "rviz/ogre_helpers/arrow.h"
@@ -51,7 +51,7 @@ OdometryDisplay::OdometryDisplay()
   , messages_received_(0)
 {
   topic_property_ = new RosTopicProperty( "Topic", "",
-                                          QString::fromStdString( ros::message_traits::datatype<nav_msgs::Odometry>() ),
+                                          QString::fromStdString( tinyros::nav_msgs::Odometry::getTypeStatic() ),
                                           "nav_msgs::Odometry topic to subscribe to.",
                                           this, SLOT( updateTopic() ));
 
@@ -93,11 +93,9 @@ OdometryDisplay::~OdometryDisplay()
 
 void OdometryDisplay::onInitialize()
 {
-  tf_filter_ = new tf::MessageFilter<nav_msgs::Odometry>( *context_->getTFClient(), fixed_frame_.toStdString(),
-                                                          5, update_nh_ );
+  tf_filter_ = new tinyros::tf::MessageFilter<tinyros::nav_msgs::Odometry>( *context_->getTFClient(), fixed_frame_.toStdString(), 5);
 
-  tf_filter_->connectInput( sub_ );
-  tf_filter_->registerCallback( boost::bind( &OdometryDisplay::incomingMessage, this, _1 ));
+  tf_filter_->registerCallback( std::bind( &OdometryDisplay::incomingMessage, this, std::placeholders::_1 ));
   context_->getFrameManager()->registerFilterForTransformStatusCheck( tf_filter_, this );
 }
 
@@ -170,7 +168,7 @@ void OdometryDisplay::subscribe()
 
   try
   {
-    sub_.subscribe( update_nh_, topic_property_->getTopicStd(), 5 );
+    tf_filter_->connectInput( topic_property_->getTopicStd() );
     setStatus( StatusProperty::Ok, "Topic", "OK" );
   }
   catch( ros::Exception& e )
@@ -181,7 +179,7 @@ void OdometryDisplay::subscribe()
 
 void OdometryDisplay::unsubscribe()
 {
-  sub_.unsubscribe();
+  tf_filter_->connectEnable(false);
 }
 
 void OdometryDisplay::onEnable()
@@ -195,7 +193,7 @@ void OdometryDisplay::onDisable()
   clear();
 }
 
-bool validateFloats(const nav_msgs::Odometry& msg)
+bool validateFloats(const tinyros::nav_msgs::Odometry& msg)
 {
   bool valid = true;
   valid = valid && validateFloats( msg.pose.pose );
@@ -203,7 +201,7 @@ bool validateFloats(const nav_msgs::Odometry& msg)
   return valid;
 }
 
-void OdometryDisplay::incomingMessage( const nav_msgs::Odometry::ConstPtr& message )
+void OdometryDisplay::incomingMessage( const tinyros::nav_msgs::Odometry::ConstPtr& message )
 {
   ++messages_received_;
 
@@ -246,20 +244,20 @@ void OdometryDisplay::incomingMessage( const nav_msgs::Odometry::ConstPtr& messa
   context_->queueRender();
 }
 
-void OdometryDisplay::transformArrow( const nav_msgs::Odometry::ConstPtr& message, Arrow* arrow )
+void OdometryDisplay::transformArrow( const tinyros::nav_msgs::Odometry::ConstPtr& message, Arrow* arrow )
 {
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
   if( !context_->getFrameManager()->transform( message->header, message->pose.pose, position, orientation ))
   {
-    ROS_ERROR( "Error transforming odometry '%s' from frame '%s' to frame '%s'",
+    tinyros_log_error( "Error transforming odometry '%s' from frame '%s' to frame '%s'",
                qPrintable( getName() ), message->header.frame_id.c_str(), qPrintable( fixed_frame_ ));
   }
 
   arrow->setPosition( position );
 
   // Arrow points in -Z direction, so rotate the orientation before display.
-  // TODO: is it safe to change Arrow to point in +X direction?
+  // is it safe to change Arrow to point in +X direction?
   arrow->setOrientation( orientation * Ogre::Quaternion( Ogre::Degree( -90 ), Ogre::Vector3::UNIT_Y ));
 }
 
@@ -295,5 +293,3 @@ void OdometryDisplay::setTopic( const QString &topic, const QString &datatype )
 
 } // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::OdometryDisplay, rviz::Display )

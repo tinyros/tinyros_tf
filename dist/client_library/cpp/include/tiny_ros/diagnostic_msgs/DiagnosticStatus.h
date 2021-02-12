@@ -201,8 +201,9 @@ namespace diagnostic_msgs
     virtual std::string getDefinition(){ return "byte level\nstring name\nstring message\nstring hardware_id\nKeyValue[] values\n"; }
     static std::string getDefinitionStatic(){ return "byte level\nstring name\nstring message\nstring hardware_id\nKeyValue[] values\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::diagnostic_msgs::DiagnosticStatus> Ptr;
+    typedef std::shared_ptr<tinyros::diagnostic_msgs::DiagnosticStatus const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::diagnostic_msgs::DiagnosticStatus> DiagnosticStatusPtr;
 typedef std::shared_ptr<tinyros::diagnostic_msgs::DiagnosticStatus const> DiagnosticStatusConstPtr;
 

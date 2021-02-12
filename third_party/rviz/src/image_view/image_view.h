@@ -33,7 +33,7 @@
 # include "rviz/image/ros_image_texture.h"
 
 # include "tiny_ros/ros.h"
-# include "utils/utils.h"
+# include "tiny_ros/package.h"
 
 # include <OgreRoot.h>
 # include <OgreSceneManager.h>

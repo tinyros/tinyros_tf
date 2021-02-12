@@ -156,8 +156,9 @@ namespace nav_msgs
     virtual std::string getDefinition(){ return "Header header\nfloat32 cell_width\nfloat32 cell_height\ngeometry_msgs/Point[] cells\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nfloat32 cell_width\nfloat32 cell_height\ngeometry_msgs/Point[] cells\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::nav_msgs::GridCells> Ptr;
+    typedef std::shared_ptr<tinyros::nav_msgs::GridCells const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::nav_msgs::GridCells> GridCellsPtr;
 typedef std::shared_ptr<tinyros::nav_msgs::GridCells const> GridCellsConstPtr;
 

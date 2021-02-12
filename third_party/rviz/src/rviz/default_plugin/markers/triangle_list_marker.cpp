@@ -66,7 +66,7 @@ TriangleListMarker::~TriangleListMarker()
 
 void TriangleListMarker::onNewMessage(const MarkerConstPtr& old_message, const MarkerConstPtr& new_message)
 {
-  ROS_ASSERT(new_message->type == visualization_msgs::Marker::TRIANGLE_LIST);
+  TINYROS_ASSERT(new_message->type == tinyros::visualization_msgs::Marker::TRIANGLE_LIST);
 
   size_t num_points = new_message->points.size();
   if( (num_points % 3) != 0 || num_points == 0 )
@@ -84,7 +84,7 @@ void TriangleListMarker::onNewMessage(const MarkerConstPtr& old_message, const M
     {
       owner_->setMarkerStatus(getID(), StatusProperty::Error, ss.str());
     }
-    ROS_DEBUG("%s", ss.str().c_str());
+    tinyros_log_debug("%s", ss.str().c_str());
 
     scene_node_->setVisible( false );
     return;
@@ -116,7 +116,7 @@ void TriangleListMarker::onNewMessage(const MarkerConstPtr& old_message, const M
   Ogre::Quaternion orient;
   if (!transform(new_message, pos, orient, scale))
   {    
-    ROS_DEBUG("Unable to transform marker message");
+    tinyros_log_debug("Unable to transform marker message");
     scene_node_->setVisible( false );
     return;
   }

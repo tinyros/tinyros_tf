@@ -51,7 +51,7 @@
 #include <tinyxml.h>
 
 
-#include <ros/assert.h>
+#include <tiny_ros/tf/static_assert.h>
 
 #if defined(ASSIMP_UNIFIED_HEADER_NAMES)
 #include <assimp/Importer.hpp>
@@ -114,7 +114,7 @@ public:
       new_pos = res_.data.get() + res_.size - offset; // TODO is this right?
       break;
     default:
-      ROS_BREAK();
+      TINYROS_BREAK();
     }
 
     if (new_pos < res_.data.get() || new_pos > res_.data.get() + res_.size)
@@ -159,7 +159,7 @@ public:
   {
     // Ugly -- two retrievals where there should be one (Exists + Open)
     // resource_retriever needs a way of checking for existence
-    // TODO: cache this
+    // cache this
     resource_retriever::MemoryResource res;
     try
     {
@@ -182,7 +182,7 @@ public:
   // ... and finally a method to open a custom stream
   Assimp::IOStream* Open(const char* file, const char* mode = "rb")
   {
-    ROS_ASSERT(mode == std::string("r") || mode == std::string("rb"));
+    TINYROS_ASSERT(mode == std::string("r") || mode == std::string("rb"));
 
     // Ugly -- two retrievals where there should be one (Exists + Open)
     // resource_retriever needs a way of checking for existence
@@ -400,7 +400,7 @@ void loadTexture(const std::string& resource_path)
     }
     catch (resource_retriever::Exception& e)
     {
-      ROS_ERROR("%s", e.what());
+      tinyros_log_error("%s", e.what());
     }
 
     if (res.size != 0)
@@ -421,7 +421,7 @@ void loadTexture(const std::string& resource_path)
       }
       catch (Ogre::Exception& e)
       {
-        ROS_ERROR("Could not load texture [%s]: %s", resource_path.c_str(), e.what());
+        tinyros_log_error("Could not load texture [%s]: %s", resource_path.c_str(), e.what());
       }
     }
   }
@@ -587,7 +587,7 @@ float getMeshUnitRescale(const std::string& resource_path)
   }
   catch (resource_retriever::Exception& e)
   {
-    ROS_ERROR("%s", e.what());
+    tinyros_log_error("%s", e.what());
     return unit_scale;
   }
   
@@ -615,8 +615,7 @@ float getMeshUnitRescale(const std::string& resource_path)
         {
           // Failing to convert leaves unit_scale as the default.
           if(unitXml->QueryFloatAttribute("meter", &unit_scale) != 0)
-            ROS_WARN_STREAM("getMeshUnitRescale::Failed to convert unit element meter attribute to determine scaling. unit element: "
-                            << *unitXml);
+            tinyros_log_warn("getMeshUnitRescale::Failed to convert unit element meter attribute to determine scaling. unit element: %s", (*unitXml).c_str());
         }
       }
     }
@@ -630,7 +629,7 @@ Ogre::MeshPtr meshFromAssimpScene(const std::string& name, const aiScene* scene)
 {
   if (!scene->HasMeshes())
   {
-    ROS_ERROR("No meshes found in file [%s]", name.c_str());
+    tinyros_log_error("No meshes found in file [%s]", name.c_str());
     return Ogre::MeshPtr();
   }
 
@@ -677,7 +676,7 @@ Ogre::MeshPtr loadMeshFromResource(const std::string& resource_path)
       }
       catch (resource_retriever::Exception& e)
       {
-        ROS_ERROR("%s", e.what());
+        tinyros_log_error("%s", e.what());
         return Ogre::MeshPtr();
       }
 
@@ -703,7 +702,7 @@ Ogre::MeshPtr loadMeshFromResource(const std::string& resource_path)
       }
       catch (resource_retriever::Exception& e)
       {
-        ROS_ERROR("%s", e.what());
+        tinyros_log_error("%s", e.what());
         return Ogre::MeshPtr();
       }
 
@@ -715,7 +714,7 @@ Ogre::MeshPtr loadMeshFromResource(const std::string& resource_path)
       ogre_tools::STLLoader loader;
       if (!loader.load(res.data.get(), res.size, resource_path))
       {
-        ROS_ERROR("Failed to load file [%s]", resource_path.c_str());
+        tinyros_log_error("Failed to load file [%s]", resource_path.c_str());
         return Ogre::MeshPtr();
       }
 
@@ -728,7 +727,7 @@ Ogre::MeshPtr loadMeshFromResource(const std::string& resource_path)
       const aiScene* scene = importer.ReadFile(resource_path, aiProcess_SortByPType|aiProcess_GenNormals|aiProcess_Triangulate|aiProcess_GenUVCoords|aiProcess_FlipUVs);
       if (!scene)
       {
-        ROS_ERROR("Could not load resource [%s]: %s", resource_path.c_str(), importer.GetErrorString());
+        tinyros_log_error("Could not load resource [%s]: %s", resource_path.c_str(), importer.GetErrorString());
         return Ogre::MeshPtr();
       }
 

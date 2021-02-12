@@ -30,8 +30,8 @@
 #ifndef RVIZ_TEMPERATURE_DISPLAY_H
 #define RVIZ_TEMPERATURE_DISPLAY_H
 
-#include <sensor_msgs/Temperature.h>
-#include <sensor_msgs/PointCloud2.h>
+#include <tiny_ros/sensor_msgs/Temperature.h>
+#include <tiny_ros/sensor_msgs/PointCloud2.h>
 
 #include "rviz/message_filter_display.h"
 
@@ -46,7 +46,7 @@ class PointCloudCommon;
  * \brief Displays a Temperature message of type sensor_msgs::Temperature
  *
  */
-class TemperatureDisplay: public MessageFilterDisplay<sensor_msgs::Temperature>
+class TemperatureDisplay: public MessageFilterDisplay<tinyros::sensor_msgs::Temperature>
 {
 Q_OBJECT
 public:
@@ -65,7 +65,7 @@ protected:
   virtual void onInitialize();
 
   /** @brief Process a single message.  Overridden from MessageFilterDisplay. */
-  virtual void processMessage( const sensor_msgs::TemperatureConstPtr& msg );
+  virtual void processMessage( const tinyros::sensor_msgs::TemperatureConstPtr& msg );
 
   IntProperty* queue_size_property_;
 

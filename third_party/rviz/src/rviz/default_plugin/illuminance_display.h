@@ -30,8 +30,8 @@
 #ifndef RVIZ_ILLUMINANCE_DISPLAY_H
 #define RVIZ_ILLUMINANCE_DISPLAY_H
 
-#include <sensor_msgs/Illuminance.h>
-#include <sensor_msgs/PointCloud2.h>
+#include <tiny_ros/sensor_msgs/Illuminance.h>
+#include <tiny_ros/sensor_msgs/PointCloud2.h>
 
 #include "rviz/message_filter_display.h"
 
@@ -46,7 +46,7 @@ class PointCloudCommon;
  * \brief Displays an Illuminance message of type sensor_msgs::Illuminance
  *
  */
-class IlluminanceDisplay: public MessageFilterDisplay<sensor_msgs::Illuminance>
+class IlluminanceDisplay: public MessageFilterDisplay<tinyros::sensor_msgs::Illuminance>
 {
 Q_OBJECT
 public:
@@ -65,7 +65,7 @@ protected:
   virtual void onInitialize();
 
   /** @brief Process a single message.  Overridden from MessageFilterDisplay. */
-  virtual void processMessage( const sensor_msgs::IlluminanceConstPtr& msg );
+  virtual void processMessage( const tinyros::sensor_msgs::IlluminanceConstPtr& msg );
 
   IntProperty* queue_size_property_;
 

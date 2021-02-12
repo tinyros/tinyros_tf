@@ -5,7 +5,7 @@
 #include <rviz/ogre_helpers/arrow.h>
 #include <rviz/ogre_helpers/billboard_line.h>
 
-#include <ros/ros.h>
+#include <tiny_ros/ros.h>
 
 #include "wrench_visual.h"
 
@@ -48,12 +48,12 @@ WrenchStampedVisual::~WrenchStampedVisual()
 }
 
 
-void WrenchStampedVisual::setMessage( const geometry_msgs::WrenchStamped::ConstPtr& msg )
+void WrenchStampedVisual::setMessage( const tinyros::geometry_msgs::WrenchStamped::ConstPtr& msg )
 {
     setWrench(msg->wrench);
 }
 
-void WrenchStampedVisual::setWrench( const geometry_msgs::Wrench& wrench )
+void WrenchStampedVisual::setWrench( const tinyros::geometry_msgs::Wrench& wrench )
 {
     Ogre::Vector3 force(wrench.force.x, wrench.force.y, wrench.force.z);
     Ogre::Vector3 torque(wrench.torque.x, wrench.torque.y, wrench.torque.z);

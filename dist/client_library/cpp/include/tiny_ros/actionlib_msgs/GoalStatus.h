@@ -111,8 +111,9 @@ namespace actionlib_msgs
     virtual std::string getDefinition(){ return "GoalID goal_id\nuint8 status\nstring text\n"; }
     static std::string getDefinitionStatic(){ return "GoalID goal_id\nuint8 status\nstring text\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::actionlib_msgs::GoalStatus> Ptr;
+    typedef std::shared_ptr<tinyros::actionlib_msgs::GoalStatus const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::actionlib_msgs::GoalStatus> GoalStatusPtr;
 typedef std::shared_ptr<tinyros::actionlib_msgs::GoalStatus const> GoalStatusConstPtr;
 

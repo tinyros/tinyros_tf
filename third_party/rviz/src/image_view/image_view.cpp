@@ -36,7 +36,7 @@
 #include "rviz/image/ros_image_texture.h"
 
 #include "tiny_ros/ros.h"
-#include "utils/utils.h"
+#include "tiny_ros/package.h"
 
 #include <OgreRoot.h>
 #include <OgreRenderWindow.h>
@@ -74,7 +74,7 @@ void ImageView::showEvent( QShowEvent* event )
   QtOgreRenderWindow::showEvent( event );
 
   V_string paths;
-  paths.push_back(rviz::utils::getPath() + "/ogre_media/textures");
+  paths.push_back(tinyros::package::getPath() + "tinyros_rviz/ogre_media/textures");
   initializeResources(paths);
 
   setCamera( scene_manager_->createCamera( "Camera" ));

@@ -99,8 +99,9 @@ static const char BODYREQUEST[] = "gazebo_msgs/BodyRequest";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::BodyRequestRequest> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::BodyRequestRequest const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::BodyRequestRequest> BodyRequestRequestPtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::BodyRequestRequest const> BodyRequestRequestConstPtr;
 
@@ -161,8 +162,9 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::BodyRequestRequest const> BodyRequ
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::BodyRequestResponse> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::BodyRequestResponse const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::BodyRequestResponse> BodyRequestResponsePtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::BodyRequestResponse const> BodyRequestResponseConstPtr;
 

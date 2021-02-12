@@ -128,8 +128,9 @@ namespace std_msgs
     virtual std::string getDefinition(){ return "MultiArrayLayout  layout\nint64[]           data\n"; }
     static std::string getDefinitionStatic(){ return "MultiArrayLayout  layout\nint64[]           data\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::std_msgs::Int64MultiArray> Ptr;
+    typedef std::shared_ptr<tinyros::std_msgs::Int64MultiArray const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::std_msgs::Int64MultiArray> Int64MultiArrayPtr;
 typedef std::shared_ptr<tinyros::std_msgs::Int64MultiArray const> Int64MultiArrayConstPtr;
 

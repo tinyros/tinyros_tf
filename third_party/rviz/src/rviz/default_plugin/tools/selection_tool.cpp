@@ -40,7 +40,7 @@
 #include <OgreTexture.h>
 #include <OgreTextureManager.h>
 
-#include <ros/time.h>
+#include <tiny_ros/ros/time.h>
 
 #include "move_tool.h"
 
@@ -187,5 +187,3 @@ int SelectionTool::processKeyEvent( QKeyEvent* event, RenderPanel* panel )
 
 } // end namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::SelectionTool, rviz::Tool )

@@ -242,8 +242,9 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "Header header\nNavSatStatus status\nfloat64 latitude\nfloat64 longitude\nfloat64 altitude\nfloat64[9] position_covariance\nuint8 position_covariance_type\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nNavSatStatus status\nfloat64 latitude\nfloat64 longitude\nfloat64 altitude\nfloat64[9] position_covariance\nuint8 position_covariance_type\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::sensor_msgs::NavSatFix> Ptr;
+    typedef std::shared_ptr<tinyros::sensor_msgs::NavSatFix const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::sensor_msgs::NavSatFix> NavSatFixPtr;
 typedef std::shared_ptr<tinyros::sensor_msgs::NavSatFix const> NavSatFixConstPtr;
 

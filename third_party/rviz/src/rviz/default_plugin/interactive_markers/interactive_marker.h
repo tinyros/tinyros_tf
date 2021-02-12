@@ -45,7 +45,7 @@
 #include <visualization_msgs/InteractiveMarkerFeedback.h>
 #include <geometry_msgs/Pose.h>
 
-#include <ros/publisher.h>
+#include <tiny_ros/ros.h>
 
 #include "rviz/selection/forwards.h"
 #include "rviz/ogre_helpers/axes.h"
@@ -148,7 +148,7 @@ public:
 
 Q_SIGNALS:
 
-void userFeedback(visualization_msgs::InteractiveMarkerFeedback &feedback);
+void userFeedback(tinyros::visualization_msgs::InteractiveMarkerFeedback &feedback);
 void statusUpdate( StatusProperty::Level level, const std::string& name, const std::string& text );
 
 protected Q_SLOTS:

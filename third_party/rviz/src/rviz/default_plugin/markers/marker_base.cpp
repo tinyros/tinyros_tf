@@ -40,8 +40,8 @@
 #include <OgreSubEntity.h>
 #include <OgreSharedPtr.h>
 
-#include <tf/tf.h>
-#include <tf/transform_listener.h>
+#include <tiny_ros/tf/tf.h>
+#include <tiny_ros/tf/transform_listener.h>
 
 namespace rviz
 {
@@ -69,14 +69,14 @@ void MarkerBase::setMessage(const MarkerConstPtr& message)
   MarkerConstPtr old = message_;
   message_ = message;
 
-  expiration_ = ros::Time::now() + message->lifetime;
+  expiration_ = tinyros::Time::now() + message->lifetime;
 
   onNewMessage(old, message);
 }
 
 void MarkerBase::updateFrameLocked()
 {
-  ROS_ASSERT(message_ && message_->frame_locked);
+  TINYROS_ASSERT(message_ && message_->frame_locked);
   onNewMessage(message_, message_);
 }
 
@@ -87,10 +87,10 @@ bool MarkerBase::expired()
 
 bool MarkerBase::transform(const MarkerConstPtr& message, Ogre::Vector3& pos, Ogre::Quaternion& orient, Ogre::Vector3& scale)
 {
-  ros::Time stamp = message->header.stamp;
+  tinyros::Time stamp = message->header.stamp;
   if (message->frame_locked)
   {
-    stamp = ros::Time();
+    stamp = tinyros::Time();
   }
 
   if (!context_->getFrameManager()->transform(message->header.frame_id, stamp, message->pose, pos, orient))

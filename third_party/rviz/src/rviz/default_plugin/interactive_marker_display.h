@@ -38,11 +38,10 @@
 #include <visualization_msgs/InteractiveMarkerInit.h>
 
 #ifndef Q_MOC_RUN
-#include <message_filters/subscriber.h>
-#include <tf/message_filter.h>
-#include <interactive_markers/interactive_marker_client.h>
+#include <tiny_ros/tf/message_filter.h>
+#include "rviz/default_plugin/interactive_markers/interactive_marker_client.h"
 #endif
-
+#include "tiny_ros/ros.h"
 #include "rviz/display.h"
 #include "rviz/selection/forwards.h"
 
@@ -78,6 +77,12 @@ public:
 
   virtual void setTopic( const QString &topic, const QString &datatype );
 
+  enum StatusT {
+    OK = 0,
+    WARN = 1,
+    ERROR = 2
+  };
+
 protected:
   virtual void onEnable();
   virtual void onDisable();
@@ -88,7 +93,7 @@ protected Q_SLOTS:
   void updateShowAxes();
   void updateShowVisualAids();
   void updateEnableTransparency();
-  void publishFeedback(visualization_msgs::InteractiveMarkerFeedback &feedback);
+  void publishFeedback(tinyros::visualization_msgs::InteractiveMarkerFeedback &feedback);
   void onStatusUpdate( StatusProperty::Level level, const std::string& name, const std::string& text );
 
 private:
@@ -99,30 +104,30 @@ private:
   // Unsubscribe from all message topics
   void unsubscribe();
 
-  void initCb( visualization_msgs::InteractiveMarkerInitConstPtr msg );
-  void updateCb( visualization_msgs::InteractiveMarkerUpdateConstPtr msg );
+  void initCb( tinyros::visualization_msgs::InteractiveMarkerInitConstPtr msg );
+  void updateCb( tinyros::visualization_msgs::InteractiveMarkerUpdateConstPtr msg );
 
   void resetCb( std::string server_id );
 
-  void statusCb( interactive_markers::InteractiveMarkerClient::StatusT,
+  void statusCb(InteractiveMarkerDisplay::StatusT,
       const std::string& server_id,
       const std::string& msg );
 
   void updateMarkers(
       const std::string& server_id,
-      const std::vector<visualization_msgs::InteractiveMarker>& markers );
+      const std::vector<tinyros::visualization_msgs::InteractiveMarker>& markers );
 
   void updatePoses(
       const std::string& server_id,
-      const std::vector<visualization_msgs::InteractiveMarkerPose>& marker_poses );
+      const std::vector<tinyros::visualization_msgs::InteractiveMarkerPose>& marker_poses );
 
   void eraseMarkers(
       const std::string& server_id,
       const std::vector<std::string>& names );
 
   // Update the display's versions of the markers.
-  void processMarkerChanges( const std::vector<visualization_msgs::InteractiveMarker>* markers = NULL,
-                             const std::vector<visualization_msgs::InteractiveMarkerPose>* poses = NULL,
+  void processMarkerChanges( const std::vector<tinyros::visualization_msgs::InteractiveMarker>* markers = NULL,
+                             const std::vector<tinyros::visualization_msgs::InteractiveMarkerPose>* poses = NULL,
                              const std::vector<std::string>* erases = NULL );
 
   typedef boost::shared_ptr<InteractiveMarker> IMPtr;
@@ -141,9 +146,9 @@ private:
   BoolProperty* show_visual_aids_property_;
   BoolProperty* enable_transparency_property_;
 
-  boost::shared_ptr<interactive_markers::InteractiveMarkerClient> im_client_;
+  boost::shared_ptr<rviz::InteractiveMarkerClient> im_client_;
 
-  ros::Publisher feedback_pub_;
+  tinyros::Publisher feedback_pub_;
 
   std::string topic_ns_;
 };

@@ -131,8 +131,9 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "Header header\nstring format\nuint8[] data\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nstring format\nuint8[] data\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::sensor_msgs::CompressedImage> Ptr;
+    typedef std::shared_ptr<tinyros::sensor_msgs::CompressedImage const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::sensor_msgs::CompressedImage> CompressedImagePtr;
 typedef std::shared_ptr<tinyros::sensor_msgs::CompressedImage const> CompressedImageConstPtr;
 

@@ -35,7 +35,7 @@
 #include <OgreBillboardSet.h>
 #include <OgreMatrix4.h>
 
-#include <tf/transform_listener.h>
+#include <tiny_ros/tf/transform_listener.h>
 
 #include "rviz/display_context.h"
 #include "rviz/frame_manager.h"
@@ -386,14 +386,14 @@ void PathDisplay::updateBufferLength()
 
 }
 
-bool validateFloats( const nav_msgs::Path& msg )
+bool validateFloats( const tinyros::nav_msgs::Path& msg )
 {
   bool valid = true;
   valid = valid && validateFloats( msg.poses );
   return valid;
 }
 
-void PathDisplay::processMessage( const nav_msgs::Path::ConstPtr& msg )
+void PathDisplay::processMessage( const tinyros::nav_msgs::Path::ConstPtr& msg )
 {
   // Calculate index of oldest element in cyclic buffer
   size_t bufferIndex = messages_received_ % buffer_length_property_->getInt();
@@ -428,7 +428,7 @@ void PathDisplay::processMessage( const nav_msgs::Path::ConstPtr& msg )
   Ogre::Quaternion orientation;
   if( !context_->getFrameManager()->getTransform( msg->header, position, orientation ))
   {
-    ROS_DEBUG( "Error transforming from frame '%s' to frame '%s'", msg->header.frame_id.c_str(), qPrintable( fixed_frame_ ));
+    tinyros_log_debug( "Error transforming from frame '%s' to frame '%s'", msg->header.frame_id.c_str(), qPrintable( fixed_frame_ ));
   }
 
   Ogre::Matrix4 transform( orientation );
@@ -450,7 +450,7 @@ void PathDisplay::processMessage( const nav_msgs::Path::ConstPtr& msg )
     manual_object->begin( "BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_STRIP );
     for( uint32_t i=0; i < num_points; ++i)
     {
-      const geometry_msgs::Point& pos = msg->poses[ i ].pose.position;
+      const tinyros::geometry_msgs::Point& pos = msg->poses[ i ].pose.position;
       Ogre::Vector3 xpos = transform * Ogre::Vector3( pos.x, pos.y, pos.z );
       manual_object->position( xpos.x, xpos.y, xpos.z );
       manual_object->colour( color );
@@ -466,7 +466,7 @@ void PathDisplay::processMessage( const nav_msgs::Path::ConstPtr& msg )
 
     for( uint32_t i=0; i < num_points; ++i)
     {
-      const geometry_msgs::Point& pos = msg->poses[ i ].pose.position;
+      const tinyros::geometry_msgs::Point& pos = msg->poses[ i ].pose.position;
       Ogre::Vector3 xpos = transform * Ogre::Vector3( pos.x, pos.y, pos.z );
       billboard_line->addPoint( xpos, color );
     }
@@ -485,7 +485,7 @@ void PathDisplay::processMessage( const nav_msgs::Path::ConstPtr& msg )
       allocateAxesVector(axes_vect, num_points);
       for( uint32_t i=0; i < num_points; ++i)
       {
-        const geometry_msgs::Point& pos = msg->poses[ i ].pose.position;
+        const tinyros::geometry_msgs::Point& pos = msg->poses[ i ].pose.position;
         Ogre::Vector3 xpos = transform * Ogre::Vector3( pos.x, pos.y, pos.z );
         axes_vect[i]->setPosition(xpos);
         Ogre::Quaternion orientation(msg->poses[ i ].pose.orientation.w,
@@ -500,7 +500,7 @@ void PathDisplay::processMessage( const nav_msgs::Path::ConstPtr& msg )
       allocateArrowVector(arrow_vect, num_points);
       for( uint32_t i=0; i < num_points; ++i)
       {
-        const geometry_msgs::Point& pos = msg->poses[ i ].pose.position;
+        const tinyros::geometry_msgs::Point& pos = msg->poses[ i ].pose.position;
         Ogre::Vector3 xpos = transform * Ogre::Vector3( pos.x, pos.y, pos.z );
 
         QColor color = pose_arrow_color_property_->getColor();
@@ -531,5 +531,3 @@ void PathDisplay::processMessage( const nav_msgs::Path::ConstPtr& msg )
 
 } // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::PathDisplay, rviz::Display )

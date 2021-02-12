@@ -7,6 +7,8 @@ add_executable(ExamplePublisher
   ${ROSLIB_PATHS}/duration.cpp
   ${ROSLIB_PATHS}/ros.cpp
   ${ROSLIB_PATHS}/log.cpp
+  ${ROSLIB_PATHS}/package.cpp
+  ${ROSLIB_PATHS}/param.cpp
 )
 
 IF (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
@@ -18,6 +20,7 @@ ENDIF()
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
   target_link_libraries(ExamplePublisher
     libpthread.so
+    libyaml-cpp.so
   )
 ENDIF()
 

@@ -34,7 +34,7 @@
 
 #include <QCursor>
 
-#include <ros/ros.h>
+#include <tiny_ros/ros.h>
 
 #include "rviz/tool.h"
 

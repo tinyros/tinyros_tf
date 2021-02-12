@@ -31,17 +31,17 @@
 #include "display.h"
 #include "properties/property.h"
 
-#include <tf/transform_listener.h>
-#include <ros/ros.h>
+#include <tiny_ros/tf/transform_listener.h>
+#include <tiny_ros/ros.h>
 
-#include <std_msgs/Float32.h>
+#include <tiny_ros/std_msgs/Float32.h>
 
 namespace rviz
 {
 
-FrameManager::FrameManager(boost::shared_ptr<tf::TransformListener> tf)
+FrameManager::FrameManager(boost::shared_ptr<tinyros::tf::TransformListener> tf)
 {
-  if (!tf) tf_.reset(new tf::TransformListener(ros::NodeHandle(), ros::Duration(10*60), true));
+  if (!tf) tf_.reset(new tinyros::tf::TransformListener(tinyros::Duration(10*60)));
   else tf_ = tf;
 
   setSyncMode( SyncOff );
@@ -65,7 +65,7 @@ void FrameManager::update()
     switch ( sync_mode_ )
     {
       case SyncOff:
-        sync_time_ = ros::Time::now();
+        sync_time_ = tinyros::Time::now();
         break;
       case SyncExact:
         break;
@@ -74,11 +74,11 @@ void FrameManager::update()
         current_delta_ = 0.7*current_delta_ + 0.3*sync_delta_;
         try
         {
-          sync_time_ = ros::Time::now()-ros::Duration(current_delta_);
+          sync_time_ = tinyros::Time::now()-tinyros::Duration(current_delta_);
         }
         catch (...)
         {
-          sync_time_ = ros::Time::now();
+          sync_time_ = tinyros::Time::now();
         }
         break;
     }
@@ -127,15 +127,15 @@ void FrameManager::syncTime( ros::Time time )
       sync_time_ = time;
       break;
     case SyncApprox:
-      if ( time == ros::Time(0) )
+      if ( time == tinyros::Time(0) )
       {
         sync_delta_ = 0;
         return;
       }
       // avoid exception due to negative time
-      if ( ros::Time::now() >= time )
+      if ( tinyros::Time::now() >= time )
       {
-        sync_delta_ = (ros::Time::now() - time).toSec();
+        sync_delta_ = (tinyros::Time::now() - time).toSec();
       }
       else
       {
@@ -145,10 +145,10 @@ void FrameManager::syncTime( ros::Time time )
   }
 }
 
-bool FrameManager::adjustTime( const std::string &frame, ros::Time& time )
+bool FrameManager::adjustTime( const std::string &frame, tinyros::Time& time )
 {
   // we only need to act if we get a zero timestamp, which means "latest"
-  if ( time != ros::Time() )
+  if ( time != tinyros::Time() )
   {
     return true;
   }
@@ -163,14 +163,14 @@ bool FrameManager::adjustTime( const std::string &frame, ros::Time& time )
     case SyncApprox:
       {
         // if we don't have tf info for the given timestamp, use the latest available
-        ros::Time latest_time;
+        tinyros::Time latest_time;
         std::string error_string;
         int error_code;
         error_code = tf_->getLatestCommonTime( fixed_frame_, frame, latest_time, &error_string );
 
         if ( error_code != 0 )
         {
-          ROS_ERROR("Error getting latest time from frame '%s' to frame '%s': %s (Error code: %d)", frame.c_str(), fixed_frame_.c_str(), error_string.c_str(), error_code);
+          tinyros_log_error("Error getting latest time from frame '%s' to frame '%s': %s (Error code: %d)", frame.c_str(), fixed_frame_.c_str(), error_string.c_str(), error_code);
           return false;
         }
 
@@ -186,7 +186,7 @@ bool FrameManager::adjustTime( const std::string &frame, ros::Time& time )
 
 
 
-bool FrameManager::getTransform(const std::string& frame, ros::Time time, Ogre::Vector3& position, Ogre::Quaternion& orientation)
+bool FrameManager::getTransform(const std::string& frame, tinyros::Time time, Ogre::Vector3& position, Ogre::Quaternion& orientation)
 {
   if ( !adjustTime(frame, time) )
   {
@@ -211,7 +211,7 @@ bool FrameManager::getTransform(const std::string& frame, ros::Time time, Ogre::
     return true;
   }
 
-  geometry_msgs::Pose pose;
+  tinyros::geometry_msgs::Pose pose;
   pose.orientation.w = 1.0f;
 
   if (!transform(frame, time, pose, position, orientation))
@@ -224,7 +224,7 @@ bool FrameManager::getTransform(const std::string& frame, ros::Time time, Ogre::
   return true;
 }
 
-bool FrameManager::transform(const std::string& frame, ros::Time time, const geometry_msgs::Pose& pose_msg, Ogre::Vector3& position, Ogre::Quaternion& orientation)
+bool FrameManager::transform(const std::string& frame, ros::Time time, const tinyros::geometry_msgs::Pose& pose_msg, Ogre::Vector3& position, Ogre::Quaternion& orientation)
 {
   if ( !adjustTime(frame, time) )
   {
@@ -235,16 +235,16 @@ bool FrameManager::transform(const std::string& frame, ros::Time time, const geo
   orientation = Ogre::Quaternion::IDENTITY;
 
   // put all pose data into a tf stamped pose
-  tf::Quaternion bt_orientation(pose_msg.orientation.x, pose_msg.orientation.y, pose_msg.orientation.z, pose_msg.orientation.w);
-  tf::Vector3 bt_position(pose_msg.position.x, pose_msg.position.y, pose_msg.position.z);
+  tinyros::tf::Quaternion bt_orientation(pose_msg.orientation.x, pose_msg.orientation.y, pose_msg.orientation.z, pose_msg.orientation.w);
+  tinyros::tf::Vector3 bt_position(pose_msg.position.x, pose_msg.position.y, pose_msg.position.z);
 
   if (bt_orientation.x() == 0.0 && bt_orientation.y() == 0.0 && bt_orientation.z() == 0.0 && bt_orientation.w() == 0.0)
   {
     bt_orientation.setW(1.0);
   }
 
-  tf::Stamped<tf::Pose> pose_in(tf::Transform(bt_orientation,bt_position), time, frame);
-  tf::Stamped<tf::Pose> pose_out;
+  tinyros::tf::Stamped<tinyros::tf::Pose> pose_in(tinyros::tf::Transform(bt_orientation,bt_position), time, frame);
+  tinyros::tf::Stamped<tinyros::tf::Pose> pose_out;
 
   // convert pose into new frame
   try
@@ -253,7 +253,7 @@ bool FrameManager::transform(const std::string& frame, ros::Time time, const geo
   }
   catch(std::runtime_error& e)
   {
-    ROS_DEBUG("Error transforming from frame '%s' to frame '%s': %s", frame.c_str(), fixed_frame_.c_str(), e.what());
+    tinyros_log_error("Error transforming from frame '%s' to frame '%s': %s", frame.c_str(), fixed_frame_.c_str(), e.what());
     return false;
   }
 
@@ -266,7 +266,7 @@ bool FrameManager::transform(const std::string& frame, ros::Time time, const geo
   return true;
 }
 
-bool FrameManager::frameHasProblems(const std::string& frame, ros::Time time, std::string& error)
+bool FrameManager::frameHasProblems(const std::string& frame, tinyros::Time time, std::string& error)
 {
   if (!tf_->frameExists(frame))
   {
@@ -281,7 +281,7 @@ bool FrameManager::frameHasProblems(const std::string& frame, ros::Time time, st
   return false;
 }
 
-bool FrameManager::transformHasProblems(const std::string& frame, ros::Time time, std::string& error)
+bool FrameManager::transformHasProblems(const std::string& frame, tinyros::Time time, std::string& error)
 {
   if ( !adjustTime(frame, time) )
   {
@@ -323,9 +323,9 @@ std::string getTransformStatusName(const std::string& caller_id)
   return ss.str();
 }
 
-std::string FrameManager::discoverFailureReason(const std::string& frame_id, const ros::Time& stamp, const std::string& caller_id, tf::FilterFailureReason reason)
+std::string FrameManager::discoverFailureReason(const std::string& frame_id, const tinyros::Time& stamp, const std::string& caller_id, tinyros::tf::FilterFailureReason reason)
 {
-  if (reason == tf::filter_failure_reasons::OutTheBack)
+  if (reason == tinyros::tf::filter_failure_reasons::OutTheBack)
   {
     std::stringstream ss;
     ss << "Message removed because it is too old (frame=[" << frame_id << "], stamp=[" << stamp << "])";
@@ -343,14 +343,14 @@ std::string FrameManager::discoverFailureReason(const std::string& frame_id, con
   return "Unknown reason for transform failure";
 }
 
-void FrameManager::messageArrived( const std::string& frame_id, const ros::Time& stamp,
+void FrameManager::messageArrived( const std::string& frame_id, const tinyros::Time& stamp,
                                    const std::string& caller_id, Display* display )
 {
   display->setStatusStd( StatusProperty::Ok, getTransformStatusName( caller_id ), "Transform OK" );
 }
 
-void FrameManager::messageFailed( const std::string& frame_id, const ros::Time& stamp,
-                                  const std::string& caller_id, tf::FilterFailureReason reason, Display* display )
+void FrameManager::messageFailed( const std::string& frame_id, const tinyros::Time& stamp,
+                                  const std::string& caller_id, tinyros::tf::FilterFailureReason reason, Display* display )
 {
   std::string status_name = getTransformStatusName( caller_id );
   std::string status_text = discoverFailureReason( frame_id, stamp, caller_id, reason );

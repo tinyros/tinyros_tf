@@ -31,8 +31,8 @@
  *      Author: jkammerl
  */
 
-#include <image_geometry/pinhole_camera_model.h>
-#include <sensor_msgs/image_encodings.h>
+#include <utils/image_encodings.h>
+#include "image_geometry/pinhole_camera_model.h"
 
 #include <string.h>
 #include <sstream>
@@ -88,8 +88,8 @@ struct RGBA
 };
 
 
-void MultiLayerDepth::initializeConversion(const sensor_msgs::ImageConstPtr& depth_msg,
-                                           sensor_msgs::CameraInfoConstPtr& camera_info_msg)
+void MultiLayerDepth::initializeConversion(const tinyros::sensor_msgs::ImageConstPtr& depth_msg,
+                                           tinyros::sensor_msgs::CameraInfoConstPtr& camera_info_msg)
 {
 
   if (!depth_msg || !camera_info_msg)
@@ -171,14 +171,14 @@ void MultiLayerDepth::initializeConversion(const sensor_msgs::ImageConstPtr& dep
 
 
 template<typename T>
-  sensor_msgs::PointCloud2Ptr MultiLayerDepth::generatePointCloudSL(const sensor_msgs::ImageConstPtr& depth_msg,
+  tinyros::sensor_msgs::PointCloud2Ptr MultiLayerDepth::generatePointCloudSL(const tinyros::sensor_msgs::ImageConstPtr& depth_msg,
                                                                     std::vector<uint32_t>& rgba_color_raw)
   {
 
     int width = depth_msg->width;
     int height = depth_msg->height;
 
-    sensor_msgs::PointCloud2Ptr cloud_msg = initPointCloud();
+    tinyros::sensor_msgs::PointCloud2Ptr cloud_msg = initPointCloud();
     cloud_msg->data.resize(height * width * cloud_msg->point_step);
 
     uint32_t* color_img_ptr = 0;
@@ -196,7 +196,7 @@ template<typename T>
     std::size_t point_count = 0;
     std::size_t point_idx = 0;
 
-    double time_now = ros::Time::now().toSec();
+    double time_now = tinyros::Time::now().toSec();
     double time_expire = time_now+shadow_time_out_;
 
     const T* depth_img_ptr = (T*)&depth_msg->data[0];
@@ -253,13 +253,13 @@ template<typename T>
 
 
 template<typename T>
-  sensor_msgs::PointCloud2Ptr MultiLayerDepth::generatePointCloudML(const sensor_msgs::ImageConstPtr& depth_msg,
+  tinyros::sensor_msgs::PointCloud2Ptr MultiLayerDepth::generatePointCloudML(const tinyros::sensor_msgs::ImageConstPtr& depth_msg,
                                                                     std::vector<uint32_t>& rgba_color_raw)
   {
     int width = depth_msg->width;
     int height = depth_msg->height;
 
-    sensor_msgs::PointCloud2Ptr cloud_msg = initPointCloud();
+    tinyros::sensor_msgs::PointCloud2Ptr cloud_msg = initPointCloud();
     cloud_msg->data.resize(height * width * cloud_msg->point_step * 2);
 
     uint32_t* color_img_ptr = 0;
@@ -387,7 +387,7 @@ template<typename T>
 
 
 template<typename T>
-void MultiLayerDepth::convertColor(const sensor_msgs::ImageConstPtr& color_msg,
+void MultiLayerDepth::convertColor(const tinyros::sensor_msgs::ImageConstPtr& color_msg,
                                    std::vector<uint32_t>& rgba_color_raw)
   {
     size_t i;
@@ -450,13 +450,13 @@ void MultiLayerDepth::convertColor(const sensor_msgs::ImageConstPtr& color_msg,
 
   }
 
-sensor_msgs::PointCloud2Ptr MultiLayerDepth::generatePointCloudFromDepth(sensor_msgs::ImageConstPtr depth_msg,
-                                                                         sensor_msgs::ImageConstPtr color_msg,
-                                                                         sensor_msgs::CameraInfoConstPtr camera_info_msg)
+tinyros::sensor_msgs::PointCloud2Ptr MultiLayerDepth::generatePointCloudFromDepth(tinyros::sensor_msgs::ImageConstPtr depth_msg,
+                                                                         tinyros::sensor_msgs::ImageConstPtr color_msg,
+                                                                         tinyros::sensor_msgs::CameraInfoConstPtr camera_info_msg)
 {
 
   // Add data to multi depth image
-  sensor_msgs::PointCloud2Ptr point_cloud_out;
+  tinyros::sensor_msgs::PointCloud2Ptr point_cloud_out;
 
   // Bit depth of image encoding
   int bitDepth = enc::bitDepth(depth_msg->encoding);
@@ -538,33 +538,33 @@ sensor_msgs::PointCloud2Ptr MultiLayerDepth::generatePointCloudFromDepth(sensor_
   return point_cloud_out;
 }
 
-sensor_msgs::PointCloud2Ptr MultiLayerDepth::initPointCloud()
+tinyros::sensor_msgs::PointCloud2Ptr MultiLayerDepth::initPointCloud()
 {
-  sensor_msgs::PointCloud2Ptr point_cloud_out = sensor_msgs::PointCloud2Ptr(new sensor_msgs::PointCloud2());
+  tinyros::sensor_msgs::PointCloud2Ptr point_cloud_out = tinyros::sensor_msgs::PointCloud2Ptr(new tinyros::sensor_msgs::PointCloud2());
 
   point_cloud_out->fields.resize(4);
   std::size_t point_offset = 0;
 
   point_cloud_out->fields[0].name = "x";
-  point_cloud_out->fields[0].datatype = sensor_msgs::PointField::FLOAT32;
+  point_cloud_out->fields[0].datatype = tinyros::sensor_msgs::PointField::FLOAT32;
   point_cloud_out->fields[0].count = 1;
   point_cloud_out->fields[0].offset = point_offset;
   point_offset += sizeof(float);
 
   point_cloud_out->fields[1].name = "y";
-  point_cloud_out->fields[1].datatype = sensor_msgs::PointField::FLOAT32;
+  point_cloud_out->fields[1].datatype = tinyros::sensor_msgs::PointField::FLOAT32;
   point_cloud_out->fields[1].count = 1;
   point_cloud_out->fields[1].offset = point_offset;
   point_offset += sizeof(float);
 
   point_cloud_out->fields[2].name = "z";
-  point_cloud_out->fields[2].datatype = sensor_msgs::PointField::FLOAT32;
+  point_cloud_out->fields[2].datatype = tinyros::sensor_msgs::PointField::FLOAT32;
   point_cloud_out->fields[2].count = 1;
   point_cloud_out->fields[2].offset = point_offset;
   point_offset += sizeof(float);
 
   point_cloud_out->fields[3].name = "rgb";
-  point_cloud_out->fields[3].datatype = sensor_msgs::PointField::FLOAT32;
+  point_cloud_out->fields[3].datatype = tinyros::sensor_msgs::PointField::FLOAT32;
   point_cloud_out->fields[3].count = 1;
   point_cloud_out->fields[3].offset = point_offset;
   point_offset += sizeof(float);
@@ -577,7 +577,7 @@ sensor_msgs::PointCloud2Ptr MultiLayerDepth::initPointCloud()
   return point_cloud_out;
 }
 
-void MultiLayerDepth::finalizingPointCloud(sensor_msgs::PointCloud2Ptr& point_cloud, std::size_t size)
+void MultiLayerDepth::finalizingPointCloud(tinyros::sensor_msgs::PointCloud2Ptr& point_cloud, std::size_t size)
 {
   point_cloud->width = size;
   point_cloud->height = 1;

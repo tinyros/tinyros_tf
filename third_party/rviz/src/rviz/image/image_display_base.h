@@ -32,12 +32,8 @@
 #include <QObject>
 
 #ifndef Q_MOC_RUN  // See: https://bugreports.qt-project.org/browse/QTBUG-22829
-# include <message_filters/subscriber.h>
-# include <tf/message_filter.h>
-# include <sensor_msgs/Image.h>
-
-# include <image_transport/image_transport.h>
-# include <image_transport/subscriber_filter.h>
+# include <tiny_ros/tf/message_filter.h>
+# include <tiny_ros/sensor_msgs/Image.h>
 
 # include "rviz/display_context.h"
 # include "rviz/frame_manager.h"
@@ -100,18 +96,15 @@ protected:
   /** @brief Incoming message callback.  Checks if the message pointer
    * is valid, increments messages_received_, then calls
    * processMessage(). */
-  void incomingMessage(const sensor_msgs::Image::ConstPtr& msg);
+  void incomingMessage(const tinyros::sensor_msgs::Image::ConstPtr& msg);
 
   /** @brief Implement this to process the contents of a message.
    *
    * This is called by incomingMessage(). */
-  virtual void processMessage(const sensor_msgs::Image::ConstPtr& msg) = 0;
-
-  void scanForTransportSubscriberPlugins();
-
-  boost::scoped_ptr<image_transport::ImageTransport> it_;
-  boost::shared_ptr<image_transport::SubscriberFilter> sub_;
-  boost::shared_ptr<tf::MessageFilter<sensor_msgs::Image> > tf_filter_;
+  virtual void processMessage(const tinyros::sensor_msgs::Image::ConstPtr& msg) = 0;
+  
+  tinyros::Subscriber<tinyros::sensor_msgs::Image, ImageDisplayBase > *sub_;
+  boost::shared_ptr<tinyros::tf::MessageFilter<tinyros::sensor_msgs::Image> > tf_filter_;
 
   std::string targetFrame_;
 

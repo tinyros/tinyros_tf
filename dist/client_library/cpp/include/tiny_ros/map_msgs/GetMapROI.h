@@ -212,8 +212,9 @@ static const char GETMAPROI[] = "map_msgs/GetMapROI";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::map_msgs::GetMapROIRequest> Ptr;
+    typedef std::shared_ptr<tinyros::map_msgs::GetMapROIRequest const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::map_msgs::GetMapROIRequest> GetMapROIRequestPtr;
 typedef std::shared_ptr<tinyros::map_msgs::GetMapROIRequest const> GetMapROIRequestConstPtr;
 
@@ -283,8 +284,9 @@ typedef std::shared_ptr<tinyros::map_msgs::GetMapROIRequest const> GetMapROIRequ
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::map_msgs::GetMapROIResponse> Ptr;
+    typedef std::shared_ptr<tinyros::map_msgs::GetMapROIResponse const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::map_msgs::GetMapROIResponse> GetMapROIResponsePtr;
 typedef std::shared_ptr<tinyros::map_msgs::GetMapROIResponse const> GetMapROIResponseConstPtr;
 

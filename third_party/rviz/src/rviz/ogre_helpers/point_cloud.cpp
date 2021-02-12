@@ -28,7 +28,7 @@
  */
 
 #include "point_cloud.h"
-#include <ros/assert.h>
+#include <tiny_ros/tf/static_assert.h>
 
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
@@ -325,7 +325,7 @@ void PointCloud::setRenderMode(RenderMode mode)
     geom_support_changed = true;
     current_mode_supports_geometry_shader_ = false;
 
-    ROS_ERROR("No techniques available for material [%s]", current_material_->getName().c_str());
+    tinyros_log_error("No techniques available for material [%s]", current_material_->getName().c_str());
   }
 
   if (geom_support_changed)
@@ -531,10 +531,10 @@ void PointCloud::addPoints(Point* points, uint32_t num_points)
     {
       if (rend)
       {
-        ROS_ASSERT(current_vertex_count == buffer_size);
+        TINYROS_ASSERT(current_vertex_count == buffer_size);
 
         op->vertexData->vertexCount = rend->getBuffer()->getNumVertices() - op->vertexData->vertexStart;
-        ROS_ASSERT(op->vertexData->vertexCount + op->vertexData->vertexStart <= rend->getBuffer()->getNumVertices());
+        TINYROS_ASSERT(op->vertexData->vertexCount + op->vertexData->vertexStart <= rend->getBuffer()->getNumVertices());
         vbuf->unlock();
         rend->setBoundingBox(aabb);
         bounding_box_.merge(aabb);
@@ -600,14 +600,14 @@ void PointCloud::addPoints(Point* points, uint32_t num_points)
       *iptr = color;
       ++fptr;
 
-      ROS_ASSERT((uint8_t*)fptr <= (uint8_t*)vdata + rend->getBuffer()->getNumVertices() * vertex_size);
+      TINYROS_ASSERT((uint8_t*)fptr <= (uint8_t*)vdata + rend->getBuffer()->getNumVertices() * vertex_size);
     }
   }
 
   op->vertexData->vertexCount = current_vertex_count - op->vertexData->vertexStart;
   rend->setBoundingBox(aabb);
   bounding_box_.merge(aabb);
-  ROS_ASSERT(op->vertexData->vertexCount + op->vertexData->vertexStart <= rend->getBuffer()->getNumVertices());
+  TINYROS_ASSERT(op->vertexData->vertexCount + op->vertexData->vertexStart <= rend->getBuffer()->getNumVertices());
 
   vbuf->unlock();
 
@@ -651,7 +651,7 @@ void PointCloud::popPoints(uint32_t num_points)
       renderables_.push_back(rend);
     }
   }
-  ROS_ASSERT(popped_count == num_points * vpp);
+  TINYROS_ASSERT(popped_count == num_points * vpp);
 
   // reset bounds
   bounding_box_.setNull();

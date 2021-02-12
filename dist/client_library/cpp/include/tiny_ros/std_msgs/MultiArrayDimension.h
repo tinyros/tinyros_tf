@@ -113,8 +113,9 @@ namespace std_msgs
     virtual std::string getDefinition(){ return "string label\nuint32 size\nuint32 stride\n"; }
     static std::string getDefinitionStatic(){ return "string label\nuint32 size\nuint32 stride\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::std_msgs::MultiArrayDimension> Ptr;
+    typedef std::shared_ptr<tinyros::std_msgs::MultiArrayDimension const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::std_msgs::MultiArrayDimension> MultiArrayDimensionPtr;
 typedef std::shared_ptr<tinyros::std_msgs::MultiArrayDimension const> MultiArrayDimensionConstPtr;
 

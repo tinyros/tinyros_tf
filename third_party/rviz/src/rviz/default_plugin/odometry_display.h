@@ -37,11 +37,10 @@
 #include <boost/thread/mutex.hpp>
 
 #ifndef Q_MOC_RUN
-#include <message_filters/subscriber.h>
-#include <tf/message_filter.h>
+#include <tiny_ros/tf/message_filter.h>
 #endif
 
-#include <nav_msgs/Odometry.h>
+#include <tiny_ros/nav_msgs/Odometry.h>
 
 #include "rviz/display.h"
 
@@ -88,17 +87,16 @@ private:
   void unsubscribe();
   void clear();
 
-  void incomingMessage( const nav_msgs::Odometry::ConstPtr& message );
-  void transformArrow( const nav_msgs::Odometry::ConstPtr& message, Arrow* arrow );
+  void incomingMessage( const tinyros::nav_msgs::Odometry::ConstPtr& message );
+  void transformArrow( const tinyros::nav_msgs::Odometry::ConstPtr& message, Arrow* arrow );
 
   typedef std::deque<Arrow*> D_Arrow;
   D_Arrow arrows_;
 
   uint32_t messages_received_;
 
-  nav_msgs::Odometry::ConstPtr last_used_message_;
-  message_filters::Subscriber<nav_msgs::Odometry> sub_;
-  tf::MessageFilter<nav_msgs::Odometry>* tf_filter_;
+  tinyros::nav_msgs::Odometry::ConstPtr last_used_message_;
+  tinyros::tf::MessageFilter<tinyros::nav_msgs::Odometry>* tf_filter_;
 
   ColorProperty* color_property_;
   RosTopicProperty* topic_property_;

@@ -65,12 +65,12 @@ void PoseArrayDisplay::onInitialize()
   scene_node_->attachObject( manual_object_ );
 }
 
-bool validateFloats( const geometry_msgs::PoseArray& msg )
+bool validateFloats( const tinyros::geometry_msgs::PoseArray& msg )
 {
   return validateFloats( msg.poses );
 }
 
-void PoseArrayDisplay::processMessage( const geometry_msgs::PoseArray::ConstPtr& msg )
+void PoseArrayDisplay::processMessage( const tinyros::geometry_msgs::PoseArray::ConstPtr& msg )
 {
   if( !validateFloats( *msg ))
   {
@@ -84,7 +84,7 @@ void PoseArrayDisplay::processMessage( const geometry_msgs::PoseArray::ConstPtr&
   Ogre::Quaternion orientation;
   if( !context_->getFrameManager()->getTransform( msg->header, position, orientation ))
   {
-    ROS_DEBUG( "Error transforming from frame '%s' to frame '%s'", msg->header.frame_id.c_str(), qPrintable( fixed_frame_ ));
+    tinyros_log_debug( "Error transforming from frame '%s' to frame '%s'", msg->header.frame_id.c_str(), qPrintable( fixed_frame_ ));
   }
 
   scene_node_->setPosition( position );
@@ -139,5 +139,3 @@ void PoseArrayDisplay::reset()
 
 } // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::PoseArrayDisplay, rviz::Display )

@@ -71,8 +71,9 @@ static const char EMPTY[] = "std_srvs/Empty";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::std_srvs::EmptyRequest> Ptr;
+    typedef std::shared_ptr<tinyros::std_srvs::EmptyRequest const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::std_srvs::EmptyRequest> EmptyRequestPtr;
 typedef std::shared_ptr<tinyros::std_srvs::EmptyRequest const> EmptyRequestConstPtr;
 
@@ -133,8 +134,9 @@ typedef std::shared_ptr<tinyros::std_srvs::EmptyRequest const> EmptyRequestConst
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::std_srvs::EmptyResponse> Ptr;
+    typedef std::shared_ptr<tinyros::std_srvs::EmptyResponse const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::std_srvs::EmptyResponse> EmptyResponsePtr;
 typedef std::shared_ptr<tinyros::std_srvs::EmptyResponse const> EmptyResponseConstPtr;
 

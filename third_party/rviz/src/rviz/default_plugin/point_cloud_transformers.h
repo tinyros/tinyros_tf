@@ -30,7 +30,7 @@
 #ifndef POINT_CLOUD_TRANSFORMERS_H
 #define POINT_CLOUD_TRANSFORMERS_H
 
-#include <sensor_msgs/PointCloud2.h>
+#include <tiny_ros/sensor_msgs/PointCloud2.h>
 
 #include "point_cloud_transformer.h"
 
@@ -45,7 +45,7 @@ class FloatProperty;
 
 typedef std::vector<std::string> V_string; 
 
-inline int32_t findChannelIndex(const sensor_msgs::PointCloud2ConstPtr& cloud, const std::string& channel)
+inline int32_t findChannelIndex(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud, const std::string& channel)
 {
   for (size_t i = 0; i < cloud->fields.size(); ++i)
   {
@@ -59,45 +59,45 @@ inline int32_t findChannelIndex(const sensor_msgs::PointCloud2ConstPtr& cloud, c
 }
 
 template<typename T>
-inline T valueFromCloud(const sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t offset, uint8_t type, uint32_t point_step, uint32_t index)
+inline T valueFromCloud(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t offset, uint8_t type, uint32_t point_step, uint32_t index)
 {
   const uint8_t* data = &cloud->data[(point_step * index) + offset];
   T ret = 0;
 
   switch (type)
   {
-  case sensor_msgs::PointField::INT8:
-  case sensor_msgs::PointField::UINT8:
+  case tinyros::sensor_msgs::PointField::INT8:
+  case tinyros::sensor_msgs::PointField::UINT8:
     {
       uint8_t val = *reinterpret_cast<const uint8_t*>(data);
       ret = static_cast<T>(val);
       break;
     }
 
-  case sensor_msgs::PointField::INT16:
-  case sensor_msgs::PointField::UINT16:
+  case tinyros::sensor_msgs::PointField::INT16:
+  case tinyros::sensor_msgs::PointField::UINT16:
     {
       uint16_t val = *reinterpret_cast<const uint16_t*>(data);
       ret = static_cast<T>(val);
       break;
     }
 
-  case sensor_msgs::PointField::INT32:
-  case sensor_msgs::PointField::UINT32:
+  case tinyros::sensor_msgs::PointField::INT32:
+  case tinyros::sensor_msgs::PointField::UINT32:
     {
       uint32_t val = *reinterpret_cast<const uint32_t*>(data);
       ret = static_cast<T>(val);
       break;
     }
 
-  case sensor_msgs::PointField::FLOAT32:
+  case tinyros::sensor_msgs::PointField::FLOAT32:
     {
       float val = *reinterpret_cast<const float*>(data);
       ret = static_cast<T>(val);
       break;
     }
 
-  case sensor_msgs::PointField::FLOAT64:
+  case tinyros::sensor_msgs::PointField::FLOAT64:
     {
       double val = *reinterpret_cast<const double*>(data);
       ret = static_cast<T>(val);
@@ -114,14 +114,14 @@ class IntensityPCTransformer : public PointCloudTransformer
 {
 Q_OBJECT
 public:
-  virtual uint8_t supports(const sensor_msgs::PointCloud2ConstPtr& cloud);
-  virtual bool transform(const sensor_msgs::PointCloud2ConstPtr& cloud,
+  virtual uint8_t supports(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud);
+  virtual bool transform(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud,
                          uint32_t mask,
                          const Ogre::Matrix4& transform,
                          V_PointCloudPoint& points_out);
-  virtual uint8_t score(const sensor_msgs::PointCloud2ConstPtr& cloud);
+  virtual uint8_t score(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud);
   virtual void createProperties( Property* parent_property, uint32_t mask, QList<Property*>& out_props );
-  void updateChannels(const sensor_msgs::PointCloud2ConstPtr& cloud); 
+  void updateChannels(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud); 
 
 private Q_SLOTS:
   void updateUseRainbow();
@@ -144,8 +144,8 @@ class XYZPCTransformer : public PointCloudTransformer
 {
 Q_OBJECT
 public:
-  virtual uint8_t supports(const sensor_msgs::PointCloud2ConstPtr& cloud);
-  virtual bool transform(const sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t mask, const Ogre::Matrix4& transform, V_PointCloudPoint& points_out);
+  virtual uint8_t supports(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud);
+  virtual bool transform(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t mask, const Ogre::Matrix4& transform, V_PointCloudPoint& points_out);
 };
 
 
@@ -154,8 +154,8 @@ class RGB8PCTransformer : public PointCloudTransformer
 {
 Q_OBJECT
 public:
-  virtual uint8_t supports(const sensor_msgs::PointCloud2ConstPtr& cloud);
-  virtual bool transform(const sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t mask, const Ogre::Matrix4& transform, V_PointCloudPoint& points_out);
+  virtual uint8_t supports(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud);
+  virtual bool transform(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t mask, const Ogre::Matrix4& transform, V_PointCloudPoint& points_out);
 };
 
 
@@ -164,8 +164,8 @@ class RGBF32PCTransformer : public PointCloudTransformer
 {
 Q_OBJECT
 public:
-  virtual uint8_t supports(const sensor_msgs::PointCloud2ConstPtr& cloud);
-  virtual bool transform(const sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t mask, const Ogre::Matrix4& transform, V_PointCloudPoint& points_out);
+  virtual uint8_t supports(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud);
+  virtual bool transform(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t mask, const Ogre::Matrix4& transform, V_PointCloudPoint& points_out);
 };
 
 
@@ -174,10 +174,10 @@ class FlatColorPCTransformer : public PointCloudTransformer
 {
 Q_OBJECT
 public:
-  virtual uint8_t supports(const sensor_msgs::PointCloud2ConstPtr& cloud);
-  virtual bool transform(const sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t mask, const Ogre::Matrix4& transform, V_PointCloudPoint& points_out);
+  virtual uint8_t supports(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud);
+  virtual bool transform(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t mask, const Ogre::Matrix4& transform, V_PointCloudPoint& points_out);
   virtual void createProperties( Property* parent_property, uint32_t mask, QList<Property*>& out_props );
-  virtual uint8_t score(const sensor_msgs::PointCloud2ConstPtr& cloud);
+  virtual uint8_t score(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud);
 
 private:
   ColorProperty* color_property_;
@@ -187,10 +187,10 @@ class AxisColorPCTransformer : public PointCloudTransformer
 {
 Q_OBJECT
 public:
-  virtual uint8_t supports(const sensor_msgs::PointCloud2ConstPtr& cloud);
-  virtual bool transform(const sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t mask, const Ogre::Matrix4& transform, V_PointCloudPoint& points_out);
+  virtual uint8_t supports(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud);
+  virtual bool transform(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t mask, const Ogre::Matrix4& transform, V_PointCloudPoint& points_out);
   virtual void createProperties( Property* parent_property, uint32_t mask, QList<Property*>& out_props );
-  virtual uint8_t score(const sensor_msgs::PointCloud2ConstPtr& cloud);
+  virtual uint8_t score(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud);
 
   enum Axis
   {

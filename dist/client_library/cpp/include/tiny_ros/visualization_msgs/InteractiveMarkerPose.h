@@ -101,8 +101,9 @@ namespace visualization_msgs
     virtual std::string getDefinition(){ return "Header header\ngeometry_msgs/Pose pose\nstring name\n"; }
     static std::string getDefinitionStatic(){ return "Header header\ngeometry_msgs/Pose pose\nstring name\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::visualization_msgs::InteractiveMarkerPose> Ptr;
+    typedef std::shared_ptr<tinyros::visualization_msgs::InteractiveMarkerPose const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::visualization_msgs::InteractiveMarkerPose> InteractiveMarkerPosePtr;
 typedef std::shared_ptr<tinyros::visualization_msgs::InteractiveMarkerPose const> InteractiveMarkerPoseConstPtr;
 

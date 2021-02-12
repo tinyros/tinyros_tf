@@ -168,8 +168,9 @@ namespace trajectory_msgs
     virtual std::string getDefinition(){ return "Header header\nstring[] joint_names\nJointTrajectoryPoint[] points\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nstring[] joint_names\nJointTrajectoryPoint[] points\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::trajectory_msgs::JointTrajectory> Ptr;
+    typedef std::shared_ptr<tinyros::trajectory_msgs::JointTrajectory const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::trajectory_msgs::JointTrajectory> JointTrajectoryPtr;
 typedef std::shared_ptr<tinyros::trajectory_msgs::JointTrajectory const> JointTrajectoryConstPtr;
 

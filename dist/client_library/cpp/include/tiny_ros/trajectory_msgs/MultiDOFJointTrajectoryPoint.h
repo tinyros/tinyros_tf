@@ -199,8 +199,9 @@ namespace trajectory_msgs
     virtual std::string getDefinition(){ return "geometry_msgs/Transform[] transforms\ngeometry_msgs/Twist[] velocities\ngeometry_msgs/Twist[] accelerations\nduration time_from_start\n"; }
     static std::string getDefinitionStatic(){ return "geometry_msgs/Transform[] transforms\ngeometry_msgs/Twist[] velocities\ngeometry_msgs/Twist[] accelerations\nduration time_from_start\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::trajectory_msgs::MultiDOFJointTrajectoryPoint> Ptr;
+    typedef std::shared_ptr<tinyros::trajectory_msgs::MultiDOFJointTrajectoryPoint const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::trajectory_msgs::MultiDOFJointTrajectoryPoint> MultiDOFJointTrajectoryPointPtr;
 typedef std::shared_ptr<tinyros::trajectory_msgs::MultiDOFJointTrajectoryPoint const> MultiDOFJointTrajectoryPointConstPtr;
 

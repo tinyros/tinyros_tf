@@ -246,8 +246,9 @@ namespace gazebo_msgs
     virtual std::string getDefinition(){ return "Header header\nstring[] name\ngeometry_msgs/Pose[] pose\ngeometry_msgs/Twist[] twist\ngeometry_msgs/Wrench[] wrench\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nstring[] name\ngeometry_msgs/Pose[] pose\ngeometry_msgs/Twist[] twist\ngeometry_msgs/Wrench[] wrench\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::WorldState> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::WorldState const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::WorldState> WorldStatePtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::WorldState const> WorldStateConstPtr;
 

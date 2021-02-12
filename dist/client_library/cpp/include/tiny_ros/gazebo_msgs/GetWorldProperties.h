@@ -71,8 +71,9 @@ static const char GETWORLDPROPERTIES[] = "gazebo_msgs/GetWorldProperties";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesRequest> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesRequest const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesRequest> GetWorldPropertiesRequestPtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesRequest const> GetWorldPropertiesRequestConstPtr;
 
@@ -304,8 +305,9 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesRequest const> G
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesResponse> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesResponse const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesResponse> GetWorldPropertiesResponsePtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::GetWorldPropertiesResponse const> GetWorldPropertiesResponseConstPtr;
 

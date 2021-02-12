@@ -279,8 +279,9 @@ namespace smach_msgs
     virtual std::string getDefinition(){ return "Header header\nstring path\nstring[] initial_states\nstring[] active_states\nstring local_data\nstring info\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nstring path\nstring[] initial_states\nstring[] active_states\nstring local_data\nstring info\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::smach_msgs::SmachContainerStatus> Ptr;
+    typedef std::shared_ptr<tinyros::smach_msgs::SmachContainerStatus const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::smach_msgs::SmachContainerStatus> SmachContainerStatusPtr;
 typedef std::shared_ptr<tinyros::smach_msgs::SmachContainerStatus const> SmachContainerStatusConstPtr;
 

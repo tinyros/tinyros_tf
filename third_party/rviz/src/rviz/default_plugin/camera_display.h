@@ -37,10 +37,9 @@
 #include <OgreRenderTargetListener.h>
 #include <OgreSharedPtr.h>
 
-# include <sensor_msgs/CameraInfo.h>
-
-# include <message_filters/subscriber.h>
-# include <tf/message_filter.h>
+# include <tiny_ros/ros.h>
+# include <tiny_ros/sensor_msgs/CameraInfo.h>
+# include <tiny_ros/tf/message_filter.h>
 
 # include "rviz/image/image_display_base.h"
 # include "rviz/image/ros_image_texture.h"
@@ -108,8 +107,8 @@ private:
   void subscribe();
   void unsubscribe();
 
-  virtual void processMessage(const sensor_msgs::Image::ConstPtr& msg);
-  void caminfoCallback( const sensor_msgs::CameraInfo::ConstPtr& msg );
+  virtual void processMessage(const tinyros::sensor_msgs::ImageConstPtr& msg);
+  void caminfoCallback( const tinyros::sensor_msgs::CameraInfoConstPtr& msg );
 
   bool updateCamera();
 
@@ -125,15 +124,14 @@ private:
   Ogre::Rectangle2D* fg_screen_rect_;
   Ogre::MaterialPtr fg_material_;
 
-  message_filters::Subscriber<sensor_msgs::CameraInfo> caminfo_sub_;
-  tf::MessageFilter<sensor_msgs::CameraInfo>* caminfo_tf_filter_;
+  tinyros::tf::MessageFilter<sensor_msgs::CameraInfo>* caminfo_tf_filter_;
 
   FloatProperty* alpha_property_;
   EnumProperty* image_position_property_;
   FloatProperty* zoom_property_;
   DisplayGroupVisibilityProperty* visibility_property_;
 
-  sensor_msgs::CameraInfo::ConstPtr current_caminfo_;
+  tinyros::sensor_msgs::CameraInfoConstPtr current_caminfo_;
   boost::mutex caminfo_mutex_;
 
   bool new_caminfo_;

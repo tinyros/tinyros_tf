@@ -37,12 +37,11 @@
 #include <boost/shared_ptr.hpp>
 
 #ifndef Q_MOC_RUN
-#include <tf/message_filter.h>
-#include <message_filters/subscriber.h>
+#include <tiny_ros/tf/message_filter.h>
 #endif
 
-#include <visualization_msgs/Marker.h>
-#include <visualization_msgs/MarkerArray.h>
+#include <tiny_ros/visualization_msgs/Marker.h>
+#include <tiny_ros/visualization_msgs/MarkerArray.h>
 
 #include "rviz/display.h"
 #include "rviz/properties/bool_property.h"
@@ -106,9 +105,9 @@ protected:
   virtual void unsubscribe();
 
   /** @brief Process a MarkerArray message. */
-  void incomingMarkerArray( const visualization_msgs::MarkerArray::ConstPtr& array );
+  void incomingMarkerArray( const tinyros::visualization_msgs::MarkerArray::ConstPtr& array );
 
-  ros::Subscriber array_sub_;
+  tinyros::Subscriber<tinyros::visualization_msgs::MarkerArray, MarkerDisplay> *array_sub_;
 
   RosTopicProperty* marker_topic_property_;
   IntProperty* queue_size_property_;
@@ -130,37 +129,36 @@ private:
    * \brief Processes a marker message
    * @param message The message to process
    */
-  void processMessage( const visualization_msgs::Marker::ConstPtr& message );
+  void processMessage( const tinyros::visualization_msgs::Marker::ConstPtr& message );
   /**
    * \brief Processes an "Add" marker message
    * @param message The message to process
    */
-  void processAdd( const visualization_msgs::Marker::ConstPtr& message );
+  void processAdd( const tinyros::visualization_msgs::Marker::ConstPtr& message );
   /**
    * \brief Processes a "Delete" marker message
    * @param message The message to process
    */
-  void processDelete( const visualization_msgs::Marker::ConstPtr& message );
+  void processDelete( const tinyros::visualization_msgs::Marker::ConstPtr& message );
 
   /**
    * \brief ROS callback notifying us of a new marker
    */
-  void incomingMarker(const visualization_msgs::Marker::ConstPtr& marker);
+  void incomingMarker(const tinyros::visualization_msgs::Marker::ConstPtr& marker);
 
-  void failedMarker(const ros::MessageEvent<visualization_msgs::Marker>& marker_evt, tf::FilterFailureReason reason);
+  void failedMarker(const ros::MessageEvent<tinyros::visualization_msgs::Marker>& marker_evt, tinyros::tf::FilterFailureReason reason);
 
   typedef std::map<MarkerID, MarkerBasePtr> M_IDToMarker;
   typedef std::set<MarkerBasePtr> S_MarkerBase;
   M_IDToMarker markers_;                                ///< Map of marker id to the marker info structure
   S_MarkerBase markers_with_expiration_;
   S_MarkerBase frame_locked_markers_;
-  typedef std::vector<visualization_msgs::Marker::ConstPtr> V_MarkerMessage;
+  typedef std::vector<tinyros::visualization_msgs::Marker::ConstPtr> V_MarkerMessage;
   V_MarkerMessage message_queue_;                       ///< Marker message queue.  Messages are added to this as they are received, and then processed
                                                         ///< in our update() function
   boost::mutex queue_mutex_;
 
-  message_filters::Subscriber<visualization_msgs::Marker> sub_;
-  tf::MessageFilter<visualization_msgs::Marker>* tf_filter_;
+  tinyros::tf::MessageFilter<tinyros::visualization_msgs::Marker>* tf_filter_;
 
   typedef QHash<QString, MarkerNamespace*> M_Namespace;
   M_Namespace namespaces_;

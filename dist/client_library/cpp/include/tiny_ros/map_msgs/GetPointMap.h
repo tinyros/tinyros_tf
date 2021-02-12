@@ -72,8 +72,9 @@ static const char GETPOINTMAP[] = "map_msgs/GetPointMap";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::map_msgs::GetPointMapRequest> Ptr;
+    typedef std::shared_ptr<tinyros::map_msgs::GetPointMapRequest const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::map_msgs::GetPointMapRequest> GetPointMapRequestPtr;
 typedef std::shared_ptr<tinyros::map_msgs::GetPointMapRequest const> GetPointMapRequestConstPtr;
 
@@ -143,8 +144,9 @@ typedef std::shared_ptr<tinyros::map_msgs::GetPointMapRequest const> GetPointMap
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::map_msgs::GetPointMapResponse> Ptr;
+    typedef std::shared_ptr<tinyros::map_msgs::GetPointMapResponse const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::map_msgs::GetPointMapResponse> GetPointMapResponsePtr;
 typedef std::shared_ptr<tinyros::map_msgs::GetPointMapResponse const> GetPointMapResponseConstPtr;
 

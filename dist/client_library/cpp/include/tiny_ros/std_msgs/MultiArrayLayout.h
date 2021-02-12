@@ -108,8 +108,9 @@ namespace std_msgs
     virtual std::string getDefinition(){ return "MultiArrayDimension[] dim\nuint32 data_offset\n"; }
     static std::string getDefinitionStatic(){ return "MultiArrayDimension[] dim\nuint32 data_offset\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::std_msgs::MultiArrayLayout> Ptr;
+    typedef std::shared_ptr<tinyros::std_msgs::MultiArrayLayout const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::std_msgs::MultiArrayLayout> MultiArrayLayoutPtr;
 typedef std::shared_ptr<tinyros::std_msgs::MultiArrayLayout const> MultiArrayLayoutConstPtr;
 

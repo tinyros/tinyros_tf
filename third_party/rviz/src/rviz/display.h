@@ -32,7 +32,7 @@
 #include <string>
 
 #ifndef Q_MOC_RUN  // See: https://bugreports.qt-project.org/browse/QTBUG-22829
-# include <ros/ros.h>
+# include <tiny_ros/ros.h>
 #endif
 
 #include "rviz/properties/status_property.h"
@@ -51,7 +51,7 @@ class SceneNode;
 }
 
 // needed for timeSignal
-Q_DECLARE_METATYPE(ros::Time);
+Q_DECLARE_METATYPE(tinyros::Time);
 
 namespace rviz
 {
@@ -254,16 +254,6 @@ protected:
 
   /** @brief The Ogre::SceneNode to hold all 3D scene elements shown by this Display. */
   Ogre::SceneNode* scene_node_;
-
-  /** @brief A NodeHandle whose CallbackQueue is run from the main GUI thread (the "update" thread).
-   *
-   * This is configured after the constructor and before onInitialize() is called. */
-  ros::NodeHandle update_nh_;
-
-  /** @brief A NodeHandle whose CallbackQueue is run from a different thread than the GUI.
-   *
-   * This is configured after the constructor and before onInitialize() is called. */
-  ros::NodeHandle threaded_nh_;
 
   /** @brief A convenience variable equal to context_->getFixedFrame().
    *

@@ -66,11 +66,11 @@ void ShapeMarker::onNewMessage( const MarkerConstPtr& old_message,
     Shape::Type shape_type = Shape::Cube;
     switch( new_message->type )
     {
-    case visualization_msgs::Marker::CUBE:     shape_type = Shape::Cube;     break;
-    case visualization_msgs::Marker::CYLINDER: shape_type = Shape::Cylinder; break;
-    case visualization_msgs::Marker::SPHERE:   shape_type = Shape::Sphere;   break;
+    case tinyros::visualization_msgs::Marker::CUBE:     shape_type = Shape::Cube;     break;
+    case tinyros::visualization_msgs::Marker::CYLINDER: shape_type = Shape::Cylinder; break;
+    case tinyros::visualization_msgs::Marker::SPHERE:   shape_type = Shape::Sphere;   break;
     default:
-      ROS_BREAK();
+      TINYROS_BREAK();
       break;
     }
     shape_ = new Shape( shape_type, context_->getSceneManager(), scene_node_ );

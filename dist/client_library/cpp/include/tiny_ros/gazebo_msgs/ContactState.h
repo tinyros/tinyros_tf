@@ -327,8 +327,9 @@ namespace gazebo_msgs
     virtual std::string getDefinition(){ return "string info\nstring collision1_name\nstring collision2_name\ngeometry_msgs/Wrench[] wrenches\ngeometry_msgs/Wrench total_wrench\ngeometry_msgs/Vector3[] contact_positions\ngeometry_msgs/Vector3[] contact_normals\nfloat64[] depths\n"; }
     static std::string getDefinitionStatic(){ return "string info\nstring collision1_name\nstring collision2_name\ngeometry_msgs/Wrench[] wrenches\ngeometry_msgs/Wrench total_wrench\ngeometry_msgs/Vector3[] contact_positions\ngeometry_msgs/Vector3[] contact_normals\nfloat64[] depths\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::ContactState> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::ContactState const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::ContactState> ContactStatePtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::ContactState const> ContactStateConstPtr;
 

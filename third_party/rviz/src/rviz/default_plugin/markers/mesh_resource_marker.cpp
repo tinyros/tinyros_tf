@@ -87,7 +87,7 @@ void MeshResourceMarker::reset()
 
 void MeshResourceMarker::onNewMessage(const MarkerConstPtr& old_message, const MarkerConstPtr& new_message)
 {
-  ROS_ASSERT(new_message->type == visualization_msgs::Marker::MESH_RESOURCE);
+  TINYROS_ASSERT(new_message->type == tinyros::visualization_msgs::Marker::MESH_RESOURCE);
 
   // flag indicating if the mesh material color needs to be updated
   bool update_color = false;
@@ -134,7 +134,7 @@ void MeshResourceMarker::onNewMessage(const MarkerConstPtr& old_message, const M
       {
         owner_->setMarkerStatus(getID(), StatusProperty::Error, ss.str());
       }
-      ROS_DEBUG("%s", ss.str().c_str());
+      tinyros_log_debug("%s", ss.str().c_str());
       return;
     }
 

@@ -37,6 +37,7 @@
 #include "rviz/viewport_mouse_event.h"
 #include "rviz/load_resource.h"
 #include "rviz/render_panel.h"
+#include <tiny_ros/tf/static_assert.h>
 
 #include "rviz/default_plugin/tools/pose_tool.h"
 
@@ -78,7 +79,7 @@ int PoseTool::processMouseEvent( ViewportMouseEvent& event )
 
   if( event.leftDown() )
   {
-    ROS_ASSERT( state_ == Position );
+    TINYROS_ASSERT( state_ == Position );
 
     Ogre::Vector3 intersection;
     Ogre::Plane ground_plane( Ogre::Vector3::UNIT_Z, 0.0f );

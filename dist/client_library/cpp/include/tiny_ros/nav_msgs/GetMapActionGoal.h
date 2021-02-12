@@ -83,8 +83,9 @@ namespace nav_msgs
     virtual std::string getDefinition(){ return "Header header\nactionlib_msgs/GoalID goal_id\nGetMapGoal goal\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nactionlib_msgs/GoalID goal_id\nGetMapGoal goal\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::nav_msgs::GetMapActionGoal> Ptr;
+    typedef std::shared_ptr<tinyros::nav_msgs::GetMapActionGoal const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::nav_msgs::GetMapActionGoal> GetMapActionGoalPtr;
 typedef std::shared_ptr<tinyros::nav_msgs::GetMapActionGoal const> GetMapActionGoalConstPtr;
 

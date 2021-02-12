@@ -1,7 +1,7 @@
 #ifndef EFFORT_VISUAL_H
 #define EFFORT_VISUAL_H
 
-#include <sensor_msgs/JointState.h>
+#include <tiny_ros/sensor_msgs/JointState.h>
 
 namespace Ogre
 {
@@ -41,7 +41,7 @@ public:
     // set rainbow color
     void getRainbowColor(float value, Ogre::ColourValue& color);
     // Configure the visual to show the data in the message.
-    void setMessage( const sensor_msgs::JointStateConstPtr& msg );
+    void setMessage( const tinyros::sensor_msgs::JointStateConstPtr& msg );
 
     // Set the pose of the coordinate frame the message refers to.
     // These could be done inside setMessage(), but that would require

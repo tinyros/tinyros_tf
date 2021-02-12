@@ -73,8 +73,9 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Header header\nTwistWithCovariance twist\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nTwistWithCovariance twist\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::geometry_msgs::TwistWithCovarianceStamped> Ptr;
+    typedef std::shared_ptr<tinyros::geometry_msgs::TwistWithCovarianceStamped const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::geometry_msgs::TwistWithCovarianceStamped> TwistWithCovarianceStampedPtr;
 typedef std::shared_ptr<tinyros::geometry_msgs::TwistWithCovarianceStamped const> TwistWithCovarianceStampedConstPtr;
 

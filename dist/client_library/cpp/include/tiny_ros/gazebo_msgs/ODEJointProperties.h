@@ -703,8 +703,9 @@ namespace gazebo_msgs
     virtual std::string getDefinition(){ return "float64[] damping\nfloat64[] hiStop\nfloat64[] loStop\nfloat64[] erp\nfloat64[] cfm\nfloat64[] stop_erp\nfloat64[] stop_cfm\nfloat64[] fudge_factor\nfloat64[] fmax\nfloat64[] vel\n"; }
     static std::string getDefinitionStatic(){ return "float64[] damping\nfloat64[] hiStop\nfloat64[] loStop\nfloat64[] erp\nfloat64[] cfm\nfloat64[] stop_erp\nfloat64[] stop_cfm\nfloat64[] fudge_factor\nfloat64[] fmax\nfloat64[] vel\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::ODEJointProperties> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::ODEJointProperties const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::ODEJointProperties> ODEJointPropertiesPtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::ODEJointProperties const> ODEJointPropertiesConstPtr;
 

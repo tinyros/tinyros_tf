@@ -54,7 +54,7 @@ LineListMarker::~LineListMarker()
 
 void LineListMarker::onNewMessage(const MarkerConstPtr& old_message, const MarkerConstPtr& new_message)
 {
-  ROS_ASSERT(new_message->type == visualization_msgs::Marker::LINE_LIST);
+  TINYROS_ASSERT(new_message->type == tinyros::visualization_msgs::Marker::LINE_LIST);
 
   if (!lines_)
   {
@@ -86,8 +86,8 @@ void LineListMarker::onNewMessage(const MarkerConstPtr& old_message, const Marke
     lines_->setNumLines(new_message->points.size() / 2);
 
     size_t i = 0;
-    std::vector<geometry_msgs::Point>::const_iterator it = new_message->points.begin();
-    std::vector<geometry_msgs::Point>::const_iterator end = new_message->points.end();
+    std::vector<tinyros::geometry_msgs::Point>::const_iterator it = new_message->points.begin();
+    std::vector<tinyros::geometry_msgs::Point>::const_iterator end = new_message->points.end();
     for ( ; it != end; )
     {
       if (it != new_message->points.begin())
@@ -97,12 +97,12 @@ void LineListMarker::onNewMessage(const MarkerConstPtr& old_message, const Marke
 
       for (uint32_t j = 0; j < 2; ++j, ++it, ++i)
       {
-        const geometry_msgs::Point& p = *it;
+        const tinyros::geometry_msgs::Point& p = *it;
 
         Ogre::ColourValue c;
         if (has_per_point_color)
         {
-          const std_msgs::ColorRGBA& color = new_message->colors[i];
+          const tinyros::std_msgs::ColorRGBA& color = new_message->colors[i];
           c.r = color.r;
           c.g = color.g;
           c.b = color.b;
@@ -132,7 +132,7 @@ void LineListMarker::onNewMessage(const MarkerConstPtr& old_message, const Marke
     {
       owner_->setMarkerStatus(getID(), StatusProperty::Error, ss.str());
     }
-    ROS_DEBUG("%s", ss.str().c_str());
+    tinyros_log_debug("%s", ss.str().c_str());
   }
 }
 

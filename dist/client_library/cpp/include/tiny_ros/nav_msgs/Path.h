@@ -102,8 +102,9 @@ namespace nav_msgs
     virtual std::string getDefinition(){ return "Header header\ngeometry_msgs/PoseStamped[] poses\n"; }
     static std::string getDefinitionStatic(){ return "Header header\ngeometry_msgs/PoseStamped[] poses\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::nav_msgs::Path> Ptr;
+    typedef std::shared_ptr<tinyros::nav_msgs::Path const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::nav_msgs::Path> PathPtr;
 typedef std::shared_ptr<tinyros::nav_msgs::Path const> PathConstPtr;
 

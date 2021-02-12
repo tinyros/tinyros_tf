@@ -30,7 +30,7 @@
 #ifndef RVIZ_POINT_CLOUD2_DISPLAY_H
 #define RVIZ_POINT_CLOUD2_DISPLAY_H
 
-#include <sensor_msgs/PointCloud2.h>
+#include <tiny_ros/sensor_msgs/PointCloud2.h>
 
 #include "rviz/message_filter_display.h"
 
@@ -48,7 +48,7 @@ class PointCloudCommon;
  * If you set the channel's name to "rgb", it will interpret the channel as an integer rgb value, with r, g and b
  * all being 8 bits.
  */
-class PointCloud2Display: public MessageFilterDisplay<sensor_msgs::PointCloud2>
+class PointCloud2Display: public MessageFilterDisplay<tinyros::sensor_msgs::PointCloud2>
 {
 Q_OBJECT
 public:
@@ -67,7 +67,7 @@ protected:
   virtual void onInitialize();
 
   /** @brief Process a single message.  Overridden from MessageFilterDisplay. */
-  virtual void processMessage( const sensor_msgs::PointCloud2ConstPtr& cloud );
+  virtual void processMessage( const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud );
 
   IntProperty* queue_size_property_;
 

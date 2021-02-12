@@ -30,8 +30,8 @@
 #include "load_resource.h"
 
 #include <boost/filesystem.hpp>
-#include <ros/package.h>
-#include <ros/ros.h>
+#include <tiny_ros/ros.h>
+#include <tiny_ros/package.h>
 
 #include <QPixmapCache>
 #include <QPainter>
@@ -47,7 +47,7 @@ boost::filesystem::path getPath( QString url )
   {
     QString package_name = url.section('/',2,2);
     QString file_name = url.section('/',3);
-    path = ros::package::getPath(package_name.toStdString());
+    path = tinyros::package::getPath(package_name.toStdString());
     path = path / file_name.toStdString();
   }
   else if ( url.indexOf("file://", 0, Qt::CaseInsensitive) == 0 )
@@ -56,7 +56,7 @@ boost::filesystem::path getPath( QString url )
   }
   else
   {
-    ROS_ERROR( "Invalid or unsupported URL: '%s'", url.toStdString().c_str() );
+    tinyros_log_error( "Invalid or unsupported URL: '%s'", url.toStdString().c_str() );
   }
 
   return path;
@@ -79,10 +79,10 @@ QPixmap loadPixmap( QString url, bool fill_cache )
   // so the error won't appear again anytime soon.
   if ( boost::filesystem::exists( path ) )
   {
-    ROS_DEBUG_NAMED( "load_resource", "Loading '%s'", path.string().c_str() );
+    tinyros_log_debug( "load_resource: Loading '%s'", path.string().c_str() );
     if ( !pixmap.load( QString::fromStdString( path.string() ) ) )
     {
-      ROS_ERROR( "Could not load pixmap '%s'", path.string().c_str() );
+      tinyros_log_error( "Could not load pixmap '%s'", path.string().c_str() );
     }
   }
 
@@ -104,7 +104,7 @@ QCursor makeIconCursor( QString url, bool fill_cache )
   QPixmap icon = loadPixmap( url, fill_cache );
   if (icon.width() == 0 || icon.height() == 0)
   {
-    ROS_ERROR( "Could not load pixmap '%s' -- using default cursor instead.", url.toStdString().c_str() );
+    tinyros_log_error( "Could not load pixmap '%s' -- using default cursor instead.", url.toStdString().c_str() );
     return getDefaultCursor();
   }
   QString cache_key = url + ".cursor";

@@ -1,7 +1,7 @@
 #include <OgreSceneNode.h>
 #include <OgreSceneManager.h>
 
-#include <tf/transform_listener.h>
+#include <tiny_ros/tf/transform_listener.h>
 
 #include <rviz/visualization_manager.h>
 #include <rviz/properties/color_property.h>
@@ -24,7 +24,7 @@ namespace rviz
         name_ = name;
         effort_ = 0;
         max_effort_ = 0;
-        last_update_ = ros::Time::now();
+        last_update_ = tinyros::Time::now();
 
         //info->category_ = new Property( QString::fromStdString( info->name_ ) , QVariant(), "", joints_category_);
         category_ = new rviz::Property( QString::fromStdString( name_ ) , true, "", parent_category, SLOT( updateVisibility() ), this);
@@ -80,23 +80,23 @@ namespace rviz
     ///
     EffortDisplay::EffortDisplay()
     {
-	alpha_property_ =
-	    new rviz::FloatProperty( "Alpha", 1.0,
+    alpha_property_ =
+        new rviz::FloatProperty( "Alpha", 1.0,
                                      "0 is fully transparent, 1.0 is fully opaque.",
                                      this, SLOT( updateColorAndAlpha() ));
 
-	width_property_ =
-	    new rviz::FloatProperty( "Width", 0.02,
+    width_property_ =
+        new rviz::FloatProperty( "Width", 0.02,
                                      "Width to drow effort circle",
                                      this, SLOT( updateColorAndAlpha() ));
 
-	scale_property_ =
-	    new rviz::FloatProperty( "Scale", 1.0,
+    scale_property_ =
+        new rviz::FloatProperty( "Scale", 1.0,
                                      "Scale to drow effort circle",
                                      this, SLOT( updateColorAndAlpha() ));
 
-	history_length_property_ =
-	    new rviz::IntProperty( "History Length", 1,
+    history_length_property_ =
+        new rviz::IntProperty( "History Length", 1,
                                    "Number of prior measurements to display.",
                                    this, SLOT( updateHistoryLength() ));
         history_length_property_->setMin( 1 );
@@ -167,50 +167,42 @@ namespace rviz
 
     void EffortDisplay::load()
     {
-	// get robot_description
-	std::string content;
-	if (!update_nh_.getParam( robot_description_property_->getStdString(), content) )  {
-            std::string loc;
-            if( update_nh_.searchParam( robot_description_property_->getStdString(), loc ))
-                {
-                    update_nh_.getParam( loc, content );
-                }
-            else
-                {
-                    clear();
-                    setStatus( rviz::StatusProperty::Error, "URDF",
-                               "Parameter [" + robot_description_property_->getString()
-                               + "] does not exist, and was not found by searchParam()" );
-                    return;
-                }
-            }
+        // get robot_description
+        std::string content;
+        if (!tinyros::param::get( robot_description_property_->getStdString(), content) )  {
+            clear();
+            setStatus( rviz::StatusProperty::Error, "URDF",
+                       "Parameter [" + robot_description_property_->getString()
+                       + "] does not exist, and was not found by searchParam()" );
+            return;
+        }
 
         if( content.empty() )
-            {
-                clear();
-                setStatus( rviz::StatusProperty::Error, "URDF", "URDF is empty" );
-                return;
-            }
+        {
+            clear();
+            setStatus( rviz::StatusProperty::Error, "URDF", "URDF is empty" );
+            return;
+        }
 
         if( content == robot_description_ )
-            {
-                return;
-            }
+        {
+            return;
+        }
 
         robot_description_ = content;
 
 
-	robot_model_ = boost::shared_ptr<urdf::Model>(new urdf::Model());
-	if (!robot_model_->initString(content))
-	{
-	    ROS_ERROR("Unable to parse URDF description!");
-            setStatus( rviz::StatusProperty::Error, "URDF", "Unable to parse robot model description!");
-	    return;
-	}
+        robot_model_ = boost::shared_ptr<urdf::Model>(new urdf::Model());
+        if (!robot_model_->initString(content))
+        {
+            tinyros_log_error("Unable to parse URDF description!");
+                setStatus( rviz::StatusProperty::Error, "URDF", "Unable to parse robot model description!");
+            return;
+        }
         setStatus(rviz::StatusProperty::Ok, "URDF", "Robot model parserd Ok");
-    for (std::map<std::string, urdf::JointSharedPtr >::iterator it = robot_model_->joints_.begin(); it != robot_model_->joints_.end(); it ++ ) {
-        urdf::JointSharedPtr joint = it->second;
-	    if ( joint->type == urdf::Joint::REVOLUTE ) {
+        for (std::map<std::string, urdf::JointSharedPtr >::iterator it = robot_model_->joints_.begin(); it != robot_model_->joints_.end(); it ++ ) {
+            urdf::JointSharedPtr joint = it->second;
+              if ( joint->type == urdf::Joint::REVOLUTE ) {
                 std::string joint_name = it->first;
                 urdf::JointLimitsSharedPtr limit = joint->limits;
                 joints_[joint_name] = createJoint(joint_name);
@@ -231,41 +223,8 @@ namespace rviz
         clear();
     }
 
-#if 0
-    void EffortDisplay::setRobotDescription( const std::string& description_param )
-    {
-        description_param_ = description_param;
-
-        propertyChanged(robot_description_property_);
-
-        if ( isEnabled() )
-            {
-                load();
-                unsubscribe();
-                subscribe();
-                causeRender();
-            }
-    }
-
-    void EffortDisplay::setAllEnabled(bool enabled)
-    {
-        all_enabled_ = enabled;
-
-        M_JointInfo::iterator it = joints_.begin();
-        M_JointInfo::iterator end = joints_.end();
-        for (; it != end; ++it)
-            {
-                JointInfo* joint = it->second;
-
-                setJointEnabled(joint, enabled);
-            }
-
-        propertyChanged(all_enabled_property_);
-    }
-
-#endif
     // This is our callback to handle an incoming message.
-    void EffortDisplay::processMessage( const sensor_msgs::JointState::ConstPtr& msg )
+    void EffortDisplay::processMessage( const tinyros::sensor_msgs::JointStateConstPtr& msg )
     {
         // Robot model might not be loaded already
         if (!robot_model_)
@@ -289,7 +248,7 @@ namespace rviz
         if (joint_num != msg->effort.size())
         {
             std::string tmp_error = "Received a joint state msg with different joint names and efforts size!";
-            ROS_ERROR("%s", tmp_error.c_str());
+            tinyros_log_error("%s", tmp_error.c_str());
             setStatus(rviz::StatusProperty::Error, "TOPIC", QString::fromStdString(tmp_error));
             return;
         }
@@ -303,65 +262,57 @@ namespace rviz
             joint_info->setEffort(msg->effort[i]);
 
             // update effort property ???
-            if ((ros::Time::now() - joint_info->last_update_) > ros::Duration(0.2))
+            if ((tinyros::Time::now() - joint_info->last_update_) > tinyros::Duration(0.2))
             {
-                joint_info->last_update_ = ros::Time::now();
+                joint_info->last_update_ = tinyros::Time::now();
             }
 
-	    const urdf::Joint* joint = robot_model_->getJoint(joint_name).get();
-	    int joint_type = joint->type;
-	    if ( joint_type == urdf::Joint::REVOLUTE )
-	    {
-		// we expects that parent_link_name equals to frame_id.
-		std::string parent_link_name = joint->child_link_name;
-		Ogre::Quaternion orientation;
-		Ogre::Vector3 position;
+        const urdf::Joint* joint = robot_model_->getJoint(joint_name).get();
+        int joint_type = joint->type;
+        if ( joint_type == urdf::Joint::REVOLUTE )
+        {
+        // we expects that parent_link_name equals to frame_id.
+        std::string parent_link_name = joint->child_link_name;
+        Ogre::Quaternion orientation;
+        Ogre::Vector3 position;
 
-		// Here we call the rviz::FrameManager to get the transform from the
-		// fixed frame to the frame in the header of this Effort message.  If
-		// it fails, we can't do anything else so we return.
-		if( !context_->getFrameManager()->getTransform( parent_link_name,
-                                                                ros::Time(),
-                                                                //msg->header.stamp, // ???
+        // Here we call the rviz::FrameManager to get the transform from the
+        // fixed frame to the frame in the header of this Effort message.  If
+        // it fails, we can't do anything else so we return.
+        if( !context_->getFrameManager()->getTransform( parent_link_name,
+                                                                tinyros::Time(),
                                                                 position, orientation ))
-		{
-		    ROS_DEBUG( "Error transforming from frame '%s' to frame '%s'",
-			       parent_link_name.c_str(), qPrintable( fixed_frame_) );
-		    continue;
-		}
-;
-		tf::Vector3 axis_joint(joint->axis.x, joint->axis.y, joint->axis.z);
-		tf::Vector3 axis_z(0,0,1);
-		tf::Quaternion axis_rotation(tf::tfCross(axis_joint, axis_z), tf::tfAngle(axis_joint, axis_z));
-		if ( std::isnan(axis_rotation.x()) ||
-		     std::isnan(axis_rotation.y()) ||
-		     std::isnan(axis_rotation.z()) ) axis_rotation = tf::Quaternion::getIdentity();
+        {
+            tinyros_log_debug( "Error transforming from frame '%s' to frame '%s'",
+                   parent_link_name.c_str(), qPrintable( fixed_frame_) );
+            continue;
+        }
+    
+        tinyros::tf::Vector3 axis_joint(joint->axis.x, joint->axis.y, joint->axis.z);
+        tinyros::tf::Vector3 axis_z(0,0,1);
+        tinyros::tf::Quaternion axis_rotation(tinyros::tf::tfCross(axis_joint, axis_z), tinyros::tf::tfAngle(axis_joint, axis_z));
+        if ( std::isnan(axis_rotation.x()) ||
+             std::isnan(axis_rotation.y()) ||
+             std::isnan(axis_rotation.z()) ) axis_rotation = tf::Quaternion::getIdentity();
 
-		tf::Quaternion axis_orientation(orientation.x, orientation.y, orientation.z, orientation.w);
-		tf::Quaternion axis_rot = axis_orientation * axis_rotation;
-		Ogre::Quaternion joint_orientation(Ogre::Real(axis_rot.w()), Ogre::Real(axis_rot.x()), Ogre::Real(axis_rot.y()), Ogre::Real(axis_rot.z()));
-		visual->setFramePosition( joint_name, position );
-		visual->setFrameOrientation( joint_name, joint_orientation );
+        tinyros::tf::Quaternion axis_orientation(orientation.x, orientation.y, orientation.z, orientation.w);
+        tinyros::tf::Quaternion axis_rot = axis_orientation * axis_rotation;
+        Ogre::Quaternion joint_orientation(Ogre::Real(axis_rot.w()), Ogre::Real(axis_rot.x()), Ogre::Real(axis_rot.y()), Ogre::Real(axis_rot.z()));
+        visual->setFramePosition( joint_name, position );
+        visual->setFrameOrientation( joint_name, joint_orientation );
                 visual->setFrameEnabled( joint_name, joint_info->getEnabled() );
-	    }
-	}
+        }
+    }
 
-
-	// Now set or update the contents of the chosen visual.
-        float scale = scale_property_->getFloat();
-        float width = width_property_->getFloat();
-        visual->setWidth( width );
-        visual->setScale( scale );
-	visual->setMessage( msg );
+    // Now set or update the contents of the chosen visual.
+    float scale = scale_property_->getFloat();
+    float width = width_property_->getFloat();
+    visual->setWidth( width );
+    visual->setScale( scale );
+    visual->setMessage( msg );
 
         visuals_.push_back(visual);
     }
 
 } // end namespace rviz
-
-// Tell pluginlib about this class.  It is important to do this in
-// global scope, outside our package's namespace.
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::EffortDisplay, rviz::Display )
-
 

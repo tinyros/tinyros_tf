@@ -189,8 +189,9 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "Header header\nuint32 height\nuint32 width\nstring encoding\nuint8 is_bigendian\nuint32 step\nuint8[] data\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nuint32 height\nuint32 width\nstring encoding\nuint8 is_bigendian\nuint32 step\nuint8[] data\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::sensor_msgs::Image> Ptr;
+    typedef std::shared_ptr<tinyros::sensor_msgs::Image const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::sensor_msgs::Image> ImagePtr;
 typedef std::shared_ptr<tinyros::sensor_msgs::Image const> ImageConstPtr;
 

@@ -72,8 +72,9 @@ static const char SELFTEST[] = "diagnostic_msgs/SelfTest";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::diagnostic_msgs::SelfTestRequest> Ptr;
+    typedef std::shared_ptr<tinyros::diagnostic_msgs::SelfTestRequest const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::diagnostic_msgs::SelfTestRequest> SelfTestRequestPtr;
 typedef std::shared_ptr<tinyros::diagnostic_msgs::SelfTestRequest const> SelfTestRequestConstPtr;
 
@@ -221,8 +222,9 @@ typedef std::shared_ptr<tinyros::diagnostic_msgs::SelfTestRequest const> SelfTes
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::diagnostic_msgs::SelfTestResponse> Ptr;
+    typedef std::shared_ptr<tinyros::diagnostic_msgs::SelfTestResponse const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::diagnostic_msgs::SelfTestResponse> SelfTestResponsePtr;
 typedef std::shared_ptr<tinyros::diagnostic_msgs::SelfTestResponse const> SelfTestResponseConstPtr;
 

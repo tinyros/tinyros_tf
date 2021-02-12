@@ -38,16 +38,15 @@
 #include <OgreSubEntity.h>
 #include <OgreMath.h>
 #include <OgreRenderWindow.h>
-
-#include <ros/ros.h>
-#include <interactive_markers/tools.h>
-
+#include <tiny_rosvisualization_msgs/InteractiveMarkerPose.h>
 #include "rviz/frame_manager.h"
 #include "rviz/display_context.h"
 #include "rviz/selection/selection_manager.h"
 #include "rviz/frame_manager.h"
 #include "rviz/render_panel.h"
 #include "rviz/geometry.h"
+#include "tools.h"
+#include "tiny_ros/tf/static_assert.h"
 
 #include "rviz/default_plugin/interactive_markers/integer_action.h"
 #include "rviz/default_plugin/interactive_markers/interactive_marker.h"
@@ -74,7 +73,7 @@ InteractiveMarker::~InteractiveMarker()
   context_->getSceneManager()->destroySceneNode( reference_node_ );
 }
 
-void InteractiveMarker::processMessage( const visualization_msgs::InteractiveMarkerPose& message )
+void InteractiveMarker::processMessage( const tinyros::visualization_msgs::InteractiveMarkerPose& message )
 {
   boost::recursive_mutex::scoped_lock lock(mutex_);
   Ogre::Vector3 position( message.pose.position.x, message.pose.position.y, message.pose.position.z );
@@ -88,13 +87,14 @@ void InteractiveMarker::processMessage( const visualization_msgs::InteractiveMar
 
   reference_time_ = message.header.stamp;
   reference_frame_ = message.header.frame_id;
-  frame_locked_ = (message.header.stamp == ros::Time(0));
+  frame_locked_ = (message.header.stamp == tinyros::Time(0));
 
   requestPoseUpdate( position, orientation );
   context_->queueRender();
 }
 
-bool InteractiveMarker::processMessage( const visualization_msgs::InteractiveMarker& message )
+
+bool InteractiveMarker::processMessage( const tinyros::visualization_msgs::InteractiveMarker& message )
 {
   boost::recursive_mutex::scoped_lock lock(mutex_);
 
@@ -162,7 +162,7 @@ bool InteractiveMarker::processMessage( const visualization_msgs::InteractiveMar
   // Loop over new array:
   for ( unsigned i = 0; i < message.controls.size(); i++ )
   {
-    const visualization_msgs::InteractiveMarkerControl& control_message = message.controls[ i ];
+    const tinyros::visualization_msgs::InteractiveMarkerControl& control_message = message.controls[ i ];
     M_ControlPtr::iterator search_iter = controls_.find( control_message.name );
     InteractiveMarkerControlPtr control;
 
@@ -198,7 +198,7 @@ bool InteractiveMarker::processMessage( const visualization_msgs::InteractiveMar
     boost::make_shared<InteractiveMarkerControl>( context_,
                                                   reference_node_, this );
 
-  description_control_->processMessage( interactive_markers::makeTitle( message ));
+  description_control_->processMessage( rviz::makeTitle( message ));
 
   //create menu
   menu_entries_.clear();
@@ -212,7 +212,7 @@ bool InteractiveMarker::processMessage( const visualization_msgs::InteractiveMar
     // tree of menu entry ids.
     for ( unsigned m=0; m < message.menu_entries.size(); m++ )
     {
-      const visualization_msgs::MenuEntry& entry = message.menu_entries[ m ];
+      const tinyros::visualization_msgs::MenuEntry& entry = message.menu_entries[ m ];
       MenuNode node;
       node.entry = entry;
       menu_entries_[ entry.id ] = node;
@@ -225,7 +225,7 @@ bool InteractiveMarker::processMessage( const visualization_msgs::InteractiveMar
         // Find the parent node and add this entry to the parent's list of children.
         std::map< uint32_t, MenuNode >::iterator parent_it = menu_entries_.find( entry.parent_id );
         if( parent_it == menu_entries_.end() ) {
-          ROS_ERROR("interactive marker menu entry %u found before its parent id %u.  Ignoring.", entry.id, entry.parent_id);
+          tinyros_log_error("interactive marker menu entry %u found before its parent id %u.  Ignoring.", entry.id, entry.parent_id);
         }
         else
         {
@@ -258,7 +258,7 @@ void InteractiveMarker::populateMenu( QMenu* menu, std::vector<uint32_t>& ids )
   {
     uint32_t id = ids[ id_index ];
     std::map< uint32_t, MenuNode >::iterator node_it = menu_entries_.find( id );
-    ROS_ASSERT_MSG(node_it != menu_entries_.end(), "interactive marker menu entry %u not found during populateMenu().", id);
+    TINYROS_ASSERT_MSG(node_it != menu_entries_.end(), "interactive marker menu entry %u not found during populateMenu().", id);
     MenuNode node = (*node_it).second;
 
     if ( node.child_ids.empty() )
@@ -313,14 +313,14 @@ void InteractiveMarker::updateReferencePose()
       // if the two frames are identical, we don't need to do anything.
       // This should be ros::Time::now(), but then the computer running
       // RViz has to be time-synced with the server
-      reference_time_ = ros::Time();
+      reference_time_ = tinyros::Time();
     }
     else
     {
       std::string error;
       int retval = context_->getFrameManager()->getTFClient()->getLatestCommonTime(
           reference_frame_, fixed_frame, reference_time_, &error );
-      if ( retval != tf::NO_ERROR )
+      if ( retval != tinyros::tf::NO_ERROR )
       {
         std::ostringstream s;
         s <<"Error getting time of latest transform between " << reference_frame_
@@ -332,11 +332,11 @@ void InteractiveMarker::updateReferencePose()
     }
   }
 
-  if (!context_->getFrameManager()->getTransform( reference_frame_, ros::Time(),
+  if (!context_->getFrameManager()->getTransform( reference_frame_, tinyros::Time(),
       reference_position, reference_orientation ))
   {
     std::string error;
-    context_->getFrameManager()->transformHasProblems(reference_frame_, ros::Time(), error);
+    context_->getFrameManager()->transformHasProblems(reference_frame_, tinyros::Time(), error);
     Q_EMIT statusUpdate( StatusProperty::Error, name_, error);
     reference_node_->setVisible( false );
     return;
@@ -378,8 +378,8 @@ void InteractiveMarker::update(float wall_dt)
     else if ( time_since_last_feedback_ > 0.25 )
     {
       //send keep-alive so we don't use control over the marker
-      visualization_msgs::InteractiveMarkerFeedback feedback;
-      feedback.event_type = visualization_msgs::InteractiveMarkerFeedback::KEEP_ALIVE;
+      tinyros::visualization_msgs::InteractiveMarkerFeedback feedback;
+      feedback.event_type = tinyros::visualization_msgs::InteractiveMarkerFeedback::KEEP_ALIVE;
       publishFeedback( feedback );
     }
   }
@@ -388,8 +388,8 @@ void InteractiveMarker::update(float wall_dt)
 void InteractiveMarker::publishPose()
 {
   boost::recursive_mutex::scoped_lock lock(mutex_);
-  visualization_msgs::InteractiveMarkerFeedback feedback;
-  feedback.event_type = visualization_msgs::InteractiveMarkerFeedback::POSE_UPDATE;
+  tinyros::visualization_msgs::InteractiveMarkerFeedback feedback;
+  feedback.event_type = tinyros::visualization_msgs::InteractiveMarkerFeedback::POSE_UPDATE;
   feedback.control_name = last_control_name_;
   publishFeedback( feedback );
   pose_changed_ = false;
@@ -499,17 +499,17 @@ bool InteractiveMarker::handle3DCursorEvent(ViewportMouseEvent& event, const Ogr
     Ogre::Vector3 point_rel_world = cursor_pos;
     bool got_3D_point = true;
 
-    visualization_msgs::InteractiveMarkerFeedback feedback;
+    tinyros::visualization_msgs::InteractiveMarkerFeedback feedback;
     feedback.control_name = control_name;
     feedback.marker_name = name_;
 
     // make sure we've published a last pose update
-    feedback.event_type = ((uint8_t)visualization_msgs::InteractiveMarkerFeedback::POSE_UPDATE);
+    feedback.event_type = ((uint8_t)tinyros::visualization_msgs::InteractiveMarkerFeedback::POSE_UPDATE);
     publishFeedback( feedback, got_3D_point, point_rel_world );
 
     feedback.event_type = (event.type == QEvent::MouseButtonPress ?
-                           (uint8_t)visualization_msgs::InteractiveMarkerFeedback::MOUSE_DOWN :
-                           (uint8_t)visualization_msgs::InteractiveMarkerFeedback::MOUSE_UP);
+                           (uint8_t)tinyros::visualization_msgs::InteractiveMarkerFeedback::MOUSE_DOWN :
+                           (uint8_t)tinyros::visualization_msgs::InteractiveMarkerFeedback::MOUSE_UP);
     publishFeedback( feedback, got_3D_point, point_rel_world );
   }
 
@@ -547,17 +547,17 @@ bool InteractiveMarker::handleMouseEvent(ViewportMouseEvent& event, const std::s
     bool got_3D_point =
       context_->getSelectionManager()->get3DPoint( event.viewport, event.x, event.y, point_rel_world );
 
-    visualization_msgs::InteractiveMarkerFeedback feedback;
+    tinyros::visualization_msgs::InteractiveMarkerFeedback feedback;
     feedback.control_name = control_name;
     feedback.marker_name = name_;
 
     // make sure we've published a last pose update
-    feedback.event_type = ((uint8_t)visualization_msgs::InteractiveMarkerFeedback::POSE_UPDATE);
+    feedback.event_type = ((uint8_t)tinyros::visualization_msgs::InteractiveMarkerFeedback::POSE_UPDATE);
     publishFeedback( feedback, got_3D_point, point_rel_world );
 
     feedback.event_type = (event.type == QEvent::MouseButtonPress ?
-                           (uint8_t)visualization_msgs::InteractiveMarkerFeedback::MOUSE_DOWN :
-                           (uint8_t)visualization_msgs::InteractiveMarkerFeedback::MOUSE_UP);
+                           (uint8_t)tinyros::visualization_msgs::InteractiveMarkerFeedback::MOUSE_DOWN :
+                           (uint8_t)tinyros::visualization_msgs::InteractiveMarkerFeedback::MOUSE_UP);
     publishFeedback( feedback, got_3D_point, point_rel_world );
   }
 
@@ -603,32 +603,30 @@ void InteractiveMarker::handleMenuSelect( int menu_item_id )
 
   if ( it != menu_entries_.end() )
   {
-    visualization_msgs::MenuEntry& entry = it->second.entry;
+    tinyros::visualization_msgs::MenuEntry& entry = it->second.entry;
 
     std::string command = entry.command;
     uint8_t command_type = entry.command_type;
 
-    if ( command_type == visualization_msgs::MenuEntry::FEEDBACK )
+    if ( command_type == tinyros::visualization_msgs::MenuEntry::FEEDBACK )
     {
-      visualization_msgs::InteractiveMarkerFeedback feedback;
-      feedback.event_type = visualization_msgs::InteractiveMarkerFeedback::MENU_SELECT;
+      tinyros::visualization_msgs::InteractiveMarkerFeedback feedback;
+      feedback.event_type = tinyros::visualization_msgs::InteractiveMarkerFeedback::MENU_SELECT;
       feedback.menu_entry_id = entry.id;
       feedback.control_name = last_control_name_;
       publishFeedback( feedback, got_3d_point_for_menu_, three_d_point_for_menu_ );
     }
-    else if ( command_type == visualization_msgs::MenuEntry::ROSRUN )
+    else if ( command_type == tinyros::visualization_msgs::MenuEntry::ROSRUN )
     {
       std::string sys_cmd = "rosrun " + command;
-      ROS_INFO_STREAM( "Running system command: " << sys_cmd );
+      tinyros_log_warn("Running system command: %s", sys_cmd.c_str());
       sys_thread_ = boost::shared_ptr<boost::thread>( new boost::thread( boost::bind( &system, sys_cmd.c_str() ) ) );
-      //system( sys_cmd.c_str() );
     }
     else if ( command_type == visualization_msgs::MenuEntry::ROSLAUNCH )
     {
       std::string sys_cmd = "roslaunch " + command;
-      ROS_INFO_STREAM( "Running system command: " << sys_cmd );
+      tinyros_log_warn("Running system command: %s", sys_cmd.c_str());
       sys_thread_ = boost::shared_ptr<boost::thread>( new boost::thread( boost::bind( &system, sys_cmd.c_str() ) ) );
-      //system( sys_cmd.c_str() );
     }
   }
 }
@@ -673,7 +671,7 @@ void InteractiveMarker::publishFeedback(visualization_msgs::InteractiveMarkerFee
     feedback.header.frame_id = context_->getFixedFrame().toStdString();
     // This should be ros::Time::now(), but then the computer running
     // RViz has to be time-synced with the server
-    feedback.header.stamp = ros::Time();
+    feedback.header.stamp = tinyros::Time();
 
     Ogre::Vector3 world_position = reference_node_->convertLocalToWorldPosition( position_ );
     Ogre::Quaternion world_orientation = reference_node_->convertLocalToWorldOrientation( orientation_ );

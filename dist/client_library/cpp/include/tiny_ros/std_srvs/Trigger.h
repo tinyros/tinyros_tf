@@ -71,8 +71,9 @@ static const char TRIGGER[] = "std_srvs/Trigger";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::std_srvs::TriggerRequest> Ptr;
+    typedef std::shared_ptr<tinyros::std_srvs::TriggerRequest const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::std_srvs::TriggerRequest> TriggerRequestPtr;
 typedef std::shared_ptr<tinyros::std_srvs::TriggerRequest const> TriggerRequestConstPtr;
 
@@ -182,8 +183,9 @@ typedef std::shared_ptr<tinyros::std_srvs::TriggerRequest const> TriggerRequestC
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::std_srvs::TriggerResponse> Ptr;
+    typedef std::shared_ptr<tinyros::std_srvs::TriggerResponse const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::std_srvs::TriggerResponse> TriggerResponsePtr;
 typedef std::shared_ptr<tinyros::std_srvs::TriggerResponse const> TriggerResponseConstPtr;
 

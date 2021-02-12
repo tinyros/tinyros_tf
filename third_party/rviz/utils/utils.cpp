@@ -10,19 +10,6 @@
 
 namespace rviz {
 namespace utils {
-  std::string getPath() {
-    char  current_absolute_path[PATH_MAX+1];
-    int  cnt = readlink( "/proc/self/exe" , current_absolute_path, PATH_MAX+1);
-    if(cnt > 0 && cnt < (PATH_MAX+1)) {
-      for(int i = cnt; i >=0; --i) {
-       if(current_absolute_path[i] ==  '/' ) {
-          current_absolute_path[i+1] =  '\0' ;
-          return std::string(current_absolute_path);
-       }
-      }
-    }
-    return "";
-  }
   
   bool isValidCharInName(char c)
   {
@@ -72,7 +59,7 @@ namespace utils {
     std::string error;
     if (!validate(name, error))
     {
-    	throw rviz::InvalidNameException(error);
+        throw rviz::InvalidNameException(error);
     }
 
     if (!name.compare(""))  return "";
@@ -149,6 +136,21 @@ namespace utils {
         topics.push_back(topic);
       }
     }
+  }
+
+  std::string getCameraInfoTopic(const std::string& base_topic)
+  {
+    // Split into separate names
+    std::vector<std::string> names;
+    boost::algorithm::split(names, base_topic, boost::algorithm::is_any_of("/"),
+                            boost::algorithm::token_compress_on);
+    // Get rid of empty tokens from trailing slashes
+    while (names.back().empty())
+      names.pop_back();
+    // Replace image name with "camera_info"
+    names.back() = "camera_info";
+    // Join back together into topic name
+    return boost::algorithm::join(names, "/");
   }
 }
 }

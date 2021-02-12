@@ -74,19 +74,19 @@ QSet<QString> DisplayFactory::getMessageTypes( const QString& class_id )
 
   if ( !xml_file.isEmpty() )
   {
-    ROS_DEBUG_STREAM("Parsing " << xml_file.toStdString());
+    tinyros_log_debug("Parsing %s", xml_file.toStdString().c_str());
     TiXmlDocument document;
     document.LoadFile(xml_file.toStdString());
     TiXmlElement * config = document.RootElement();
     if (config == NULL)
     {
-      ROS_ERROR("Skipping XML Document \"%s\" which had no Root Element.  This likely means the XML is malformed or missing.", xml_file.toStdString().c_str());
+      tinyros_log_error("Skipping XML Document \"%s\" which had no Root Element.  This likely means the XML is malformed or missing.", xml_file.toStdString().c_str());
       return QSet<QString>();
     }
     if (config->ValueStr() != "library" &&
         config->ValueStr() != "class_libraries")
     {
-      ROS_ERROR("The XML document \"%s\" given to add must have either \"library\" or \
+      tinyros_log_error("The XML document \"%s\" given to add must have either \"library\" or \
           \"class_libraries\" as the root tag", xml_file.toStdString().c_str());
       return QSet<QString>();
     }
@@ -108,11 +108,11 @@ QSet<QString> DisplayFactory::getMessageTypes( const QString& class_id )
         if(class_element->Attribute("name") != NULL)
         {
           current_class_id = class_element->Attribute("name");
-          ROS_DEBUG("XML file specifies lookup name (i.e. magic name) = %s.", current_class_id.c_str());
+          tinyros_log_debug("XML file specifies lookup name (i.e. magic name) = %s.", current_class_id.c_str());
         }
         else
         {
-          ROS_DEBUG("XML file has no lookup name (i.e. magic name) for class %s, assuming class_id == real class name.", derived_class.c_str());
+          tinyros_log_debug("XML file has no lookup name (i.e. magic name) for class %s, assuming class_id == real class name.", derived_class.c_str());
           current_class_id = derived_class;
         }
 
@@ -124,7 +124,7 @@ QSet<QString> DisplayFactory::getMessageTypes( const QString& class_id )
           if ( message_type->GetText() )
           {
             const char* message_type_str = message_type->GetText();
-            ROS_DEBUG_STREAM(current_class_id << " supports message type " << message_type_str );
+            tinyros_log_debug("%s supports message type %s", current_class_id.c_str(), message_type_str.c_str());
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
             message_types.insert( QString::fromAscii( message_type_str ) );
 #else

@@ -109,8 +109,9 @@ static const char SETJOINTPROPERTIES[] = "gazebo_msgs/SetJointProperties";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointPropertiesRequest> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointPropertiesRequest const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointPropertiesRequest> SetJointPropertiesRequestPtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointPropertiesRequest const> SetJointPropertiesRequestConstPtr;
 
@@ -220,8 +221,9 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointPropertiesRequest const> S
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointPropertiesResponse> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointPropertiesResponse const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointPropertiesResponse> SetJointPropertiesResponsePtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointPropertiesResponse const> SetJointPropertiesResponseConstPtr;
 

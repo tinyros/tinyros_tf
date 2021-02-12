@@ -77,12 +77,12 @@ void PolygonDisplay::reset()
   manual_object_->clear();
 }
 
-bool validateFloats( const geometry_msgs::PolygonStamped& msg )
+bool validateFloats( const tinyros::geometry_msgs::PolygonStamped& msg )
 {
   return validateFloats(msg.polygon.points);
 }
 
-void PolygonDisplay::processMessage(const geometry_msgs::PolygonStamped::ConstPtr& msg)
+void PolygonDisplay::processMessage(const tinyros::geometry_msgs::PolygonStamped::ConstPtr& msg)
 {
   if( !validateFloats( *msg ))
   {
@@ -94,7 +94,7 @@ void PolygonDisplay::processMessage(const geometry_msgs::PolygonStamped::ConstPt
   Ogre::Quaternion orientation;
   if( !context_->getFrameManager()->getTransform( msg->header, position, orientation ))
   {
-    ROS_DEBUG( "Error transforming from frame '%s' to frame '%s'",
+    tinyros_log_debug( "Error transforming from frame '%s' to frame '%s'",
                msg->header.frame_id.c_str(), qPrintable( fixed_frame_ ));
   }
 
@@ -105,7 +105,7 @@ void PolygonDisplay::processMessage(const geometry_msgs::PolygonStamped::ConstPt
 
   Ogre::ColourValue color = qtToOgre( color_property_->getColor() );
   color.a = alpha_property_->getFloat();
-  // TODO: this does not actually support alpha as-is.  The
+  // this does not actually support alpha as-is.  The
   // "BaseWhiteNoLighting" material ends up ignoring the alpha
   // component of the color values we set at each point.  Need to make
   // a material and do the whole setSceneBlending() rigamarole.
@@ -128,5 +128,3 @@ void PolygonDisplay::processMessage(const geometry_msgs::PolygonStamped::ConstPt
 
 } // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::PolygonDisplay, rviz::Display )

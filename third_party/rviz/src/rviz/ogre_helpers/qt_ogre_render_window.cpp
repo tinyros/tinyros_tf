@@ -38,8 +38,7 @@
 #include <OgreGpuProgramManager.h>
 #include <OgreRenderTargetListener.h>
 
-#include <ros/console.h>
-#include <ros/assert.h>
+#include <tiny_ros/tf/static_assert.h>
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 #include <stdlib.h>
@@ -184,7 +183,7 @@ void QtOgreRenderWindow::preViewportUpdate(
   }
   else
   {
-    ROS_WARN("Begin rendering to unknown viewport.");
+    tinyros_log_warn("Begin rendering to unknown viewport.");
   }
 }
 
@@ -203,7 +202,7 @@ void QtOgreRenderWindow::postViewportUpdate(
   }
   else
   {
-    ROS_WARN("End rendering to unknown viewport.");
+    tinyros_log_warn("End rendering to unknown viewport.");
   }
 
   if(!right_camera_->isCustomProjectionMatrixEnabled()) {

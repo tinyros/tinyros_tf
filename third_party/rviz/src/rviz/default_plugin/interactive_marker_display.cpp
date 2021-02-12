@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <tf/transform_listener.h>
+#include <tiny_ros/tf/transform_listener.h>
 
 #include "rviz/frame_manager.h"
 #include "rviz/properties/bool_property.h"
@@ -43,7 +43,7 @@ namespace rviz
 {
 
 //////////////
-bool validateFloats(const visualization_msgs::InteractiveMarker& msg)
+bool validateFloats(const tinyros::visualization_msgs::InteractiveMarker& msg)
 {
   bool valid = true;
   valid = valid && validateFloats(msg.pose);
@@ -69,7 +69,7 @@ InteractiveMarkerDisplay::InteractiveMarkerDisplay()
   : Display()
 {
   marker_update_topic_property_ = new RosTopicProperty( "Update Topic", "",
-                                                        ros::message_traits::datatype<visualization_msgs::InteractiveMarkerUpdate>(),
+                                                        tinyros::visualization_msgs::InteractiveMarkerUpdate::getTypeStatic(),
                                                         "visualization_msgs::InteractiveMarkerUpdate topic to subscribe to.",
                                                         this, SLOT( updateTopic() ));
 
@@ -91,15 +91,15 @@ InteractiveMarkerDisplay::InteractiveMarkerDisplay()
 
 void InteractiveMarkerDisplay::onInitialize()
 {
-  tf::Transformer* tf = context_->getFrameManager()->getTFClient();
-  im_client_.reset( new interactive_markers::InteractiveMarkerClient( *tf, fixed_frame_.toStdString() ) );
+  tinyros::tf::Transformer* tf = context_->getFrameManager()->getTFClient();
+  im_client_.reset( new rviz::InteractiveMarkerClient( *tf, fixed_frame_.toStdString() ) );
 
   im_client_->setInitCb( boost::bind( &InteractiveMarkerDisplay::initCb, this, _1 ) );
   im_client_->setUpdateCb( boost::bind( &InteractiveMarkerDisplay::updateCb, this, _1 ) );
   im_client_->setResetCb( boost::bind( &InteractiveMarkerDisplay::resetCb, this, _1 ) );
   im_client_->setStatusCb( boost::bind( &InteractiveMarkerDisplay::statusCb, this, _1, _2, _3 ) );
 
-  client_id_ = ros::this_node::getName() + "/" + getNameStd();
+  client_id_ = tinyros::getNodeName() + "/" + getNameStd();
 
   onEnable();
 }
@@ -145,14 +145,15 @@ void InteractiveMarkerDisplay::subscribe()
     im_client_->subscribe(topic_ns_);
 
     std::string feedback_topic = topic_ns_+"/feedback";
-    feedback_pub_ = update_nh_.advertise<visualization_msgs::InteractiveMarkerFeedback>( feedback_topic, 100, false );
+    feedback_pub_ = tinyros::Publisher(feedback_topic, new tinyros::visualization_msgs::InteractiveMarkerFeedback());
+    tinyros::nh()->advertise(feedback_pub_);
   }
 }
 
-void InteractiveMarkerDisplay::publishFeedback(visualization_msgs::InteractiveMarkerFeedback &feedback)
+void InteractiveMarkerDisplay::publishFeedback(tinyros::visualization_msgs::InteractiveMarkerFeedback &feedback)
 {
   feedback.client_id = client_id_;
-  feedback_pub_.publish( feedback );
+  feedback_pub_.publish( &feedback );
 }
 
 void InteractiveMarkerDisplay::onStatusUpdate( StatusProperty::Level level, const std::string& name, const std::string& text )
@@ -199,14 +200,14 @@ InteractiveMarkerDisplay::M_StringToIMPtr& InteractiveMarkerDisplay::getImMap( s
 
 void InteractiveMarkerDisplay::updateMarkers(
     const std::string& server_id,
-    const std::vector<visualization_msgs::InteractiveMarker>& markers
+    const std::vector<tinyros::visualization_msgs::InteractiveMarker>& markers
     )
 {
   M_StringToIMPtr& im_map = getImMap( server_id );
 
   for ( size_t i=0; i<markers.size(); i++ )
   {
-    const visualization_msgs::InteractiveMarker& marker = markers[i];
+    const tinyros::visualization_msgs::InteractiveMarker& marker = markers[i];
 
     if ( !validateFloats( marker ) )
     {
@@ -214,7 +215,7 @@ void InteractiveMarkerDisplay::updateMarkers(
       //setStatusStd( StatusProperty::Error, "General", "Marker " + marker.name + " contains invalid floats!" );
       continue;
     }
-    ROS_DEBUG("Processing interactive marker '%s'. %d", marker.name.c_str(), (int)marker.controls.size() );
+    tinyros_log_debug("Processing interactive marker '%s'. %d", marker.name.c_str(), (int)marker.controls.size() );
 
     std::map< std::string, IMPtr >::iterator int_marker_entry = im_map.find( marker.name );
 
@@ -222,9 +223,9 @@ void InteractiveMarkerDisplay::updateMarkers(
     {
       int_marker_entry = im_map.insert( std::make_pair(marker.name, IMPtr ( new InteractiveMarker(getSceneNode(), context_) ) ) ).first;
       connect( int_marker_entry->second.get(),
-               SIGNAL( userFeedback(visualization_msgs::InteractiveMarkerFeedback&) ),
+               SIGNAL( userFeedback(tinyros::visualization_msgs::InteractiveMarkerFeedback&) ),
                this,
-               SLOT( publishFeedback(visualization_msgs::InteractiveMarkerFeedback&) ));
+               SLOT( publishFeedback(tinyros::visualization_msgs::InteractiveMarkerFeedback&) ));
       connect( int_marker_entry->second.get(),
                SIGNAL( statusUpdate(StatusProperty::Level, const std::string&, const std::string&) ),
                this,
@@ -260,13 +261,13 @@ void InteractiveMarkerDisplay::eraseMarkers(
 
 void InteractiveMarkerDisplay::updatePoses(
     const std::string& server_id,
-    const std::vector<visualization_msgs::InteractiveMarkerPose>& marker_poses )
+    const std::vector<tinyros::visualization_msgs::InteractiveMarkerPose>& marker_poses )
 {
   M_StringToIMPtr& im_map = getImMap( server_id );
 
   for ( size_t i=0; i<marker_poses.size(); i++ )
   {
-    const visualization_msgs::InteractiveMarkerPose& marker_pose = marker_poses[i];
+    const tinyros::visualization_msgs::InteractiveMarkerPose& marker_pose = marker_poses[i];
 
     if ( !validateFloats( marker_pose.pose ) )
     {
@@ -289,13 +290,13 @@ void InteractiveMarkerDisplay::updatePoses(
   }
 }
 
-void InteractiveMarkerDisplay::initCb( visualization_msgs::InteractiveMarkerInitConstPtr msg )
+void InteractiveMarkerDisplay::initCb( tinyros::visualization_msgs::InteractiveMarkerInitConstPtr msg )
 {
   resetCb( msg->server_id );
   updateMarkers( msg->server_id, msg->markers );
 }
 
-void InteractiveMarkerDisplay::updateCb( visualization_msgs::InteractiveMarkerUpdateConstPtr msg )
+void InteractiveMarkerDisplay::updateCb( tinyros::visualization_msgs::InteractiveMarkerUpdateConstPtr msg )
 {
   updateMarkers( msg->server_id, msg->markers );
   updatePoses( msg->server_id, msg->poses );
@@ -309,7 +310,7 @@ void InteractiveMarkerDisplay::resetCb( std::string server_id )
 }
 
 void InteractiveMarkerDisplay::statusCb(
-    interactive_markers::InteractiveMarkerClient::StatusT status,
+    rviz::InteractiveMarkerClient::StatusT status,
     const std::string& server_id,
     const std::string& msg )
 {
@@ -385,5 +386,3 @@ void InteractiveMarkerDisplay::updateEnableTransparency()
 
 } // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::InteractiveMarkerDisplay, rviz::Display )

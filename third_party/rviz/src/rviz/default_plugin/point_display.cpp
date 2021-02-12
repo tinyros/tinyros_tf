@@ -17,23 +17,23 @@ namespace rviz
 
     PointStampedDisplay::PointStampedDisplay()
     {
-	color_property_ =
-	    new rviz::ColorProperty( "Color", QColor(204, 41, 204),
+    color_property_ =
+        new rviz::ColorProperty( "Color", QColor(204, 41, 204),
                                      "Color of a point",
                                      this, SLOT( updateColorAndAlpha() ));
 
-	alpha_property_ =
-	    new rviz::FloatProperty( "Alpha", 1.0,
+    alpha_property_ =
+        new rviz::FloatProperty( "Alpha", 1.0,
                                      "0 is fully transparent, 1.0 is fully opaque.",
                                      this, SLOT( updateColorAndAlpha() ));
 
-	radius_property_ =
-	    new rviz::FloatProperty( "Radius", 0.2,
+    radius_property_ =
+        new rviz::FloatProperty( "Radius", 0.2,
                                      "Radius of a point",
                                      this, SLOT( updateColorAndAlpha() ));
 
-	history_length_property_ =
-	    new rviz::IntProperty( "History Length", 1,
+    history_length_property_ =
+        new rviz::IntProperty( "History Length", 1,
                                    "Number of prior measurements to display.",
                                    this, SLOT( updateHistoryLength() ));
         history_length_property_->setMin( 1 );
@@ -65,7 +65,7 @@ namespace rviz
         Ogre::ColourValue color = color_property_->getOgreColor();
 
         for( size_t i = 0; i < visuals_.size(); i++ )
-	{
+    {
             visuals_[i]->setColor( color.r, color.g, color.b, alpha );
             visuals_[i]->setRadius( radius );
         }
@@ -78,7 +78,7 @@ namespace rviz
     }
 
     // This is our callback to handle an incoming message.
-    void PointStampedDisplay::processMessage( const geometry_msgs::PointStamped::ConstPtr& msg )
+    void PointStampedDisplay::processMessage( const tinyros::geometry_msgs::PointStamped::ConstPtr& msg )
     {
 
         if( !rviz::validateFloats( msg->point ))
@@ -96,8 +96,8 @@ namespace rviz
                                                         msg->header.stamp,
                                                         position, orientation ))
         {
-	    ROS_DEBUG( "Error transforming from frame '%s' to frame '%s'",
-		       msg->header.frame_id.c_str(), qPrintable( fixed_frame_ ) );
+        tinyros_log_debug( "Error transforming from frame '%s' to frame '%s'",
+               msg->header.frame_id.c_str(), qPrintable( fixed_frame_ ) );
             return;
         }
 
@@ -130,10 +130,4 @@ namespace rviz
     }
 
 } // end namespace rviz
-
-// Tell pluginlib about this class.  It is important to do this in
-// global scope, outside our package's namespace.
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::PointStampedDisplay, rviz::Display )
-
 

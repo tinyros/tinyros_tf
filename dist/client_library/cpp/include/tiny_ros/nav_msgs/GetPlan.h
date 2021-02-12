@@ -118,8 +118,9 @@ static const char GETPLAN[] = "nav_msgs/GetPlan";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::nav_msgs::GetPlanRequest> Ptr;
+    typedef std::shared_ptr<tinyros::nav_msgs::GetPlanRequest const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::nav_msgs::GetPlanRequest> GetPlanRequestPtr;
 typedef std::shared_ptr<tinyros::nav_msgs::GetPlanRequest const> GetPlanRequestConstPtr;
 
@@ -189,8 +190,9 @@ typedef std::shared_ptr<tinyros::nav_msgs::GetPlanRequest const> GetPlanRequestC
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::nav_msgs::GetPlanResponse> Ptr;
+    typedef std::shared_ptr<tinyros::nav_msgs::GetPlanResponse const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::nav_msgs::GetPlanResponse> GetPlanResponsePtr;
 typedef std::shared_ptr<tinyros::nav_msgs::GetPlanResponse const> GetPlanResponseConstPtr;
 

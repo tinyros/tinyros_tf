@@ -73,8 +73,9 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Header header\nInertia inertia\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nInertia inertia\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::geometry_msgs::InertiaStamped> Ptr;
+    typedef std::shared_ptr<tinyros::geometry_msgs::InertiaStamped const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::geometry_msgs::InertiaStamped> InertiaStampedPtr;
 typedef std::shared_ptr<tinyros::geometry_msgs::InertiaStamped const> InertiaStampedConstPtr;
 

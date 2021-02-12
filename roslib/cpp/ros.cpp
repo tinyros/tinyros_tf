@@ -74,6 +74,14 @@ void init(std::string node_name, std::string ip_addr) {
   tinyros::nh();
 }
 
+std::string getNodeName() {
+  return node_name_;;
+}
+
+std::string getNodeIpAddr() {
+  return ip_addr_;;
+}
+
 void logdebug(std::string msg) { nh()->log(tinyros::tinyros_msgs::Log::ROSDEBUG, msg); }
 void loginfo(std::string msg) { nh()->log(tinyros::tinyros_msgs::Log::ROSINFO, msg); }
 void logwarn(std::string msg) { nh()->log(tinyros::tinyros_msgs::Log::ROSWARN, msg); }

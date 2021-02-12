@@ -351,8 +351,9 @@ namespace visualization_msgs
     virtual std::string getDefinition(){ return "Header header\nstring ns\nint32 id\nint32 type\nint32 action\ngeometry_msgs/Point position\nfloat32 scale\nstd_msgs/ColorRGBA outline_color\nuint8 filled\nstd_msgs/ColorRGBA fill_color\nduration lifetime\ngeometry_msgs/Point[] points\nstd_msgs/ColorRGBA[] outline_colors\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nstring ns\nint32 id\nint32 type\nint32 action\ngeometry_msgs/Point position\nfloat32 scale\nstd_msgs/ColorRGBA outline_color\nuint8 filled\nstd_msgs/ColorRGBA fill_color\nduration lifetime\ngeometry_msgs/Point[] points\nstd_msgs/ColorRGBA[] outline_colors\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::visualization_msgs::ImageMarker> Ptr;
+    typedef std::shared_ptr<tinyros::visualization_msgs::ImageMarker const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::visualization_msgs::ImageMarker> ImageMarkerPtr;
 typedef std::shared_ptr<tinyros::visualization_msgs::ImageMarker const> ImageMarkerConstPtr;
 

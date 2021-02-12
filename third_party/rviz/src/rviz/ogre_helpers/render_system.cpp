@@ -48,7 +48,7 @@
 #endif
 
 #include <ros/package.h> // This dependency should be moved out of here, it is just used for a search path.
-#include <ros/console.h>
+#include <tiny_ros/ros.h>
 
 #include <OgreRenderWindow.h>
 #include <OgreSceneManager.h>
@@ -83,19 +83,19 @@ RenderSystem* RenderSystem::get()
 void RenderSystem::forceGlVersion( int version )
 {
   force_gl_version_ = version;
-  ROS_INFO_STREAM( "Forcing OpenGl version " << (float)version / 100.0 << "." );
+  tinyros_log_info("Forcing OpenGl version %f.", (float)version / 100.0);
 }
 
 void RenderSystem::disableAntiAliasing()
 {
   use_anti_aliasing_ = false;
-  ROS_INFO("Disabling Anti-Aliasing");
+  tinyros_log_info("Disabling Anti-Aliasing");
 }
 
 void RenderSystem::forceNoStereo()
 {
   force_no_stereo_ = true;
-  ROS_INFO("Forcing Stereo OFF");
+  tinyros_log_info("Forcing Stereo OFF");
 }
 
 RenderSystem::RenderSystem()
@@ -208,7 +208,7 @@ void RenderSystem::detectGlVersion()
       }
       break;
   }
-  ROS_INFO_STREAM( "OpenGl version: " << (float)gl_version_ / 100.0 << " (GLSL " << (float)glsl_version_ / 100.0 << ")." );
+  tinyros_log_info( "OpenGl version: %f (GLSL %f).", (float)gl_version_ / 100.0, (float)glsl_version_ / 100.0);
 }
 
 void RenderSystem::setupRenderSystem()
@@ -259,26 +259,26 @@ void RenderSystem::setupRenderSystem()
 
 void RenderSystem::setupResources()
 {
-  std::string rviz_path = ros::package::getPath(ROS_PACKAGE_NAME);
-  Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media", "FileSystem", ROS_PACKAGE_NAME );
-  Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/textures", "FileSystem", ROS_PACKAGE_NAME );
-  Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/fonts", "FileSystem", ROS_PACKAGE_NAME );
-  Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/models", "FileSystem", ROS_PACKAGE_NAME );
-  Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/materials", "FileSystem", ROS_PACKAGE_NAME );
-  Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/materials/scripts", "FileSystem", ROS_PACKAGE_NAME );
-  Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/materials/glsl120", "FileSystem", ROS_PACKAGE_NAME );
-  Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/materials/glsl120/nogp", "FileSystem", ROS_PACKAGE_NAME );
+  std::string rviz_path = tinyros::package::getPath();
+  Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media", "FileSystem", TINYROS_PACKAGE_NAME );
+  Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/textures", "FileSystem", TINYROS_PACKAGE_NAME );
+  Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/fonts", "FileSystem", TINYROS_PACKAGE_NAME );
+  Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/models", "FileSystem", TINYROS_PACKAGE_NAME );
+  Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/materials", "FileSystem", TINYROS_PACKAGE_NAME );
+  Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/materials/scripts", "FileSystem", TINYROS_PACKAGE_NAME );
+  Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/materials/glsl120", "FileSystem", TINYROS_PACKAGE_NAME );
+  Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/materials/glsl120/nogp", "FileSystem", TINYROS_PACKAGE_NAME );
   // Add resources that depend on a specific glsl version.
   // Unfortunately, Ogre doesn't have a notion of glsl versions so we can't go
   // the 'official' way of defining multiple schemes per material and let Ogre decide which one to use.
   if ( getGlslVersion() >= 150  )
   {
-    Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/materials/glsl150", "FileSystem", ROS_PACKAGE_NAME );
-    Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/materials/scripts150", "FileSystem", ROS_PACKAGE_NAME );
+    Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/materials/glsl150", "FileSystem", TINYROS_PACKAGE_NAME );
+    Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/materials/scripts150", "FileSystem", TINYROS_PACKAGE_NAME );
   }
   else if ( getGlslVersion() >= 120  )
   {
-    Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/materials/scripts120", "FileSystem", ROS_PACKAGE_NAME );
+    Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/materials/scripts120", "FileSystem", TINYROS_PACKAGE_NAME );
   }
   else
   {
@@ -287,31 +287,6 @@ void RenderSystem::setupResources()
     msgBox.setText(s.c_str());
     msgBox.exec();
     throw std::runtime_error( s );
-  }
-
-  // Add paths exported to the "media_export" package.
-  std::vector<std::string> media_paths;
-  ros::package::getPlugins( "media_export", "ogre_media_path", media_paths );
-  std::string delim(":");
-  for( std::vector<std::string>::iterator iter = media_paths.begin(); iter != media_paths.end(); iter++ )
-  {
-    if( !iter->empty() )
-    {
-      std::string path;
-      int pos1 = 0;
-      int pos2 = iter->find(delim);
-      while( pos2 != (int)std::string::npos )
-      {
-        path = iter->substr( pos1, pos2 - pos1 );
-        ROS_DEBUG("adding resource location: '%s'\n", path.c_str());
-        Ogre::ResourceGroupManager::getSingleton().addResourceLocation( path, "FileSystem", ROS_PACKAGE_NAME );
-        pos1 = pos2 + 1;
-        pos2 = iter->find( delim, pos2 + 1 );
-      }
-      path = iter->substr( pos1, iter->size() - pos1 );
-      ROS_DEBUG("adding resource location: '%s'\n", path.c_str());
-      Ogre::ResourceGroupManager::getSingleton().addResourceLocation( path, "FileSystem", ROS_PACKAGE_NAME );
-    }
   }
 }
 
@@ -422,7 +397,7 @@ Ogre::RenderWindow* RenderSystem::makeRenderWindow( intptr_t window_id, unsigned
 
   if( window == NULL )
   {
-    ROS_ERROR( "Unable to create the rendering window after 100 tries." );
+    tinyros_log_error( "Unable to create the rendering window after 100 tries." );
     assert(false);
   }
 
@@ -435,7 +410,7 @@ Ogre::RenderWindow* RenderSystem::makeRenderWindow( intptr_t window_id, unsigned
 
   stereo_supported_ = is_stereo;
 
-  ROS_INFO_ONCE("Stereo is %s", stereo_supported_ ? "SUPPORTED" : "NOT SUPPORTED");
+  tinyros_log_info("Stereo is %s", stereo_supported_ ? "SUPPORTED" : "NOT SUPPORTED");
 
   return window;
 }
@@ -483,7 +458,7 @@ Ogre::RenderWindow* RenderSystem::tryMakeRenderWindow(
 
   if( window && attempts > 1 )
   {
-    ROS_INFO( "Created render window after %d attempts.", attempts );
+    tinyros_log_info( "Created render window after %d attempts.", attempts );
   }
 
   return window;

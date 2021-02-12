@@ -42,9 +42,9 @@ namespace rviz
  */
 class OgreRenderQueueClearer: public Ogre::FrameListener {
 public:
-	OgreRenderQueueClearer();
-	virtual ~OgreRenderQueueClearer();
-	virtual bool frameStarted (const Ogre::FrameEvent &evt);
+    OgreRenderQueueClearer();
+    virtual ~OgreRenderQueueClearer();
+    virtual bool frameStarted (const Ogre::FrameEvent &evt);
 };
 
 }

@@ -110,8 +110,9 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "float32[] echoes\n"; }
     static std::string getDefinitionStatic(){ return "float32[] echoes\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::sensor_msgs::LaserEcho> Ptr;
+    typedef std::shared_ptr<tinyros::sensor_msgs::LaserEcho const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::sensor_msgs::LaserEcho> LaserEchoPtr;
 typedef std::shared_ptr<tinyros::sensor_msgs::LaserEcho const> LaserEchoConstPtr;
 

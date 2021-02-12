@@ -161,8 +161,9 @@ namespace std_msgs
     virtual std::string getDefinition(){ return "float32 r\nfloat32 g\nfloat32 b\nfloat32 a\n"; }
     static std::string getDefinitionStatic(){ return "float32 r\nfloat32 g\nfloat32 b\nfloat32 a\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::std_msgs::ColorRGBA> Ptr;
+    typedef std::shared_ptr<tinyros::std_msgs::ColorRGBA const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::std_msgs::ColorRGBA> ColorRGBAPtr;
 typedef std::shared_ptr<tinyros::std_msgs::ColorRGBA const> ColorRGBAConstPtr;
 

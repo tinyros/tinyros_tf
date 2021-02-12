@@ -102,13 +102,13 @@ void WrenchStampedDisplay::updateHistoryLength()
     visuals_.rset_capacity(history_length_property_->getInt());
 }
 
-bool validateFloats( const geometry_msgs::WrenchStamped& msg )
+bool validateFloats( const tinyros::geometry_msgs::WrenchStamped& msg )
 {
     return rviz::validateFloats(msg.wrench.force) && rviz::validateFloats(msg.wrench.torque) ;
 }
 
 // This is our callback to handle an incoming message.
-void WrenchStampedDisplay::processMessage( const geometry_msgs::WrenchStamped::ConstPtr& msg )
+void WrenchStampedDisplay::processMessage( const tinyros::geometry_msgs::WrenchStamped::ConstPtr& msg )
 {
     if( !validateFloats( *msg ))
     {
@@ -125,14 +125,14 @@ void WrenchStampedDisplay::processMessage( const geometry_msgs::WrenchStamped::C
                                                     msg->header.stamp,
                                                     position, orientation ))
     {
-        ROS_DEBUG( "Error transforming from frame '%s' to frame '%s'",
+        tinyros_log_debug( "Error transforming from frame '%s' to frame '%s'",
                    msg->header.frame_id.c_str(), qPrintable( fixed_frame_ ));
         return;
     }
 
     if ( position.isNaN() )
     {
-        ROS_ERROR_THROTTLE(1.0, "Wrench position contains NaNs. Skipping render as long as the position is invalid");
+        tinyros_log_error("Wrench position contains NaNs. Skipping render as long as the position is invalid");
         return;
     }
 
@@ -170,7 +170,3 @@ void WrenchStampedDisplay::processMessage( const geometry_msgs::WrenchStamped::C
 
 } // end namespace rviz
 
-// Tell pluginlib about this class.  It is important to do this in
-// global scope, outside our package's namespace.
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::WrenchStampedDisplay, rviz::Display )

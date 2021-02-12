@@ -113,8 +113,9 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Pose pose\nfloat64[36] covariance\n"; }
     static std::string getDefinitionStatic(){ return "Pose pose\nfloat64[36] covariance\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::geometry_msgs::PoseWithCovariance> Ptr;
+    typedef std::shared_ptr<tinyros::geometry_msgs::PoseWithCovariance const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::geometry_msgs::PoseWithCovariance> PoseWithCovariancePtr;
 typedef std::shared_ptr<tinyros::geometry_msgs::PoseWithCovariance const> PoseWithCovarianceConstPtr;
 

@@ -242,8 +242,9 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "Header header\ngeometry_msgs/Quaternion orientation\nfloat64[9] orientation_covariance\ngeometry_msgs/Vector3 angular_velocity\nfloat64[9] angular_velocity_covariance\ngeometry_msgs/Vector3 linear_acceleration\nfloat64[9] linear_acceleration_covariance\n"; }
     static std::string getDefinitionStatic(){ return "Header header\ngeometry_msgs/Quaternion orientation\nfloat64[9] orientation_covariance\ngeometry_msgs/Vector3 angular_velocity\nfloat64[9] angular_velocity_covariance\ngeometry_msgs/Vector3 linear_acceleration\nfloat64[9] linear_acceleration_covariance\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::sensor_msgs::Imu> Ptr;
+    typedef std::shared_ptr<tinyros::sensor_msgs::Imu const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::sensor_msgs::Imu> ImuPtr;
 typedef std::shared_ptr<tinyros::sensor_msgs::Imu const> ImuConstPtr;
 

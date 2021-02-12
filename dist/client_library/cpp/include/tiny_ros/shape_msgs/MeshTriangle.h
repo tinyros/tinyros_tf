@@ -84,8 +84,9 @@ namespace shape_msgs
     virtual std::string getDefinition(){ return "uint32[3] vertex_indices\n"; }
     static std::string getDefinitionStatic(){ return "uint32[3] vertex_indices\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::shape_msgs::MeshTriangle> Ptr;
+    typedef std::shared_ptr<tinyros::shape_msgs::MeshTriangle const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::shape_msgs::MeshTriangle> MeshTrianglePtr;
 typedef std::shared_ptr<tinyros::shape_msgs::MeshTriangle const> MeshTriangleConstPtr;
 

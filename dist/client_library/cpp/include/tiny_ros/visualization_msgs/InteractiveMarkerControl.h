@@ -233,8 +233,9 @@ namespace visualization_msgs
     virtual std::string getDefinition(){ return "string name\ngeometry_msgs/Quaternion orientation\nuint8 orientation_mode\nuint8 interaction_mode\nbool always_visible\nMarker[] markers\nbool independent_marker_orientation\nstring description\n"; }
     static std::string getDefinitionStatic(){ return "string name\ngeometry_msgs/Quaternion orientation\nuint8 orientation_mode\nuint8 interaction_mode\nbool always_visible\nMarker[] markers\nbool independent_marker_orientation\nstring description\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::visualization_msgs::InteractiveMarkerControl> Ptr;
+    typedef std::shared_ptr<tinyros::visualization_msgs::InteractiveMarkerControl const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::visualization_msgs::InteractiveMarkerControl> InteractiveMarkerControlPtr;
 typedef std::shared_ptr<tinyros::visualization_msgs::InteractiveMarkerControl const> InteractiveMarkerControlConstPtr;
 

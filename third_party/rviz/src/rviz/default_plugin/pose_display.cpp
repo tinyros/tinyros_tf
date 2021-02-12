@@ -90,7 +90,7 @@ public:
     }
   }
 
-  void setMessage(const geometry_msgs::PoseStampedConstPtr& message)
+  void setMessage(const tinyros::geometry_msgs::PoseStampedConstPtr& message)
   {
     // properties_.size() should only be > 0 after createProperties()
     // and before destroyProperties(), during which frame_property_,
@@ -163,7 +163,7 @@ void PoseDisplay::onInitialize()
                             head_length_property_->getFloat(),
                             head_radius_property_->getFloat() );
   // Arrow points in -Z direction, so rotate the orientation before display.
-  // TODO: is it safe to change Arrow to point in +X direction?
+  // is it safe to change Arrow to point in +X direction?
   arrow_->setOrientation( Ogre::Quaternion( Ogre::Degree( -90 ), Ogre::Vector3::UNIT_Y ));
 
   axes_ = new rviz::Axes( scene_manager_, scene_node_,
@@ -253,7 +253,7 @@ void PoseDisplay::updateShapeVisibility()
   }
 }
 
-void PoseDisplay::processMessage( const geometry_msgs::PoseStamped::ConstPtr& message )
+void PoseDisplay::processMessage( const tinyros::geometry_msgs::PoseStamped::ConstPtr& message )
 {
   if( !validateFloats( *message ))
   {
@@ -265,7 +265,7 @@ void PoseDisplay::processMessage( const geometry_msgs::PoseStamped::ConstPtr& me
   Ogre::Quaternion orientation;
   if( !context_->getFrameManager()->transform( message->header, message->pose, position, orientation ))
   {
-    ROS_ERROR( "Error transforming pose '%s' from frame '%s' to frame '%s'",
+    tinyros_log_error( "Error transforming pose '%s' from frame '%s' to frame '%s'",
                qPrintable( getName() ), message->header.frame_id.c_str(), qPrintable( fixed_frame_ ));
     return;
   }
@@ -290,5 +290,3 @@ void PoseDisplay::reset()
 
 } // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::PoseDisplay, rviz::Display )

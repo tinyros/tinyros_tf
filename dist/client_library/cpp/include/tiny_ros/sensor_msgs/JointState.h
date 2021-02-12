@@ -324,8 +324,9 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "Header header\nstring[] name\nfloat64[] position\nfloat64[] velocity\nfloat64[] effort\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nstring[] name\nfloat64[] position\nfloat64[] velocity\nfloat64[] effort\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::sensor_msgs::JointState> Ptr;
+    typedef std::shared_ptr<tinyros::sensor_msgs::JointState const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::sensor_msgs::JointState> JointStatePtr;
 typedef std::shared_ptr<tinyros::sensor_msgs::JointState const> JointStateConstPtr;
 

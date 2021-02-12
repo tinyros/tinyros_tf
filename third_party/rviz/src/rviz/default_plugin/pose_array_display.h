@@ -30,7 +30,7 @@
 #ifndef RVIZ_POSE_ARRAY_DISPLAY_H_
 #define RVIZ_POSE_ARRAY_DISPLAY_H_
 
-#include <geometry_msgs/PoseArray.h>
+#include <tinyros::geometry_msgs/PoseArray.h>
 
 #include "rviz/message_filter_display.h"
 
@@ -45,7 +45,7 @@ class ColorProperty;
 class FloatProperty;
 
 /** @brief Displays a geometry_msgs/PoseArray message as a bunch of line-drawn arrows. */
-class PoseArrayDisplay: public MessageFilterDisplay<geometry_msgs::PoseArray>
+class PoseArrayDisplay: public MessageFilterDisplay<tinyros::geometry_msgs::PoseArray>
 {
 Q_OBJECT
 public:
@@ -55,7 +55,7 @@ public:
 protected:
   virtual void onInitialize();
   virtual void reset();
-  virtual void processMessage( const geometry_msgs::PoseArray::ConstPtr& msg );
+  virtual void processMessage( const tinyros::geometry_msgs::PoseArray::ConstPtr& msg );
 
 private:
   Ogre::ManualObject* manual_object_;

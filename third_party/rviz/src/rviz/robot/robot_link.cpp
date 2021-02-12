@@ -66,8 +66,8 @@
 
 namespace fs=boost::filesystem;
 
-#ifndef ROS_PACKAGE_NAME
-# define ROS_PACKAGE_NAME "rviz"
+#ifndef TINYROS_PACKAGE_NAME
+# define TINYROS_PACKAGE_NAME "rviz"
 #endif
 
 namespace rviz

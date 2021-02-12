@@ -2,6 +2,7 @@
 #include "tiny_ros/tinyros_hello/TinyrosHello.h"
 #include "tiny_ros/param.h"
 
+
 int main (int argc, char *argv[]) {
   int count = 0;
   char buffer[50];
@@ -28,7 +29,7 @@ int main (int argc, char *argv[]) {
   map["map1"] = "1";
   map["map2"] = "2";
   map["map3"] = "4";
-  tinyros::param::load(tinyros::package::getPath() + "param.yaml");
+  tinyros::param::load(tinyros::package::getPath() + "share/" + tinyros::package::getName() +"/param.yaml");
   tinyros::param::getParamNames(keys);
   tinyros::param::param<std::string>("test2", v, "111");
   tinyros::param::get("map", map1);

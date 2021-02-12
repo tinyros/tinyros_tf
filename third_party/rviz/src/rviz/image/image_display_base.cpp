@@ -31,10 +31,6 @@
 #include <boost/foreach.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <pluginlib/class_loader.h>
-
-#include <image_transport/subscriber_plugin.h>
-
 #include "rviz/validate_floats.h"
 
 #include "rviz/image/image_display_base.h"
@@ -44,12 +40,12 @@ namespace rviz
 
 ImageDisplayBase::ImageDisplayBase() :
     Display()
-    , sub_()
     , tf_filter_()
     , messages_received_(0)
+    , sub_(new tinyros::Subscriber<tinyros::sensor_msgs::Image, ImageDisplayBase>("", &ImageDisplayBase::incomingMessage, this))
 {
   topic_property_ = new RosTopicProperty("Image Topic", "",
-                                         QString::fromStdString(ros::message_traits::datatype<sensor_msgs::Image>()),
+                                         QString::fromStdString(tinyros::sensor_msgs::Image::getTypeStatic()),
                                          "sensor_msgs::Image topic to subscribe to.", this, SLOT( updateTopic() ));
 
   transport_property_ = new EnumProperty("Transport Hint", "raw", "Preferred method of sending images.", this,
@@ -81,13 +77,11 @@ ImageDisplayBase::~ImageDisplayBase()
 
 void ImageDisplayBase::onInitialize()
 {
-  it_.reset( new image_transport::ImageTransport( update_nh_ ));
-  scanForTransportSubscriberPlugins();
 }
 
 void ImageDisplayBase::setTopic( const QString &topic, const QString &datatype )
 {
-  if ( datatype == ros::message_traits::datatype<sensor_msgs::Image>() )
+  if ( datatype == tinyros::sensor_msgs::Image::getTypeStatic() )
   {
     transport_property_->setStdString( "raw" );
     topic_property_->setString( topic );
@@ -97,7 +91,7 @@ void ImageDisplayBase::setTopic( const QString &topic, const QString &datatype )
     int index = topic.lastIndexOf("/");
     if ( index == -1 )
     {
-      ROS_WARN("ImageDisplayBase::setTopic() Invalid topic name: %s",
+      tinyros_log_warn("ImageDisplayBase::setTopic() Invalid topic name: %s",
                topic.toStdString().c_str());
       return;
     }
@@ -152,43 +146,35 @@ void ImageDisplayBase::subscribe()
   {
 
     tf_filter_.reset();
-
-    sub_.reset(new image_transport::SubscriberFilter());
+    sub_->setEnabled(false);
 
     if (!topic_property_->getTopicStd().empty() && !transport_property_->getStdString().empty() )
     {
-
-        // Determine UDP vs TCP transport for user selection.
-        if (unreliable_property_->getBool())
-        {
-            sub_->subscribe(*it_, topic_property_->getTopicStd(), (uint32_t)queue_size_property_->getInt(),
-                            image_transport::TransportHints(transport_property_->getStdString(), ros::TransportHints().unreliable()));
-        }
-        else{
-            sub_->subscribe(*it_, topic_property_->getTopicStd(), (uint32_t)queue_size_property_->getInt(),
-                            image_transport::TransportHints(transport_property_->getStdString()));
-        }
-
-
       if (targetFrame_.empty())
       {
-        sub_->registerCallback(boost::bind(&ImageDisplayBase::incomingMessage, this, _1));
+        if (sub_->topic_.empty()) {
+            sub_->topic_ = topic_property_->getTopicStd();
+            tinyros::nh()->subscribe(*sub_);
+        } else if (sub_->topic_ != topic_property_->getTopicStd()) {
+          sub_->setEnabled(false);
+          sub_ = new tinyros::Subscriber<tinyros::sensor_msgs::Image, ImageDisplayBase>(
+            topic_property_->getTopicStd(), &ImageDisplayBase::incomingMessage, this);
+          tinyros::nh()->subscribe(*sub_);
+        }
+        sub_->setEnabled(true);
       }
       else
       {
-        tf_filter_.reset( new tf::MessageFilter<sensor_msgs::Image>(*sub_, (tf::Transformer&)*(context_->getTFClient()), targetFrame_, (uint32_t)queue_size_property_->getInt(), update_nh_));
-        tf_filter_->registerCallback(boost::bind(&ImageDisplayBase::incomingMessage, this, _1));
+        tf_filter_.reset( new tinyros::tf::MessageFilter<tinyros::sensor_msgs::Image>((tinyros::tf::Transformer&)*(context_->getTFClient()), targetFrame_, (uint32_t)queue_size_property_->getInt()));
+        tf_filter_->registerCallback(std::bind(&ImageDisplayBase::incomingMessage, this, std::placeholders::_1));
+        tf_filter_->connectInput(topic_property_->getTopicStd());
       }
     }
     setStatus(StatusProperty::Ok, "Topic", "OK");
   }
-  catch (ros::Exception& e)
+  catch (std::exception& e)
   {
     setStatus(StatusProperty::Error, "Topic", QString("Error subscribing: ") + e.what());
-  }
-  catch (image_transport::Exception& e)
-  {
-    setStatus( StatusProperty::Error, "Topic", QString("Error subscribing: ") + e.what());
   }
 
   messages_received_ = 0;
@@ -198,7 +184,7 @@ void ImageDisplayBase::subscribe()
 void ImageDisplayBase::unsubscribe()
 {
   tf_filter_.reset();
-  sub_.reset(new image_transport::SubscriberFilter());
+  sub_->setEnabled(false);
 }
 
 void ImageDisplayBase::fixedFrameChanged()
@@ -207,38 +193,6 @@ void ImageDisplayBase::fixedFrameChanged()
   {
     tf_filter_->setTargetFrame(fixed_frame_.toStdString());
     reset();
-  }
-}
-
-void ImageDisplayBase::scanForTransportSubscriberPlugins()
-{
-  pluginlib::ClassLoader<image_transport::SubscriberPlugin> sub_loader("image_transport",
-                                                                       "image_transport::SubscriberPlugin");
-
-  BOOST_FOREACH( const std::string& lookup_name, sub_loader.getDeclaredClasses() )
-  {
-    // lookup_name is formatted as "pkg/transport_sub", for instance
-    // "image_transport/compressed_sub" for the "compressed"
-    // transport.  This code removes the "_sub" from the tail and
-    // everything up to and including the "/" from the head, leaving
-    // "compressed" (for example) in transport_name.
-    std::string transport_name = boost::erase_last_copy(lookup_name, "_sub");
-    transport_name = transport_name.substr(lookup_name.find('/') + 1);
-
-    // If the plugin loads without throwing an exception, add its
-    // transport name to the list of valid plugins, otherwise ignore
-    // it.
-    try
-    {
-      boost::shared_ptr<image_transport::SubscriberPlugin> sub = sub_loader.createInstance(lookup_name);
-      transport_plugin_types_.insert(transport_name);
-    }
-    catch (const pluginlib::LibraryLoadException& e)
-    {
-    }
-    catch (const pluginlib::CreateClassException& e)
-    {
-    }
   }
 }
 
@@ -259,10 +213,10 @@ void ImageDisplayBase::fillTransportOptionList(EnumProperty* property)
   choices.push_back("raw");
 
   // Loop over all current ROS topic names
-  ros::master::V_TopicInfo topics;
-  ros::master::getTopics(topics);
-  ros::master::V_TopicInfo::iterator it = topics.begin();
-  ros::master::V_TopicInfo::iterator end = topics.end();
+  rviz::utils::V_TopicInfo topics;
+  rviz::utils::getTopics(topics);
+  rviz::utils::V_TopicInfo::iterator it = topics.begin();
+  rviz::utils::V_TopicInfo::iterator end = topics.end();
   for (; it != end; ++it)
   {
     // If the beginning of this topic name is the same as topic_,
@@ -270,7 +224,7 @@ void ImageDisplayBase::fillTransportOptionList(EnumProperty* property)
     // and the next character is /
     // and there are no further slashes from there to the end,
     // then consider this a possible transport topic.
-    const ros::master::TopicInfo& ti = *it;
+    const rviz::utils::TopicInfo& ti = *it;
     const std::string& topic_name = ti.name;
     const std::string& topic = topic_property_->getStdString();
 

@@ -144,8 +144,9 @@ namespace visualization_msgs
     virtual std::string getDefinition(){ return "string server_id\nuint64 seq_num\nInteractiveMarker[] markers\n"; }
     static std::string getDefinitionStatic(){ return "string server_id\nuint64 seq_num\nInteractiveMarker[] markers\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::visualization_msgs::InteractiveMarkerInit> Ptr;
+    typedef std::shared_ptr<tinyros::visualization_msgs::InteractiveMarkerInit const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::visualization_msgs::InteractiveMarkerInit> InteractiveMarkerInitPtr;
 typedef std::shared_ptr<tinyros::visualization_msgs::InteractiveMarkerInit const> InteractiveMarkerInitConstPtr;
 

@@ -31,7 +31,7 @@
 #ifndef RVIZ_POLYGON_DISPLAY_H
 #define RVIZ_POLYGON_DISPLAY_H
 
-#include <geometry_msgs/PolygonStamped.h>
+#include <tiny_ros/geometry_msgs/PolygonStamped.h>
 
 #include "rviz/message_filter_display.h"
 
@@ -50,7 +50,7 @@ class FloatProperty;
  * \class PolygonDisplay
  * \brief Displays a geometry_msgs::PolygonStamped message
  */
-class PolygonDisplay: public MessageFilterDisplay<geometry_msgs::PolygonStamped>
+class PolygonDisplay: public MessageFilterDisplay<tinyros::geometry_msgs::PolygonStamped>
 {
 Q_OBJECT
 public:
@@ -65,7 +65,7 @@ public:
 
 protected:
   /** @brief Overridden from MessageFilterDisplay. */
-  virtual void processMessage( const geometry_msgs::PolygonStamped::ConstPtr& msg );
+  virtual void processMessage( const tinyros::geometry_msgs::PolygonStamped::ConstPtr& msg );
 
   Ogre::ManualObject* manual_object_;
 

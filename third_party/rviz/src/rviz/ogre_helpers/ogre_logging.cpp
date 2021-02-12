@@ -30,7 +30,7 @@
 #include <OgreLogManager.h>
 #include <OgreLog.h>
 
-#include <ros/ros.h>
+#include <tiny_ros/ros.h>
 
 #include "rviz/ogre_helpers/ogre_logging.h"
 
@@ -50,7 +50,11 @@ public:
     {
       if ( lml >= min_lml )
       {
-        ROS_LOG((ros::console::levels::Level)(lml-1), ROSCONSOLE_DEFAULT_NAME, "%s", message.c_str() );
+        if(lml == tinyros::tinyros_msgs::Log::ROSDEBUG) tinyros::logdebug(message);
+        else if(lml == tinyros::tinyros_msgs::Log::ROSINFO) tinyros::loginfo(message);
+        else if(lml == tinyros::tinyros_msgs::Log::ROSWARN) tinyros::logwarn(message);
+        else if(lml == tinyros::tinyros_msgs::Log::ROSERROR) tinyros::logerror(message);
+        else if(lml == tinyros::tinyros_msgs::Log::ROSFATAL) tinyros::logfatal(message);
       }
     }
    }
@@ -59,7 +63,11 @@ public:
   {
     if ( lml >= min_lml )
     {
-      ROS_LOG((ros::console::levels::Level)(lml-1), ROSCONSOLE_DEFAULT_NAME, "%s", message.c_str() );
+      if(lml == tinyros::tinyros_msgs::Log::ROSDEBUG) tinyros::logdebug(message);
+      else if(lml == tinyros::tinyros_msgs::Log::ROSINFO) tinyros::loginfo(message);
+      else if(lml == tinyros::tinyros_msgs::Log::ROSWARN) tinyros::logwarn(message);
+      else if(lml == tinyros::tinyros_msgs::Log::ROSERROR) tinyros::logerror(message);
+      else if(lml == tinyros::tinyros_msgs::Log::ROSFATAL) tinyros::logfatal(message);
     }
   }
 #endif

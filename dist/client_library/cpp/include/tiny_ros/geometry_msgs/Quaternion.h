@@ -193,8 +193,9 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "float64 x\nfloat64 y\nfloat64 z\nfloat64 w\n"; }
     static std::string getDefinitionStatic(){ return "float64 x\nfloat64 y\nfloat64 z\nfloat64 w\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::geometry_msgs::Quaternion> Ptr;
+    typedef std::shared_ptr<tinyros::geometry_msgs::Quaternion const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::geometry_msgs::Quaternion> QuaternionPtr;
 typedef std::shared_ptr<tinyros::geometry_msgs::Quaternion const> QuaternionConstPtr;
 

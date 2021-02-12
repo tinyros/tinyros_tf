@@ -38,7 +38,7 @@ namespace rviz
 MarkerArrayDisplay::MarkerArrayDisplay()
   : MarkerDisplay()
 {
-  marker_topic_property_->setMessageType( QString::fromStdString( ros::message_traits::datatype<visualization_msgs::MarkerArray>() ));
+  marker_topic_property_->setMessageType( QString::fromStdString( tinyros::visualization_msgs::MarkerArray::getTypeStatic() ));
   marker_topic_property_->setValue( "visualization_marker_array" );
   marker_topic_property_->setDescription( "visualization_msgs::MarkerArray topic to subscribe to." );
 
@@ -56,14 +56,25 @@ void MarkerArrayDisplay::subscribe()
   std::string topic = marker_topic_property_->getTopicStd();
   if( !topic.empty() )
   {
-    array_sub_.shutdown();
+    array_sub_->setEnabled(false);
 
     try
     {
-      array_sub_ = update_nh_.subscribe( topic, queue_size_property_->getInt(), &MarkerArrayDisplay::handleMarkerArray, this );
+      if (array_sub_->topic_ != topic) {
+        if (array_sub_->topic_.empty()) {
+          array_sub_->topic_ = topic;
+        } else {
+          array_sub_->setEnable(false);
+          array_sub_ = new tinyros::Subscriber<tinyros::visualization_msgs::MarkerArray, MarkerDisplay> (
+            topic, &MarkerDisplay::incomingMarkerArray, this);
+        }
+        tinyros::nh()->subscribe(*array_sub_);
+      } 
+      array_sub_->setEnable(true);
+      
       setStatus( StatusProperty::Ok, "Topic", "OK" );
     }
-    catch( ros::Exception& e )
+    catch( std::exception& e )
     {
       setStatus( StatusProperty::Error, "Topic", QString( "Error subscribing: " ) + e.what() );
     }
@@ -72,17 +83,8 @@ void MarkerArrayDisplay::subscribe()
 
 void MarkerArrayDisplay::unsubscribe()
 {
-  array_sub_.shutdown();
-}
-
-// I seem to need this wrapper function to make the compiler like my
-// function pointer in the .subscribe() call above.
-void MarkerArrayDisplay::handleMarkerArray( const visualization_msgs::MarkerArray::ConstPtr& array )
-{
-  incomingMarkerArray( array );
+  array_sub_->setEnabled(false);
 }
 
 } // end namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::MarkerArrayDisplay, rviz::Display )

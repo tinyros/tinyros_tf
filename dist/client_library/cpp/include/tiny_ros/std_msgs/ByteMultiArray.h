@@ -114,8 +114,9 @@ namespace std_msgs
     virtual std::string getDefinition(){ return "MultiArrayLayout  layout\nbyte[]            data\n"; }
     static std::string getDefinitionStatic(){ return "MultiArrayLayout  layout\nbyte[]            data\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::std_msgs::ByteMultiArray> Ptr;
+    typedef std::shared_ptr<tinyros::std_msgs::ByteMultiArray const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::std_msgs::ByteMultiArray> ByteMultiArrayPtr;
 typedef std::shared_ptr<tinyros::std_msgs::ByteMultiArray const> ByteMultiArrayConstPtr;
 

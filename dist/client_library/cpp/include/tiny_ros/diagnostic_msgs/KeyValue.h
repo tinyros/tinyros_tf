@@ -109,8 +109,9 @@ namespace diagnostic_msgs
     virtual std::string getDefinition(){ return "string key\nstring value\n"; }
     static std::string getDefinitionStatic(){ return "string key\nstring value\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::diagnostic_msgs::KeyValue> Ptr;
+    typedef std::shared_ptr<tinyros::diagnostic_msgs::KeyValue const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::diagnostic_msgs::KeyValue> KeyValuePtr;
 typedef std::shared_ptr<tinyros::diagnostic_msgs::KeyValue const> KeyValueConstPtr;
 

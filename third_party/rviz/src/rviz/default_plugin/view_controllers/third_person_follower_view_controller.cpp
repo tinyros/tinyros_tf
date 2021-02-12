@@ -29,7 +29,7 @@
 
 #include <stdint.h>
 
-#include <ros/ros.h>
+#include <tiny_ros/ros.h>
 
 #include <OgreCamera.h>
 #include <OgrePlane.h>
@@ -235,5 +235,3 @@ void ThirdPersonFollowerViewController::lookAt( const Ogre::Vector3& point )
 
 } // end namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::ThirdPersonFollowerViewController, rviz::ViewController )

@@ -158,8 +158,9 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "float64 x\nfloat64 y\nfloat64 theta\n"; }
     static std::string getDefinitionStatic(){ return "float64 x\nfloat64 y\nfloat64 theta\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::geometry_msgs::Pose2D> Ptr;
+    typedef std::shared_ptr<tinyros::geometry_msgs::Pose2D const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::geometry_msgs::Pose2D> Pose2DPtr;
 typedef std::shared_ptr<tinyros::geometry_msgs::Pose2D const> Pose2DConstPtr;
 

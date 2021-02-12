@@ -332,8 +332,9 @@ namespace gazebo_msgs
     virtual std::string getDefinition(){ return "bool auto_disable_bodies\nuint32 sor_pgs_precon_iters\nuint32 sor_pgs_iters\nfloat64 sor_pgs_w\nfloat64 sor_pgs_rms_error_tol\nfloat64 contact_surface_layer\nfloat64 contact_max_correcting_vel\nfloat64 cfm\nfloat64 erp\nuint32 max_contacts\n"; }
     static std::string getDefinitionStatic(){ return "bool auto_disable_bodies\nuint32 sor_pgs_precon_iters\nuint32 sor_pgs_iters\nfloat64 sor_pgs_w\nfloat64 sor_pgs_rms_error_tol\nfloat64 contact_surface_layer\nfloat64 contact_max_correcting_vel\nfloat64 cfm\nfloat64 erp\nuint32 max_contacts\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::ODEPhysics> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::ODEPhysics const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::ODEPhysics> ODEPhysicsPtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::ODEPhysics const> ODEPhysicsConstPtr;
 

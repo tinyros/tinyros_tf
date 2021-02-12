@@ -329,8 +329,9 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "Header header\nfloat32 angle_min\nfloat32 angle_max\nfloat32 angle_increment\nfloat32 time_increment\nfloat32 scan_time\nfloat32 range_min\nfloat32 range_max\nLaserEcho[] ranges\nLaserEcho[] intensities\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nfloat32 angle_min\nfloat32 angle_max\nfloat32 angle_increment\nfloat32 time_increment\nfloat32 scan_time\nfloat32 range_min\nfloat32 range_max\nLaserEcho[] ranges\nLaserEcho[] intensities\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::sensor_msgs::MultiEchoLaserScan> Ptr;
+    typedef std::shared_ptr<tinyros::sensor_msgs::MultiEchoLaserScan const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::sensor_msgs::MultiEchoLaserScan> MultiEchoLaserScanPtr;
 typedef std::shared_ptr<tinyros::sensor_msgs::MultiEchoLaserScan const> MultiEchoLaserScanConstPtr;
 

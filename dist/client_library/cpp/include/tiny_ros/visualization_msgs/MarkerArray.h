@@ -92,8 +92,9 @@ namespace visualization_msgs
     virtual std::string getDefinition(){ return "Marker[] markers\n"; }
     static std::string getDefinitionStatic(){ return "Marker[] markers\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::visualization_msgs::MarkerArray> Ptr;
+    typedef std::shared_ptr<tinyros::visualization_msgs::MarkerArray const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::visualization_msgs::MarkerArray> MarkerArrayPtr;
 typedef std::shared_ptr<tinyros::visualization_msgs::MarkerArray const> MarkerArrayConstPtr;
 

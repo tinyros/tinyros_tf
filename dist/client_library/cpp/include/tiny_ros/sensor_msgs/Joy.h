@@ -177,8 +177,9 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "Header header\nfloat32[] axes\nint32[] buttons\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nfloat32[] axes\nint32[] buttons\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::sensor_msgs::Joy> Ptr;
+    typedef std::shared_ptr<tinyros::sensor_msgs::Joy const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::sensor_msgs::Joy> JoyPtr;
 typedef std::shared_ptr<tinyros::sensor_msgs::Joy const> JoyConstPtr;
 

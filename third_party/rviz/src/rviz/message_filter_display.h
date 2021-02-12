@@ -32,11 +32,8 @@
 #ifndef Q_MOC_RUN
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
-
-#include <message_filters/subscriber.h>
-#include <tf/message_filter.h>
+#include <tiny_ros/tf/message_filter.h>
 #endif
-
 #include "rviz/display_context.h"
 #include "rviz/frame_manager.h"
 #include "rviz/properties/ros_topic_property.h"
@@ -91,18 +88,16 @@ public:
     : tf_filter_( NULL )
     , messages_received_( 0 )
     {
-      QString message_type = QString::fromStdString( ros::message_traits::datatype<MessageType>() );
+      QString message_type = QString::fromStdString( typename MessageType::getTypeStatic() );
       topic_property_->setMessageType( message_type );
       topic_property_->setDescription( message_type + " topic to subscribe to." );
     }
 
   virtual void onInitialize()
     {
-      tf_filter_ = new tf::MessageFilter<MessageType>( *context_->getTFClient(),
-                                                       fixed_frame_.toStdString(), 10, update_nh_ );
-
-      tf_filter_->connectInput( sub_ );
-      tf_filter_->registerCallback( boost::bind( &MessageFilterDisplay<MessageType>::incomingMessage, this, _1 ));
+      tf_filter_ = new tinyros::tf::MessageFilter<MessageType>( *context_->getTFClient(),
+                                                       fixed_frame_.toStdString(), 10);
+      tf_filter_->registerCallback( std::bind( &MessageFilterDisplay<MessageType>::incomingMessage, this, std::placeholders::_1 ));
       context_->getFrameManager()->registerFilterForTransformStatusCheck( tf_filter_, this );
     }
 
@@ -142,16 +137,10 @@ protected:
 
       try
       {
-        ros::TransportHints transport_hint = ros::TransportHints().reliable();
-        // Determine UDP vs TCP transport for user selection.
-        if (unreliable_property_->getBool())
-        {
-          transport_hint = ros::TransportHints().unreliable();
-        }
-        sub_.subscribe( update_nh_, topic_property_->getTopicStd(), 10, transport_hint);
+        tf_filter_->connectInput( topic_property_->getTopicStd() );
         setStatus( StatusProperty::Ok, "Topic", "OK" );
       }
-      catch( ros::Exception& e )
+      catch( std::exception& e )
       {
         setStatus( StatusProperty::Error, "Topic", QString( "Error subscribing: " ) + e.what() );
       }
@@ -159,7 +148,7 @@ protected:
 
   virtual void unsubscribe()
     {
-      sub_.unsubscribe();
+      tf_filter_->connectEnable(false);
     }
 
   virtual void onEnable()
@@ -200,8 +189,7 @@ protected:
    * This is called by incomingMessage(). */
   virtual void processMessage( const typename MessageType::ConstPtr& msg ) = 0;
 
-  message_filters::Subscriber<MessageType> sub_;
-  tf::MessageFilter<MessageType>* tf_filter_;
+  tinyros::tf::MessageFilter<MessageType>* tf_filter_;
   uint32_t messages_received_;
 };
 

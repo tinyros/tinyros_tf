@@ -32,7 +32,8 @@
 
 #include <urdf/model.h>
 
-#include <tf/transform_listener.h>
+#include <tiny_ros/tf/transform_listener.h>
+#include <tiny_ros/param.h>
 
 #include "rviz/display_context.h"
 #include "rviz/robot/robot.h"
@@ -142,21 +143,13 @@ void RobotModelDisplay::updateTfPrefix()
 void RobotModelDisplay::load()
 {
   std::string content;
-  if( !update_nh_.getParam( robot_description_property_->getStdString(), content ))
+  if( !tinyros::param::get( robot_description_property_->getStdString(), content ))
   {
-    std::string loc;
-    if( update_nh_.searchParam( robot_description_property_->getStdString(), loc ))
-    {
-      update_nh_.getParam( loc, content );
-    }
-    else
-    {
-      clear();
-      setStatus( StatusProperty::Error, "URDF",
-                 "Parameter [" + robot_description_property_->getString()
-                 + "] does not exist, and was not found by searchParam()" );
-      return;
-    }
+    clear();
+    setStatus( StatusProperty::Error, "URDF",
+               "Parameter [" + robot_description_property_->getString()
+               + "] does not exist, and was not found by searchParam()" );
+    return;
   }
 
   if( content.empty() )
@@ -247,5 +240,3 @@ void RobotModelDisplay::reset()
 
 } // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::RobotModelDisplay, rviz::Display )

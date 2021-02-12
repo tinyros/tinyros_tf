@@ -41,7 +41,7 @@
 #include <OgreTechnique.h>
 #include <OgreCamera.h>
 
-#include <tf/transform_listener.h>
+#include <tiny_ros/tf/transform_listener.h>
 
 #include "rviz/bit_allocator.h"
 #include "rviz/frame_manager.h"
@@ -60,6 +60,7 @@
 #include <image_transport/camera_common.h>
 
 #include "camera_display.h"
+#include "utils/utils.h"
 
 namespace rviz
 {
@@ -137,8 +138,8 @@ void CameraDisplay::onInitialize()
 {
   ImageDisplayBase::onInitialize();
 
-  caminfo_tf_filter_ = new tf::MessageFilter<sensor_msgs::CameraInfo>( *context_->getTFClient(), fixed_frame_.toStdString(),
-                                                                       queue_size_property_->getInt(), update_nh_ );
+  caminfo_tf_filter_ = new tinyros::tf::MessageFilter<tinyros::sensor_msgs::CameraInfo>( *context_->getTFClient(), fixed_frame_.toStdString(),
+                                                                       queue_size_property_->getInt());
 
   bg_scene_node_ = scene_node_->createChildSceneNode();
   fg_scene_node_ = scene_node_->createChildSceneNode();
@@ -208,8 +209,7 @@ void CameraDisplay::onInitialize()
   render_panel_->setOverlaysEnabled(false);
   render_panel_->getCamera()->setNearClipDistance( 0.01f );
 
-  caminfo_tf_filter_->connectInput(caminfo_sub_);
-  caminfo_tf_filter_->registerCallback(boost::bind(&CameraDisplay::caminfoCallback, this, _1));
+  caminfo_tf_filter_->registerCallback(std::bind(&CameraDisplay::caminfoCallback, this, std::placeholders::_1));
   //context_->getFrameManager()->registerFilterForTransformStatusCheck(caminfo_tf_filter_, this);
 
   vis_bit_ = context_->visibilityBits()->allocBit();
@@ -265,15 +265,14 @@ void CameraDisplay::subscribe()
 
   ImageDisplayBase::subscribe();
 
-  std::string topic = topic_property_->getTopicStd();
-  std::string caminfo_topic = image_transport::getCameraInfoTopic(topic_property_->getTopicStd());
+  std::string caminfo_topic = rviz::utils::getCameraInfoTopic(topic_property_->getTopicStd());
 
   try
   {
-    caminfo_sub_.subscribe( update_nh_, caminfo_topic, 1 );
+    caminfo_tf_filter_->connectInput(caminfo_topic);
     setStatus( StatusProperty::Ok, "Camera Info", "OK" );
   }
-  catch( ros::Exception& e )
+  catch( std::exception& e )
   {
     setStatus( StatusProperty::Error, "Camera Info", QString( "Error subscribing: ") + e.what() );
   }
@@ -282,7 +281,7 @@ void CameraDisplay::subscribe()
 void CameraDisplay::unsubscribe()
 {
   ImageDisplayBase::unsubscribe();
-  caminfo_sub_.unsubscribe();
+  caminfo_tf_filter_->connectEnable(false);
 }
 
 void CameraDisplay::updateAlpha()
@@ -353,8 +352,8 @@ void CameraDisplay::update( float wall_dt, float ros_dt )
 
 bool CameraDisplay::updateCamera()
 {
-  sensor_msgs::CameraInfo::ConstPtr info;
-  sensor_msgs::Image::ConstPtr image;
+  tinyros::sensor_msgs::CameraInfoConstPtr info;
+  tinyros::sensor_msgs::ImageConstPtr image;
   {
     boost::mutex::scoped_lock lock( caminfo_mutex_ );
 
@@ -374,7 +373,7 @@ bool CameraDisplay::updateCamera()
   }
 
   // if we're in 'exact' time mode, only show image if the time is exactly right
-  ros::Time rviz_time = context_->getFrameManager()->getTime();
+  tinyros::Time rviz_time = context_->getFrameManager()->getTime();
   if ( context_->getFrameManager()->getSyncMode() == FrameManager::SyncExact &&
       rviz_time != image->header.stamp )
   {
@@ -399,13 +398,13 @@ bool CameraDisplay::updateCamera()
   // If the image width is 0 due to a malformed caminfo, try to grab the width from the image.
   if( img_width == 0 )
   {
-    ROS_DEBUG( "Malformed CameraInfo on camera [%s], width = 0", qPrintable( getName() ));
+    tinyros_log_debug( "Malformed CameraInfo on camera [%s], width = 0", qPrintable( getName() ));
     img_width = texture_.getWidth();
   }
 
   if (img_height == 0)
   {
-    ROS_DEBUG( "Malformed CameraInfo on camera [%s], height = 0", qPrintable( getName() ));
+    tinyros_log_debug( "Malformed CameraInfo on camera [%s], height = 0", qPrintable( getName() ));
     img_height = texture_.getHeight();
   }
 
@@ -504,12 +503,12 @@ bool CameraDisplay::updateCamera()
   return true;
 }
 
-void CameraDisplay::processMessage(const sensor_msgs::Image::ConstPtr& msg)
+void CameraDisplay::processMessage(const tinyros::sensor_msgs::ImageConstPtr& msg)
 {
   texture_.addMessage(msg);
 }
 
-void CameraDisplay::caminfoCallback( const sensor_msgs::CameraInfo::ConstPtr& msg )
+void CameraDisplay::caminfoCallback( const tinyros::sensor_msgs::CameraInfoConstPtr& msg )
 {
   boost::mutex::scoped_lock lock( caminfo_mutex_ );
   current_caminfo_ = msg;
@@ -531,5 +530,17 @@ void CameraDisplay::reset()
 
 } // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::CameraDisplay, rviz::Display )
+namespace
+{
+  struct ProxyExec0
+  {
+    typedef  rviz::CameraDisplay _derived;
+    typedef  rviz::Display _base;
+    ProxyExec0()
+    {
+      tinyros::class_loader::class_loader_private::registerPlugin<_derived, _base>(rviz::CameraDisplay, rviz::Display);
+    }
+  };
+  static ProxyExec0 g_register_plugin_0;
+}  // namespace
+

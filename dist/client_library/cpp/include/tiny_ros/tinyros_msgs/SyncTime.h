@@ -99,8 +99,9 @@ namespace tinyros_msgs
     virtual std::string getDefinition(){ return "uint32 tick\ntime data\n"; }
     static std::string getDefinitionStatic(){ return "uint32 tick\ntime data\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::tinyros_msgs::SyncTime> Ptr;
+    typedef std::shared_ptr<tinyros::tinyros_msgs::SyncTime const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::tinyros_msgs::SyncTime> SyncTimePtr;
 typedef std::shared_ptr<tinyros::tinyros_msgs::SyncTime const> SyncTimeConstPtr;
 

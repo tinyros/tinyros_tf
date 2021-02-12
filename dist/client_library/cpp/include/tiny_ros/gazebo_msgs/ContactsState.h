@@ -102,8 +102,9 @@ namespace gazebo_msgs
     virtual std::string getDefinition(){ return "Header header\ngazebo_msgs/ContactState[] states\n"; }
     static std::string getDefinitionStatic(){ return "Header header\ngazebo_msgs/ContactState[] states\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::ContactsState> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::ContactsState const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::ContactsState> ContactsStatePtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::ContactsState const> ContactsStateConstPtr;
 

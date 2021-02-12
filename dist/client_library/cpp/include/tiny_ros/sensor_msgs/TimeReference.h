@@ -121,8 +121,9 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "Header header\ntime   time_ref\nstring source\n"; }
     static std::string getDefinitionStatic(){ return "Header header\ntime   time_ref\nstring source\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::sensor_msgs::TimeReference> Ptr;
+    typedef std::shared_ptr<tinyros::sensor_msgs::TimeReference const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::sensor_msgs::TimeReference> TimeReferencePtr;
 typedef std::shared_ptr<tinyros::sensor_msgs::TimeReference const> TimeReferenceConstPtr;
 

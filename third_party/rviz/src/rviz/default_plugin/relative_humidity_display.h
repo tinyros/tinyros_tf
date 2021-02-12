@@ -30,8 +30,8 @@
 #ifndef RVIZ_RELATIVE_HUMIDITY_DISPLAY_H
 #define RVIZ_RELATIVE_HUMIDITY_DISPLAY_H
 
-#include <sensor_msgs/RelativeHumidity.h>
-#include <sensor_msgs/PointCloud2.h>
+#include <tiny_ros/sensor_msgs/RelativeHumidity.h>
+#include <tiny_ros/sensor_msgs/PointCloud2.h>
 
 #include "rviz/message_filter_display.h"
 
@@ -46,7 +46,7 @@ class PointCloudCommon;
  * \brief Displays a RelativeHumidity message of type sensor_msgs::RelativeHumidity
  *
  */
-class RelativeHumidityDisplay: public MessageFilterDisplay<sensor_msgs::RelativeHumidity>
+class RelativeHumidityDisplay: public MessageFilterDisplay<tinyros::sensor_msgs::RelativeHumidity>
 {
 Q_OBJECT
 public:
@@ -65,7 +65,7 @@ protected:
   virtual void onInitialize();
 
   /** @brief Process a single message.  Overridden from MessageFilterDisplay. */
-  virtual void processMessage( const sensor_msgs::RelativeHumidityConstPtr& msg );
+  virtual void processMessage( const tinyros::sensor_msgs::RelativeHumidityConstPtr& msg );
 
   IntProperty* queue_size_property_;
 

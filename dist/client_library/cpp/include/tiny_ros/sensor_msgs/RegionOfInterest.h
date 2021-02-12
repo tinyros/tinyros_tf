@@ -138,8 +138,9 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "uint32 x_offset\nuint32 y_offset\nuint32 height\nuint32 width\nbool do_rectify\n"; }
     static std::string getDefinitionStatic(){ return "uint32 x_offset\nuint32 y_offset\nuint32 height\nuint32 width\nbool do_rectify\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::sensor_msgs::RegionOfInterest> Ptr;
+    typedef std::shared_ptr<tinyros::sensor_msgs::RegionOfInterest const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::sensor_msgs::RegionOfInterest> RegionOfInterestPtr;
 typedef std::shared_ptr<tinyros::sensor_msgs::RegionOfInterest const> RegionOfInterestConstPtr;
 

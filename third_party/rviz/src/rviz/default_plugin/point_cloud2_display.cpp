@@ -30,7 +30,7 @@
 #include <OgreSceneNode.h>
 #include <OgreSceneManager.h>
 
-#include <ros/time.h>
+#include <tiny_ros/ros/time.h>
 
 #include "rviz/default_plugin/point_cloud_common.h"
 #include "rviz/default_plugin/point_cloud_transformers.h"
@@ -53,10 +53,6 @@ PointCloud2Display::PointCloud2Display()
                                           " Increasing this is useful if your incoming TF data is delayed significantly "
                                           "from your PointCloud2 data, but it can greatly increase memory usage if the messages are big.",
                                           this, SLOT( updateQueueSize() ));
-
-  // PointCloudCommon sets up a callback queue with a thread for each
-  // instance.  Use that for processing incoming messages.
-  update_nh_.setCallbackQueue( point_cloud_common_->getCallbackQueue() );
 }
 
 PointCloud2Display::~PointCloud2Display()
@@ -75,12 +71,12 @@ void PointCloud2Display::updateQueueSize()
   tf_filter_->setQueueSize( (uint32_t) queue_size_property_->getInt() );
 }
 
-void PointCloud2Display::processMessage( const sensor_msgs::PointCloud2ConstPtr& cloud )
+void PointCloud2Display::processMessage( const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud )
 {
   // Filter any nan values out of the cloud.  Any nan values that make it through to PointCloudBase
   // will get their points put off in lala land, but it means they still do get processed/rendered
   // which can be a big performance hit
-  sensor_msgs::PointCloud2Ptr filtered(new sensor_msgs::PointCloud2);
+  tinyros::sensor_msgs::PointCloud2Ptr filtered(new tinyros::sensor_msgs::PointCloud2);
   int32_t xi = findChannelIndex(cloud, "x");
   int32_t yi = findChannelIndex(cloud, "y");
   int32_t zi = findChannelIndex(cloud, "z");
@@ -178,5 +174,3 @@ void PointCloud2Display::reset()
 
 } // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::PointCloud2Display, rviz::Display )

@@ -30,7 +30,7 @@
 #include <OgreSceneNode.h>
 #include <OgreSceneManager.h>
 
-#include <ros/time.h>
+#include <tiny_ros/ros.h>
 
 #include "rviz/default_plugin/point_cloud_common.h"
 #include "rviz/default_plugin/point_cloud_transformers.h"
@@ -53,10 +53,6 @@ IlluminanceDisplay::IlluminanceDisplay()
                                           " Increasing this is useful if your incoming TF data is delayed significantly "
                                           "from your Illuminance data, but it can greatly increase memory usage if the messages are big.",
                                           this, SLOT( updateQueueSize() ));
-
-  // PointCloudCommon sets up a callback queue with a thread for each
-  // instance.  Use that for processing incoming messages.
-  update_nh_.setCallbackQueue( point_cloud_common_->getCallbackQueue() );
 }
 
 IlluminanceDisplay::~IlluminanceDisplay()
@@ -81,33 +77,33 @@ void IlluminanceDisplay::updateQueueSize()
   tf_filter_->setQueueSize( (uint32_t) queue_size_property_->getInt() );
 }
 
-void IlluminanceDisplay::processMessage( const sensor_msgs::IlluminanceConstPtr& msg )
+void IlluminanceDisplay::processMessage( const tinyros::sensor_msgs::IlluminanceConstPtr& msg )
 {
   // Filter any nan values out of the cloud.  Any nan values that make it through to PointCloudBase
   // will get their points put off in lala land, but it means they still do get processed/rendered
   // which can be a big performance hit
-  sensor_msgs::PointCloud2Ptr filtered(new sensor_msgs::PointCloud2);
+  tinyros::sensor_msgs::PointCloud2Ptr filtered(new tinyros::sensor_msgs::PointCloud2);
 
   // Create fields
-  sensor_msgs::PointField x;
+  tinyros::sensor_msgs::PointField x;
   x.name = "x";
   x.offset = 0;
-  x.datatype = sensor_msgs::PointField::FLOAT32;
+  x.datatype = tinyros::sensor_msgs::PointField::FLOAT32;
   x.count = 1;
-  sensor_msgs::PointField y;
+  tinyros::sensor_msgs::PointField y;
   y.name = "y";
   y.offset = 4;
-  y.datatype = sensor_msgs::PointField::FLOAT32;
+  y.datatype = tinyros::sensor_msgs::PointField::FLOAT32;
   y.count = 1;
-  sensor_msgs::PointField z;
+  tinyros::sensor_msgs::PointField z;
   z.name = "z";
   z.offset = 8;
-  z.datatype = sensor_msgs::PointField::FLOAT32;
+  z.datatype = tinyros::sensor_msgs::PointField::FLOAT32;
   z.count = 1;
-  sensor_msgs::PointField illuminance;
+  tinyros::sensor_msgs::PointField illuminance;
   illuminance.name = "illuminance";
   illuminance.offset = 12;
-  illuminance.datatype = sensor_msgs::PointField::FLOAT64;
+  illuminance.datatype = tinyros::sensor_msgs::PointField::FLOAT64;
   illuminance.count = 1;
 
   // Create pointcloud from message
@@ -152,5 +148,3 @@ void IlluminanceDisplay::reset()
 
 } // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::IlluminanceDisplay, rviz::Display )

@@ -477,10 +477,10 @@ void Robot::setEnableAllLinksCheckbox(QVariant val)
 void Robot::initLinkTreeStyle()
 {
   style_name_map_.clear();
-	style_name_map_[STYLE_LINK_LIST] = "Links in Alphabetic Order";
-	style_name_map_[STYLE_JOINT_LIST] = "Joints in Alphabetic Order";
-	style_name_map_[STYLE_LINK_TREE] = "Tree of links";
-	style_name_map_[STYLE_JOINT_LINK_TREE] = "Tree of links and joints";
+    style_name_map_[STYLE_LINK_LIST] = "Links in Alphabetic Order";
+    style_name_map_[STYLE_JOINT_LIST] = "Joints in Alphabetic Order";
+    style_name_map_[STYLE_LINK_TREE] = "Tree of links";
+    style_name_map_[STYLE_JOINT_LINK_TREE] = "Tree of links and joints";
 
   link_tree_style_->clearOptions();
   std::map<LinkTreeStyle, std::string>::const_iterator style_it = style_name_map_.begin();

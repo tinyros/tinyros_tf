@@ -30,9 +30,11 @@
 #include <QApplication>
 
 #include "rviz/visualizer_app.h"
+#include "tiny_ros/ros.h"
 
 int main( int argc, char** argv )
 {
+  tinyros::init("tinyros_rviz");
   QApplication qapp( argc, argv );
 
   rviz::VisualizerApp vapp;

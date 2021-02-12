@@ -55,7 +55,7 @@ namespace rviz
 class QtOgreRenderWindow : public RenderWidget, public Ogre::RenderTargetListener {
 public:
   /** Constructor.
-  	@param parent The parent wxWindow component.
+      @param parent The parent wxWindow component.
    */
   QtOgreRenderWindow( QWidget* parent = 0 );
 
@@ -74,8 +74,8 @@ public:
   virtual void setPostRenderCallback( boost::function<void ()> func );
 
   /** Overrides the default implementation.
-  	This override is here for convenience. Returns a symbolic 320x240px size.
-  	@return A size of 320x240 (just a symbolic 4:3 size).
+      This override is here for convenience. Returns a symbolic 320x240px size.
+      @return A size of 320x240 (just a symbolic 4:3 size).
    */
   virtual QSize sizeHint () const { return QSize( 320, 240 ); }
 
@@ -151,8 +151,8 @@ protected:
   Ogre::ColourValue background_color_;
 
   // stereo rendering
-  bool stereo_enabled_;				// true if we were asked to render stereo
-  bool rendering_stereo_;			// true if we are actually rendering stereo
+  bool stereo_enabled_;                // true if we were asked to render stereo
+  bool rendering_stereo_;            // true if we are actually rendering stereo
   Ogre::Camera* left_camera_;
   Ogre::Camera* right_camera_;
   Ogre::Viewport* right_viewport_;

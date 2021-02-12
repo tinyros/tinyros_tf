@@ -154,8 +154,9 @@ namespace visualization_msgs
     virtual std::string getDefinition(){ return "uint32 id\nuint32 parent_id\nstring title\nstring command\nuint8 command_type\n"; }
     static std::string getDefinitionStatic(){ return "uint32 id\nuint32 parent_id\nstring title\nstring command\nuint8 command_type\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::visualization_msgs::MenuEntry> Ptr;
+    typedef std::shared_ptr<tinyros::visualization_msgs::MenuEntry const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::visualization_msgs::MenuEntry> MenuEntryPtr;
 typedef std::shared_ptr<tinyros::visualization_msgs::MenuEntry const> MenuEntryConstPtr;
 

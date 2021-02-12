@@ -30,14 +30,10 @@
 #ifndef RVIZ_LASER_SCAN_DISPLAY_H
 #define RVIZ_LASER_SCAN_DISPLAY_H
 
-#include <sensor_msgs/LaserScan.h>
+#include <tiny_ros/sensor_msgs/LaserScan.h>
 
 #include "rviz/message_filter_display.h"
-
-namespace laser_geometry
-{
-class LaserProjection;
-}
+#include "laser_geometry"
 
 namespace rviz
 {
@@ -46,7 +42,7 @@ class IntProperty;
 class PointCloudCommon;
 
 /** @brief Visualizes a laser scan, received as a sensor_msgs::LaserScan. */
-class LaserScanDisplay: public MessageFilterDisplay<sensor_msgs::LaserScan>
+class LaserScanDisplay: public MessageFilterDisplay<tinyros::sensor_msgs::LaserScan>
 {
 Q_OBJECT
 public:
@@ -65,14 +61,14 @@ protected:
   virtual void onInitialize();
 
   /** @brief Process a single message.  Overridden from MessageFilterDisplay. */
-  virtual void processMessage( const sensor_msgs::LaserScanConstPtr& scan );
+  virtual void processMessage( const tinyros::sensor_msgs::LaserScanConstPtr& scan );
 
   IntProperty* queue_size_property_;
 
   PointCloudCommon* point_cloud_common_;
 
-  laser_geometry::LaserProjection* projector_;
-  ros::Duration filter_tolerance_;
+  LaserProjection* projector_;
+  tinyros::Duration filter_tolerance_;
 };
 
 } // namespace rviz

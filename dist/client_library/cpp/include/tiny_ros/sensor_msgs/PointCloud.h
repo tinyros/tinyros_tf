@@ -141,8 +141,9 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "Header header\ngeometry_msgs/Point32[] points\nChannelFloat32[] channels\n"; }
     static std::string getDefinitionStatic(){ return "Header header\ngeometry_msgs/Point32[] points\nChannelFloat32[] channels\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::sensor_msgs::PointCloud> Ptr;
+    typedef std::shared_ptr<tinyros::sensor_msgs::PointCloud const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::sensor_msgs::PointCloud> PointCloudPtr;
 typedef std::shared_ptr<tinyros::sensor_msgs::PointCloud const> PointCloudConstPtr;
 

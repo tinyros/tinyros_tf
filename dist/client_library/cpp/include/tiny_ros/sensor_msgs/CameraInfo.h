@@ -380,8 +380,9 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "Header header\nuint32 height\nuint32 width\nstring distortion_model\nfloat64[] D\nfloat64[9]  K\nfloat64[9]  R\nfloat64[12] P\nuint32 binning_x\nuint32 binning_y\nRegionOfInterest roi\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nuint32 height\nuint32 width\nstring distortion_model\nfloat64[] D\nfloat64[9]  K\nfloat64[9]  R\nfloat64[12] P\nuint32 binning_x\nuint32 binning_y\nRegionOfInterest roi\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::sensor_msgs::CameraInfo> Ptr;
+    typedef std::shared_ptr<tinyros::sensor_msgs::CameraInfo const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::sensor_msgs::CameraInfo> CameraInfoPtr;
 typedef std::shared_ptr<tinyros::sensor_msgs::CameraInfo const> CameraInfoConstPtr;
 

@@ -127,8 +127,9 @@ namespace std_msgs
     virtual std::string getDefinition(){ return "uint32 seq\ntime stamp\nstring frame_id\n"; }
     static std::string getDefinitionStatic(){ return "uint32 seq\ntime stamp\nstring frame_id\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::std_msgs::Header> Ptr;
+    typedef std::shared_ptr<tinyros::std_msgs::Header const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::std_msgs::Header> HeaderPtr;
 typedef std::shared_ptr<tinyros::std_msgs::Header const> HeaderConstPtr;
 

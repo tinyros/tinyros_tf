@@ -129,8 +129,9 @@ static const char GETMODELSTATE[] = "gazebo_msgs/GetModelState";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::GetModelStateRequest> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::GetModelStateRequest const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::GetModelStateRequest> GetModelStateRequestPtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::GetModelStateRequest const> GetModelStateRequestConstPtr;
 
@@ -258,8 +259,9 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::GetModelStateRequest const> GetMod
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::GetModelStateResponse> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::GetModelStateResponse const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::GetModelStateResponse> GetModelStateResponsePtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::GetModelStateResponse const> GetModelStateResponseConstPtr;
 

@@ -452,8 +452,9 @@ namespace rosgraph_msgs
     virtual std::string getDefinition(){ return "string topic\nstring node_pub\nstring node_sub\ntime window_start\ntime window_stop\nint32 delivered_msgs\nint32 dropped_msgs\nint32 traffic\nduration period_mean\nduration period_stddev\nduration period_max\nduration stamp_age_mean\nduration stamp_age_stddev\nduration stamp_age_max\n"; }
     static std::string getDefinitionStatic(){ return "string topic\nstring node_pub\nstring node_sub\ntime window_start\ntime window_stop\nint32 delivered_msgs\nint32 dropped_msgs\nint32 traffic\nduration period_mean\nduration period_stddev\nduration period_max\nduration stamp_age_mean\nduration stamp_age_stddev\nduration stamp_age_max\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::rosgraph_msgs::TopicStatistics> Ptr;
+    typedef std::shared_ptr<tinyros::rosgraph_msgs::TopicStatistics const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::rosgraph_msgs::TopicStatistics> TopicStatisticsPtr;
 typedef std::shared_ptr<tinyros::rosgraph_msgs::TopicStatistics const> TopicStatisticsConstPtr;
 

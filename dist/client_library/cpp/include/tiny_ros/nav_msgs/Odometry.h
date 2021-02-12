@@ -111,8 +111,9 @@ namespace nav_msgs
     virtual std::string getDefinition(){ return "Header header\nstring child_frame_id\ngeometry_msgs/PoseWithCovariance pose\ngeometry_msgs/TwistWithCovariance twist\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nstring child_frame_id\ngeometry_msgs/PoseWithCovariance pose\ngeometry_msgs/TwistWithCovariance twist\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::nav_msgs::Odometry> Ptr;
+    typedef std::shared_ptr<tinyros::nav_msgs::Odometry const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::nav_msgs::Odometry> OdometryPtr;
 typedef std::shared_ptr<tinyros::nav_msgs::Odometry const> OdometryConstPtr;
 

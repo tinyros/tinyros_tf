@@ -32,7 +32,7 @@
 
 #include <stdint.h>
 
-#include <ros/subscriber.h>
+#include <tiny_ros/ros.h>
 
 #include <rviz/interactive_object.h>
 

@@ -42,14 +42,14 @@
 #include <OgreTechnique.h>
 #include <OgreCamera.h>
 
-#include <tf/transform_listener.h>
+#include <tiny_ros/tf/transform_listener.h>
 
 #include "rviz/display_context.h"
 #include "rviz/frame_manager.h"
 #include "rviz/render_panel.h"
 #include "rviz/validate_floats.h"
 
-#include <sensor_msgs/image_encodings.h>
+#include "utils/image_encodings.h"
 
 #include "image_display.h"
 
@@ -230,12 +230,12 @@ void ImageDisplay::reset()
 }
 
 /* This is called by incomingMessage(). */
-void ImageDisplay::processMessage(const sensor_msgs::Image::ConstPtr& msg)
+void ImageDisplay::processMessage(const tinyros::sensor_msgs::Image::ConstPtr& msg)
 {
-  bool got_float_image = msg->encoding == sensor_msgs::image_encodings::TYPE_32FC1 ||
-      msg->encoding == sensor_msgs::image_encodings::TYPE_16UC1 ||
-      msg->encoding == sensor_msgs::image_encodings::TYPE_16SC1 ||
-      msg->encoding == sensor_msgs::image_encodings::MONO16;
+  bool got_float_image = msg->encoding == tinyros::sensor_msgs::image_encodings::TYPE_32FC1 ||
+      msg->encoding == tinyros::sensor_msgs::image_encodings::TYPE_16UC1 ||
+      msg->encoding == tinyros::sensor_msgs::image_encodings::TYPE_16SC1 ||
+      msg->encoding == tinyros::sensor_msgs::image_encodings::MONO16;
 
   if ( got_float_image != got_float_image_ )
   {
@@ -247,5 +247,3 @@ void ImageDisplay::processMessage(const sensor_msgs::Image::ConstPtr& msg)
 
 } // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::ImageDisplay, rviz::Display )

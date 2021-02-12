@@ -103,8 +103,9 @@ namespace shape_msgs
     virtual std::string getDefinition(){ return "float64[4] coef\n"; }
     static std::string getDefinitionStatic(){ return "float64[4] coef\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::shape_msgs::Plane> Ptr;
+    typedef std::shared_ptr<tinyros::shape_msgs::Plane const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::shape_msgs::Plane> PlanePtr;
 typedef std::shared_ptr<tinyros::shape_msgs::Plane const> PlaneConstPtr;
 

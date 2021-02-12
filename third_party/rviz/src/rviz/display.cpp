@@ -63,7 +63,7 @@ Display::Display()
   , associated_widget_panel_( NULL )
 {
   // Needed for timeSignal (see header) to work across threads
-  qRegisterMetaType<ros::Time>();
+  qRegisterMetaType<tinyros::Time>();
 
   // Make the display-enable checkbox show up, and make it unchecked by default.
   setValue( false );
@@ -87,8 +87,6 @@ void Display::initialize( DisplayContext* context )
   scene_manager_ = context_->getSceneManager();
   scene_node_ = scene_manager_->getRootSceneNode()->createChildSceneNode();
 
-  update_nh_.setCallbackQueue( context_->getUpdateQueue() );
-  threaded_nh_.setCallbackQueue( context_->getThreadedQueue() );
   fixed_frame_ = context_->getFixedFrame();
 
   onInitialize();
@@ -292,7 +290,7 @@ void Display::setFixedFrame( const QString& fixed_frame )
   }
 }
 
-void Display::emitTimeSignal( ros::Time time )
+void Display::emitTimeSignal( tinyros::Time time )
 {
   Q_EMIT( timeSignal( this, time ) );
 }

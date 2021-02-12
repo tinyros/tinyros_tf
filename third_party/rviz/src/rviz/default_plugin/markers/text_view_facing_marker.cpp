@@ -30,7 +30,7 @@
 #include <OgreSceneNode.h>
 #include <OgreSceneManager.h>
 
-#include <ros/assert.h>
+#include <tiny_ros/tf/static_assert.h>
 
 #include "rviz/default_plugin/markers/marker_selection_handler.h"
 #include "rviz/display_context.h"
@@ -55,7 +55,7 @@ TextViewFacingMarker::~TextViewFacingMarker()
 
 void TextViewFacingMarker::onNewMessage(const MarkerConstPtr& old_message, const MarkerConstPtr& new_message)
 {
-  ROS_ASSERT(new_message->type == visualization_msgs::Marker::TEXT_VIEW_FACING);
+  TINYROS_ASSERT(new_message->type == tinyros::visualization_msgs::Marker::TEXT_VIEW_FACING);
 
   if (!text_)
   {

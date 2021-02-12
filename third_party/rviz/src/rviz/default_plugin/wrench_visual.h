@@ -1,7 +1,7 @@
 #ifndef WRENCHSTAMPED_VISUAL_H
 #define WRENCHSTAMPED_VISUAL_H
 
-#include <geometry_msgs/WrenchStamped.h>
+#include <tiny_ros/geometry_msgs/WrenchStamped.h>
 
 #ifdef __GNUC__
 #define RVIZ_DEPRECATED __attribute__ ((deprecated))
@@ -46,9 +46,9 @@ public:
     void setWrench( const Ogre::Vector3 &force, const Ogre::Vector3 &torque );
     // Configure the visual to show the data in the message.
     RVIZ_DEPRECATED
-    void setMessage( const geometry_msgs::WrenchStamped::ConstPtr& msg );
+    void setMessage( const tinyros::geometry_msgs::WrenchStamped::ConstPtr& msg );
     // Configure the visual to show the given wrench
-    void setWrench( const geometry_msgs::Wrench& wrench );
+    void setWrench( const tinyros::geometry_msgs::Wrench& wrench );
 
     // Set the pose of the coordinate frame the message refers to.
     // These could be done inside setMessage(), but that would require

@@ -28,7 +28,7 @@
  */
 
 #include "stl_loader.h"
-#include <ros/console.h>
+#include <tiny_ros/ros.h>
 
 #include <OgreManualObject.h>
 
@@ -50,7 +50,7 @@ bool STLLoader::load(const std::string& path)
   FILE* input = fopen( path.c_str(), "r" );
   if ( !input )
   {
-    ROS_ERROR( "Could not open '%s' for read", path.c_str() );
+    tinyros_log_error( "Could not open '%s' for read", path.c_str() );
     return false;
   }
 
@@ -79,7 +79,7 @@ bool STLLoader::load(const std::string& path)
   long num_bytes_read = fread( buffer, 1, fileSize, input );
   if ( num_bytes_read != fileSize )
   {
-    ROS_ERROR("STLLoader::load( \"%s\" ) only read %ld bytes out of total %ld.",
+    tinyros_log_error("STLLoader::load( \"%s\" ) only read %ld bytes out of total %ld.",
               path.c_str(), num_bytes_read, fileSize);
     fclose( input );
     return false;
@@ -101,32 +101,32 @@ bool STLLoader::load(uint8_t* buffer, const size_t num_bytes, const std::string&
     // check for "endsolid" as well
     if (buffer_str.find("endsolid", 5) != std::string::npos)
     {
-      ROS_ERROR_STREAM("The STL file '" << origin << "' is malformed. It "
+      tinyros_log_error("The STL file '%s' is malformed. It "
                        "starts with the word 'solid' and also contains the "
                        "word 'endsolid', indicating that it's an ASCII STL "
                        "file, but rviz can only load binary STL files so it "
                        "will not be loaded. Please convert it to a "
-                       "binary STL file.");
+                       "binary STL file.", origin.c_str());
       return false;
     }
 
     // chastise the user for malformed files
-    ROS_WARN_STREAM("The STL file '" << origin << "' is malformed. It starts "
+    tinyros_log_warn("The STL file '%s' is malformed. It starts "
                     "with the word 'solid', indicating that it's an ASCII "
                     "STL file, but it does not contain the word 'endsolid' so "
                     "it is either a malformed ASCII STL file or it is actually "
                     "a binary STL file. Trying to interpret it as a binary "
-                    "STL file instead.");
+                    "STL file instead.", origin.c_str());
   }
 
   // make sure there's enough data for a binary STL header and triangle count
   static const size_t binary_stl_header_len = 84;
   if (num_bytes <= binary_stl_header_len)
   {
-    ROS_ERROR_STREAM("The STL file '" << origin << "' is malformed. It "
+    tinyros_log_error("The STL file '%s' is malformed. It "
                      "appears to be a binary STL file but does not contain "
                      "enough data for the 80 byte header and 32-bit integer "
-                     "triangle count.");
+                     "triangle count.", origin.c_str());
     return false;
   }
 
@@ -136,19 +136,19 @@ bool STLLoader::load(uint8_t* buffer, const size_t num_bytes, const std::string&
   size_t expected_size = binary_stl_header_len + num_triangles * number_of_bytes_per_triangle;
   if (num_bytes < expected_size)
   {
-    ROS_ERROR_STREAM("The STL file '" << origin << "' is malformed. According "
-                     "to the binary STL header it should have '" <<
-                     num_triangles << "' triangles, but it has too little" <<
-                     " data for that to be the case.");
+    tinyros_log_error("The STL file '%s' is malformed. According "
+                     "to the binary STL header it should have '"
+                     "%d' triangles, but it has too little"
+                     " data for that to be the case.", origin.c_str(), num_triangles);
     return false;
   }
   else if (num_bytes > expected_size)
   {
-    ROS_WARN_STREAM("The STL file '" << origin << "' is malformed. According "
-                    "to the binary STL header it should have '" <<
-                    num_triangles << "' triangles, but it has too much" <<
-                    " data for that to be the case. The extra data will be" <<
-                    " ignored.");
+    tinyros_log_warn("The STL file '%s' is malformed. According "
+                    "to the binary STL header it should have '"
+                    "%d' triangles, but it has too much"
+                    " data for that to be the case. The extra data will be"
+                    " ignored.", origin.c_str(), num_triangles);
   }
 
   // load the binary STL data

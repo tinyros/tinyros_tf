@@ -73,8 +73,9 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Header header\nPose pose\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nPose pose\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::geometry_msgs::PoseStamped> Ptr;
+    typedef std::shared_ptr<tinyros::geometry_msgs::PoseStamped const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::geometry_msgs::PoseStamped> PoseStampedPtr;
 typedef std::shared_ptr<tinyros::geometry_msgs::PoseStamped const> PoseStampedConstPtr;
 

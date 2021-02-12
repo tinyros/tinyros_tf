@@ -71,8 +71,9 @@ static const char FRAMEGRAPH[] = "tf/FrameGraph";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::tf::FrameGraphRequest> Ptr;
+    typedef std::shared_ptr<tinyros::tf::FrameGraphRequest const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::tf::FrameGraphRequest> FrameGraphRequestPtr;
 typedef std::shared_ptr<tinyros::tf::FrameGraphRequest const> FrameGraphRequestConstPtr;
 
@@ -161,8 +162,9 @@ typedef std::shared_ptr<tinyros::tf::FrameGraphRequest const> FrameGraphRequestC
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::tf::FrameGraphResponse> Ptr;
+    typedef std::shared_ptr<tinyros::tf::FrameGraphResponse const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::tf::FrameGraphResponse> FrameGraphResponsePtr;
 typedef std::shared_ptr<tinyros::tf::FrameGraphResponse const> FrameGraphResponseConstPtr;
 

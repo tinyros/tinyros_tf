@@ -102,8 +102,9 @@ namespace actionlib_msgs
     virtual std::string getDefinition(){ return "Header header\nGoalStatus[] status_list\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nGoalStatus[] status_list\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::actionlib_msgs::GoalStatusArray> Ptr;
+    typedef std::shared_ptr<tinyros::actionlib_msgs::GoalStatusArray const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::actionlib_msgs::GoalStatusArray> GoalStatusArrayPtr;
 typedef std::shared_ptr<tinyros::actionlib_msgs::GoalStatusArray const> GoalStatusArrayConstPtr;
 

@@ -36,8 +36,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/PointCloud2.h>
+#include <tiny_ros/sensor_msgs/Image.h>
+#include <tiny_ros/sensor_msgs/PointCloud2.h>
 
 #include <vector>
 #include <exception>
@@ -48,17 +48,17 @@ namespace rviz
 class MultiLayerDepthException: public std::exception
 {
 public:
-	MultiLayerDepthException(const std::string& error_msg) :
-		std::exception(), error_msg_(error_msg) {
-	}
-	virtual ~MultiLayerDepthException() throw () {}
+    MultiLayerDepthException(const std::string& error_msg) :
+        std::exception(), error_msg_(error_msg) {
+    }
+    virtual ~MultiLayerDepthException() throw () {}
 
-	virtual const char * what() const throw () {
-		return error_msg_.c_str();
-	}
+    virtual const char * what() const throw () {
+        return error_msg_.c_str();
+    }
 
 protected:
-	std::string error_msg_;
+    std::string error_msg_;
 };
 
 class MultiLayerDepth
@@ -82,9 +82,9 @@ public:
     reset();
   }
 
-  sensor_msgs::PointCloud2Ptr generatePointCloudFromDepth (sensor_msgs::ImageConstPtr depth_msg,
-                                                           sensor_msgs::ImageConstPtr color_msg,
-                                                           sensor_msgs::CameraInfoConstPtr camera_info_msg);
+  sensor_msgs::PointCloud2Ptr generatePointCloudFromDepth (tinyros::sensor_msgs::ImageConstPtr depth_msg,
+                                                           tinyros::sensor_msgs::ImageConstPtr color_msg,
+                                                           tinyros::sensor_msgs::CameraInfoConstPtr camera_info_msg);
   void reset()
   {
     if (occlusion_compensation_)
@@ -98,27 +98,27 @@ public:
 
 protected:
   /** @brief Precompute projection matrix, initialize buffers */
-  void initializeConversion(const sensor_msgs::ImageConstPtr& depth_msg,
-                            sensor_msgs::CameraInfoConstPtr& camera_info_msg);
+  void initializeConversion(const tinyros::sensor_msgs::ImageConstPtr& depth_msg,
+                            tinyros::sensor_msgs::CameraInfoConstPtr& camera_info_msg);
 
   /** @brief Convert color data to RGBA format */
   template<typename T>
-  void convertColor(const sensor_msgs::ImageConstPtr& color_msg,
+  void convertColor(const tinyros::sensor_msgs::ImageConstPtr& color_msg,
                     std::vector<uint32_t>& rgba_color_raw);
 
   /** @brief Generate single-layered depth cloud (depth only) */
   template<typename T>
-    sensor_msgs::PointCloud2Ptr generatePointCloudSL(const sensor_msgs::ImageConstPtr& depth_msg,
+    tinyros::sensor_msgs::PointCloud2Ptr generatePointCloudSL(const tinyros::sensor_msgs::ImageConstPtr& depth_msg,
                                                      std::vector<uint32_t>& rgba_color_raw);
 
   /** @brief Generate multi-layered depth cloud (depth+shadow) */
   template<typename T>
-    sensor_msgs::PointCloud2Ptr generatePointCloudML(const sensor_msgs::ImageConstPtr& depth_msg,
+    tinyros::sensor_msgs::PointCloud2Ptr generatePointCloudML(const tinyros::sensor_msgs::ImageConstPtr& depth_msg,
                                                      std::vector<uint32_t>& rgba_color_raw);
 
   // Helpers to generate pointcloud2 message
-  sensor_msgs::PointCloud2Ptr initPointCloud();
-  void finalizingPointCloud(sensor_msgs::PointCloud2Ptr& point_cloud, std::size_t size);
+  tinyros::sensor_msgs::PointCloud2Ptr initPointCloud();
+  void finalizingPointCloud(tinyros::sensor_msgs::PointCloud2Ptr& point_cloud, std::size_t size);
 
   std::vector<float> projection_map_x_;
   std::vector<float> projection_map_y_;

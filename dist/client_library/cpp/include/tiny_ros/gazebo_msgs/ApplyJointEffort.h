@@ -194,8 +194,9 @@ static const char APPLYJOINTEFFORT[] = "gazebo_msgs/ApplyJointEffort";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyJointEffortRequest> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyJointEffortRequest const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyJointEffortRequest> ApplyJointEffortRequestPtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyJointEffortRequest const> ApplyJointEffortRequestConstPtr;
 
@@ -305,8 +306,9 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyJointEffortRequest const> App
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyJointEffortResponse> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyJointEffortResponse const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyJointEffortResponse> ApplyJointEffortResponsePtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::ApplyJointEffortResponse const> ApplyJointEffortResponseConstPtr;
 

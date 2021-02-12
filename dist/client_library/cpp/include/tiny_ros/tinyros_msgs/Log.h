@@ -96,8 +96,9 @@ namespace tinyros_msgs
     virtual std::string getDefinition(){ return "uint8 level\nstring msg\n"; }
     static std::string getDefinitionStatic(){ return "uint8 level\nstring msg\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::tinyros_msgs::Log> Ptr;
+    typedef std::shared_ptr<tinyros::tinyros_msgs::Log const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::tinyros_msgs::Log> LogPtr;
 typedef std::shared_ptr<tinyros::tinyros_msgs::Log const> LogConstPtr;
 

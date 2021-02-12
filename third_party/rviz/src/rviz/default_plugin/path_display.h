@@ -31,7 +31,7 @@
 #ifndef RVIZ_PATH_DISPLAY_H
 #define RVIZ_PATH_DISPLAY_H
 
-#include <nav_msgs/Path.h>
+#include <tiny_ros/nav_msgs/Path.h>
 
 #include "rviz/message_filter_display.h"
 #include <rviz/ogre_helpers/arrow.h>
@@ -57,7 +57,7 @@ class VectorProperty;
  * \class PathDisplay
  * \brief Displays a nav_msgs::Path message
  */
-class PathDisplay: public MessageFilterDisplay<nav_msgs::Path>
+class PathDisplay: public MessageFilterDisplay<tinyros::nav_msgs::Path>
 {
 Q_OBJECT
 public:
@@ -72,7 +72,7 @@ protected:
   virtual void onInitialize();
 
   /** @brief Overridden from MessageFilterDisplay. */
-  void processMessage( const nav_msgs::Path::ConstPtr& msg );
+  void processMessage( const tinyros::nav_msgs::Path::ConstPtr& msg );
 
 private Q_SLOTS:
   void updateBufferLength();

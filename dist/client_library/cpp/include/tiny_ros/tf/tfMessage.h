@@ -92,8 +92,9 @@ namespace tf
     virtual std::string getDefinition(){ return "geometry_msgs/TransformStamped[] transforms\n"; }
     static std::string getDefinitionStatic(){ return "geometry_msgs/TransformStamped[] transforms\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::tf::tfMessage> Ptr;
+    typedef std::shared_ptr<tinyros::tf::tfMessage const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::tf::tfMessage> tfMessagePtr;
 typedef std::shared_ptr<tinyros::tf::tfMessage const> tfMessageConstPtr;
 

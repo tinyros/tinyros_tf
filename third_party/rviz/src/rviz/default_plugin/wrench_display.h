@@ -5,7 +5,7 @@
 #include <boost/circular_buffer.hpp>
 #endif
 
-#include <geometry_msgs/WrenchStamped.h>
+#include <tiny_ros/geometry_msgs/WrenchStamped.h>
 #include <rviz/message_filter_display.h>
 
 namespace Ogre
@@ -26,7 +26,7 @@ namespace rviz
 
 class WrenchStampedVisual;
 
-class WrenchStampedDisplay: public rviz::MessageFilterDisplay<geometry_msgs::WrenchStamped>
+class WrenchStampedDisplay: public rviz::MessageFilterDisplay<tinyros::geometry_msgs::WrenchStamped>
 {
     Q_OBJECT
 public:
@@ -47,7 +47,7 @@ private Q_SLOTS:
 
 private:
     // Function to handle an incoming ROS message.
-    void processMessage( const geometry_msgs::WrenchStamped::ConstPtr& msg );
+    void processMessage( const tinyros::geometry_msgs::WrenchStamped::ConstPtr& msg );
 
     // Storage for the list of visuals par each joint intem
     // Storage for the list of visuals.  It is a circular buffer where

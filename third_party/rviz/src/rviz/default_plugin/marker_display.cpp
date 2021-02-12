@@ -29,7 +29,7 @@
 
 #include <sstream>
 
-#include <tf/transform_listener.h>
+#include <tiny_ros/tf/transform_listener.h>
 
 #include "rviz/default_plugin/markers/arrow_marker.h"
 #include "rviz/default_plugin/markers/line_list_marker.h"
@@ -59,9 +59,10 @@ namespace rviz
 
 MarkerDisplay::MarkerDisplay()
   : Display()
+  , array_sub_(new tinyros::Subscriber<tinyros::visualization_msgs::MarkerArray, MarkerDisplay> ("", &MarkerDisplay::incomingMarkerArray, this))
 {
   marker_topic_property_ = new RosTopicProperty( "Marker Topic", "visualization_marker",
-                                                 QString::fromStdString( ros::message_traits::datatype<visualization_msgs::Marker>() ),
+                                                 QString::fromStdString( tinyros::visualization_msgs::Marker::getTypeStatic() ),
                                                  "visualization_msgs::Marker topic to subscribe to.  <topic>_array will also"
                                                  " automatically be subscribed with type visualization_msgs::MarkerArray.",
                                                  this, SLOT( updateTopic() ));
@@ -78,14 +79,12 @@ MarkerDisplay::MarkerDisplay()
 
 void MarkerDisplay::onInitialize()
 {
-  tf_filter_ = new tf::MessageFilter<visualization_msgs::Marker>( *context_->getTFClient(),
+  tf_filter_ = new tinyros::tf::MessageFilter<tinyros::visualization_msgs::Marker>( *context_->getTFClient(),
                                                                   fixed_frame_.toStdString(),
-                                                                  queue_size_property_->getInt(),
-                                                                  update_nh_ );
-
-  tf_filter_->connectInput(sub_);
-  tf_filter_->registerCallback(boost::bind(&MarkerDisplay::incomingMarker, this, _1));
-  tf_filter_->registerFailureCallback(boost::bind(&MarkerDisplay::failedMarker, this, _1, _2));
+                                                                  queue_size_property_->getInt());
+  
+  tf_filter_->registerCallback(std::bind(&MarkerDisplay::incomingMarker, this, std::placeholders::_1));
+  tf_filter_->registerFailureCallback(std::bind(&MarkerDisplay::failedMarker, this, std::placeholders::_1, std::palceholders::_2));
 
   namespace_config_enabled_state_.clear();
 }
@@ -159,16 +158,28 @@ void MarkerDisplay::subscribe()
   std::string marker_topic = marker_topic_property_->getTopicStd();
   if( !marker_topic.empty() )
   {
-    array_sub_.shutdown();
-    sub_.unsubscribe();
+    array_sub_->setEnabled(false);
+    tf_filter_->connectEnable(false);
 
     try
     {
-      sub_.subscribe( update_nh_, marker_topic, queue_size_property_->getInt() );
-      array_sub_ = update_nh_.subscribe( marker_topic + "_array", queue_size_property_->getInt(), &MarkerDisplay::incomingMarkerArray, this );
+      std::string topic = marker_topic + "_array";
+      if (array_sub_->topic_ != topic) {
+        if (array_sub_->topic_.empty()) {
+          array_sub_->topic_ = topic;
+        } else {
+          array_sub_->setEnable(false);
+          array_sub_ = new tinyros::Subscriber<tinyros::visualization_msgs::MarkerArray, MarkerDisplay> (
+            topic, &MarkerDisplay::incomingMarkerArray, this);
+        }
+        tinyros::nh()->subscribe(*array_sub_);
+      } 
+      array_sub_->setEnable(true);
+      
+      tf_filter_->connectInput(marker_topic);
       setStatus( StatusProperty::Ok, "Topic", "OK" );
     }
-    catch( ros::Exception& e )
+    catch( std::exception& e )
     {
       setStatus( StatusProperty::Error, "Topic", QString("Error subscribing: ") + e.what() );
     }
@@ -177,8 +188,8 @@ void MarkerDisplay::subscribe()
 
 void MarkerDisplay::unsubscribe()
 {
-  sub_.unsubscribe();
-  array_sub_.shutdown();
+  tf_filter_->connectEnable(false);
+  array_sub_->setEnabled(false);
 }
 
 void MarkerDisplay::deleteMarker(MarkerID id)
@@ -198,7 +209,7 @@ void MarkerDisplay::deleteMarkersInNamespace( const std::string& ns )
 {
   std::vector<MarkerID> to_delete;
 
-  // TODO: this is inefficient, should store every in-use id per namespace and lookup by that
+  // this is inefficient, should store every in-use id per namespace and lookup by that
   M_IDToMarker::iterator marker_it = markers_.begin();
   M_IDToMarker::iterator marker_end = markers_.end();
   for (; marker_it != marker_end; ++marker_it)
@@ -250,29 +261,29 @@ void MarkerDisplay::deleteMarkerStatus(MarkerID id)
   deleteStatusStd(marker_name);
 }
 
-void MarkerDisplay::incomingMarkerArray(const visualization_msgs::MarkerArray::ConstPtr& array)
+void MarkerDisplay::incomingMarkerArray(const tinyros::visualization_msgs::MarkerArray::ConstPtr& array)
 {
-  std::vector<visualization_msgs::Marker>::const_iterator it = array->markers.begin();
-  std::vector<visualization_msgs::Marker>::const_iterator end = array->markers.end();
+  std::vector<tinyros::visualization_msgs::Marker>::const_iterator it = array->markers.begin();
+  std::vector<tinyros::visualization_msgs::Marker>::const_iterator end = array->markers.end();
   for (; it != end; ++it)
   {
-    const visualization_msgs::Marker& marker = *it;
-    tf_filter_->add(visualization_msgs::Marker::Ptr(new visualization_msgs::Marker(marker)));
+    const tinyros::visualization_msgs::Marker& marker = *it;
+    tf_filter_->add(tinyros::visualization_msgs::Marker::Ptr(new tinyros::visualization_msgs::Marker(marker)));
   }
 }
 
-void MarkerDisplay::incomingMarker( const visualization_msgs::Marker::ConstPtr& marker )
+void MarkerDisplay::incomingMarker( const tinyros::visualization_msgs::Marker::ConstPtr& marker )
 {
   boost::mutex::scoped_lock lock(queue_mutex_);
 
   message_queue_.push_back(marker);
 }
 
-void MarkerDisplay::failedMarker(const ros::MessageEvent<visualization_msgs::Marker>& marker_evt, tf::FilterFailureReason reason)
+void MarkerDisplay::failedMarker(const tinyros::tf::MessageEvent<tinyros::visualization_msgs::Marker>& marker_evt, tinyros::tf::FilterFailureReason reason)
 {
-  visualization_msgs::Marker::ConstPtr marker = marker_evt.getConstMessage();
-  if (marker->action == visualization_msgs::Marker::DELETE ||
-      marker->action == 3)  // TODO: visualization_msgs::Marker::DELETEALL when message changes in a future version of ROS
+  tinyros::visualization_msgs::Marker::ConstPtr marker = marker_evt.getConstMessage();
+  if (marker->action == tinyros::visualization_msgs::Marker::DELETE ||
+      marker->action == 3)  // tinyros::visualization_msgs::Marker::DELETEALL when message changes in a future version of ROS
   {
     return this->processMessage(marker);
   }
@@ -281,7 +292,7 @@ void MarkerDisplay::failedMarker(const ros::MessageEvent<visualization_msgs::Mar
   setMarkerStatus(MarkerID(marker->ns, marker->id), StatusProperty::Error, error);
 }
 
-bool validateFloats(const visualization_msgs::Marker& msg)
+bool validateFloats(const tinyros::visualization_msgs::Marker& msg)
 {
   bool valid = true;
   valid = valid && validateFloats(msg.pose);
@@ -291,7 +302,7 @@ bool validateFloats(const visualization_msgs::Marker& msg)
   return valid;
 }
 
-void MarkerDisplay::processMessage( const visualization_msgs::Marker::ConstPtr& message )
+void MarkerDisplay::processMessage( const tinyros::visualization_msgs::Marker::ConstPtr& message )
 {
   if (!validateFloats(*message))
   {
@@ -309,16 +320,16 @@ void MarkerDisplay::processMessage( const visualization_msgs::Marker::ConstPtr& 
     processDelete( message );
     break;
 
-  case 3: // TODO: visualization_msgs::Marker::DELETEALL when message changes in a future version of ROS
+  case 3: //  visualization_msgs::Marker::DELETEALL when message changes in a future version of ROS
     deleteAllMarkers();
     break;
 
   default:
-    ROS_ERROR( "Unknown marker action: %d\n", message->action );
+    tinyros_log_error( "Unknown marker action: %d\n", message->action );
   }
 }
 
-void MarkerDisplay::processAdd( const visualization_msgs::Marker::ConstPtr& message )
+void MarkerDisplay::processAdd( const tinyros::visualization_msgs::Marker::ConstPtr& message )
 {
   QString namespace_name = QString::fromStdString( message->ns );
   M_Namespace::iterator ns_it = namespaces_.find( namespace_name );
@@ -363,55 +374,55 @@ void MarkerDisplay::processAdd( const visualization_msgs::Marker::ConstPtr& mess
   {
     switch ( message->type )
     {
-    case visualization_msgs::Marker::CUBE:
-    case visualization_msgs::Marker::CYLINDER:
-    case visualization_msgs::Marker::SPHERE:
+    case tinyros::visualization_msgs::Marker::CUBE:
+    case tinyros::visualization_msgs::Marker::CYLINDER:
+    case tinyros::visualization_msgs::Marker::SPHERE:
       {
         marker.reset(new ShapeMarker(this, context_, scene_node_));
       }
       break;
 
-    case visualization_msgs::Marker::ARROW:
+    case tinyros::visualization_msgs::Marker::ARROW:
       {
         marker.reset(new ArrowMarker(this, context_, scene_node_));
       }
       break;
 
-    case visualization_msgs::Marker::LINE_STRIP:
+    case tinyros::visualization_msgs::Marker::LINE_STRIP:
       {
         marker.reset(new LineStripMarker(this, context_, scene_node_));
       }
       break;
-    case visualization_msgs::Marker::LINE_LIST:
+    case tinyros::visualization_msgs::Marker::LINE_LIST:
       {
         marker.reset(new LineListMarker(this, context_, scene_node_));
       }
       break;
-    case visualization_msgs::Marker::SPHERE_LIST:
-    case visualization_msgs::Marker::CUBE_LIST:
-    case visualization_msgs::Marker::POINTS:
+    case tinyros::visualization_msgs::Marker::SPHERE_LIST:
+    case tinyros::visualization_msgs::Marker::CUBE_LIST:
+    case tinyros::visualization_msgs::Marker::POINTS:
       {
         marker.reset(new PointsMarker(this, context_, scene_node_));
       }
       break;
-    case visualization_msgs::Marker::TEXT_VIEW_FACING:
+    case tinyros::visualization_msgs::Marker::TEXT_VIEW_FACING:
       {
         marker.reset(new TextViewFacingMarker(this, context_, scene_node_));
       }
       break;
-    case visualization_msgs::Marker::MESH_RESOURCE:
+    case tinyros::visualization_msgs::Marker::MESH_RESOURCE:
       {
         marker.reset(new MeshResourceMarker(this, context_, scene_node_));
       }
       break;
 
-    case visualization_msgs::Marker::TRIANGLE_LIST:
+    case tinyros::visualization_msgs::Marker::TRIANGLE_LIST:
     {
       marker.reset(new TriangleListMarker(this, context_, scene_node_));
     }
     break;
     default:
-      ROS_ERROR( "Unknown marker type: %d", message->type );
+      tinyros_log_error( "Unknown marker type: %d", message->type );
     }
 
     markers_.insert(std::make_pair(MarkerID(message->ns, message->id), marker));
@@ -435,7 +446,7 @@ void MarkerDisplay::processAdd( const visualization_msgs::Marker::ConstPtr& mess
   }
 }
 
-void MarkerDisplay::processDelete( const visualization_msgs::Marker::ConstPtr& message )
+void MarkerDisplay::processDelete( const tinyros::visualization_msgs::Marker::ConstPtr& message )
 {
   deleteMarker(MarkerID(message->ns, message->id));
 
@@ -458,7 +469,7 @@ void MarkerDisplay::update(float wall_dt, float ros_dt)
     V_MarkerMessage::iterator message_end = local_queue.end();
     for ( ; message_it != message_end; ++message_it )
     {
-      visualization_msgs::Marker::ConstPtr& marker = *message_it;
+      tinyros::visualization_msgs::Marker::ConstPtr& marker = *message_it;
 
       processMessage( marker );
     }
@@ -539,5 +550,3 @@ void MarkerNamespace::onEnableChanged()
 
 } // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::MarkerDisplay, rviz::Display )

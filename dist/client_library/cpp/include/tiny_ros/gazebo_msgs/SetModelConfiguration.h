@@ -258,8 +258,9 @@ static const char SETMODELCONFIGURATION[] = "gazebo_msgs/SetModelConfiguration";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::SetModelConfigurationRequest> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::SetModelConfigurationRequest const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::SetModelConfigurationRequest> SetModelConfigurationRequestPtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::SetModelConfigurationRequest const> SetModelConfigurationRequestConstPtr;
 
@@ -369,8 +370,9 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::SetModelConfigurationRequest const
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::SetModelConfigurationResponse> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::SetModelConfigurationResponse const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::SetModelConfigurationResponse> SetModelConfigurationResponsePtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::SetModelConfigurationResponse const> SetModelConfigurationResponseConstPtr;
 

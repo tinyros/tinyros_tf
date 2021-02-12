@@ -33,12 +33,11 @@
 
 #include "rviz/display.h"
 
-#include <nav_msgs/GridCells.h>
-#include <nav_msgs/MapMetaData.h>
+#include <tiny_ros/nav_msgs/GridCells.h>
+#include <tiny_ros/nav_msgs/MapMetaData.h>
 
 #ifndef Q_MOC_RUN
-#include <message_filters/subscriber.h>
-#include <tf/message_filter.h>
+#include <tiny_ros/tf/message_filter.h>
 #endif
 
 #include <boost/shared_ptr.hpp>
@@ -86,12 +85,11 @@ private:
   void subscribe();
   void unsubscribe();
   void clear();
-  void incomingMessage( const nav_msgs::GridCells::ConstPtr& msg );
+  void incomingMessage( const tinyros::nav_msgs::GridCells::ConstPtr& msg );
 
   PointCloud* cloud_;
 
-  message_filters::Subscriber<nav_msgs::GridCells> sub_;
-  tf::MessageFilter<nav_msgs::GridCells>* tf_filter_;
+  tinyros::tf::MessageFilter<tinyros::nav_msgs::GridCells>* tf_filter_;
 
   ColorProperty* color_property_;
   RosTopicProperty* topic_property_;

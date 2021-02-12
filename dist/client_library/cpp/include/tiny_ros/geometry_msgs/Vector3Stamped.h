@@ -73,8 +73,9 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Header header\nVector3 vector\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nVector3 vector\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::geometry_msgs::Vector3Stamped> Ptr;
+    typedef std::shared_ptr<tinyros::geometry_msgs::Vector3Stamped const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::geometry_msgs::Vector3Stamped> Vector3StampedPtr;
 typedef std::shared_ptr<tinyros::geometry_msgs::Vector3Stamped const> Vector3StampedConstPtr;
 

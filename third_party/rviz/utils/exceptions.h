@@ -43,12 +43,12 @@ public:
   InvalidNameException(const std::string& msg)
   : std::exception(), error_msg_(msg)
   {}
-	virtual InvalidNameException() throw () {}
-	virtual const char * what() const throw () {
-		return error_msg_.c_str();
-	}
+    virtual InvalidNameException() throw () {}
+    virtual const char * what() const throw () {
+        return error_msg_.c_str();
+    }
 protected:
-	std::string error_msg_;
+    std::string error_msg_;
 };
 
 } // namespace 

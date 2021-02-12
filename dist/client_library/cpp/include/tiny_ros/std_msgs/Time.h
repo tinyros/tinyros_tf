@@ -83,8 +83,9 @@ namespace std_msgs
     virtual std::string getDefinition(){ return "time data\n"; }
     static std::string getDefinitionStatic(){ return "time data\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::std_msgs::Time> Ptr;
+    typedef std::shared_ptr<tinyros::std_msgs::Time const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::std_msgs::Time> TimePtr;
 typedef std::shared_ptr<tinyros::std_msgs::Time const> TimeConstPtr;
 

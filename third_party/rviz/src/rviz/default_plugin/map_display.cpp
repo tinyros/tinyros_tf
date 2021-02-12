@@ -37,9 +37,9 @@
 #include <OgreTechnique.h>
 #include <OgreSharedPtr.h>
 
-#include <ros/ros.h>
+#include <tiny_ros/ros.h>
 
-#include <tf/transform_listener.h>
+#include <tiny_ros/tf/transform_listener.h>
 
 #include "rviz/frame_manager.h"
 #include "rviz/ogre_helpers/custom_parameter_indices.h"
@@ -66,10 +66,12 @@ MapDisplay::MapDisplay()
   , resolution_( 0.0f )
   , width_( 0 )
   , height_( 0 )
+  , map_sub_(new tinyros::Subscriber<tinyros::nav_msgs::OccupancyGrid, MapDisplay> ("", &MapDisplay::incomingMap, this))
+  , update_sub_(new tinyros::Subscriber<tinyros::map_msgs::OccupancyGridUpdate, MapDisplay> ("", &MapDisplay::incomingUpdate, this))
 {
   connect(this, SIGNAL( mapUpdated() ), this, SLOT( showMap() ));
   topic_property_ = new RosTopicProperty( "Topic", "",
-                                          QString::fromStdString( ros::message_traits::datatype<nav_msgs::OccupancyGrid>() ),
+                                          QString::fromStdString( tinyros::nav_msgs::OccupancyGrid::getTypeStatic() ),
                                           "nav_msgs::OccupancyGrid topic to subscribe to.",
                                           this, SLOT( updateTopic() ));
 
@@ -348,25 +350,41 @@ void MapDisplay::subscribe()
   {
     try
     {
-      if(unreliable_property_->getBool())
-      {
-        map_sub_ = update_nh_.subscribe( topic_property_->getTopicStd(), 1, &MapDisplay::incomingMap, this,  ros::TransportHints().unreliable());
-      }else{
-        map_sub_ = update_nh_.subscribe( topic_property_->getTopicStd(), 1, &MapDisplay::incomingMap, this, ros::TransportHints().reliable() );
-      }
+      std::string topic = topic_property_->getTopicStd();
+      if (map_sub_->topic_ != topic) {
+        if (map_sub_->topic_.empty()) {
+          map_sub_->topic_ = topic;
+        } else {
+          map_sub_->setEnable(false);
+          map_sub_ = new tinyros::Subscriber<tinyros::nav_msgs::OccupancyGrid, MapDisplay> (topic, &MapDisplay::incomingMap, this);
+        }
+        tinyros::nh()->subscribe(*map_sub_);
+      } 
+      map_sub_->setEnable(true);
       setStatus( StatusProperty::Ok, "Topic", "OK" );
     }
-    catch( ros::Exception& e )
+    catch( std::exception& e )
     {
       setStatus( StatusProperty::Error, "Topic", QString( "Error subscribing: " ) + e.what() );
     }
 
     try
     {
-      update_sub_ = update_nh_.subscribe( topic_property_->getTopicStd() + "_updates", 1, &MapDisplay::incomingUpdate, this );
+      std::string topic = topic_property_->getTopicStd() + "_updates";
+      if (update_sub_->topic_ != topic) {
+        if (update_sub_->topic_.empty()) {
+          update_sub_->topic_ = topic;
+        } else {
+          update_sub_->setEnable(false);
+          update_sub_ = new tinyros::Subscriber<tinyros::map_msgs::OccupancyGridUpdate, MapDisplay> (topic, &MapDisplay::incomingUpdate, this);
+        }
+        tinyros::nh()->subscribe(*update_sub_);
+      } 
+      update_sub_->setEnable(true);
+      
       setStatus( StatusProperty::Ok, "Update Topic", "OK" );
     }
-    catch( ros::Exception& e )
+    catch( std::exception& e )
     {
       setStatus( StatusProperty::Error, "Update Topic", QString( "Error subscribing: " ) + e.what() );
     }
@@ -375,8 +393,8 @@ void MapDisplay::subscribe()
 
 void MapDisplay::unsubscribe()
 {
-  map_sub_.shutdown();
-  update_sub_.shutdown();
+  map_sub_->setEnable(false);
+  update_sub_->setEnable(false);
 }
 
 // helper class to set alpha parameter on all renderables.
@@ -472,7 +490,7 @@ void MapDisplay::clear()
   loaded_ = false;
 }
 
-bool validateFloats(const nav_msgs::OccupancyGrid& msg)
+bool validateFloats(const tinyros::nav_msgs::OccupancyGrid& msg)
 {
   bool valid = true;
   valid = valid && validateFloats( msg.info.resolution );
@@ -480,7 +498,7 @@ bool validateFloats(const nav_msgs::OccupancyGrid& msg)
   return valid;
 }
 
-void MapDisplay::incomingMap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
+void MapDisplay::incomingMap(const tinyros::nav_msgs::OccupancyGrid::ConstPtr& msg)
 {
   current_map_ = *msg;
   // updated via signal in case ros spinner is in a different thread
@@ -489,7 +507,7 @@ void MapDisplay::incomingMap(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 }
 
 
-void MapDisplay::incomingUpdate(const map_msgs::OccupancyGridUpdate::ConstPtr& update)
+void MapDisplay::incomingUpdate(const tinyros::map_msgs::OccupancyGridUpdate::ConstPtr& update)
 {
   // Only update the map if we have gotten a full one first.
   if( !loaded_ )
@@ -541,7 +559,7 @@ void MapDisplay::showMap()
 
   setStatus( StatusProperty::Ok, "Message", "Map received" );
 
-  ROS_DEBUG( "Received a %d X %d map @ %.3f m/pix\n",
+  tinyros_log_debug( "Received a %d X %d map @ %.3f m/pix\n",
              current_map_.info.width,
              current_map_.info.height,
              current_map_.info.resolution );
@@ -636,7 +654,7 @@ void MapDisplay::showMap()
       setStatus(StatusProperty::Warn, "Map", QString::fromStdString( ss.str() ));
     }
 
-    ROS_WARN("Failed to create full-size map texture, likely because your graphics card does not support textures of size > 2048.  Downsampling to [%d x %d]...", (int)fwidth, (int)fheight);
+    tinyros_log_warn("Failed to create full-size map texture, likely because your graphics card does not support textures of size > 2048.  Downsampling to [%d x %d]...", (int)fwidth, (int)fheight);
     //ROS_INFO("Stream size [%d], width [%f], height [%f], w * h [%f]", pixel_stream->size(), width, height, width * height);
     image.loadRawData(pixel_stream, width, height, Ogre::PF_L8);
     image.resize(fwidth, fheight, Ogre::Image::FILTER_NEAREST);
@@ -706,7 +724,7 @@ void MapDisplay::transformMap()
   Ogre::Quaternion orientation;
   if (!context_->getFrameManager()->transform(frame_, ros::Time(), current_map_.info.origin, position, orientation))
   {
-    ROS_DEBUG( "Error transforming map '%s' from frame '%s' to frame '%s'",
+    tinyros_log_debug( "Error transforming map '%s' from frame '%s' to frame '%s'",
                qPrintable( getName() ), frame_.c_str(), qPrintable( fixed_frame_ ));
 
     setStatus( StatusProperty::Error, "Transform",
@@ -746,5 +764,3 @@ void MapDisplay::update( float wall_dt, float ros_dt ) {
 
 } // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::MapDisplay, rviz::Display )

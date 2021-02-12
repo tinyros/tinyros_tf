@@ -73,8 +73,9 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Header header\nPolygon polygon\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nPolygon polygon\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::geometry_msgs::PolygonStamped> Ptr;
+    typedef std::shared_ptr<tinyros::geometry_msgs::PolygonStamped const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::geometry_msgs::PolygonStamped> PolygonStampedPtr;
 typedef std::shared_ptr<tinyros::geometry_msgs::PolygonStamped const> PolygonStampedConstPtr;
 

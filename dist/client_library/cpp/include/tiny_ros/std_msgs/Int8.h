@@ -74,8 +74,9 @@ namespace std_msgs
     virtual std::string getDefinition(){ return "int8 data\n"; }
     static std::string getDefinitionStatic(){ return "int8 data\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::std_msgs::Int8> Ptr;
+    typedef std::shared_ptr<tinyros::std_msgs::Int8 const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::std_msgs::Int8> Int8Ptr;
 typedef std::shared_ptr<tinyros::std_msgs::Int8 const> Int8ConstPtr;
 

@@ -30,7 +30,7 @@
 #ifndef RANGE_DISPLAY_H
 #define RANGE_DISPLAY_H
 
-#include <sensor_msgs/Range.h>
+#include <tiny_ros/sensor_msgs/Range.h>
 
 #include "rviz/message_filter_display.h"
 
@@ -50,7 +50,7 @@ class IntProperty;
  * \class RangeDisplay
  * \brief Displays a sensor_msgs::Range message as a cone.
  */
-class RangeDisplay: public MessageFilterDisplay<sensor_msgs::Range>
+class RangeDisplay: public MessageFilterDisplay<tinyros::sensor_msgs::Range>
 {
 Q_OBJECT
 public:
@@ -65,7 +65,7 @@ protected:
   virtual void onInitialize();
 
   /** @brief Overridden from MessageFilterDisplay. */
-  virtual void processMessage( const sensor_msgs::Range::ConstPtr& msg );
+  virtual void processMessage( const tinyros::sensor_msgs::Range::ConstPtr& msg );
 
 private Q_SLOTS:
   void updateBufferLength();

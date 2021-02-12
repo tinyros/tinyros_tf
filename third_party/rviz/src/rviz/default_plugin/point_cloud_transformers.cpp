@@ -63,18 +63,18 @@ static void getRainbowColor(float value, Ogre::ColourValue& color)
   else if (i >= 5) color[0] = 1, color[1] = n, color[2] = 0;
 }
 
-uint8_t IntensityPCTransformer::supports(const sensor_msgs::PointCloud2ConstPtr& cloud)
+uint8_t IntensityPCTransformer::supports(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud)
 {
   updateChannels(cloud);
   return Support_Color;
 }
 
-uint8_t IntensityPCTransformer::score(const sensor_msgs::PointCloud2ConstPtr& cloud)
+uint8_t IntensityPCTransformer::score(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud)
 {
   return 255;
 }
 
-bool IntensityPCTransformer::transform( const sensor_msgs::PointCloud2ConstPtr& cloud,
+bool IntensityPCTransformer::transform( const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud,
                                         uint32_t mask,
                                         const Ogre::Matrix4& transform,
                                         V_PointCloudPoint& points_out )
@@ -93,7 +93,7 @@ bool IntensityPCTransformer::transform( const sensor_msgs::PointCloud2ConstPtr& 
       index = findChannelIndex( cloud, "intensities" );
       if( index == -1 )
       {
-	return false;
+    return false;
       }
     }
     else
@@ -219,7 +219,7 @@ void IntensityPCTransformer::createProperties( Property* parent_property, uint32
   }
 }
 
-void IntensityPCTransformer::updateChannels( const sensor_msgs::PointCloud2ConstPtr& cloud )
+void IntensityPCTransformer::updateChannels( const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud )
 {
   V_string channels;
   for(size_t i = 0; i < cloud->fields.size(); ++i )
@@ -236,7 +236,7 @@ void IntensityPCTransformer::updateChannels( const sensor_msgs::PointCloud2Const
       const std::string& channel = *it;
       if( channel.empty() )
       {
-	continue;
+    continue;
       }
       channel_name_property_->addOptionStd( channel );
     }
@@ -271,7 +271,7 @@ void IntensityPCTransformer::updateUseRainbow()
   Q_EMIT needRetransform();
 }
 
-uint8_t XYZPCTransformer::supports(const sensor_msgs::PointCloud2ConstPtr& cloud)
+uint8_t XYZPCTransformer::supports(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud)
 {
   int32_t xi = findChannelIndex(cloud, "x");
   int32_t yi = findChannelIndex(cloud, "y");
@@ -282,7 +282,7 @@ uint8_t XYZPCTransformer::supports(const sensor_msgs::PointCloud2ConstPtr& cloud
     return Support_None;
   }
 
-  if (cloud->fields[xi].datatype == sensor_msgs::PointField::FLOAT32)
+  if (cloud->fields[xi].datatype == tinyros::sensor_msgs::PointField::FLOAT32)
   {
     return Support_XYZ;
   }
@@ -290,7 +290,7 @@ uint8_t XYZPCTransformer::supports(const sensor_msgs::PointCloud2ConstPtr& cloud
   return Support_None;
 }
 
-bool XYZPCTransformer::transform(const sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t mask, const Ogre::Matrix4& transform, V_PointCloudPoint& points_out)
+bool XYZPCTransformer::transform(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t mask, const Ogre::Matrix4& transform, V_PointCloudPoint& points_out)
 {
   if (!(mask & Support_XYZ))
   {
@@ -320,7 +320,7 @@ bool XYZPCTransformer::transform(const sensor_msgs::PointCloud2ConstPtr& cloud, 
   return true;
 }
 
-uint8_t RGB8PCTransformer::supports(const sensor_msgs::PointCloud2ConstPtr& cloud)
+uint8_t RGB8PCTransformer::supports(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud)
 {
   int32_t index = std::max(findChannelIndex(cloud, "rgb"), findChannelIndex(cloud, "rgba"));
   if (index == -1)
@@ -338,7 +338,7 @@ uint8_t RGB8PCTransformer::supports(const sensor_msgs::PointCloud2ConstPtr& clou
   return Support_None;
 }
 
-bool RGB8PCTransformer::transform(const sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t mask, const Ogre::Matrix4& transform, V_PointCloudPoint& points_out)
+bool RGB8PCTransformer::transform(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t mask, const Ogre::Matrix4& transform, V_PointCloudPoint& points_out)
 {
   if (!(mask & Support_Color))
   {
@@ -385,7 +385,7 @@ bool RGB8PCTransformer::transform(const sensor_msgs::PointCloud2ConstPtr& cloud,
   return true;
 }
 
-uint8_t RGBF32PCTransformer::supports(const sensor_msgs::PointCloud2ConstPtr& cloud)
+uint8_t RGBF32PCTransformer::supports(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud)
 {
   int32_t ri = findChannelIndex(cloud, "r");
   int32_t gi = findChannelIndex(cloud, "g");
@@ -395,7 +395,7 @@ uint8_t RGBF32PCTransformer::supports(const sensor_msgs::PointCloud2ConstPtr& cl
     return Support_None;
   }
 
-  if (cloud->fields[ri].datatype == sensor_msgs::PointField::FLOAT32)
+  if (cloud->fields[ri].datatype == tinyros::sensor_msgs::PointField::FLOAT32)
   {
     return Support_Color;
   }
@@ -403,7 +403,7 @@ uint8_t RGBF32PCTransformer::supports(const sensor_msgs::PointCloud2ConstPtr& cl
   return Support_None;
 }
 
-bool RGBF32PCTransformer::transform(const sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t mask, const Ogre::Matrix4& transform, V_PointCloudPoint& points_out)
+bool RGBF32PCTransformer::transform(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud, uint32_t mask, const Ogre::Matrix4& transform, V_PointCloudPoint& points_out)
 {
   if (!(mask & Support_Color))
   {
@@ -431,17 +431,17 @@ bool RGBF32PCTransformer::transform(const sensor_msgs::PointCloud2ConstPtr& clou
   return true;
 }
 
-uint8_t FlatColorPCTransformer::supports(const sensor_msgs::PointCloud2ConstPtr& cloud)
+uint8_t FlatColorPCTransformer::supports(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud)
 {
   return Support_Color;
 }
 
-uint8_t FlatColorPCTransformer::score(const sensor_msgs::PointCloud2ConstPtr& cloud)
+uint8_t FlatColorPCTransformer::score(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud)
 {
   return 0;
 }
 
-bool FlatColorPCTransformer::transform( const sensor_msgs::PointCloud2ConstPtr& cloud,
+bool FlatColorPCTransformer::transform( const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud,
                                         uint32_t mask,
                                         const Ogre::Matrix4& transform,
                                         V_PointCloudPoint& points_out )
@@ -473,17 +473,17 @@ void FlatColorPCTransformer::createProperties( Property* parent_property, uint32
   }
 }
 
-uint8_t AxisColorPCTransformer::supports(const sensor_msgs::PointCloud2ConstPtr& cloud)
+uint8_t AxisColorPCTransformer::supports(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud)
 {
   return Support_Color;
 }
 
-uint8_t AxisColorPCTransformer::score(const sensor_msgs::PointCloud2ConstPtr& cloud)
+uint8_t AxisColorPCTransformer::score(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud)
 {
   return 255;
 }
 
-bool AxisColorPCTransformer::transform( const sensor_msgs::PointCloud2ConstPtr& cloud,
+bool AxisColorPCTransformer::transform( const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud,
                                         uint32_t mask,
                                         const Ogre::Matrix4& transform,
                                         V_PointCloudPoint& points_out )
@@ -513,7 +513,7 @@ bool AxisColorPCTransformer::transform( const sensor_msgs::PointCloud2ConstPtr& 
   {
     for (uint32_t i = 0; i < num_points; ++i, point += point_step)
     {
-      // TODO: optimize this by only doing the multiplication needed
+      // optimize this by only doing the multiplication needed
       // for the desired output value, instead of doing all of them
       // and then throwing most away.
       pos.x = *reinterpret_cast<const float*>(point + xoff);
@@ -622,10 +622,3 @@ void AxisColorPCTransformer::updateAutoComputeBounds()
 
 } // end namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::AxisColorPCTransformer, rviz::PointCloudTransformer )
-PLUGINLIB_EXPORT_CLASS( rviz::FlatColorPCTransformer, rviz::PointCloudTransformer )
-PLUGINLIB_EXPORT_CLASS( rviz::IntensityPCTransformer, rviz::PointCloudTransformer )
-PLUGINLIB_EXPORT_CLASS(      rviz::RGB8PCTransformer,      rviz::PointCloudTransformer )
-PLUGINLIB_EXPORT_CLASS(    rviz::RGBF32PCTransformer,    rviz::PointCloudTransformer )
-PLUGINLIB_EXPORT_CLASS(       rviz::XYZPCTransformer,       rviz::PointCloudTransformer )

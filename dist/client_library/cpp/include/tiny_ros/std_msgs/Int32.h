@@ -80,8 +80,9 @@ namespace std_msgs
     virtual std::string getDefinition(){ return "int32 data\n"; }
     static std::string getDefinitionStatic(){ return "int32 data\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::std_msgs::Int32> Ptr;
+    typedef std::shared_ptr<tinyros::std_msgs::Int32 const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::std_msgs::Int32> Int32Ptr;
 typedef std::shared_ptr<tinyros::std_msgs::Int32 const> Int32ConstPtr;
 

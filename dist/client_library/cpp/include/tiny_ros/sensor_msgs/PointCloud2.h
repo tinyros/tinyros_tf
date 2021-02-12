@@ -248,8 +248,9 @@ namespace sensor_msgs
     virtual std::string getDefinition(){ return "Header header\nuint32 height\nuint32 width\nPointField[] fields\nbool    is_bigendian\nuint32  point_step\nuint32  row_step\nuint8[] data\nbool is_dense\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nuint32 height\nuint32 width\nPointField[] fields\nbool    is_bigendian\nuint32  point_step\nuint32  row_step\nuint8[] data\nbool is_dense\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::sensor_msgs::PointCloud2> Ptr;
+    typedef std::shared_ptr<tinyros::sensor_msgs::PointCloud2 const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::sensor_msgs::PointCloud2> PointCloud2Ptr;
 typedef std::shared_ptr<tinyros::sensor_msgs::PointCloud2 const> PointCloud2ConstPtr;
 

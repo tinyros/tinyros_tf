@@ -193,8 +193,9 @@ static const char SPAWNMODEL[] = "gazebo_msgs/SpawnModel";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::SpawnModelRequest> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::SpawnModelRequest const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::SpawnModelRequest> SpawnModelRequestPtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::SpawnModelRequest const> SpawnModelRequestConstPtr;
 
@@ -304,8 +305,9 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::SpawnModelRequest const> SpawnMode
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::SpawnModelResponse> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::SpawnModelResponse const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::SpawnModelResponse> SpawnModelResponsePtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::SpawnModelResponse const> SpawnModelResponseConstPtr;
 

@@ -34,14 +34,17 @@
 # include <boost/shared_ptr.hpp>
 # include <boost/thread/mutex.hpp>
 
-# include <ros/ros.h>
+# include <tiny_ros/ros.h>
+# include <tiny_ros/sensor_msgs/CameraInfo.h>
+# include <tiny_ros/sensor_msgs/Image.h>
+# include <tiny_ros/sensor_msgs/PointCloud2.h>
 # include <image_transport/image_transport.h>
 # include <image_transport/subscriber_filter.h>
 # include <message_filters/subscriber.h>
 # include <message_filters/synchronizer.h>
 # include <message_filters/sync_policies/approximate_time.h>
-# include <tf/message_filter.h>
-
+# include <tiny_ros/tf/message_filter.h>
+# include <tiny_ros/sensor_msgs/Image.h>
 # include "rviz/properties/enum_property.h"
 # include "rviz/properties/float_property.h"
 # include "rviz/properties/bool_property.h"
@@ -152,9 +155,10 @@ protected:
 
   typedef std::vector<rviz::PointCloud::Point> V_Point;
 
-  virtual void processMessage(sensor_msgs::Image::ConstPtr msg);
-  virtual void processMessage(sensor_msgs::ImageConstPtr depth_msg, sensor_msgs::ImageConstPtr rgb_msg);
-  void caminfoCallback( sensor_msgs::CameraInfo::ConstPtr msg );
+  virtual void processMessage(tinyros::sensor_msgs::ImageConstPtr msg);
+  virtual void processMessageRGB(tinyros::sensor_msgs::ImageConstPtr msg);
+  virtual void processMessage(tinyros::sensor_msgs::ImageConstPtr depth_msg, tinyros::sensor_msgsImageConstPtr rgb_msg);
+  void caminfoCallback( tinyros::sensor_msgs::CameraInfoConstPtr msg );
 
   // overrides from Display
   virtual void onEnable();
@@ -179,19 +183,16 @@ protected:
   boost::mutex mutex_;
 
   // ROS image subscription & synchronization
-  boost::scoped_ptr<image_transport::ImageTransport> depthmap_it_;
-  boost::shared_ptr<image_transport::SubscriberFilter > depthmap_sub_;
-  boost::shared_ptr<tf::MessageFilter<sensor_msgs::Image> > depthmap_tf_filter_;
-  boost::scoped_ptr<image_transport::ImageTransport> rgb_it_;
-  boost::shared_ptr<image_transport::SubscriberFilter > rgb_sub_;
-  boost::shared_ptr<message_filters::Subscriber<sensor_msgs::CameraInfo> > cam_info_sub_;
-  sensor_msgs::CameraInfo::ConstPtr cam_info_;
+  boost::shared_ptr<tinyros::tf::MessageFilter<tinyros::sensor_msgs::Image> > depthcolor_tf_filter_;
+  boost::shared_ptr<tinyros::tf::MessageFilter<tinyros::sensor_msgs::Image> > depthmap_tf_filter_;
+  tinyros::Subscriber<tinyros::sensor_msgs::CameraInfo, DepthCloudDisplay> *cam_info_sub_;
+  tinyros::sensor_msgs::CameraInfoConstPtr cam_info_;
   boost::mutex cam_info_mutex_;
 
-  typedef ApproximateTime<sensor_msgs::Image, sensor_msgs::Image> SyncPolicyDepthColor;
-  typedef message_filters::Synchronizer<SyncPolicyDepthColor> SynchronizerDepthColor;
-
-  boost::shared_ptr<SynchronizerDepthColor> sync_depth_color_;
+  bool sync_depth_color_;
+  boost::mutex sync_mutex_;
+  tinyros::sensor_msgs::ImageConstPtr current_rgb_;
+  tinyros::sensor_msgs::ImageConstPtr current_depth_;
 
   // RVIZ properties
   Property* topic_filter_property_;

@@ -220,8 +220,9 @@ namespace visualization_msgs
     virtual std::string getDefinition(){ return "Header header\nstring client_id\nstring marker_name\nstring control_name\nuint8 event_type\ngeometry_msgs/Pose pose\nuint32 menu_entry_id\ngeometry_msgs/Point mouse_point\nbool mouse_point_valid\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nstring client_id\nstring marker_name\nstring control_name\nuint8 event_type\ngeometry_msgs/Pose pose\nuint32 menu_entry_id\ngeometry_msgs/Point mouse_point\nbool mouse_point_valid\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::visualization_msgs::InteractiveMarkerFeedback> Ptr;
+    typedef std::shared_ptr<tinyros::visualization_msgs::InteractiveMarkerFeedback const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::visualization_msgs::InteractiveMarkerFeedback> InteractiveMarkerFeedbackPtr;
 typedef std::shared_ptr<tinyros::visualization_msgs::InteractiveMarkerFeedback const> InteractiveMarkerFeedbackConstPtr;
 

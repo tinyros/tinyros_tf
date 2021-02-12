@@ -32,7 +32,7 @@
 #include <OgreSceneNode.h>
 #include <OgreSceneManager.h>
 
-#include <tf/transform_listener.h>
+#include <tiny_ros/tf/transform_listener.h>
 
 #include "rviz/display_context.h"
 #include "rviz/frame_manager.h"
@@ -431,7 +431,7 @@ FrameInfo* TFDisplay::createFrame(const std::string& frame)
   frames_.insert( std::make_pair( frame, info ) );
 
   info->name_ = frame;
-  info->last_update_ = ros::Time::now();
+  info->last_update_ = tinyros::Time::now();
   info->axes_ = new Axes( scene_manager_, axes_node_, 0.2, 0.02 );
   info->axes_->getSceneNode()->setVisible( show_axes_property_->getBool() );
   info->selection_handler_.reset( new FrameSelectionHandler( info, this, context_ ));
@@ -494,35 +494,35 @@ Ogre::ColourValue lerpColor(const Ogre::ColourValue& start, const Ogre::ColourVa
 
 void TFDisplay::updateFrame( FrameInfo* frame )
 {
-  tf::TransformListener* tf = context_->getTFClient();
+  tinyros::tf::TransformListener* tf = context_->getTFClient();
 
   // Check last received time so we can grey out/fade out frames that have stopped being published
-  ros::Time latest_time;
+  tinyros::Time latest_time;
   tf->getLatestCommonTime( fixed_frame_.toStdString(), frame->name_, latest_time, 0 );
 
   if(( latest_time != frame->last_time_to_fixed_ ) ||
-     ( latest_time == ros::Time() ))
+     ( latest_time == tinyros::Time() ))
   {
     frame->last_update_ = ros::Time::now();
     frame->last_time_to_fixed_ = latest_time;
   }
 
   // Fade from color -> grey, then grey -> fully transparent
-  ros::Duration age = ros::Time::now() - frame->last_update_;
+  tinyros::Duration age = tinyros::Time::now() - frame->last_update_;
   float frame_timeout = frame_timeout_property_->getFloat();
   float one_third_timeout = frame_timeout * 0.3333333f;
-  if( age > ros::Duration( frame_timeout ))
+  if( age > tinyros::Duration( frame_timeout ))
   {
     frame->parent_arrow_->getSceneNode()->setVisible(false);
     frame->axes_->getSceneNode()->setVisible(false);
     frame->name_node_->setVisible(false);
     return;
   }
-  else if (age > ros::Duration(one_third_timeout))
+  else if (age > tinyros::Duration(one_third_timeout))
   {
     Ogre::ColourValue grey(0.7, 0.7, 0.7, 1.0);
 
-    if (age > ros::Duration(one_third_timeout * 2))
+    if (age > tinyros::Duration(one_third_timeout * 2))
     {
       float a = std::max(0.0, (frame_timeout - age.toSec())/one_third_timeout);
       Ogre::ColourValue c = Ogre::ColourValue(grey.r, grey.g, grey.b, a);
@@ -556,12 +556,12 @@ void TFDisplay::updateFrame( FrameInfo* frame )
 
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
-  if( !context_->getFrameManager()->getTransform( frame->name_, ros::Time(), position, orientation ))
+  if( !context_->getFrameManager()->getTransform( frame->name_, tinyros::Time(), position, orientation ))
   {
     std::stringstream ss;
     ss << "No transform from [" << frame->name_ << "] to frame [" << fixed_frame_.toStdString() << "]";
     setStatusStd(StatusProperty::Warn, frame->name_, ss.str());
-    ROS_DEBUG( "Error transforming frame '%s' to frame '%s'", frame->name_.c_str(), qPrintable( fixed_frame_ ));
+    tinyros_log_debug( "Error transforming frame '%s' to frame '%s'", frame->name_.c_str(), qPrintable( fixed_frame_ ));
     frame->name_node_->setVisible( false );
     frame->axes_->getSceneNode()->setVisible( false );
     frame->parent_arrow_->getSceneNode()->setVisible( false );
@@ -617,11 +617,11 @@ void TFDisplay::updateFrame( FrameInfo* frame )
 
     tf::StampedTransform transform;
     try {
-      context_->getFrameManager()->getTFClientPtr()->lookupTransform(frame->parent_,frame->name_,ros::Time(0),transform);
+      context_->getFrameManager()->getTFClientPtr()->lookupTransform(frame->parent_,frame->name_,tinyros::Time(0),transform);
     }
-    catch(tf::TransformException& e)
+    catch(tinyros::tf::TransformException& e)
     {
-      ROS_DEBUG( "Error transforming frame '%s' (parent of '%s') to frame '%s'",
+      tinyros_log_debug( "Error transforming frame '%s' (parent of '%s') to frame '%s'",
                  frame->parent_.c_str(), frame->name_.c_str(), qPrintable( fixed_frame_ ));
     }
 
@@ -635,9 +635,9 @@ void TFDisplay::updateFrame( FrameInfo* frame )
     {
       Ogre::Vector3 parent_position;
       Ogre::Quaternion parent_orientation;
-      if (!context_->getFrameManager()->getTransform(frame->parent_, ros::Time(), parent_position, parent_orientation))
+      if (!context_->getFrameManager()->getTransform(frame->parent_, tinyros::Time(), parent_position, parent_orientation))
       {
-        ROS_DEBUG( "Error transforming frame '%s' (parent of '%s') to frame '%s'",
+        tinyros_log_debug( "Error transforming frame '%s' (parent of '%s') to frame '%s'",
                    frame->parent_.c_str(), frame->name_.c_str(), qPrintable( fixed_frame_ ));
       }
 
@@ -694,7 +694,7 @@ void TFDisplay::updateFrame( FrameInfo* frame )
 void TFDisplay::deleteFrame( FrameInfo* frame, bool delete_properties )
 {
   M_FrameInfo::iterator it = frames_.find( frame->name_ );
-  ROS_ASSERT( it != frames_.end() );
+  TINYROS_ASSERT( it != frames_.end() );
 
   frames_.erase( it );
 
@@ -789,5 +789,3 @@ void FrameInfo::setEnabled( bool enabled )
 
 } // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::TFDisplay, rviz::Display )

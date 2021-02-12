@@ -73,8 +73,9 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Header header\nTwist twist\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nTwist twist\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::geometry_msgs::TwistStamped> Ptr;
+    typedef std::shared_ptr<tinyros::geometry_msgs::TwistStamped const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::geometry_msgs::TwistStamped> TwistStampedPtr;
 typedef std::shared_ptr<tinyros::geometry_msgs::TwistStamped const> TwistStampedConstPtr;
 

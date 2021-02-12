@@ -161,8 +161,9 @@ static const char SETJOINTTRAJECTORY[] = "gazebo_msgs/SetJointTrajectory";
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointTrajectoryRequest> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointTrajectoryRequest const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointTrajectoryRequest> SetJointTrajectoryRequestPtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointTrajectoryRequest const> SetJointTrajectoryRequestConstPtr;
 
@@ -272,8 +273,9 @@ typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointTrajectoryRequest const> S
     static bool hasHeader(){ return false; }
     uint32_t getID() const { return this->__id__; }
     void setID(uint32_t id){ this->__id__ = id; }
+    typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointTrajectoryResponse> Ptr;
+    typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointTrajectoryResponse const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointTrajectoryResponse> SetJointTrajectoryResponsePtr;
 typedef std::shared_ptr<tinyros::gazebo_msgs::SetJointTrajectoryResponse const> SetJointTrajectoryResponseConstPtr;
 

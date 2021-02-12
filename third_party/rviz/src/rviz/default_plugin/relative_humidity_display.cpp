@@ -30,7 +30,7 @@
 #include <OgreSceneNode.h>
 #include <OgreSceneManager.h>
 
-#include <ros/time.h>
+#include <tiny_ros/ros/time.h>
 
 #include "rviz/default_plugin/point_cloud_common.h"
 #include "rviz/default_plugin/point_cloud_transformers.h"
@@ -81,30 +81,30 @@ void RelativeHumidityDisplay::updateQueueSize()
   tf_filter_->setQueueSize( (uint32_t) queue_size_property_->getInt() );
 }
 
-void RelativeHumidityDisplay::processMessage( const sensor_msgs::RelativeHumidityConstPtr& msg )
+void RelativeHumidityDisplay::processMessage( const tinyros::sensor_msgs::RelativeHumidityConstPtr& msg )
 {
-  sensor_msgs::PointCloud2Ptr filtered(new sensor_msgs::PointCloud2);
+  tinyros::sensor_msgs::PointCloud2Ptr filtered(new tinyros::sensor_msgs::PointCloud2);
 
   // Create fields
-  sensor_msgs::PointField x;
+  tinyros::sensor_msgs::PointField x;
   x.name = "x";
   x.offset = 0;
-  x.datatype = sensor_msgs::PointField::FLOAT32;
+  x.datatype = tinyros::sensor_msgs::PointField::FLOAT32;
   x.count = 1;
-  sensor_msgs::PointField y;
+  tinyros::sensor_msgs::PointField y;
   y.name = "y";
   y.offset = 4;
-  y.datatype = sensor_msgs::PointField::FLOAT32;
+  y.datatype = tinyros::sensor_msgs::PointField::FLOAT32;
   y.count = 1;
-  sensor_msgs::PointField z;
+  tinyros::sensor_msgs::PointField z;
   z.name = "z";
   z.offset = 8;
-  z.datatype = sensor_msgs::PointField::FLOAT32;
+  z.datatype = tinyros::sensor_msgs::PointField::FLOAT32;
   z.count = 1;
-  sensor_msgs::PointField relative_humidity;
+  tinyros::sensor_msgs::PointField relative_humidity;
   relative_humidity.name = "relative_humidity";
   relative_humidity.offset = 12;
-  relative_humidity.datatype = sensor_msgs::PointField::FLOAT64;
+  relative_humidity.datatype = tinyros::sensor_msgs::PointField::FLOAT64;
   relative_humidity.count = 1;
 
   // Create pointcloud from message
@@ -149,5 +149,3 @@ void RelativeHumidityDisplay::reset()
 
 } // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::RelativeHumidityDisplay, rviz::Display )

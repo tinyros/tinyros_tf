@@ -42,7 +42,7 @@
 #include "rviz/properties/bool_property.h"
 #include "rviz/properties/string_property.h"
 
-#include <geometry_msgs/PointStamped.h>
+#include <tiny_ros/geometry_msgs/PointStamped.h>
 
 #include <sstream>
 
@@ -83,7 +83,8 @@ void PointTool::deactivate()
 
 void PointTool::updateTopic()
 {
-  pub_ = nh_.advertise<geometry_msgs::PointStamped>( topic_property_->getStdString(), 1 );
+  pub_ = tinyros::Publisher(topic_property_->getStdString(), new tinyros::geometry_msgs::PointStamped);
+  tinyros::nh()->advertise(pub_);
 }
 
 void PointTool::updateAutoDeactivate()
@@ -108,12 +109,12 @@ int PointTool::processMouseEvent( ViewportMouseEvent& event )
 
     if( event.leftUp() )
     {
-      geometry_msgs::PointStamped ps;
+      tinyros::geometry_msgs::PointStamped ps;
       ps.point.x = pos.x;
       ps.point.y = pos.y;
       ps.point.z = pos.z;
       ps.header.frame_id = context_->getFixedFrame().toStdString();
-      ps.header.stamp = ros::Time::now();
+      ps.header.stamp = tinyros::Time::now();
       pub_.publish( ps );
 
       if ( auto_deactivate_property_->getBool() )
@@ -132,5 +133,3 @@ int PointTool::processMouseEvent( ViewportMouseEvent& event )
 
 }
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::PointTool, rviz::Tool )

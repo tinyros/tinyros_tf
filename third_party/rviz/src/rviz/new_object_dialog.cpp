@@ -31,8 +31,8 @@
 
 #include <boost/filesystem.hpp>
 
-#include <ros/package.h>
-#include <ros/ros.h>
+#include <tiny_ros/package.h>
+#include <tiny_ros/ros.h>
 
 #include <QGroupBox>
 #include <QTreeWidget>

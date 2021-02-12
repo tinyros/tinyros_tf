@@ -30,9 +30,9 @@
 #include <OgreSceneNode.h>
 #include <OgreSceneManager.h>
 
-#include <ros/time.h>
+#include <tiny_ros/ros/time.h>
 
-#include <tf/transform_listener.h>
+#include <tiny_ros/tf/transform_listener.h>
 
 #include "rviz/default_plugin/point_cloud_common.h"
 #include "rviz/display_context.h"
@@ -53,10 +53,6 @@ PointCloudDisplay::PointCloudDisplay()
                                           " Increasing this is useful if your incoming TF data is delayed significantly "
                                           "from your PointCloud data, but it can greatly increase memory usage if the messages are big.",
                                           this, SLOT( updateQueueSize() ));
-
-  // PointCloudCommon sets up a callback queue with a thread for each
-  // instance.  Use that for processing incoming messages.
-  update_nh_.setCallbackQueue( point_cloud_common_->getCallbackQueue() );
 }
 
 PointCloudDisplay::~PointCloudDisplay()
@@ -75,7 +71,7 @@ void PointCloudDisplay::updateQueueSize()
   tf_filter_->setQueueSize( (uint32_t) queue_size_property_->getInt() );
 }
 
-void PointCloudDisplay::processMessage( const sensor_msgs::PointCloudConstPtr& cloud )
+void PointCloudDisplay::processMessage( const tinyros::sensor_msgs::PointCloudConstPtr& cloud )
 {
   point_cloud_common_->addMessage( cloud );
 }
@@ -93,5 +89,3 @@ void PointCloudDisplay::reset()
 
 } // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::PointCloudDisplay, rviz::Display )

@@ -74,8 +74,9 @@ namespace std_msgs
     virtual std::string getDefinition(){ return "byte data\n"; }
     static std::string getDefinitionStatic(){ return "byte data\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::std_msgs::Byte> Ptr;
+    typedef std::shared_ptr<tinyros::std_msgs::Byte const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::std_msgs::Byte> BytePtr;
 typedef std::shared_ptr<tinyros::std_msgs::Byte const> ByteConstPtr;
 

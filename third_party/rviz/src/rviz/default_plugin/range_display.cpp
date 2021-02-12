@@ -125,13 +125,13 @@ void RangeDisplay::updateBufferLength()
   }
 }
 
-void RangeDisplay::processMessage( const sensor_msgs::Range::ConstPtr& msg )
+void RangeDisplay::processMessage( const tinyros::sensor_msgs::Range::ConstPtr& msg )
 {
   Shape* cone = cones_[ messages_received_ % buffer_length_property_->getInt() ];
 
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
-  geometry_msgs::Pose pose;
+  tinyros::geometry_msgs::Pose pose;
   float displayed_range = 0.0;
   if(msg->min_range <= msg->range && msg->range <= msg->max_range){
     displayed_range = msg->range;
@@ -146,7 +146,7 @@ void RangeDisplay::processMessage( const sensor_msgs::Range::ConstPtr& msg )
   pose.orientation.w = 0.707;
   if( !context_->getFrameManager()->transform( msg->header.frame_id, msg->header.stamp, pose, position, orientation ))
   {
-    ROS_DEBUG( "Error transforming from frame '%s' to frame '%s'",
+    tinyros_log_debug( "Error transforming from frame '%s' to frame '%s'",
                msg->header.frame_id.c_str(), qPrintable( fixed_frame_ ));
   }
 
@@ -163,5 +163,3 @@ void RangeDisplay::processMessage( const sensor_msgs::Range::ConstPtr& msg )
 
 } // namespace rviz
 
-#include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::RangeDisplay, rviz::Display )

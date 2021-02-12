@@ -111,8 +111,9 @@ namespace actionlib_msgs
     virtual std::string getDefinition(){ return "time stamp\nstring id\n"; }
     static std::string getDefinitionStatic(){ return "time stamp\nstring id\n"; }
     static bool hasHeader(){ return false; }
+    typedef std::shared_ptr<tinyros::actionlib_msgs::GoalID> Ptr;
+    typedef std::shared_ptr<tinyros::actionlib_msgs::GoalID const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::actionlib_msgs::GoalID> GoalIDPtr;
 typedef std::shared_ptr<tinyros::actionlib_msgs::GoalID const> GoalIDConstPtr;
 

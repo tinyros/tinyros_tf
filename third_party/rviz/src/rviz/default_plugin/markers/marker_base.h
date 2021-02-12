@@ -33,9 +33,9 @@
 #include "rviz/selection/forwards.h"
 #include "rviz/interactive_object.h"
 
-#include <visualization_msgs/Marker.h>
+#include <tiny_ros/visualization_msgs/Marker.h>
 
-#include <ros/time.h>
+#include <tiny_ros/ros.h>
 
 #include <boost/shared_ptr.hpp>
 
@@ -59,8 +59,8 @@ typedef std::set<Ogre::MaterialPtr> S_MaterialPtr;
 class MarkerBase
 {
 public:
-  typedef visualization_msgs::Marker Marker;
-  typedef visualization_msgs::Marker::ConstPtr MarkerConstPtr;
+  typedef tinyros::visualization_msgs::Marker Marker;
+  typedef tinyros::visualization_msgs::Marker::ConstPtr MarkerConstPtr;
 
   MarkerBase( MarkerDisplay* owner, DisplayContext* context, Ogre::SceneNode* parent_node );
 
@@ -105,7 +105,7 @@ protected:
 
   MarkerConstPtr message_;
 
-  ros::Time expiration_;
+  tinyros::Time expiration_;
 
   boost::shared_ptr<MarkerSelectionHandler> handler_;
 };

@@ -73,8 +73,9 @@ namespace geometry_msgs
     virtual std::string getDefinition(){ return "Header header\nAccel accel\n"; }
     static std::string getDefinitionStatic(){ return "Header header\nAccel accel\n"; }
     static bool hasHeader(){ return true; }
+    typedef std::shared_ptr<tinyros::geometry_msgs::AccelStamped> Ptr;
+    typedef std::shared_ptr<tinyros::geometry_msgs::AccelStamped const> ConstPtr;
   };
-
 typedef std::shared_ptr<tinyros::geometry_msgs::AccelStamped> AccelStampedPtr;
 typedef std::shared_ptr<tinyros::geometry_msgs::AccelStamped const> AccelStampedConstPtr;
 
