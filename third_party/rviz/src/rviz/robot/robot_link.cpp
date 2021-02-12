@@ -40,7 +40,7 @@
 #include <OgreSharedPtr.h>
 #include <OgreTechnique.h>
 
-#include <ros/console.h>
+#include <tiny_ros/ros.h>
 
 #include <resource_retriever/retriever.h>
 
@@ -490,7 +490,7 @@ Ogre::MaterialPtr RobotLink::getMaterialForLink( const urdf::LinkConstSharedPtr&
       }
       catch (resource_retriever::Exception& e)
       {
-        ROS_ERROR("%s", e.what());
+        tinyros_log_error("%s", e.what());
       }
 
       if (res.size != 0)
@@ -511,7 +511,7 @@ Ogre::MaterialPtr RobotLink::getMaterialForLink( const urdf::LinkConstSharedPtr&
         }
         catch (Ogre::Exception& e)
         {
-          ROS_ERROR("Could not load texture [%s]: %s", filename.c_str(), e.what());
+          tinyros_log_error("Could not load texture [%s]: %s", filename.c_str(), e.what());
         }
       }
     }
@@ -601,16 +601,16 @@ void RobotLink::createEntityForGeometryElement(const urdf::LinkConstSharedPtr& l
     }
     catch( Ogre::InvalidParametersException& e )
     {
-      ROS_ERROR( "Could not convert mesh resource '%s' for link '%s'. It might be an empty mesh: %s", model_name.c_str(), link->name.c_str(), e.what() );
+      tinyros_log_error( "Could not convert mesh resource '%s' for link '%s'. It might be an empty mesh: %s", model_name.c_str(), link->name.c_str(), e.what() );
     }
     catch( Ogre::Exception& e )
     {
-      ROS_ERROR( "Could not load model '%s' for link '%s': %s", model_name.c_str(), link->name.c_str(), e.what() );
+      tinyros_log_error( "Could not load model '%s' for link '%s': %s", model_name.c_str(), link->name.c_str(), e.what() );
     }
     break;
   }
   default:
-    ROS_WARN("Unsupported geometry type for element: %d", geom.type);
+    tinyros_log_warn("Unsupported geometry type for element: %d", geom.type);
     break;
   }
 
@@ -820,7 +820,7 @@ void RobotLink::updateTrail()
       }
       else
       {
-        ROS_WARN( "No visual node for link %s, cannot create a trail", name_.c_str() );
+        tinyros_log_warn( "No visual node for link %s, cannot create a trail", name_.c_str() );
       }
     }
   }

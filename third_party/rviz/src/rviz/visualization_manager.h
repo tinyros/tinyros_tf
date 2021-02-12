@@ -33,7 +33,7 @@
 
 #include <deque>
 
-#include <ros/time.h>
+#include <tiny_ros/ros.h>
 
 #include "rviz/bit_allocator.h"
 #include "rviz/config.h"
@@ -50,14 +50,21 @@ class SceneNode;
 class Light;
 }
 
-namespace ros
+namespace tinyros
 {
+namespace tf
+{
+
 class CallbackQueueInterface;
 }
+}
 
+namespace tinyros
+{
 namespace tf
 {
 class TransformListener;
+}
 }
 
 namespace rviz
@@ -108,7 +115,7 @@ public:
    *        VisualizationFrame, the top-level container widget of rviz).
    * @param tf a pointer to tf::TransformListener which will be internally used by FrameManager.
    */
-  VisualizationManager( RenderPanel* render_panel, WindowManagerInterface* wm = 0, boost::shared_ptr<tf::TransformListener> tf = boost::shared_ptr<tf::TransformListener>() );
+  VisualizationManager( RenderPanel* render_panel, WindowManagerInterface* wm = 0, boost::shared_ptr<tinyros::tf::TransformListener> tf = boost::shared_ptr<tinyros::tf::TransformListener>() );
 
   /**
    * \brief Destructor
@@ -353,8 +360,8 @@ protected:
   Ogre::SceneManager* scene_manager_;                     ///< Ogre scene manager associated with this panel
 
   QTimer* update_timer_;                                 ///< Update timer.  Display::update is called on each display whenever this timer fires
-  ros::Time last_update_ros_time_;                        ///< Update stopwatch.  Stores how long it's been since the last update
-  ros::WallTime last_update_wall_time_;
+  tinyros::Time last_update_ros_time_;                        ///< Update stopwatch.  Stores how long it's been since the last update
+  tinyros::Time last_update_wall_time_;
 
   volatile bool shutting_down_;
 

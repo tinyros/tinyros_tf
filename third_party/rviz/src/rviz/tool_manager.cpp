@@ -30,7 +30,7 @@
 #include <QKeyEvent>
 #include <QRegExp>
 
-#include <ros/assert.h>
+#include <tiny_ros/tf/static_assert.h>
 
 #include "rviz/failed_tool.h"
 #include "rviz/properties/property.h"
@@ -198,8 +198,8 @@ void ToolManager::setDefaultTool( Tool* tool )
 
 Tool* ToolManager::getTool( int index )
 {
-  ROS_ASSERT( index >= 0 );
-  ROS_ASSERT( index < (int)tools_.size() );
+  TINYROS_ASSERT( index >= 0 );
+  TINYROS_ASSERT( index < (int)tools_.size() );
 
   return tools_[ index ];
 }

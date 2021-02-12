@@ -36,6 +36,10 @@
 #include <string>
 #include <vector>
 
+#ifndef Q_MOC_RUN
+#include <tiny_ros/pluginlib/class_loader.h>
+#endif
+
 #include "rviz/class_id_recording_factory.h"
 #include "rviz/load_resource.h"
 

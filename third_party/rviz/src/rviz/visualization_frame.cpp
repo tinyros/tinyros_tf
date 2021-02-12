@@ -54,9 +54,8 @@
 #include <boost/bind.hpp>
 #include <boost/filesystem.hpp>
 
-#include <ros/console.h>
-#include <ros/package.h>
-#include <ros/init.h>
+#include <tiny_ros/ros.h>
+#include <tiny_ros/package.h>
 
 #include <OgreRenderWindow.h>
 #include <OgreMeshManager.h>
@@ -183,7 +182,7 @@ void VisualizationFrame::setStatus( const QString & message )
 void VisualizationFrame::updateFps()
 {
   frame_count_ ++;
-  ros::WallDuration wall_diff = ros::WallTime::now() - last_fps_calc_time_;
+  tinyros::Duration wall_diff = tinyros::Time::now() - last_fps_calc_time_;
 
   if ( wall_diff.toSec() > 1.0 )
   {
@@ -265,12 +264,6 @@ void VisualizationFrame::initialize(const QString& display_config_file )
   // Periodically process events for the splash screen.
   // See: http://doc.qt.io/qt-5/qsplashscreen.html#details
   if (app_) app_->processEvents();
-
-  if( !ros::isInitialized() )
-  {
-    int argc = 0;
-    ros::init( argc, 0, "rviz", ros::init_options::AnonymousName );
-  }
 
   // Periodically process events for the splash screen.
   if (app_) app_->processEvents();
@@ -383,7 +376,7 @@ void VisualizationFrame::initConfigs()
 
   if( fs::is_regular_file( config_dir_ ))
   {
-    ROS_ERROR("Moving file [%s] out of the way to recreate it as a directory.", config_dir_.c_str());
+    tinyros_log_error("Moving file [%s] out of the way to recreate it as a directory.", config_dir_.c_str());
     std::string backup_file = config_dir_ + ".bak";
 
     fs::rename(config_dir_, backup_file);
@@ -420,7 +413,7 @@ void VisualizationFrame::loadPersistentSettings()
   }
   else
   {
-    ROS_ERROR( "%s", qPrintable( reader.errorMessage() ));
+    tinyros_log_error( "%s", qPrintable( reader.errorMessage() ));
   }
 }
 
@@ -440,7 +433,7 @@ void VisualizationFrame::savePersistentSettings()
 
   if( writer.error() )
   {
-    ROS_ERROR( "%s", qPrintable( writer.errorMessage() ));
+    tinyros_log_error( "%s", qPrintable( writer.errorMessage() ));
   }
 }
 
@@ -672,7 +665,7 @@ void VisualizationFrame::loadDisplayConfig( const QString& qpath )
     actual_load_path = (fs::path(package_path_) / "default.rviz").BOOST_FILE_STRING();      
     if( !fs::exists( actual_load_path ))
     {
-      ROS_ERROR( "Default display config '%s' not found.  RViz will be very empty at first.", actual_load_path.c_str() );
+      tinyros_log_error( "Default display config '%s' not found.  RViz will be very empty at first.", actual_load_path.c_str() );
       return;
     }
   }

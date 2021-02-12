@@ -32,12 +32,12 @@
 
 #include <cmath>
 
-#include <geometry_msgs/PointStamped.h>
-#include <geometry_msgs/Point32.h>
-#include <geometry_msgs/Vector3.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/Twist.h>
-#include <std_msgs/ColorRGBA.h>
+#include <tiny_ros/geometry_msgs/PointStamped.h>
+#include <tiny_ros/geometry_msgs/Point32.h>
+#include <tiny_ros/geometry_msgs/Vector3.h>
+#include <tiny_ros/geometry_msgs/PoseStamped.h>
+#include <tiny_ros/geometry_msgs/Twist.h>
+#include <tiny_ros/std_msgs/ColorRGBA.h>
 #include <OgreVector3.h>
 #include <OgreQuaternion.h>
 
@@ -75,7 +75,7 @@ inline bool validateFloats(const Ogre::Quaternion& quat)
   return valid;
 }
 
-inline bool validateFloats(const geometry_msgs::Point& msg)
+inline bool validateFloats(const tinyros::geometry_msgs::Point& msg)
 {
   bool valid = true;
   valid = valid && validateFloats(msg.x);
@@ -84,7 +84,7 @@ inline bool validateFloats(const geometry_msgs::Point& msg)
   return valid;
 }
 
-inline bool validateFloats(const geometry_msgs::Point32& msg)
+inline bool validateFloats(const tinyros::geometry_msgs::Point32& msg)
 {
   bool valid = true;
   valid = valid && validateFloats(msg.x);
@@ -93,7 +93,7 @@ inline bool validateFloats(const geometry_msgs::Point32& msg)
   return valid;
 }
 
-inline bool validateFloats(const geometry_msgs::Vector3& msg)
+inline bool validateFloats(const tinyros::geometry_msgs::Vector3& msg)
 {
   bool valid = true;
   valid = valid && validateFloats(msg.x);
@@ -102,7 +102,7 @@ inline bool validateFloats(const geometry_msgs::Vector3& msg)
   return valid;
 }
 
-inline bool validateFloats(const geometry_msgs::Twist& twist)
+inline bool validateFloats(const tinyros::geometry_msgs::Twist& twist)
 {
   bool valid = true;
   valid = valid && validateFloats(twist.linear);
@@ -110,7 +110,7 @@ inline bool validateFloats(const geometry_msgs::Twist& twist)
   return valid;
 }
 
-inline bool validateFloats(const geometry_msgs::Quaternion& msg)
+inline bool validateFloats(const tinyros::geometry_msgs::Quaternion& msg)
 {
   bool valid = true;
   valid = valid && validateFloats(msg.x);
@@ -120,7 +120,7 @@ inline bool validateFloats(const geometry_msgs::Quaternion& msg)
   return valid;
 }
 
-inline bool validateFloats(const std_msgs::ColorRGBA& msg)
+inline bool validateFloats(const tinyros::std_msgs::ColorRGBA& msg)
 {
   bool valid = true;
   valid = valid && validateFloats(msg.r);
@@ -130,12 +130,12 @@ inline bool validateFloats(const std_msgs::ColorRGBA& msg)
   return valid;
 }
 
-inline bool validateFloats(const geometry_msgs::PointStamped& msg)
+inline bool validateFloats(const tinyros::geometry_msgs::PointStamped& msg)
 {
   return validateFloats(msg.point);
 }
 
-inline bool validateFloats(const geometry_msgs::Pose& msg)
+inline bool validateFloats(const tinyros::geometry_msgs::Pose& msg)
 {
   bool valid = true;
   valid = valid && validateFloats(msg.position);
@@ -143,7 +143,7 @@ inline bool validateFloats(const geometry_msgs::Pose& msg)
   return valid;
 }
 
-inline bool validateFloats(const geometry_msgs::PoseStamped& msg)
+inline bool validateFloats(const tinyros::geometry_msgs::PoseStamped& msg)
 {
   return validateFloats(msg.pose);
 }

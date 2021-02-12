@@ -52,10 +52,10 @@
 
 #include <boost/filesystem.hpp>
 
-#include <tf/transform_listener.h>
+#include <tiny_ros/tf/transform_listener.h>
 
-#include <ros/package.h>
-#include <ros/callback_queue.h>
+#include <tiny_ros/package.h>
+#include <tiny_ros/tf/callback_queue.h>
 
 #include "rviz/display.h"
 #include "rviz/display_factory.h"
@@ -117,7 +117,7 @@ public:
   boost::mutex render_mutex_;
 };
 
-VisualizationManager::VisualizationManager( RenderPanel* render_panel, WindowManagerInterface* wm, boost::shared_ptr<tf::TransformListener> tf )
+VisualizationManager::VisualizationManager( RenderPanel* render_panel, WindowManagerInterface* wm, boost::shared_ptr<tinyros::tf::TransformListener> tf )
 : ogre_root_( Ogre::Root::getSingletonPtr() )
 , update_timer_(0)
 , shutting_down_(false)
@@ -256,9 +256,9 @@ void VisualizationManager::unlockRender()
   private_->render_mutex_.unlock();
 }
 
-ros::CallbackQueueInterface* VisualizationManager::getUpdateQueue()
+tinyros::tf::CallbackQueueInterface* VisualizationManager::getUpdateQueue()
 {
-  return ros::getGlobalCallbackQueue();
+  return nullptr; //tinyros::tf::getGlobalCallbackQueue();
 }
 
 void VisualizationManager::startUpdate()
@@ -274,7 +274,7 @@ void VisualizationManager::stopUpdate()
 
 void createColorMaterial(const std::string& name, const Ogre::ColourValue& color, bool use_self_illumination)
 {
-  Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create( name, ROS_PACKAGE_NAME );
+  Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create( name, "rviz" );
   mat->setAmbient(color * 0.5f);
   mat->setDiffuse(color);
   if( use_self_illumination )
@@ -304,19 +304,17 @@ void VisualizationManager::queueRender()
 
 void VisualizationManager::onUpdate()
 {
-  ros::WallDuration wall_diff = ros::WallTime::now() - last_update_wall_time_;
-  ros::Duration ros_diff = ros::Time::now() - last_update_ros_time_;
+  tinyros::Duration wall_diff = tinyros::Time::now() - last_update_wall_time_;
+  tinyros::Duration ros_diff = tinyros::Time::now() - last_update_ros_time_;
   float wall_dt = wall_diff.toSec();
   float ros_dt = ros_diff.toSec();
-  last_update_ros_time_ = ros::Time::now();
-  last_update_wall_time_ = ros::WallTime::now();
+  last_update_ros_time_ = tinyros::Time::now();
+  last_update_wall_time_ = tinyros::Time::now();
 
   if(ros_dt < 0.0)
   {
     resetTime();
   }
-
-  ros::spinOnce();
 
   Q_EMIT preUpdate();
 
@@ -393,7 +391,7 @@ void VisualizationManager::updateFrames()
 
   // Check the fixed frame to see if it's ok
   std::string error;
-  if( frame_manager_->frameHasProblems( getFixedFrame().toStdString(), ros::Time(), error ))
+  if( frame_manager_->frameHasProblems( getFixedFrame().toStdString(), tinyros::Time(), error ))
   {
     if( frames.empty() )
     {
@@ -415,7 +413,7 @@ void VisualizationManager::updateFrames()
   }
 }
 
-tf::TransformListener* VisualizationManager::getTFClient() const
+tinyros::tf::TransformListener* VisualizationManager::getTFClient() const
 {
   return frame_manager_->getTFClient();
 }
@@ -425,8 +423,8 @@ void VisualizationManager::resetTime()
   root_display_group_->reset();
   frame_manager_->getTFClient()->clear();
 
-  ros_time_begin_ = ros::Time();
-  wall_clock_begin_ = ros::WallTime();
+  ros_time_begin_ = tinyros::Time();
+  wall_clock_begin_ = tinyros::Time();
 
   queueRender();
 }
@@ -485,7 +483,7 @@ Display* VisualizationManager::createDisplay( const QString& class_lookup_name,
 
 double VisualizationManager::getWallClock()
 {
-  return ros::WallTime::now().toSec();
+  return tinyros::Time::now().toSec();
 }
 
 double VisualizationManager::getROSTime()

@@ -49,12 +49,11 @@
 #include <OgreTechnique.h>
 #include <OgreRectangle2D.h>
 
-#include <sensor_msgs/image_encodings.h>
-#include <sensor_msgs/Image.h>
+#include <tiny_ros/sensor_msgs/image_encodings.h>
+#include <tiny_ros/sensor_msgs/Image.h>
 
-#include <ros/assert.h>
-#include <ros/node_handle.h>
-#include <ros/publisher.h>
+#include <tiny_ros/tf/static_assert.h>
+#include <tiny_ros/ros.h>
 
 #include "rviz/ogre_helpers/arrow.h"
 #include "rviz/ogre_helpers/axes.h"
@@ -175,7 +174,7 @@ void SelectionManager::initialize()
 
 bool SelectionManager::get3DPoint( Ogre::Viewport* viewport, int x, int y, Ogre::Vector3& result_point )
 {
-  ROS_DEBUG("SelectionManager.get3DPoint()");
+  tinyros_log_debug("SelectionManager.get3DPoint()");
   
   std::vector<Ogre::Vector3> result_points_temp;
   bool success = get3DPatch( viewport, x, y, 1, 1, true, result_points_temp);
@@ -227,7 +226,7 @@ bool SelectionManager::getPatchDepthImage( Ogre::Viewport* viewport, int x, int 
   }
   else
   {
-    ROS_WARN("Failed to render depth patch\n");
+    tinyros_log_warn("Failed to render depth patch\n");
     return false;
   }
 
@@ -246,7 +245,7 @@ bool SelectionManager::get3DPatch( Ogre::Viewport* viewport, int x, int y, unsig
                                    unsigned height, bool skip_missing, std::vector<Ogre::Vector3> &result_points )
 {
   boost::recursive_mutex::scoped_lock lock(global_mutex_);  
-  ROS_DEBUG("SelectionManager.get3DPatch()");
+  tinyros_log_debug("SelectionManager.get3DPatch()");
   
   std::vector<float> depth_vector;
 
@@ -322,7 +321,7 @@ void SelectionManager::setDepthTextureSize(unsigned width, unsigned height)
   if ( width > 1024 )
   {
     width = 1024;
-    ROS_ERROR_STREAM("SelectionManager::setDepthTextureSize invalid width requested. Max Width: 1024 -- Width requested: " << width << ".  Capping Width at 1024.");
+    tinyros_log_error("SelectionManager::setDepthTextureSize invalid width requested. Max Width: 1024 -- Width requested: %d.  Capping Width at 1024.", width);
   }
   
   if ( depth_texture_width_ != width )
@@ -331,7 +330,7 @@ void SelectionManager::setDepthTextureSize(unsigned width, unsigned height)
   if ( height > 1024 )
   {
     height = 1024;
-    ROS_ERROR_STREAM("SelectionManager::setDepthTextureSize invalid height requested. Max Height: 1024 -- Height requested: " << width << ".  Capping Height at 1024.");
+    tinyros_log_error("SelectionManager::setDepthTextureSize invalid height requested. Max Height: 1024 -- Height requested: %d.  Capping Height at 1024.", width);
   }
   
   if ( depth_texture_height_ != height )
@@ -449,7 +448,7 @@ void SelectionManager::addObject(CollObjectHandle obj, SelectionHandler* handler
 {
   if (!obj)
   {
-//    ROS_BREAK();
+//    TINYROS_BREAK();
     return;
   }
 
@@ -462,7 +461,7 @@ void SelectionManager::addObject(CollObjectHandle obj, SelectionHandler* handler
   }
 
   bool inserted = objects_.insert( std::make_pair( obj, handler )).second;
-  ROS_ASSERT(inserted);
+  TINYROS_ASSERT(inserted);
 }
 
 void SelectionManager::removeObject(CollObjectHandle obj)
@@ -718,15 +717,15 @@ bool SelectionManager::render(Ogre::Viewport* viewport, Ogre::TexturePtr tex,
   // render queue listener tells the scene manager to skip every
   // render step, so nothing actually gets drawn.
   // 
-  // TODO: find out what part of _renderScene() actually makes this work.
+  // find out what part of _renderScene() actually makes this work.
   Ogre::Viewport* main_view = vis_manager_->getRenderPanel()->getViewport();
   vis_manager_->getSceneManager()->addRenderQueueListener(this);
   vis_manager_->getSceneManager()->_renderScene(main_view->getCamera(), main_view, false);
   vis_manager_->getSceneManager()->removeRenderQueueListener(this);
 
-  ros::WallTime end = ros::WallTime::now();
-  ros::WallDuration d = end - start;
-//  ROS_DEBUG("Render took [%f] msec", d.toSec() * 1000.0f);
+  tinyros::Time end = tinyros::Time::now();
+  tinyros::Duration d = end - start;
+//  tinyros_log_debug("Render took [%f] msec", d.toSec() * 1000.0f);
 
   Ogre::MaterialManager::getSingleton().removeListener(this);
 
@@ -755,12 +754,12 @@ bool SelectionManager::render(Ogre::Viewport* viewport, Ogre::TexturePtr tex,
 
 void SelectionManager::publishDebugImage( const Ogre::PixelBox& pixel_box, const std::string& label )
 {
-  ros::Publisher pub;
-  ros::NodeHandle nh;
+  std::shared_ptr<tinyros::Publisher> pub;
   PublisherMap::const_iterator iter = debug_publishers_.find( label );
   if( iter == debug_publishers_.end() )
   {
-    pub = nh.advertise<sensor_msgs::Image>( "/rviz_debug/" + label, 2 );
+    pub = std::shared_ptr<tinyros::Publisher>(new tinyros::Publisher("/rviz_debug/" + label, new tinyros::sensor_msgs::Image));
+    tinyros::nh()->advertise(*pub);
     debug_publishers_[ label ] = pub;
   }
   else
@@ -768,11 +767,11 @@ void SelectionManager::publishDebugImage( const Ogre::PixelBox& pixel_box, const
     pub = iter->second;
   }
 
-  sensor_msgs::Image msg;
+  tinyros::sensor_msgs::Image msg;
   msg.header.stamp = ros::Time::now();
   msg.width = pixel_box.getWidth();
   msg.height = pixel_box.getHeight();
-  msg.encoding = sensor_msgs::image_encodings::RGB8;
+  msg.encoding = tinyros::sensor_msgs::image_encodings::RGB8;
   msg.is_bigendian = false;
   msg.step = msg.width * 3;
   int dest_byte_count = msg.width * msg.height * 3;
@@ -791,7 +790,7 @@ void SelectionManager::publishDebugImage( const Ogre::PixelBox& pixel_box, const
     pre_pixel_padding = 1;
     break;
   default:
-    ROS_ERROR( "SelectionManager::publishDebugImage(): Incompatible pixel format [%d]", pixel_box.format );
+    tinyros_log_error( "SelectionManager::publishDebugImage(): Incompatible pixel format [%d]", pixel_box.format );
     return;
   }
   uint8_t r, g, b;
@@ -807,7 +806,7 @@ void SelectionManager::publishDebugImage( const Ogre::PixelBox& pixel_box, const
     msg.data[ dest_index++ ] = b;
   }
 
-  pub.publish( msg );
+  pub->publish( &msg );
 }
 
 void SelectionManager::renderQueueStarted( uint8_t queueGroupId,
@@ -900,7 +899,7 @@ void SelectionManager::pick(Ogre::Viewport* viewport, int x1, int y1, int x2, in
       for (; need_it != need_end; ++need_it)
       {
         SelectionHandler* handler = getHandler( *need_it );
-        ROS_ASSERT(handler);
+        TINYROS_ASSERT(handler);
 
         handler->preRenderPass(pass);
       }
@@ -914,7 +913,7 @@ void SelectionManager::pick(Ogre::Viewport* viewport, int x1, int y1, int x2, in
       for (; need_it != need_end; ++need_it)
       {
         SelectionHandler* handler = getHandler( *need_it );
-        ROS_ASSERT(handler);
+        TINYROS_ASSERT(handler);
 
         handler->postRenderPass(pass);
       }
@@ -1274,7 +1273,7 @@ void SelectionManager::selectionRemoved( const M_Picked& removed )
   {
     const Picked& picked = it->second;
     SelectionHandler* handler = getHandler( picked.handle );
-    ROS_ASSERT(handler);
+    TINYROS_ASSERT(handler);
 
     handler->destroyProperties( picked, property_model_->getRoot() );
   }
@@ -1288,7 +1287,7 @@ void SelectionManager::selectionAdded( const M_Picked& added )
   {
     const Picked& picked = it->second;
     SelectionHandler* handler = getHandler( picked.handle );
-    ROS_ASSERT(handler);
+    TINYROS_ASSERT(handler);
 
     handler->createProperties( picked, property_model_->getRoot() );
   }

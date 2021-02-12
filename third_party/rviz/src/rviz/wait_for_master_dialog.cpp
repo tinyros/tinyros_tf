@@ -35,7 +35,7 @@
 
 #include <QTimer>
 
-#include <ros/ros.h>
+#include <tiny_ros/ros.h>
 
 #include "rviz/wait_for_master_dialog.h"
 
@@ -62,10 +62,7 @@ WaitForMasterDialog::WaitForMasterDialog( QWidget* parent )
 
 void WaitForMasterDialog::onTimer()
 {
-  if( ros::master::check() )
-  {
     accept();
-  }
 }
 
 } // end namespace rviz

@@ -37,7 +37,7 @@
 #include <OgrePixelFormat.h>
 #include <OgreColourValue.h>
 
-#include <ros/console.h>
+#include <tiny_ros/ros.h>
 
 
 namespace rviz
@@ -78,7 +78,7 @@ inline uint32_t colorToHandle(Ogre::PixelFormat fmt, uint32_t col)
   }
   else
   {
-    ROS_DEBUG("Incompatible pixel format [%d]", fmt);
+    tinyros_log_debug("Incompatible pixel format [%d]", fmt);
   }
 
   return handle;

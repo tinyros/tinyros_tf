@@ -33,7 +33,8 @@
 #include <QObject>
 
 #ifndef Q_MOC_RUN  // See: https://bugreports.qt-project.org/browse/QTBUG-22829
-# include <ros/ros.h>
+# include <tiny_ros/ros.h>
+# include <tiny_ros/std_srvs/Empty.h>
 #endif
 
 class QTimer;
@@ -62,12 +63,14 @@ private Q_SLOTS:
 
 private:
   void startContinueChecker();
+  bool reloadShaders(const tinyros::std_srvs::Empty::Request&, tinyros::std_srvs::Empty::Response&);
 
   QApplication* app_;
   QTimer* continue_timer_;
   VisualizationFrame* frame_;
-  ros::NodeHandlePtr nh_;
-  ros::ServiceServer reload_shaders_service_;
+  tinyros::ServiceServer reload_shaders_service_;
+  tinyros::ServiceServer<tinyros::std_srvs::Empty::Request, 
+      tinyros::std_srvs::Empty::Response, VisualizerApp> reload_shaders_service_;
 };
 
 } // end namespace rviz

@@ -35,7 +35,7 @@
 #include <OgreMaterialManager.h>
 #include <OgreGpuProgramManager.h>
 #include <OgreHighLevelGpuProgramManager.h>
-#include <std_srvs/Empty.h>
+#include <tiny_ros/std_srvs/Empty.h>
 
 #ifdef Q_OS_MAC
 #include <ApplicationServices/ApplicationServices.h>
@@ -44,8 +44,7 @@
 #undef check
 #endif
 
-#include <ros/console.h>
-#include <ros/ros.h>
+#include <tiny_ros/ros.h>
 
 #include "rviz/selection/selection_manager.h"
 #include "rviz/env_config.h"
@@ -64,9 +63,9 @@ namespace po = boost::program_options;
 namespace rviz
 {
 
-bool reloadShaders(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
+void VisualizerApp::reloadShaders(const tinyros::std_srvs::Empty::Request&, tinyros::std_srvs::Empty::Response&)
 {
-  ROS_INFO("Reloading materials.");
+  tinyros_log_info("Reloading materials.");
   {
   Ogre::ResourceManager::ResourceMapIterator it = Ogre::MaterialManager::getSingleton().getResourceIterator();
   while (it.hasMoreElements())
@@ -75,7 +74,7 @@ bool reloadShaders(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
     resource->reload();
   }
   }
-  ROS_INFO("Reloading high-level gpu shaders.");
+  tinyros_log_info("Reloading high-level gpu shaders.");
   {
   Ogre::ResourceManager::ResourceMapIterator it = Ogre::HighLevelGpuProgramManager::getSingleton().getResourceIterator();
   while (it.hasMoreElements())
@@ -84,7 +83,7 @@ bool reloadShaders(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
     resource->reload();
   }
   }
-  ROS_INFO("Reloading gpu shaders.");
+  tinyros_log_info("Reloading gpu shaders.");
   {
   Ogre::ResourceManager::ResourceMapIterator it = Ogre::GpuProgramManager::getSingleton().getResourceIterator();
   while (it.hasMoreElements())
@@ -100,7 +99,9 @@ VisualizerApp::VisualizerApp()
   : app_( 0 )
   , continue_timer_( 0 )
   , frame_( 0 )
+  , reload_shaders_service_("reload_shaders", &VisualizerApp::reloadShaders, this)
 {
+  tinyros::nh()->advertiseService(reload_shaders_service_);
 }
 
 void VisualizerApp::setApp( QApplication * app )
@@ -110,9 +111,9 @@ void VisualizerApp::setApp( QApplication * app )
 
 bool VisualizerApp::init( int argc, char** argv )
 {
-  ROS_INFO( "rviz version %s", get_version().c_str() );
-  ROS_INFO( "compiled against Qt version " QT_VERSION_STR );
-  ROS_INFO( "compiled against OGRE version %d.%d.%d%s (%s)",
+  tinyros_log_info( "rviz version %s", get_version().c_str() );
+  tinyros_log_info( "compiled against Qt version " QT_VERSION_STR );
+  tinyros_log_info( "compiled against OGRE version %d.%d.%d%s (%s)",
             OGRE_VERSION_MAJOR, OGRE_VERSION_MINOR, OGRE_VERSION_PATCH,
             OGRE_VERSION_SUFFIX, OGRE_VERSION_NAME );
 
@@ -126,8 +127,6 @@ bool VisualizerApp::init( int argc, char** argv )
 #if CATCH_EXCEPTIONS
   try
   {
-#endif
-    ros::init( argc, argv, "rviz", ros::init_options::AnonymousName );
 
     startContinueChecker();
 
@@ -221,31 +220,12 @@ bool VisualizerApp::init( int argc, char** argv )
       {
         verbose = true;
       }
-
-      if (vm.count("log-level-debug"))
-      {
-        if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) )
-        {
-          ros::console::notifyLoggerLevelsChanged();
-        }
-      }
     }
     catch (std::exception& e)
     {
-      ROS_ERROR("Error parsing command line: %s", e.what());
+      tinyros_log_error("Error parsing command line: %s", e.what());
       return false;
     }
-
-    if( !ros::master::check() )
-    {
-      WaitForMasterDialog* dialog = new WaitForMasterDialog;
-      if( dialog->exec() != QDialog::Accepted )
-      {
-        return false;
-      }
-    }
-
-    nh_.reset( new ros::NodeHandle );
 
     if( enable_ogre_log )
     {
@@ -288,14 +268,11 @@ bool VisualizerApp::init( int argc, char** argv )
 
     frame_->show();
 
-    ros::NodeHandle private_nh("~");
-    reload_shaders_service_ = private_nh.advertiseService("reload_shaders", reloadShaders);
-
 #if CATCH_EXCEPTIONS
   }
   catch (std::exception& e)
   {
-    ROS_ERROR("Caught exception while loading: %s", e.what());
+    tinyros_log_error("Caught exception while loading: %s", e.what());
     return false;
   }
 #endif

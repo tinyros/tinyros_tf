@@ -32,7 +32,7 @@
 #include "properties/property.h"
 #include "visualization_manager.h"
 
-#include <ros/assert.h>
+#include <tiny_ros/tf/static_assert.h>
 
 #include <OgreSceneNode.h>
 #include <OgreSceneManager.h>
@@ -190,7 +190,7 @@ void SelectionHandler::createBox(const std::pair<CollObjectHandle, uint64_t>& ha
     box = new Ogre::WireBoundingBox;
 
     bool inserted = boxes_.insert(std::make_pair(handles, std::make_pair(node, box))).second;
-    ROS_ASSERT(inserted);
+    TINYROS_ASSERT(inserted);
   }
   else
   {
@@ -224,7 +224,7 @@ void SelectionHandler::destroyBox(const std::pair<CollObjectHandle, uint64_t>& h
 
 void SelectionHandler::onSelect(const Picked& obj)
 {
-  ROS_DEBUG("Selected 0x%08x", obj.handle);
+  tinyros_log_debug("Selected 0x%08x", obj.handle);
 
   V_AABB aabbs;
   getAABBs(obj, aabbs);
@@ -245,7 +245,7 @@ void SelectionHandler::onSelect(const Picked& obj)
 
 void SelectionHandler::onDeselect(const Picked& obj)
 {
-  ROS_DEBUG("Deselected 0x%08x", obj.handle);
+  tinyros_log_debug("Deselected 0x%08x", obj.handle);
 
   destroyBox(std::make_pair(obj.handle, 0ULL));
 }

@@ -30,7 +30,7 @@
 #include "tf_link_updater.h"
 #include "frame_manager.h"
 
-#include <tf/tf.h>
+#include <tiny_ros/tf/tf.h>
 
 #include <OgreVector3.h>
 #include <OgreQuaternion.h>
@@ -51,7 +51,7 @@ bool TFLinkUpdater::getLinkTransforms(const std::string& _link_name, Ogre::Vecto
   std::string link_name = _link_name;
   if (!tf_prefix_.empty())
   {
-    link_name = tf::resolve(tf_prefix_, link_name);
+    link_name = tinyros::tf::resolve(tf_prefix_, link_name);
   }
 
   Ogre::Vector3 position;

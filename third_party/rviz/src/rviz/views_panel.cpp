@@ -151,7 +151,7 @@ void ViewsPanel::onDeleteClicked()
 
   for( int i = 0; i < views_to_delete.size(); i++ )
   {
-    // TODO: should eventually move to a scheme where the CURRENT view
+    // should eventually move to a scheme where the CURRENT view
     // is not in the same list as the saved views, at which point this
     // check can go away.
     if( views_to_delete[ i ] != view_man_->getCurrent() )
@@ -168,7 +168,7 @@ void ViewsPanel::renameSelected()
   {
     ViewController* view = views_to_rename[ 0 ];
 
-    // TODO: should eventually move to a scheme where the CURRENT view
+    // should eventually move to a scheme where the CURRENT view
     // is not in the same list as the saved views, at which point this
     // check can go away.
     if( view == view_man_->getCurrent() )

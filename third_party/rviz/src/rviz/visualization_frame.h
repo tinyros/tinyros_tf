@@ -40,7 +40,7 @@
 #include "rviz/window_manager_interface.h"
 #include "rviz/panel.h"
 
-#include <ros/time.h>
+#include <tiny_ros/ros.h>
 
 class QSplashScreen;
 class QAction;
@@ -355,7 +355,7 @@ protected:
   QStatusBar* original_status_bar_;
 
   int frame_count_;
-  ros::WallTime last_fps_calc_time_;
+  tinyros::Time last_fps_calc_time_;
 
   QString error_message_; ///< Error message (if any) from most recent saveDisplayConfig() call.
 

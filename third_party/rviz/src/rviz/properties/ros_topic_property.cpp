@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ros/master.h"
-
+#include "tiny_ros/ros.h"
+#include "utils/utils.h"
 #include "rviz/properties/ros_topic_property.h"
 
 #include <QApplication>
@@ -63,14 +63,14 @@ void RosTopicProperty::fillTopicList()
 
   std::string std_message_type = message_type_.toStdString();
 
-  ros::master::V_TopicInfo topics;
-  ros::master::getTopics( topics );
+  rviz::utils::V_TopicInfo topics;
+  rviz::utils::getTopics( topics );
 
   // Loop through all published topics
-  ros::master::V_TopicInfo::iterator it;
+  rviz::utils::V_TopicInfo::iterator it;
   for( it = topics.begin(); it != topics.end(); ++it )
   {
-    const ros::master::TopicInfo& topic = *it;
+    const rviz::utils::TopicInfo& topic = *it;
 
     // Only add topics whose type matches.
     if( topic.datatype == std_message_type )

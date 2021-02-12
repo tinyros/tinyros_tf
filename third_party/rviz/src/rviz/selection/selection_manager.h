@@ -53,7 +53,7 @@
 #include <vector>
 #include <set>
 
-namespace ros
+namespace tinyros
 {
 class Publisher;
 }
@@ -284,7 +284,7 @@ private:
 
   PropertyTreeModel* property_model_;
 
-  typedef std::map<std::string, ros::Publisher> PublisherMap;
+  typedef std::map<std::string, std::shared_ptr<tinyros::Publisher> > PublisherMap;
   PublisherMap debug_publishers_;
 };
 
