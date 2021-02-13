@@ -34,7 +34,7 @@
 
 #include <QObject>
 
-#include <ros/time.h>
+#include <tiny_ros/ros.h>
 
 #include <OgreVector3.h>
 #include <OgreQuaternion.h>
@@ -102,10 +102,10 @@ public:
    SyncMode getSyncMode() { return sync_mode_; }
 
    /** @brief Synchronize with given time. */
-   void syncTime( ros::Time time );
+   void syncTime( tinyros::Time time );
 
    /** @brief Get current time, depending on the sync mode. */
-   ros::Time getTime() { return sync_time_; }
+   tinyros::Time getTime() { return sync_time_; }
 
   /** @brief Return the pose for a header, relative to the fixed frame, in Ogre classes.
    * @param[in] header The source of the frame name and time.
@@ -124,7 +124,7 @@ public:
    * @param[out] position The position of the frame relative to the fixed frame.
    * @param[out] orientation The orientation of the frame relative to the fixed frame.
    * @return true on success, false on failure. */
-  bool getTransform(const std::string& frame, ros::Time time, Ogre::Vector3& position, Ogre::Quaternion& orientation);
+  bool getTransform(const std::string& frame, tinyros::Time time, Ogre::Vector3& position, Ogre::Quaternion& orientation);
 
   /** @brief Transform a pose from a frame into the fixed frame.
    * @param[in] header The source of the input frame and time.
@@ -145,7 +145,7 @@ public:
    * @param[out] position Position part of pose relative to the fixed frame.
    * @param[out] orientation: Orientation part of pose relative to the fixed frame.
    * @return true on success, false on failure. */
-  bool transform(const std::string& frame, ros::Time time, const tinyros::geometry_msgs::Pose& pose, Ogre::Vector3& position, Ogre::Quaternion& orientation);
+  bool transform(const std::string& frame, tinyros::Time time, const tinyros::geometry_msgs::Pose& pose, Ogre::Vector3& position, Ogre::Quaternion& orientation);
 
   /** @brief Clear the internal cache. */
   void update();
@@ -155,7 +155,7 @@ public:
    * @param[in] time Dummy parameter, not actually used.
    * @param[out] error If the frame does not exist, an error message is stored here.
    * @return true if the frame does not exist, false if it does exist. */
-  bool frameHasProblems(const std::string& frame, ros::Time time, std::string& error);
+  bool frameHasProblems(const std::string& frame, tinyros::Time time, std::string& error);
 
   /** @brief Check to see if a transform is known between a given frame and the fixed frame.
    * @param[in] frame The name of the frame to check.
@@ -183,7 +183,7 @@ public:
   const std::string& getFixedFrame() { return fixed_frame_; }
 
   /** @brief Return the tf::TransformListener used to receive transform data. */
-  tf::TransformListener* getTFClient() { return tf_.get(); }
+  tinyros::tf::TransformListener* getTFClient() { return tf_.get(); }
 
   /** @brief Return a boost shared pointer to the tf::TransformListener used to receive transform data. */
   const boost::shared_ptr<tinyros::tf::TransformListener>& getTFClientPtr() { return tf_; }
@@ -220,7 +220,7 @@ private:
   }
 
   template<class M>
-  void failureCallback(const tinyros::::MessageEvent<M const>& msg_evt, tinyros::tf::FilterFailureReason reason, Display* display)
+  void failureCallback(const tinyros::tf::MessageEvent<M const>& msg_evt, tinyros::tf::FilterFailureReason reason, Display* display)
   {
     boost::shared_ptr<M const> const &msg = msg_evt.getConstMessage();
     std::string authority = msg_evt.getPublisherName();
@@ -228,8 +228,8 @@ private:
     messageFailed(msg->header.frame_id, msg->header.stamp, authority, reason, display);
   }
 
-  void messageArrived(const std::string& frame_id, const ros::Time& stamp, const std::string& caller_id, Display* display);
-  void messageFailed(const std::string& frame_id, const ros::Time& stamp, const std::string& caller_id, tinyros::tf::FilterFailureReason reason, Display* display);
+  void messageArrived(const std::string& frame_id, const tinyros::Time& stamp, const std::string& caller_id, Display* display);
+  void messageFailed(const std::string& frame_id, const tinyros::Time& stamp, const std::string& caller_id, tinyros::tf::FilterFailureReason reason, Display* display);
 
   struct CacheKey
   {

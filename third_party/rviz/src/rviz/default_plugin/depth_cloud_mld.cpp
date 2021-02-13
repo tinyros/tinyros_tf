@@ -279,7 +279,7 @@ template<typename T>
     std::size_t point_count = 0;
     std::size_t point_idx = 0;
 
-    double time_now = ros::Time::now().toSec();
+    double time_now = tinyros::Time::now().toSec();
     double time_expire = time_now-shadow_time_out_;
 
     const T* depth_img_ptr = (T*)&depth_msg->data[0];

@@ -174,7 +174,7 @@ protected:
 
   // pose of parent coordinate frame
   std::string reference_frame_;
-  ros::Time reference_time_;
+  tinyros::Time reference_time_;
   bool frame_locked_;
 
   // node representing reference frame in tf, like /map, /base_link, /head, etc.

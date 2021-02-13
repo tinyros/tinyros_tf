@@ -47,7 +47,7 @@ boost::filesystem::path getPath( QString url )
   {
     QString package_name = url.section('/',2,2);
     QString file_name = url.section('/',3);
-    path = tinyros::package::getPath(package_name.toStdString());
+    path = tinyros::package::getPath();
     path = path / file_name.toStdString();
   }
   else if ( url.indexOf("file://", 0, Qt::CaseInsensitive) == 0 )

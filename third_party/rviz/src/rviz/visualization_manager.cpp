@@ -110,10 +110,8 @@ private:
 class VisualizationManagerPrivate
 {
 public:
-  ros::CallbackQueue threaded_queue_;
+  tinyros::tf::CallbackQueue threaded_queue_;
   boost::thread_group threaded_queue_threads_;
-  ros::NodeHandle update_nh_;
-  ros::NodeHandle threaded_nh_;
   boost::mutex render_mutex_;
 };
 
@@ -135,8 +133,6 @@ VisualizationManager::VisualizationManager( RenderPanel* render_panel, WindowMan
   frame_manager_ = new FrameManager(tf);
 
   render_panel->setAutoRender(false);
-
-  private_->threaded_nh_.setCallbackQueue(&private_->threaded_queue_);
 
   scene_manager_ = ogre_root_->createSceneManager( Ogre::ST_GENERIC );
 
@@ -237,11 +233,11 @@ void VisualizationManager::initialize()
   selection_manager_->initialize();
   tool_manager_->initialize();
 
-  last_update_ros_time_ = ros::Time::now();
-  last_update_wall_time_ = ros::WallTime::now();
+  last_update_ros_time_ = tinyros::Time::now();
+  last_update_wall_time_ = tinyros::Time::now();
 }
 
-ros::CallbackQueueInterface* VisualizationManager::getThreadedQueue()
+tinyros::tf::CallbackQueueInterface* VisualizationManager::getThreadedQueue()
 {
   return &private_->threaded_queue_;
 }
@@ -370,17 +366,17 @@ void VisualizationManager::updateTime()
 {
   if( ros_time_begin_.isZero() )
   {
-    ros_time_begin_ = ros::Time::now();
+    ros_time_begin_ = tinyros::Time::now();
   }
 
-  ros_time_elapsed_ = ros::Time::now() - ros_time_begin_;
+  ros_time_elapsed_ = tinyros::Time::now() - ros_time_begin_;
 
   if( wall_clock_begin_.isZero() )
   {
-    wall_clock_begin_ = ros::WallTime::now();
+    wall_clock_begin_ = tinyros::Time::now();
   }
 
-  wall_clock_elapsed_ = ros::WallTime::now() - wall_clock_begin_;
+  wall_clock_elapsed_ = tinyros::Time::now() - wall_clock_begin_;
 }
 
 void VisualizationManager::updateFrames()
@@ -564,7 +560,7 @@ void VisualizationManager::threadedQueueThreadFunc()
 {
   while (!shutting_down_)
   {
-    private_->threaded_queue_.callOne(ros::WallDuration(0.1));
+    private_->threaded_queue_.callOne(tinyros::Duration(0.1));
   }
 }
 

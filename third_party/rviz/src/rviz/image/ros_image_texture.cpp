@@ -76,7 +76,7 @@ void ROSImageTexture::clear()
   current_image_.reset();
 }
 
-const sensor_msgs::Image::ConstPtr& ROSImageTexture::getImage()
+const tinyros::sensor_msgs::Image::ConstPtr& ROSImageTexture::getImage()
 {
   boost::mutex::scoped_lock lock(mutex_);
 
@@ -167,7 +167,7 @@ void ROSImageTexture::normalize( T* image_data, size_t image_data_size, std::vec
 
 bool ROSImageTexture::update()
 {
-  sensor_msgs::Image::ConstPtr image;
+  tinyros::sensor_msgs::Image::ConstPtr image;
   bool new_image = false;
   {
     boost::mutex::scoped_lock lock(mutex_);
@@ -195,35 +195,35 @@ bool ROSImageTexture::update()
   uint8_t* imageDataPtr = (uint8_t*)&image->data[0];
   size_t imageDataSize = image->data.size();
 
-  if (image->encoding == sensor_msgs::image_encodings::RGB8)
+  if (image->encoding == tinyros::sensor_msgs::image_encodings::RGB8)
   {
     format = Ogre::PF_BYTE_RGB;
   }
-  else if (image->encoding == sensor_msgs::image_encodings::RGBA8)
+  else if (image->encoding == tinyros::sensor_msgs::image_encodings::RGBA8)
   {
     format = Ogre::PF_BYTE_RGBA;
   }
-  else if (image->encoding == sensor_msgs::image_encodings::TYPE_8UC4 ||
-           image->encoding == sensor_msgs::image_encodings::TYPE_8SC4 ||
-           image->encoding == sensor_msgs::image_encodings::BGRA8)
+  else if (image->encoding == tinyros::sensor_msgs::image_encodings::TYPE_8UC4 ||
+           image->encoding == tinyros::sensor_msgs::image_encodings::TYPE_8SC4 ||
+           image->encoding == tinyros::sensor_msgs::image_encodings::BGRA8)
   {
     format = Ogre::PF_BYTE_BGRA;
   }
-  else if (image->encoding == sensor_msgs::image_encodings::TYPE_8UC3 ||
-           image->encoding == sensor_msgs::image_encodings::TYPE_8SC3 ||
-           image->encoding == sensor_msgs::image_encodings::BGR8)
+  else if (image->encoding == tinyros::sensor_msgs::image_encodings::TYPE_8UC3 ||
+           image->encoding == tinyros::sensor_msgs::image_encodings::TYPE_8SC3 ||
+           image->encoding == tinyros::sensor_msgs::image_encodings::BGR8)
   {
     format = Ogre::PF_BYTE_BGR;
   }
-  else if (image->encoding == sensor_msgs::image_encodings::TYPE_8UC1 ||
-           image->encoding == sensor_msgs::image_encodings::TYPE_8SC1 ||
-           image->encoding == sensor_msgs::image_encodings::MONO8)
+  else if (image->encoding == tinyros::sensor_msgs::image_encodings::TYPE_8UC1 ||
+           image->encoding == tinyros::sensor_msgs::image_encodings::TYPE_8SC1 ||
+           image->encoding == tinyros::sensor_msgs::image_encodings::MONO8)
   {
     format = Ogre::PF_BYTE_L;
   }
-  else if (image->encoding == sensor_msgs::image_encodings::TYPE_16UC1 ||
-           image->encoding == sensor_msgs::image_encodings::TYPE_16SC1 ||
-           image->encoding == sensor_msgs::image_encodings::MONO16)
+  else if (image->encoding == tinyros::sensor_msgs::image_encodings::TYPE_16UC1 ||
+           image->encoding == tinyros::sensor_msgs::image_encodings::TYPE_16SC1 ||
+           image->encoding == tinyros::sensor_msgs::image_encodings::MONO16)
   {
     imageDataSize /= sizeof(uint16_t);
     normalize<uint16_t>( (uint16_t*)&image->data[0], imageDataSize, buffer );
@@ -234,7 +234,7 @@ bool ROSImageTexture::update()
   {
     format = Ogre::PF_BYTE_L;
   }
-  else if (image->encoding == sensor_msgs::image_encodings::TYPE_32FC1)
+  else if (image->encoding == tinyros::sensor_msgs::image_encodings::TYPE_32FC1)
   {
     imageDataSize /= sizeof(float);
     normalize<float>( (float*)&image->data[0], imageDataSize, buffer );

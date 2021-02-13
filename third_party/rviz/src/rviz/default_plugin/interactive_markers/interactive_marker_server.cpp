@@ -388,7 +388,7 @@ void InteractiveMarkerServer::processFeedback( const FeedbackConstPtr& feedback 
 
   // if two callers try to modify the same marker, reject (timeout= 1 sec)
   if ( marker_context.last_client_id != feedback->client_id &&
-      (ros::Time::now() - marker_context.last_feedback).toSec() < 1.0 )
+      (tinyros::Time::now() - marker_context.last_feedback).toSec() < 1.0 )
   {
     tinyros_log_debug( "Rejecting feedback for %s: conflicting feedback from separate clients.", feedback->marker_name.c_str() );
     return;
@@ -399,7 +399,7 @@ void InteractiveMarkerServer::processFeedback( const FeedbackConstPtr& feedback 
 
   if ( feedback->event_type == tinyros::visualization_msgs::InteractiveMarkerFeedback::POSE_UPDATE )
   {
-    if ( marker_context.int_marker.header.stamp == ros::Time(0) )
+    if ( marker_context.int_marker.header.stamp == tinyros::Time(0) )
     {
       // keep the old header
       doSetPose( pending_updates_.find( feedback->marker_name ), feedback->marker_name, feedback->pose, marker_context.int_marker.header );

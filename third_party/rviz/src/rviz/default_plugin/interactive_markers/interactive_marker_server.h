@@ -146,7 +146,7 @@ private:
 
   struct MarkerContext
   {
-    ros::Time last_feedback;
+    tinyros::Time last_feedback;
     std::string last_client_id;
     FeedbackCallback default_feedback_cb;
     boost::unordered_map<uint8_t,FeedbackCallback> feedback_cbs;

@@ -34,6 +34,7 @@
 #include "rviz/validate_floats.h"
 
 #include "rviz/image/image_display_base.h"
+#include "utils/utils.h"
 
 namespace rviz
 {
@@ -81,7 +82,7 @@ void ImageDisplayBase::onInitialize()
 
 void ImageDisplayBase::setTopic( const QString &topic, const QString &datatype )
 {
-  if ( datatype == tinyros::sensor_msgs::Image::getTypeStatic() )
+  if ( datatype.toStdString() == tinyros::sensor_msgs::Image::getTypeStatic() )
   {
     transport_property_->setStdString( "raw" );
     topic_property_->setString( topic );
@@ -104,7 +105,7 @@ void ImageDisplayBase::setTopic( const QString &topic, const QString &datatype )
 }
 
 
-void ImageDisplayBase::incomingMessage(const sensor_msgs::Image::ConstPtr& msg)
+void ImageDisplayBase::incomingMessage(const tinyros::sensor_msgs::Image::ConstPtr& msg)
 {
   if (!msg || context_->getFrameManager()->getPause() )
   {

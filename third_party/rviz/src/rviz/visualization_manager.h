@@ -193,7 +193,7 @@ public:
   /**
    * @brief Convenience function: returns getFrameManager()->getTFClient().
    */
-  tf::TransformListener* getTFClient() const;
+  tinyros::tf::TransformListener* getTFClient() const;
 
   /**
    * @brief Returns the Ogre::SceneManager used for the main RenderPanel.
@@ -283,12 +283,12 @@ public:
   /**
    * @brief Return the CallbackQueue using the main GUI thread.
    */
-  ros::CallbackQueueInterface* getUpdateQueue();
+  tinyros::tf::CallbackQueueInterface* getUpdateQueue();
 
   /**
    * @brief Return a CallbackQueue using a different thread than the main GUI one.
    */
-  ros::CallbackQueueInterface* getThreadedQueue();
+  tinyros::tf::CallbackQueueInterface* getThreadedQueue();
 
   /** @brief Return the FrameManager instance. */
   FrameManager* getFrameManager() const { return frame_manager_; }
@@ -378,10 +378,10 @@ protected:
 
   RenderPanel* render_panel_;
 
-  ros::WallTime wall_clock_begin_;
-  ros::Time ros_time_begin_;
-  ros::WallDuration wall_clock_elapsed_;
-  ros::Duration ros_time_elapsed_;
+  tinyros::Time wall_clock_begin_;
+  tinyros::Time ros_time_begin_;
+  tinyros::Duration wall_clock_elapsed_;
+  tinyros::Duration ros_time_elapsed_;
 
   ColorProperty* background_color_property_;
 

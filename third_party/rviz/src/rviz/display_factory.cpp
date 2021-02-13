@@ -124,7 +124,7 @@ QSet<QString> DisplayFactory::getMessageTypes( const QString& class_id )
           if ( message_type->GetText() )
           {
             const char* message_type_str = message_type->GetText();
-            tinyros_log_debug("%s supports message type %s", current_class_id.c_str(), message_type_str.c_str());
+            tinyros_log_debug("%s supports message type %s", current_class_id.c_str(), message_type_str);
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
             message_types.insert( QString::fromAscii( message_type_str ) );
 #else

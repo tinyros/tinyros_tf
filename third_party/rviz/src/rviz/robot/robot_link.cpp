@@ -42,7 +42,8 @@
 
 #include <tiny_ros/ros.h>
 
-#include <resource_retriever/retriever.h>
+#include "retriever.h"
+#include <utils/utils.h>
 
 #include <urdf_model/model.h>
 #include <urdf_model/link.h>
@@ -65,10 +66,6 @@
 #include "rviz/robot/robot_joint.h"
 
 namespace fs=boost::filesystem;
-
-#ifndef TINYROS_PACKAGE_NAME
-# define TINYROS_PACKAGE_NAME "rviz"
-#endif
 
 namespace rviz
 {
@@ -210,7 +207,7 @@ RobotLink::RobotLink( Robot* robot,
   std::stringstream ss;
   static int count = 1;
   ss << "robot link color material " << count++;
-  color_material_ = Ogre::MaterialManager::getSingleton().create( ss.str(), ROS_PACKAGE_NAME );
+  color_material_ = Ogre::MaterialManager::getSingleton().create( ss.str(), TINYROS_PACKAGE_NAME );
   color_material_->setReceiveShadows(false);
   color_material_->getTechnique(0)->setLightingEnabled(true);
 
@@ -453,7 +450,7 @@ Ogre::MaterialPtr RobotLink::getMaterialForLink( const urdf::LinkConstSharedPtr&
   std::stringstream ss;
   ss << "Robot Link Material" << count++;
 
-  Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create(ss.str(), ROS_PACKAGE_NAME);
+  Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create(ss.str(), TINYROS_PACKAGE_NAME);
   mat->getTechnique(0)->setLightingEnabled(true);
 
   urdf::VisualSharedPtr visual = link->visual;

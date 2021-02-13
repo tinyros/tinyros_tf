@@ -133,7 +133,7 @@ VisualizationFrame::VisualizationFrame( QWidget* parent )
   post_load_timer_->setSingleShot( true );
   connect( post_load_timer_, SIGNAL( timeout() ), this, SLOT( markLoadingDone() ));
 
-  package_path_ = ros::package::getPath("rviz");
+  package_path_ = tinyros::package::getPath();
   help_path_ = QString::fromStdString( (fs::path(package_path_) / "help/help.html").BOOST_FILE_STRING() );
   splash_path_ = QString::fromStdString( (fs::path(package_path_) / "images/splash.png").BOOST_FILE_STRING() );
 
@@ -188,7 +188,7 @@ void VisualizationFrame::updateFps()
   {
     float fps = frame_count_ / wall_diff.toSec();
     frame_count_ = 0;
-    last_fps_calc_time_ = ros::WallTime::now();
+    last_fps_calc_time_ = tinyros::Time::now();
     if ( original_status_bar_ == statusBar() )
     {
       fps_label_->setText( QString::number(int(fps)) + QString(" fps") );
@@ -751,7 +751,7 @@ bool VisualizationFrame::saveDisplayConfig( const QString& path )
 
   if( writer.error() )
   {
-    ROS_ERROR( "%s", qPrintable( writer.errorMessage() ));
+    tinyros_log_error( "%s", qPrintable( writer.errorMessage() ));
     error_message_ = writer.errorMessage();
     return false;
   }

@@ -6,7 +6,7 @@
 #include <exception>
 #include <stdexcept>
 
-#include <ros/package.h>
+#include <tiny_ros/package.h>
 
 namespace rviz
 {

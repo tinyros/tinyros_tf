@@ -28,7 +28,8 @@
  */
 
 #include "mesh_loader.h"
-#include <resource_retriever/retriever.h>
+#include "retriever.h"
+#include "utils/utils.h"
 
 #include <boost/filesystem.hpp>
 
@@ -97,7 +98,7 @@ public:
     return to_read;
   }
 
-  size_t Write( const void* buffer, size_t size, size_t count) { ROS_BREAK(); return 0; }
+  size_t Write( const void* buffer, size_t size, size_t count) { TINYROS_BREAK(); return 0; }
 
   aiReturn Seek( size_t offset, aiOrigin origin)
   {
@@ -442,7 +443,7 @@ void loadMaterials(const std::string& resource_path,
   {
     std::stringstream ss;
     ss << resource_path << "Material" << i;
-    Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create(ss.str(), ROS_PACKAGE_NAME, true);
+    Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create(ss.str(), TINYROS_PACKAGE_NAME, true);
     material_table_out.push_back(mat);
 
     Ogre::Technique* tech = mat->getTechnique(0);
@@ -615,7 +616,7 @@ float getMeshUnitRescale(const std::string& resource_path)
         {
           // Failing to convert leaves unit_scale as the default.
           if(unitXml->QueryFloatAttribute("meter", &unit_scale) != 0)
-            tinyros_log_warn("getMeshUnitRescale::Failed to convert unit element meter attribute to determine scaling. unit element: %s", (*unitXml).c_str());
+            tinyros_log_warn("getMeshUnitRescale::Failed to convert unit element meter attribute to determine scaling. unit element: ");
         }
       }
     }
@@ -636,7 +637,7 @@ Ogre::MeshPtr meshFromAssimpScene(const std::string& name, const aiScene* scene)
   std::vector<Ogre::MaterialPtr> material_table;
   loadMaterials(name, scene, material_table);
 
-  Ogre::MeshPtr mesh = Ogre::MeshManager::getSingleton().createManual(name, ROS_PACKAGE_NAME);
+  Ogre::MeshPtr mesh = Ogre::MeshManager::getSingleton().createManual(name, TINYROS_PACKAGE_NAME);
 
   Ogre::AxisAlignedBox aabb(Ogre::AxisAlignedBox::EXTENT_NULL);
   float radius = 0.0f;

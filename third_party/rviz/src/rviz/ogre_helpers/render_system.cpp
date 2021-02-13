@@ -47,7 +47,7 @@
 #undef CursorShape
 #endif
 
-#include <ros/package.h> // This dependency should be moved out of here, it is just used for a search path.
+#include <tiny_ros/package.h> // This dependency should be moved out of here, it is just used for a search path.
 #include <tiny_ros/ros.h>
 
 #include <OgreRenderWindow.h>
@@ -60,6 +60,8 @@
 #include "rviz/ogre_helpers/ogre_logging.h"
 
 #include "rviz/ogre_helpers/render_system.h"
+
+#include "utils/utils.h"
 
 #include <QMessageBox>
 
@@ -104,7 +106,7 @@ RenderSystem::RenderSystem()
 {
   OgreLogging::configureLogging();
 
-  std::string rviz_path = ros::package::getPath(ROS_PACKAGE_NAME);
+  std::string rviz_path = tinyros::package::getPath();
 
   setupDummyWindowId();
   ogre_root_ = new Ogre::Root( rviz_path+"/ogre_media/plugins.cfg" );

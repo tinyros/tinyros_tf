@@ -112,7 +112,7 @@ bool InteractiveMarker::processMessage( const tinyros::visualization_msgs::Inter
 
   reference_frame_ = message.header.frame_id;
   reference_time_ = message.header.stamp;
-  frame_locked_ = (message.header.stamp == ros::Time(0));
+  frame_locked_ = (message.header.stamp == tinyros::Time(0));
 
   position_ = Ogre::Vector3(
       message.pose.position.x,
@@ -311,7 +311,7 @@ void InteractiveMarker::updateReferencePose()
     if ( reference_frame_ == fixed_frame )
     {
       // if the two frames are identical, we don't need to do anything.
-      // This should be ros::Time::now(), but then the computer running
+      // This should be tinyros::Time::now(), but then the computer running
       // RViz has to be time-synced with the server
       reference_time_ = tinyros::Time();
     }
@@ -669,7 +669,7 @@ void InteractiveMarker::publishFeedback(visualization_msgs::InteractiveMarkerFee
   {
     // Timestamped IMs will return feedback in RViz's fixed frame
     feedback.header.frame_id = context_->getFixedFrame().toStdString();
-    // This should be ros::Time::now(), but then the computer running
+    // This should be tinyros::Time::now(), but then the computer running
     // RViz has to be time-synced with the server
     feedback.header.stamp = tinyros::Time();
 

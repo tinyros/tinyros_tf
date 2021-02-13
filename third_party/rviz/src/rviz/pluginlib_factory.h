@@ -183,7 +183,7 @@ protected:
       }
       catch( pluginlib::PluginlibException& ex )
       {
-        ROS_ERROR( "PluginlibFactory: The plugin for class '%s' failed to load.  Error: %s",
+        tinyros_log_error( "PluginlibFactory: The plugin for class '%s' failed to load.  Error: %s",
                    qPrintable( class_id ), ex.what() );
         if( error_return )
         {

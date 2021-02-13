@@ -82,7 +82,7 @@ void MarkerBase::updateFrameLocked()
 
 bool MarkerBase::expired()
 {
-  return ros::Time::now() >= expiration_;
+  return tinyros::Time::now() >= expiration_;
 }
 
 bool MarkerBase::transform(const MarkerConstPtr& message, Ogre::Vector3& pos, Ogre::Quaternion& orient, Ogre::Vector3& scale)

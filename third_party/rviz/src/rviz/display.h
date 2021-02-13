@@ -192,11 +192,11 @@ public:
   void setName( const QString& name );
 
   /** @brief Emit a time signal that other Displays can synchronize to. */
-  void emitTimeSignal( ros::Time time );
+  void emitTimeSignal( tinyros::Time time );
 
 Q_SIGNALS:
 
-  void timeSignal( rviz::Display* display, ros::Time time );
+  void timeSignal( rviz::Display* display, tinyros::Time time );
 
 public Q_SLOTS:
   /** @brief Enable or disable this Display.

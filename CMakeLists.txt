@@ -9,7 +9,7 @@ option(TINYROS_SUPPORT_TF "Tf support? (ON/OFF)" ON)
 # sudo apt-get install liborocos-kdl-dev libeigen3-dev libbullet-dev
 # sudo apt-get install liburdfdom-headers-dev liburdfdom-dev
 # sudo apt-get install libtinyxml-dev libwxbase2.8-dev collada-dom-dev
-option(TINYROS_SUPPORT_RVIZ "RVIZ support? (ON/OFF)" OFF)
+option(TINYROS_SUPPORT_RVIZ "RVIZ support? (ON/OFF)" ON)
 
 aux_source_directory(${PROJECT_SOURCE_DIR}/third_party/spdlog/src SPDLOG_SRC_LIST)
 aux_source_directory(${PROJECT_SOURCE_DIR}/third_party/uWebSockets UWS_SRC_LIST)
@@ -20,6 +20,7 @@ set(LIBRARY_OUTPUT_PATH ${OUTPUT_PATHS}/bin)
 set(TINYROS_GLOBAL_BIN_DESTINATION ${OUTPUT_PATHS}/bin)
 set(TINYROS_GLOBAL_LIB_DESTINATION ${OUTPUT_PATHS}/bin)
 set(TINYROS_GLOBAL_LIBEXEC_DESTINATION ${OUTPUT_PATHS}/bin)
+set(TINYROS_GLOBAL_SHARE_DESTINATION ${OUTPUT_PATHS}/bin/share)
 set(TINYROS_GLOBAL_INCLUDE_DESTINATION ${OUTPUT_PATHS}/client_library/cpp/include/tiny_ros)
 set(tinyros_lib_INCLUDE_DIRS ${OUTPUT_PATHS}/client_library/cpp/include)
 
@@ -50,15 +51,15 @@ include_directories(
 add_subdirectory(third_party/class_loader)
 add_subdirectory(third_party/pluginlib)
 
-IF (TINYROS_SUPPORT_TF)
-  set(TINYROS_TF_SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/geometry)
-  add_subdirectory(third_party/geometry)
-ENDIF (TINYROS_SUPPORT_TF)
-
 IF (TINYROS_SUPPORT_RVIZ)
   set(TINYROS_RVIZ_SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/rviz)
   add_subdirectory(third_party/rviz)
 ENDIF (TINYROS_SUPPORT_RVIZ)
+
+IF (TINYROS_SUPPORT_TF)
+  set(TINYROS_TF_SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/geometry)
+  add_subdirectory(third_party/geometry)
+ENDIF (TINYROS_SUPPORT_TF)
 
 add_subdirectory(core)
 add_subdirectory(tools)

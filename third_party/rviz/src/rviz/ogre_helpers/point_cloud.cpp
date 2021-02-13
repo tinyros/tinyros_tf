@@ -625,7 +625,7 @@ void PointCloud::popPoints(uint32_t num_points)
 {
   uint32_t vpp = getVerticesPerPoint();
 
-  ROS_ASSERT(num_points <= point_count_);
+  TINYROS_ASSERT(num_points <= point_count_);
   points_.erase(points_.begin(), points_.begin() + num_points);
 
   point_count_ -= num_points;

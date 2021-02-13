@@ -36,7 +36,7 @@
 #include <OgreMaterialManager.h>
 #include <OgreManualObject.h>
 
-#include <ros/console.h>
+#include <tiny_ros/ros.h>
 #include <boost/lexical_cast.hpp>
 
 namespace rviz
@@ -67,7 +67,7 @@ void MeshShape::beginTriangles()
 {
   if (!started_ && entity_)
   {
-    ROS_WARN("Cannot modify mesh once construction is complete");
+    tinyros_log_warn("Cannot modify mesh once construction is complete");
     return;
   }
   
@@ -130,10 +130,10 @@ void MeshShape::endTriangles()
       offset_node_->attachObject(entity_);
     }
     else
-      ROS_ERROR("Unable to construct triangle mesh");
+      tinyros_log_error("Unable to construct triangle mesh");
   }
   else
-    ROS_ERROR("No triangles added");
+    tinyros_log_error("No triangles added");
 }
 
 void MeshShape::clear()

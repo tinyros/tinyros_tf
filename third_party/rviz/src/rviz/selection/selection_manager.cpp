@@ -49,7 +49,7 @@
 #include <OgreTechnique.h>
 #include <OgreRectangle2D.h>
 
-#include <tiny_ros/sensor_msgs/image_encodings.h>
+#include "utils/image_encodings.h"
 #include <tiny_ros/sensor_msgs/Image.h>
 
 #include <tiny_ros/tf/static_assert.h>
@@ -587,7 +587,7 @@ void SelectionManager::unpackColors( const Ogre::PixelBox& box, V_CollObject& pi
 
 void SelectionManager::renderAndUnpack(Ogre::Viewport* viewport, uint32_t pass, int x1, int y1, int x2, int y2, V_CollObject& pixels)
 {
-  ROS_ASSERT(pass < s_num_render_textures_);
+  TINYROS_ASSERT(pass < s_num_render_textures_);
 
   std::stringstream scheme;
   scheme << "Pick";
@@ -627,7 +627,7 @@ bool SelectionManager::render(Ogre::Viewport* viewport, Ogre::TexturePtr tex,
 
   if ( x2==x1 || y2==y1 )
   {
-    ROS_WARN("SelectionManager::render(): not rendering 0 size area.");
+    tinyros_log_warn("SelectionManager::render(): not rendering 0 size area.");
     vis_manager_->unlockRender();
     return false;
   }
@@ -703,7 +703,7 @@ bool SelectionManager::render(Ogre::Viewport* viewport, Ogre::TexturePtr tex,
   // make sure the same objects are visible as in the original viewport
   render_viewport->setVisibilityMask( viewport->getVisibilityMask() );
 
-  ros::WallTime start = ros::WallTime::now();
+  tinyros::Time start = tinyros::Time::now();
 
   // update & force ogre to render the scene
   Ogre::MaterialManager::getSingleton().addListener(this);
@@ -768,7 +768,7 @@ void SelectionManager::publishDebugImage( const Ogre::PixelBox& pixel_box, const
   }
 
   tinyros::sensor_msgs::Image msg;
-  msg.header.stamp = ros::Time::now();
+  msg.header.stamp = tinyros::Time::now();
   msg.width = pixel_box.getWidth();
   msg.height = pixel_box.getHeight();
   msg.encoding = tinyros::sensor_msgs::image_encodings::RGB8;

@@ -57,8 +57,8 @@ namespace rviz
 // Utilities for grouping topics together
 
 struct LexicalTopicInfo {
-  bool operator()(const std::string &topic_a, const std::string &topic_b) {
-    return topic_a < topic_b;
+  bool operator()(const rviz::utils::TopicInfo &a, const rviz::utils::TopicInfo &b) {
+    return a.name < b.name;
   }
 };
 
@@ -84,7 +84,7 @@ bool isSubtopic( const std::string &base, const std::string &topic )
     tinyros_log_error("isSubtopic() Invalid basename: %s", error.c_str());
     return false;
   }
-  if ( !ros::names::validate(topic, error) )
+  if ( !rviz::utils::validate(topic, error) )
   {
     tinyros_log_error("isSubtopic() Invalid topic: %s", error.c_str());
     return false;
@@ -515,7 +515,7 @@ void TopicDisplayWidget::fill( DisplayFactory *factory )
   findPlugins( factory );
 
   QList<PluginGroup> groups;
-  QList<ros::master::TopicInfo> unvisualizable;
+  QList<rviz::utils::TopicInfo> unvisualizable;
   getPluginGroups( datatype_plugins_, &groups, &unvisualizable );
 
   // Insert visualizable topics along with their plugins
@@ -558,7 +558,7 @@ void TopicDisplayWidget::fill( DisplayFactory *factory )
   // Insert unvisualizable topics
   for ( int i = 0; i < unvisualizable.size(); ++i )
   {
-    const ros::master::TopicInfo &ti = unvisualizable.at( i );
+    const rviz::utils::TopicInfo &ti = unvisualizable.at( i );
     QTreeWidgetItem *item = insertItem( QString::fromStdString( ti.name ),
                                         true );
   }

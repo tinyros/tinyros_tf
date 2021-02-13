@@ -35,6 +35,7 @@
 #include <OgreMaterialManager.h>
 #include <OgreGpuProgramManager.h>
 #include <OgreHighLevelGpuProgramManager.h>
+
 #include <tiny_ros/std_srvs/Empty.h>
 
 #ifdef Q_OS_MAC
@@ -92,7 +93,6 @@ void VisualizerApp::reloadShaders(const tinyros::std_srvs::Empty::Request&, tiny
     resource->reload();
   }
   }
-  return true;
 }
 
 VisualizerApp::VisualizerApp()
@@ -111,7 +111,7 @@ void VisualizerApp::setApp( QApplication * app )
 
 bool VisualizerApp::init( int argc, char** argv )
 {
-  tinyros_log_info( "rviz version %s", get_version().c_str() );
+  tinyros_log_info( "tinyros_rviz version %s", get_version().c_str() );
   tinyros_log_info( "compiled against Qt version " QT_VERSION_STR );
   tinyros_log_info( "compiled against OGRE version %d.%d.%d%s (%s)",
             OGRE_VERSION_MAJOR, OGRE_VERSION_MINOR, OGRE_VERSION_PATCH,
@@ -127,7 +127,7 @@ bool VisualizerApp::init( int argc, char** argv )
 #if CATCH_EXCEPTIONS
   try
   {
-
+#endif
     startContinueChecker();
 
     po::options_description options;
@@ -294,7 +294,7 @@ void VisualizerApp::startContinueChecker()
 
 void VisualizerApp::checkContinue()
 {
-  if( !ros::ok() )
+  if( !tinyros::nh()->ok() )
   {
     if( frame_ )
     {

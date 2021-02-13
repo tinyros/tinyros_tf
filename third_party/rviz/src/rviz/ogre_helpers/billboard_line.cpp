@@ -39,7 +39,7 @@
 
 #include <sstream>
 
-#include <ros/assert.h>
+#include <tiny_ros/tf/static_assert.h>
 
 #define MAX_ELEMENTS (65536/4)
 
@@ -191,7 +191,7 @@ void BillboardLine::newLine()
 {
   ++current_line_;
 
-  ROS_ASSERT(current_line_ < num_lines_);
+  TINYROS_ASSERT(current_line_ < num_lines_);
 }
 
 void BillboardLine::addPoint( const Ogre::Vector3& point )
@@ -204,7 +204,7 @@ void BillboardLine::addPoint( const Ogre::Vector3& point, const Ogre::ColourValu
   ++num_elements_[current_line_];
   ++total_elements_;
 
-  ROS_ASSERT(num_elements_[current_line_] <= max_points_per_line_);
+  TINYROS_ASSERT(num_elements_[current_line_] <= max_points_per_line_);
 
   ++elements_in_current_chain_;
   if (elements_in_current_chain_ > MAX_ELEMENTS)

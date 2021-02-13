@@ -29,6 +29,7 @@
 
 #include "frame_manager.h"
 #include "display.h"
+#include <sstream>
 #include "properties/property.h"
 
 #include <tiny_ros/tf/transform_listener.h>
@@ -112,12 +113,12 @@ void FrameManager::setPause( bool pause )
 void FrameManager::setSyncMode( SyncMode mode )
 {
   sync_mode_ = mode;
-  sync_time_ = ros::Time(0);
+  sync_time_ = tinyros::Time(0);
   current_delta_ = 0;
   sync_delta_ = 0;
 }
 
-void FrameManager::syncTime( ros::Time time )
+void FrameManager::syncTime( tinyros::Time time )
 {
   switch ( sync_mode_ )
   {
@@ -224,7 +225,7 @@ bool FrameManager::getTransform(const std::string& frame, tinyros::Time time, Og
   return true;
 }
 
-bool FrameManager::transform(const std::string& frame, ros::Time time, const tinyros::geometry_msgs::Pose& pose_msg, Ogre::Vector3& position, Ogre::Quaternion& orientation)
+bool FrameManager::transform(const std::string& frame, tinyros::Time time, const tinyros::geometry_msgs::Pose& pose_msg, Ogre::Vector3& position, Ogre::Quaternion& orientation)
 {
   if ( !adjustTime(frame, time) )
   {
@@ -328,7 +329,7 @@ std::string FrameManager::discoverFailureReason(const std::string& frame_id, con
   if (reason == tinyros::tf::filter_failure_reasons::OutTheBack)
   {
     std::stringstream ss;
-    ss << "Message removed because it is too old (frame=[" << frame_id << "], stamp=[" << stamp << "])";
+    ss << "Message removed because it is too old (frame=[" << frame_id << "], stamp=[" << stamp.toSec() << "])";
     return ss.str();
   }
   else

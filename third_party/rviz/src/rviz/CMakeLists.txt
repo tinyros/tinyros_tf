@@ -10,10 +10,9 @@ include_directories(.)
 
 # Build the version number and other build-time constants into the
 # source for access at run-time.
-set(ENV_CONFIG_FILE ${CMAKE_CURRENT_BINARY_DIR}/env_config.cpp)
+set(ENV_CONFIG_FILE ${TINYROS_GLOBAL_SHARE_DESTINATION}/env_config.cpp)
 set(RVIZ_VERSION ${rviz_VERSION})
 message("making version ${RVIZ_VERSION}.")
-set(ROS_DISTRO $ENV{ROS_DISTRO})
 
 configure_file(env_config.cpp.in ${ENV_CONFIG_FILE} @ONLY)
 
@@ -120,6 +119,7 @@ add_library( ${PROJECT_NAME}
   tool_properties_panel.cpp
   yaml_config_reader.cpp
   yaml_config_writer.cpp
+  retriever.cpp
 
   ${ENV_CONFIG_FILE}
   ${MOC_FILES}
@@ -155,13 +155,3 @@ endif()
 set_target_properties(executable
                       PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 
-install(TARGETS executable ${PROJECT_NAME}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-)
-install(DIRECTORY ./
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "*.h")
-
-install(TARGETS executable
-  DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})

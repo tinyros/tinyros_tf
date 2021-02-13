@@ -63,12 +63,11 @@ private Q_SLOTS:
 
 private:
   void startContinueChecker();
-  bool reloadShaders(const tinyros::std_srvs::Empty::Request&, tinyros::std_srvs::Empty::Response&);
+  void reloadShaders(const tinyros::std_srvs::Empty::Request&, tinyros::std_srvs::Empty::Response&);
 
   QApplication* app_;
   QTimer* continue_timer_;
   VisualizationFrame* frame_;
-  tinyros::ServiceServer reload_shaders_service_;
   tinyros::ServiceServer<tinyros::std_srvs::Empty::Request, 
       tinyros::std_srvs::Empty::Response, VisualizerApp> reload_shaders_service_;
 };

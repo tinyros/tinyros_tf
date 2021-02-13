@@ -78,7 +78,7 @@ std::string getNodeName() {
   return node_name_;;
 }
 
-std::string getNodeIpAddr() {
+std::string getDDSIpAddr() {
   return ip_addr_;;
 }
 

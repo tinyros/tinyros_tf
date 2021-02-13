@@ -179,7 +179,7 @@ void TimePanel::onDisplayRemoved( Display* display )
   }
 }
 
-void TimePanel::onTimeSignal( Display* display, ros::Time time )
+void TimePanel::onTimeSignal( Display* display, tinyros::Time time )
 {
   QString name = display->getName();
   int index = sync_source_selector_->findData( QVariant( (qulonglong)display ) );

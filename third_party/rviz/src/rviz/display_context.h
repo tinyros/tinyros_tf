@@ -41,14 +41,20 @@ namespace Ogre
 class SceneManager;
 }
 
-namespace ros
+namespace tinyros
+{
+namespace tf
 {
 class CallbackQueueInterface;
 }
+}
 
+namespace tinyros
+{
 namespace tf
 {
 class TransformListener;
+}
 }
 
 namespace rviz
@@ -90,7 +96,7 @@ public:
   virtual FrameManager* getFrameManager() const = 0;
 
   /** @brief Convenience function: returns getFrameManager()->getTFClient(). */
-  virtual tf::TransformListener* getTFClient() const = 0;
+  virtual tinyros::tf::TransformListener* getTFClient() const = 0;
 
   /** @brief Return the fixed frame name. */
   virtual QString getFixedFrame() const = 0;
@@ -106,10 +112,10 @@ public:
   virtual DisplayFactory* getDisplayFactory() const = 0;
 
   /** @brief Return the CallbackQueue using the main GUI thread. */
-  virtual ros::CallbackQueueInterface* getUpdateQueue() = 0;
+  virtual tinyros::tf::CallbackQueueInterface* getUpdateQueue() = 0;
 
   /** @brief Return a CallbackQueue using a different thread than the main GUI one. */
-  virtual ros::CallbackQueueInterface* getThreadedQueue() = 0;
+  virtual tinyros::tf::CallbackQueueInterface* getThreadedQueue() = 0;
 
   /** @brief Handle a single key event for a given RenderPanel. */
   virtual void handleChar( QKeyEvent* event, RenderPanel* panel ) = 0;

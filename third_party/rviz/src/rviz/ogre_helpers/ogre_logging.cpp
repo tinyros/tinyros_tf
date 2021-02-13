@@ -50,11 +50,11 @@ public:
     {
       if ( lml >= min_lml )
       {
-        if(lml == tinyros::tinyros_msgs::Log::ROSDEBUG) tinyros::logdebug(message);
-        else if(lml == tinyros::tinyros_msgs::Log::ROSINFO) tinyros::loginfo(message);
-        else if(lml == tinyros::tinyros_msgs::Log::ROSWARN) tinyros::logwarn(message);
-        else if(lml == tinyros::tinyros_msgs::Log::ROSERROR) tinyros::logerror(message);
-        else if(lml == tinyros::tinyros_msgs::Log::ROSFATAL) tinyros::logfatal(message);
+        if(lml == (int)tinyros::tinyros_msgs::Log::ROSDEBUG) tinyros::logdebug(message);
+        else if(lml == (int)tinyros::tinyros_msgs::Log::ROSINFO) tinyros::loginfo(message);
+        else if(lml == (int)tinyros::tinyros_msgs::Log::ROSWARN) tinyros::logwarn(message);
+        else if(lml == (int)tinyros::tinyros_msgs::Log::ROSERROR) tinyros::logerror(message);
+        else if(lml == (int)tinyros::tinyros_msgs::Log::ROSFATAL) tinyros::logfatal(message);
       }
     }
    }

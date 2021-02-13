@@ -225,7 +225,7 @@ namespace pluginlib
   {
     //Pull possible files from manifests of packages which depend on this package and export class
     std::vector<std::string> paths;
-    tinyros::package::getPlugins(package, attrib_name, paths, force_recrawl);
+    //tinyros::package::getPlugins(package, attrib_name, paths, force_recrawl);
     return paths;
   }
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.11.2)
-project(rviz)
+project(tinyros_rviz)
 
 if (POLICY CMP0042)
   cmake_policy(SET CMP0042 NEW)
@@ -93,6 +93,22 @@ endif()
 
 find_package(OpenGL REQUIRED)
 
+find_package(Bullet REQUIRED)
+
+find_package(orocos_kdl REQUIRED)
+
+find_package(urdfdom REQUIRED)
+find_package(urdfdom_headers REQUIRED)
+# Find version components
+if(NOT urdfdom_headers_VERSION)
+set(urdfdom_headers_VERSION "0.0.0")
+endif()
+string(REGEX REPLACE "^([0-9]+).*" "\\1" URDFDOM_HEADERS_MAJOR_VERSION "${urdfdom_headers_VERSION}")
+string(REGEX REPLACE "^[0-9]+\\.([0-9]+).*" "\\1" URDFDOM_HEADERS_MINOR_VERSION "${urdfdom_headers_VERSION}")
+string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" URDFDOM_HEADERS_REVISION_VERSION "${urdfdom_headers_VERSION}")
+set(generated_compat_header "${PROJECT_SOURCE_DIR}/src/urdf/urdfdom_compatibility.h")
+configure_file(${PROJECT_SOURCE_DIR}/src/urdf/urdfdom_compatibility.h.in "${generated_compat_header}" @ONLY)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -105,54 +121,16 @@ else()
   find_package(Qt4 REQUIRED COMPONENTS QtCore QtGui QtOpenGL)
 endif()
 
-find_package(catkin REQUIRED
-  COMPONENTS
-  angles
-  cmake_modules
-  geometry_msgs
-  image_geometry
-  image_transport
-  interactive_markers
-  laser_geometry
-  map_msgs
-  message_filters
-  nav_msgs
-  pluginlib
-  python_qt_binding
-  resource_retriever
-  rosbag
-  rosconsole
-  roscpp
-  roslib
-  rospy
-  sensor_msgs
-  std_msgs
-  std_srvs
-  tf
-  urdf
-  visualization_msgs
-  urdfdom_headers
-)
-
-if(${tf_VERSION} VERSION_LESS "1.11.3")
-  add_definitions("-DRVIZ_USE_BOOST_SIGNAL_1")
-endif()
-
-find_package(PythonLibs "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}" REQUIRED)
-
-find_package(Eigen3)
-if(NOT EIGEN3_FOUND)
+find_package(Eigen 3 QUIET)
+if(NOT Eigen_FOUND)
   # Fallback to cmake_modules
-  find_package(cmake_modules REQUIRED)
-  find_package(Eigen REQUIRED)
-  set(EIGEN3_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS})
+  include(${PROJECT_SOURCE_DIR}/cmake/FindEigen3.cmake)
+  set(EIGEN3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
   set(EIGEN3_LIBRARIES ${EIGEN_LIBRARIES})  # Not strictly necessary as Eigen is head only
   # Possibly map additional variables to the EIGEN3_ prefix.
 else()
   set(EIGEN3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
 endif()
-
-catkin_python_setup()
 
 if(NOT OGRE_OV_LIBRARIES_ABS)
   set(OGRE_OV_LIBRARIES_ABS ${OGRE_OV_LIBRARIES})
@@ -175,72 +153,27 @@ endif()
 # cmake code for the default plugin.
 set(rviz_DEFAULT_PLUGIN_LIBRARY_TARGET_NAME default_plugin)
 
-catkin_package(
-  CFG_EXTRAS
-    rviz-extras.cmake
-  INCLUDE_DIRS
-    src
-    ${EIGEN3_INCLUDE_DIRS}
-    ${OGRE_OV_INCLUDE_DIRS}
-    ${OPENGL_INCLUDE_DIR}
-  LIBRARIES
-    rviz
-    ${OGRE_OV_LIBRARIES_ABS}
-    ${rviz_ADDITIONAL_LIBRARIES}
-    ${OPENGL_LIBRARIES}
-  CATKIN_DEPENDS
-    geometry_msgs
-    image_geometry
-    image_transport
-    interactive_markers
-    laser_geometry
-    map_msgs
-    message_filters
-    nav_msgs
-    pluginlib
-    resource_retriever
-    roscpp
-    roslib
-    sensor_msgs
-    std_msgs
-    tf
-    urdf
-    visualization_msgs
-)
-
 include_directories(SYSTEM
+  src
   ${EIGEN3_INCLUDE_DIRS}
   ${OGRE_OV_INCLUDE_DIRS}
   ${OPENGL_INCLUDE_DIR}
   ${PYTHON_INCLUDE_PATH}
   ${urdfdom_headers_INCLUDE_DIRS}
+  ${BULLET_INCLUDE_DIRS}
+  ${orocos_kdl_INCLUDE_DIRS}
 )
-include_directories(src ${catkin_INCLUDE_DIRS})
-
-#### If gtk ends up being the best way to get the correct window
-#### position under X11, this is how to compile it in.
-#
-# find_package(GTK2)
-# include_directories(${GTK2_INCLUDE_DIRS})
-# include_directories(/usr/include/gdk-pixbuf-2.0)
 
 add_subdirectory(src)
 
-install(DIRECTORY ogre_media
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+execute_process(
+  COMMAND mkdir -p ${TINYROS_GLOBAL_SHARE_DESTINATION}/tinyros_rviz/ogre_media
+  COMMAND mkdir -p ${TINYROS_GLOBAL_SHARE_DESTINATION}/tinyros_rviz/icons
+  COMMAND mkdir -p ${TINYROS_GLOBAL_SHARE_DESTINATION}/tinyros_rviz/images
+  COMMAND cp -a ${PROJECT_SOURCE_DIR}/ogre_media/. ${TINYROS_GLOBAL_SHARE_DESTINATION}/tinyros_rviz/ogre_media
+  COMMAND cp -a ${PROJECT_SOURCE_DIR}/icons/. ${TINYROS_GLOBAL_SHARE_DESTINATION}/tinyros_rviz/icons
+  COMMAND cp -a ${PROJECT_SOURCE_DIR}/images/. ${TINYROS_GLOBAL_SHARE_DESTINATION}/tinyros_rviz/images
+  COMMAND cp -a ${PROJECT_SOURCE_DIR}/default.rviz ${TINYROS_GLOBAL_SHARE_DESTINATION}/tinyros_rviz
+  COMMAND cp -a ${PROJECT_SOURCE_DIR}/plugin_description.xml ${TINYROS_GLOBAL_SHARE_DESTINATION}/tinyros_rviz
 )
-install(DIRECTORY icons
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
-install(DIRECTORY images
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
-install(FILES default.rviz
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
-install(FILES plugin_description.xml
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
-install(FILES help/help.html
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/help
-)
+

@@ -47,7 +47,7 @@ WaitForMasterDialog::WaitForMasterDialog( QWidget* parent )
 {
   setIcon( QMessageBox::Critical );
 
-  const std::string& master_uri = ros::master::getURI();
+  const std::string& master_uri = tinyros::getDDSIpAddr();
   std::stringstream ss;
   ss << "Could not contact ROS master at [" << master_uri << "], retrying...";
 
