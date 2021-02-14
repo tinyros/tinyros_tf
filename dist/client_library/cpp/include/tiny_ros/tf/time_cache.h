@@ -365,10 +365,6 @@ private:
   }
 };
 
-const int TimeCache::MIN_INTERPOLATION_DISTANCE = 5; //!< Number of nano-seconds to not interpolate below.
-const unsigned int TimeCache::MAX_LENGTH_LINKED_LIST = 1000000; //!< Maximum length of linked list, to make sure not to be able to use unlimited memory.
-const double TimeCache::DEFAULT_MAX_STORAGE_TIME = 10.0; //!< default value of 10 seconds storage
-
 }
 }
 #endif

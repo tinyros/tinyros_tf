@@ -226,6 +226,14 @@ bool VisualizerApp::init( int argc, char** argv )
       tinyros_log_error("Error parsing command line: %s", e.what());
       return false;
     }
+    if( !tinyros::nh()->ok())
+    {
+      WaitForMasterDialog* dialog = new WaitForMasterDialog;
+      if( dialog->exec() != QDialog::Accepted )
+      {
+        return false;
+      }
+    }
 
     if( enable_ogre_log )
     {

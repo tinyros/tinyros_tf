@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include "Matrix3x3.h"
 
 // sudo apt-get install libbullet-dev
-#include "LinearMath/btTransform.h"
+#include "bullet/LinearMath/btTransform.h"
 
 namespace tinyros
 {

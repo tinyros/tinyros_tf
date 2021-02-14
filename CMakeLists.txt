@@ -25,17 +25,30 @@ set(TINYROS_GLOBAL_INCLUDE_DESTINATION ${OUTPUT_PATHS}/client_library/cpp/includ
 set(tinyros_lib_INCLUDE_DIRS ${OUTPUT_PATHS}/client_library/cpp/include)
 
 set(tinyros_lib_SRC_LIST
-  ${ROSLIB_PATHS}/log.cpp
-  ${ROSLIB_PATHS}/ros.cpp
-  ${ROSLIB_PATHS}/time.cpp
-  ${ROSLIB_PATHS}/duration.cpp
+  ${ROSLIB_PATHS}/impl/log.cpp
+  ${ROSLIB_PATHS}/impl/ros.cpp
+  ${ROSLIB_PATHS}/impl/time.cpp
+  ${ROSLIB_PATHS}/impl/duration.cpp
+  ${ROSLIB_PATHS}/impl/tf.cpp
+)
+
+set(tinyros_param_SRC_LIST
+  ${ROSLIB_PATHS}/impl/param.cpp
+)
+
+set(tinyros_package_SRC_LIST
+  ${ROSLIB_PATHS}/impl/package.cpp
+)
+
+set(tinyros_tf_SRC_LIST
+  ${ROSLIB_PATHS}/impl/tf.cpp
 )
 
 set(class_loader_SRC_LIST
-  ${ROSLIB_PATHS}/class_loader.cpp
-  ${ROSLIB_PATHS}/class_loader_core.cpp
-  ${ROSLIB_PATHS}/meta_object.cpp
-  ${ROSLIB_PATHS}/multi_library_class_loader.cpp
+  ${ROSLIB_PATHS}/impl/class_loader.cpp
+  ${ROSLIB_PATHS}/impl/class_loader_core.cpp
+  ${ROSLIB_PATHS}/impl/meta_object.cpp
+  ${ROSLIB_PATHS}/impl/multi_library_class_loader.cpp
 )
 
 add_definitions(-DSPDLOG_COMPILED_LIB)

@@ -904,14 +904,10 @@ def subscribers_generate(path, msgs):
 def roslib_copy_roslib_files(path):
     if not os.path.exists(path+"ros"):
         os.makedirs(path+"ros")
-    files = ['duration.cpp',
-             'time.cpp',
-             'ros.cpp',
-             'log.cpp',
-             'ros.h',
-             'param.cpp',
+    if not os.path.exists(path+"impl"):
+        os.makedirs(path+"impl")
+    files = ['ros.h',
              'param.h',
-             'package.cpp',
              'package.h',
              'ros/duration.h',
              'ros/msg.h',
@@ -928,6 +924,12 @@ def roslib_copy_roslib_files(path):
              'ros/hardware_udp.h',
              'ros/hardware_tcp.h',
              'ros/time.h']
+    impl = ['duration.cpp',
+             'time.cpp',
+             'ros.cpp',
+             'log.cpp',
+             'param.cpp',
+             'package.cpp']
 
     mydir = sys.argv[3] + "/roslib/cpp/"
     for f in files:
@@ -940,6 +942,16 @@ def roslib_copy_roslib_files(path):
             file_md5 = hashlib_md5sum_definition(file_definition)
             if file_md5 != tmp_file_md5:
                 shutil.copy(mydir+f, path+f)
+    for f in impl:
+        if not os.path.exists(path+ "impl/" + f):
+            shutil.copy(mydir+f, path+ "impl/" + f)
+        else:
+            tmp_file_definition = open(path+ "impl/" + f).readlines()
+            file_definition = open(mydir+f).readlines()
+            tmp_file_md5 = hashlib_md5sum_definition(tmp_file_definition)
+            file_md5 = hashlib_md5sum_definition(file_definition)
+            if file_md5 != tmp_file_md5:
+                shutil.copy(mydir+f, path+ "impl/" + f)
 
 def roslib_copy_examples_files(path):
     if not os.path.exists(path+"examples/publisher"):

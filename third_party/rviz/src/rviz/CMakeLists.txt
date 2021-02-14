@@ -119,21 +119,31 @@ add_library( ${PROJECT_NAME}
   tool_properties_panel.cpp
   yaml_config_reader.cpp
   yaml_config_writer.cpp
+  ${tinyros_lib_SRC_LIST} 
+  ${tinyros_tf_SRC_LIST}
+  ${tinyros_param_SRC_LIST}
+  ${tinyros_package_SRC_LIST}
+  ${class_loader_SRC_LIST}
   retriever.cpp
-
+  ../urdf/model.cpp
+  ../utils/utils.cpp
   ${ENV_CONFIG_FILE}
   ${MOC_FILES}
 )
 
 target_link_libraries(${PROJECT_NAME}
   ${Boost_LIBRARIES}
-  ${catkin_LIBRARIES}
   ${OGRE_OV_LIBRARIES_ABS}
   ${OPENGL_LIBRARIES}
   ${QT_LIBRARIES}
   ${rviz_ADDITIONAL_LIBRARIES}
+  ${orocos_kdl_LIBRARIES}
   assimp
   yaml-cpp
+  X11
+  tinyxml
+  ${Poco_LIBRARIES}
+  curl
 )
 if (UseQt5)
   target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
@@ -147,7 +157,7 @@ endif(APPLE)
 ########### The rviz executable ###########
 add_executable(executable main.cpp)
 
-target_link_libraries(executable ${PROJECT_NAME} ${QT_LIBRARIES} ${OGRE_OV_LIBRARIES_ABS})
+target_link_libraries(executable ${PROJECT_NAME})
 if (UseQt5)
   target_link_libraries(executable Qt5::Widgets)
 endif()

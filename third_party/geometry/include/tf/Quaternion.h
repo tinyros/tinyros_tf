@@ -21,7 +21,7 @@ subject to the following restrictions:
 #include "QuadWord.h"
 
 // sudo apt-get install libbullet-dev
-#include <LinearMath/btQuaternion.h>
+#include <bullet/LinearMath/btQuaternion.h>
 
 namespace tinyros
 {

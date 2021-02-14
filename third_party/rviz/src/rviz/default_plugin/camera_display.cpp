@@ -57,8 +57,6 @@
 #include "rviz/properties/display_group_visibility_property.h"
 #include "rviz/load_resource.h"
 
-#include <image_transport/camera_common.h>
-
 #include "camera_display.h"
 #include "utils/utils.h"
 
@@ -69,7 +67,7 @@ const QString CameraDisplay::BACKGROUND( "background" );
 const QString CameraDisplay::OVERLAY( "overlay" );
 const QString CameraDisplay::BOTH( "background and overlay" );
 
-bool validateFloats(const sensor_msgs::CameraInfo& msg)
+bool validateFloats(const tinyros::sensor_msgs::CameraInfo& msg)
 {
   bool valid = true;
   valid = valid && validateFloats( msg.D );
@@ -326,7 +324,7 @@ void CameraDisplay::clear()
   current_caminfo_.reset();
 
   setStatus( StatusProperty::Warn, "Camera Info",
-             "No CameraInfo received on [" + QString::fromStdString( caminfo_sub_.getTopic() ) + "].  Topic may not exist.");
+             "No CameraInfo received on [" + QString::fromStdString( topic_property_->getTopicStd() ) + "].  Topic may not exist.");
   setStatus( StatusProperty::Warn, "Image", "No Image received");
 
   render_panel_->getCamera()->setPosition( Ogre::Vector3( 999999, 999999, 999999 ));
@@ -530,17 +528,5 @@ void CameraDisplay::reset()
 
 } // namespace rviz
 
-namespace
-{
-  struct ProxyExec0
-  {
-    typedef  rviz::CameraDisplay _derived;
-    typedef  rviz::Display _base;
-    ProxyExec0()
-    {
-      tinyros::class_loader::class_loader_private::registerPlugin<_derived, _base>(rviz::CameraDisplay, rviz::Display);
-    }
-  };
-  static ProxyExec0 g_register_plugin_0;
-}  // namespace
-
+#include <tiny_ros/pluginlib/class_list_macros.h>
+PLUGINLIB_EXPORT_CLASS( rviz::CameraDisplay, rviz::Display )

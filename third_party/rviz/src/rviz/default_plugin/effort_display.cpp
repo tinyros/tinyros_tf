@@ -16,6 +16,7 @@
 #include "effort_display.h"
 
 #include <urdf/model.h>
+#include <tiny_ros/param.h>
 
 namespace rviz
 {
@@ -293,7 +294,7 @@ namespace rviz
         tinyros::tf::Quaternion axis_rotation(tinyros::tf::tfCross(axis_joint, axis_z), tinyros::tf::tfAngle(axis_joint, axis_z));
         if ( std::isnan(axis_rotation.x()) ||
              std::isnan(axis_rotation.y()) ||
-             std::isnan(axis_rotation.z()) ) axis_rotation = tf::Quaternion::getIdentity();
+             std::isnan(axis_rotation.z()) ) axis_rotation = tinyros::tf::Quaternion::getIdentity();
 
         tinyros::tf::Quaternion axis_orientation(orientation.x, orientation.y, orientation.z, orientation.w);
         tinyros::tf::Quaternion axis_rot = axis_orientation * axis_rotation;

@@ -33,17 +33,22 @@
 namespace rviz
 {
 
+class Exception : public std::runtime_error
+{
+public:
+  Exception(const std::string& message) : std::runtime_error(message) {}
+};
+
 /**
  * \brief Thrown when an invalid graph resource name is specified to any roscpp
  * function.
  */
-class InvalidNameException : public ros::Exception
+class InvalidNameException : public Exception
 {
 public:
   InvalidNameException(const std::string& msg)
-  : std::exception(), error_msg_(msg)
+  : Exception(msg), error_msg_(msg)
   {}
-    virtual InvalidNameException() throw () {}
     virtual const char * what() const throw () {
         return error_msg_.c_str();
     }

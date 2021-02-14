@@ -38,11 +38,6 @@
 # include <tiny_ros/sensor_msgs/CameraInfo.h>
 # include <tiny_ros/sensor_msgs/Image.h>
 # include <tiny_ros/sensor_msgs/PointCloud2.h>
-# include <image_transport/image_transport.h>
-# include <image_transport/subscriber_filter.h>
-# include <message_filters/subscriber.h>
-# include <message_filters/synchronizer.h>
-# include <message_filters/sync_policies/approximate_time.h>
 # include <tiny_ros/tf/message_filter.h>
 # include <tiny_ros/sensor_msgs/Image.h>
 # include "rviz/properties/enum_property.h"
@@ -57,15 +52,6 @@
 #endif
 
 #include <QMap>
-
-using namespace message_filters::sync_policies;
-
-// Forward declarations
-
-namespace image_transport
-{
-class SubscriberFilter;
-}
 
 namespace rviz
 {
@@ -155,10 +141,10 @@ protected:
 
   typedef std::vector<rviz::PointCloud::Point> V_Point;
 
-  virtual void processMessage(tinyros::sensor_msgs::ImageConstPtr msg);
-  virtual void processMessageRGB(tinyros::sensor_msgs::ImageConstPtr msg);
-  virtual void processMessage(tinyros::sensor_msgs::ImageConstPtr depth_msg, tinyros::sensor_msgsImageConstPtr rgb_msg);
-  void caminfoCallback( tinyros::sensor_msgs::CameraInfoConstPtr msg );
+  virtual void processMessageMap(const tinyros::sensor_msgs::ImageConstPtr msg);
+  virtual void processMessageRGB(const tinyros::sensor_msgs::ImageConstPtr msg);
+  virtual void processMessage(tinyros::sensor_msgs::ImageConstPtr depth_msg, tinyros::sensor_msgs::ImageConstPtr rgb_msg);
+  void caminfoCallback( const tinyros::sensor_msgs::CameraInfoConstPtr& msg );
 
   // overrides from Display
   virtual void onEnable();

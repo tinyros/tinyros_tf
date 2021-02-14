@@ -78,7 +78,7 @@ void logwarn(std::string msg);
 void logerror(std::string msg);
 void logfatal(std::string msg);
 std::string getNodeName();
-std::string getNodeIpAddr();
+std::string getDDSIpAddr();
 }
 #endif
 

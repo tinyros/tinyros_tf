@@ -62,7 +62,10 @@ WaitForMasterDialog::WaitForMasterDialog( QWidget* parent )
 
 void WaitForMasterDialog::onTimer()
 {
+  if( tinyros::nh()->ok())
+  {
     accept();
+  }
 }
 
 } // end namespace rviz

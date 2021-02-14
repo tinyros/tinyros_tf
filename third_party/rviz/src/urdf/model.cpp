@@ -34,7 +34,8 @@
 
 /* Author: Wim Meeussen */
 
-#include "urdf/model.h"
+#include "model.h"
+#include "parser.h"
 
 #include <tiny_ros/ros.h>
 #include <tiny_ros/param.h>
@@ -42,7 +43,6 @@
 /* we include the default parser for plain URDF files; 
    other parsers are loaded via plugins (if available) */
 #include <urdf_parser/urdf_parser.h>
-#include <urdf_parser_plugin/parser.h>
 #include <tiny_ros/pluginlib/class_loader.h>
 
 #include <boost/algorithm/string.hpp>
@@ -89,7 +89,7 @@ bool Model::initFile(const std::string& filename)
 
 bool Model::initParam(const std::string& param)
 {
-  return initParamWithNodeHandle(param, ros::NodeHandle());
+  return initParamWithNodeHandle(param);
 }
 
 bool Model::initParamWithNodeHandle(const std::string& param)
@@ -97,7 +97,7 @@ bool Model::initParamWithNodeHandle(const std::string& param)
   std::string xml_string;
   // read the robot description from the parameter server
   if (!tinyros::param::get(param, xml_string)){
-    tinyros_log_error("Could not read parameter %s on parameter server", full_param.c_str());
+    tinyros_log_error("Could not read parameter %s on parameter server", param.c_str());
     return false;
   }
   return Model::initString(xml_string);

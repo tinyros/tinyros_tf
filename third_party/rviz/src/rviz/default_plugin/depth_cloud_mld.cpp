@@ -39,7 +39,7 @@
 
 #include "depth_cloud_mld.h"
 
-namespace enc = sensor_msgs::image_encodings;
+namespace enc = tinyros::sensor_msgs::image_encodings;
 
 #define POINT_STEP (sizeof(float)*4)
 

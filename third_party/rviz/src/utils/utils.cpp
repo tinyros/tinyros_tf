@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <tiny_ros/ros.h>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/join.hpp>
+#include <vector>
   
 #define MAX_SIZE (PATH_MAX+1) 
 
@@ -113,9 +117,9 @@ namespace utils {
       topiclist = tinyros::nh()->getTopicList(10*1000);
     }
 
-    std::vector<std::string> topics = topic_string_split(topiclist);
-    for (std::size_t i = 0; i < topics.size(); i++) {
-      std::string elem = topics[i];
+    std::vector<std::string> ts = topic_string_split(topiclist);
+    for (std::size_t i = 0; i < ts.size(); i++) {
+      std::string elem = ts[i];
       std::size_t type_begin = elem.find("[type:");
       std::size_t type_end = elem.find(",");
       std::size_t md5_begin = elem.find("md5:");

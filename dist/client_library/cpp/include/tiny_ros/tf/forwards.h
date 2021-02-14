@@ -65,7 +65,7 @@ class CallbackInterface;
 typedef std::shared_ptr<CallbackInterface> CallbackInterfacePtr;
 
 /**
- * \brief Structure passed as a parameter to the callback invoked by a ros::Timer
+ * \brief Structure passed as a parameter to the callback invoked by a tinyros::Timer
  */
 struct TimerEvent
 {

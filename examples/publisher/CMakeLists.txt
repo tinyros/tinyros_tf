@@ -3,12 +3,9 @@ cmake_minimum_required(VERSION 2.6)
 set(EXECUTABLE_OUTPUT_PATH ${OUTPUT_PATHS}/bin)
 add_executable(ExamplePublisher
   ExamplePublisher.cpp
-  ${ROSLIB_PATHS}/time.cpp
-  ${ROSLIB_PATHS}/duration.cpp
-  ${ROSLIB_PATHS}/ros.cpp
-  ${ROSLIB_PATHS}/log.cpp
-  ${ROSLIB_PATHS}/package.cpp
-  ${ROSLIB_PATHS}/param.cpp
+  ${tinyros_lib_SRC_LIST}
+  ${tinyros_param_SRC_LIST}
+  ${tinyros_package_SRC_LIST}
 )
 
 IF (CMAKE_SYSTEM_NAME MATCHES "CYGWIN")

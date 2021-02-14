@@ -19,7 +19,7 @@ subject to the following restrictions:
 #include "Vector3.h"
 #include "Quaternion.h"
 // sudo apt-get install libbullet-dev
-#include <LinearMath/btMatrix3x3.h>
+#include <bullet/LinearMath/btMatrix3x3.h>
 
 namespace tinyros
 {

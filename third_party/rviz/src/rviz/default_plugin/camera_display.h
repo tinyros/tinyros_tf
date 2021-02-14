@@ -124,7 +124,7 @@ private:
   Ogre::Rectangle2D* fg_screen_rect_;
   Ogre::MaterialPtr fg_material_;
 
-  tinyros::tf::MessageFilter<sensor_msgs::CameraInfo>* caminfo_tf_filter_;
+  tinyros::tf::MessageFilter<tinyros::sensor_msgs::CameraInfo>* caminfo_tf_filter_;
 
   FloatProperty* alpha_property_;
   EnumProperty* image_position_property_;

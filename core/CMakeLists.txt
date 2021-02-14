@@ -9,8 +9,8 @@ IF (TINYROS_SUPPORT_WEBSOCKETS)
   add_executable(tinyrosdds
     ${UWS_SRC_LIST}
     ${SPDLOG_SRC_LIST}
-    ${ROSLIB_PATHS}/time.cpp
-    ${ROSLIB_PATHS}/duration.cpp
+    ${ROSLIB_PATHS}/impl/time.cpp
+    ${ROSLIB_PATHS}/impl/duration.cpp
     ${SRC_LIST}
   )
   
@@ -36,8 +36,8 @@ IF (TINYROS_SUPPORT_WEBSOCKETS)
 ELSE (TINYROS_SUPPORT_WEBSOCKETS)
   add_executable(tinyrosdds
     ${SPDLOG_SRC_LIST}
-    ${ROSLIB_PATHS}/time.cpp
-    ${ROSLIB_PATHS}/duration.cpp
+    ${ROSLIB_PATHS}/impl/time.cpp
+    ${ROSLIB_PATHS}/impl/duration.cpp
     ${SRC_LIST}
   )
  

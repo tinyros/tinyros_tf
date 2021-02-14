@@ -4,7 +4,9 @@ set(EXECUTABLE_OUTPUT_PATH ${OUTPUT_PATHS}/bin)
 
 execute_process(
   COMMAND mkdir -p ${ROSLIB_PATHS}/tf
+  COMMAND mkdir -p ${ROSLIB_PATHS}/impl
   COMMAND cp -a ${TINYROS_TF_SOURCE_DIR}/include/tf/. ${ROSLIB_PATHS}/tf
+  COMMAND cp -a ${TINYROS_TF_SOURCE_DIR}/src/tf.cpp ${ROSLIB_PATHS}/impl
 )
 
 find_package(orocos_kdl REQUIRED)
@@ -21,42 +23,32 @@ link_directories(${orocos_kdl_LIBRARY_DIRS})
 include_directories(${Eigen_INCLUDE_DIR})
 
 add_executable(tinyros_tf_echo
-  ${ROSLIB_PATHS}/ros.cpp
-  ${ROSLIB_PATHS}/time.cpp
-  ${ROSLIB_PATHS}/duration.cpp
-  ${ROSLIB_PATHS}/log.cpp
+  ${tinyros_lib_SRC_LIST}
+  ${tinyros_tf_SRC_LIST}
   src/tf_echo.cpp
 )
 
 add_executable(tinyros_static_transform_publisher
-  ${ROSLIB_PATHS}/ros.cpp
-  ${ROSLIB_PATHS}/time.cpp
-  ${ROSLIB_PATHS}/duration.cpp
-  ${ROSLIB_PATHS}/log.cpp
+  ${tinyros_lib_SRC_LIST}
+  ${tinyros_tf_SRC_LIST}
   src/static_transform_publisher.cpp
 )
 
 add_executable(tinyros_tf_monitor
-  ${ROSLIB_PATHS}/ros.cpp
-  ${ROSLIB_PATHS}/time.cpp
-  ${ROSLIB_PATHS}/duration.cpp
-  ${ROSLIB_PATHS}/log.cpp
+  ${tinyros_lib_SRC_LIST}
+  ${tinyros_tf_SRC_LIST}
   src/tf_monitor.cpp
 )
 
 add_executable(tinyros_tf_change_notifier
-  ${ROSLIB_PATHS}/ros.cpp
-  ${ROSLIB_PATHS}/time.cpp
-  ${ROSLIB_PATHS}/duration.cpp
-  ${ROSLIB_PATHS}/log.cpp
+  ${tinyros_lib_SRC_LIST}
+  ${tinyros_tf_SRC_LIST}
   src/change_notifier.cpp
 )
 
 add_executable(tinyros_tf_message_filter
-  ${ROSLIB_PATHS}/ros.cpp
-  ${ROSLIB_PATHS}/time.cpp
-  ${ROSLIB_PATHS}/duration.cpp
-  ${ROSLIB_PATHS}/log.cpp
+  ${tinyros_lib_SRC_LIST}
+  ${tinyros_tf_SRC_LIST}
   src/tf_message_filter.cpp
 )
 

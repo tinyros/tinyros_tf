@@ -82,7 +82,7 @@ public:
     reset();
   }
 
-  sensor_msgs::PointCloud2Ptr generatePointCloudFromDepth (tinyros::sensor_msgs::ImageConstPtr depth_msg,
+  tinyros::sensor_msgs::PointCloud2Ptr generatePointCloudFromDepth (tinyros::sensor_msgs::ImageConstPtr depth_msg,
                                                            tinyros::sensor_msgs::ImageConstPtr color_msg,
                                                            tinyros::sensor_msgs::CameraInfoConstPtr camera_info_msg);
   void reset()

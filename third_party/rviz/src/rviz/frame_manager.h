@@ -213,7 +213,7 @@ private:
   template<class M>
   void messageCallback(const tinyros::tf::MessageEvent<M const>& msg_evt, Display* display)
   {
-    boost::shared_ptr<M const> const &msg = msg_evt.getConstMessage();
+    std::shared_ptr<M const> const &msg = msg_evt.getConstMessage();
     std::string authority = msg_evt.getPublisherName();
 
     messageArrived(msg->header.frame_id, msg->header.stamp, authority, display);
@@ -222,7 +222,7 @@ private:
   template<class M>
   void failureCallback(const tinyros::tf::MessageEvent<M const>& msg_evt, tinyros::tf::FilterFailureReason reason, Display* display)
   {
-    boost::shared_ptr<M const> const &msg = msg_evt.getConstMessage();
+    std::shared_ptr<M const> const &msg = msg_evt.getConstMessage();
     std::string authority = msg_evt.getPublisherName();
 
     messageFailed(msg->header.frame_id, msg->header.stamp, authority, reason, display);

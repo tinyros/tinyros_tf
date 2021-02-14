@@ -22,7 +22,7 @@ subject to the following restrictions:
 #include "MinMax.h"
 
 // sudo apt-get install libbullet-dev
-#include "LinearMath/btVector3.h"
+#include "bullet/LinearMath/btVector3.h"
 
 namespace tinyros{
 namespace tf{

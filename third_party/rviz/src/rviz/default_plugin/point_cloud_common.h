@@ -41,6 +41,7 @@
 # include <boost/shared_ptr.hpp>
 # include <boost/thread/mutex.hpp>
 # include <boost/thread/recursive_mutex.hpp>
+# include <tiny_ros/tf/callback_queue.h>
 
 # include <tiny_ros/sensor_msgs/PointCloud.h>
 # include <tiny_ros/sensor_msgs/PointCloud2.h>
@@ -118,10 +119,10 @@ public:
   void reset();
   void update(float wall_dt, float ros_dt);
 
-  void addMessage(const sensor_msgs::PointCloudConstPtr& cloud);
-  void addMessage(const sensor_msgs::PointCloud2ConstPtr& cloud);
+  void addMessage(const tinyros::sensor_msgs::PointCloudConstPtr& cloud);
+  void addMessage(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud);
 
-  ros::CallbackQueueInterface* getCallbackQueue() { return &cbqueue_; }
+  tinyros::tf::CallbackQueueInterface* getCallbackQueue() { return &cbqueue_; }
 
   Display* getDisplay() { return display_; }
 
@@ -172,6 +173,7 @@ private:
   float getSelectionBoxSize();
   void setPropertiesHidden( const QList<Property*>& props, bool hide );
   void fillTransformerOptions( EnumProperty* prop, uint32_t mask );
+  tinyros::tf::CallbackQueue cbqueue_;
 
   D_CloudInfo cloud_infos_;
 

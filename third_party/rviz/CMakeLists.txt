@@ -21,6 +21,9 @@ find_package(urdfdom_headers REQUIRED)
 
 find_package(PkgConfig REQUIRED)
 
+set(Poco_DIR cmake)
+find_package(Poco REQUIRED COMPONENTS Foundation)
+
 find_package(ASSIMP QUIET)
 if (NOT ASSIMP_FOUND)
   pkg_check_modules(ASSIMP assimp)
