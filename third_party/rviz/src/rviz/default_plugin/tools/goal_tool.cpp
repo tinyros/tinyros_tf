@@ -39,7 +39,7 @@
 namespace rviz
 {
 
-GoalTool::GoalTool() : pub_("", new tinyros::geometry_msgs::PoseStamped)
+GoalTool::GoalTool()
 {
   shortcut_key_ = 'g';
 
@@ -57,8 +57,8 @@ void GoalTool::onInitialize()
 
 void GoalTool::updateTopic()
 {
-  pub_ = tinyros::Publisher(topic_property_->getStdString(), new tinyros::geometry_msgs::PoseStamped);
-  tinyros::nh()->advertise(pub_);
+  pub_ = new tinyros::Publisher(topic_property_->getStdString(), new tinyros::geometry_msgs::PoseStamped());
+  tinyros::nh()->advertise(*pub_);
 }
 
 void GoalTool::onPoseSet(double x, double y, double theta)
@@ -73,8 +73,13 @@ void GoalTool::onPoseSet(double x, double y, double theta)
   tinyros_log_info("Setting goal: Frame:%s, Position(%.3f, %.3f, %.3f), Orientation(%.3f, %.3f, %.3f, %.3f) = Angle: %.3f\n", fixed_frame.c_str(),
       goal.pose.position.x, goal.pose.position.y, goal.pose.position.z,
       goal.pose.orientation.x, goal.pose.orientation.y, goal.pose.orientation.z, goal.pose.orientation.w, theta);
-  pub_.publish(&goal);
+
+  if (pub_) {
+    pub_->publish(&goal);
+  }
 }
 
 } // end namespace rviz
 
+#include <tiny_ros/pluginlib/class_list_macros.h>
+PLUGINLIB_EXPORT_CLASS( rviz::GoalTool, rviz::Tool )

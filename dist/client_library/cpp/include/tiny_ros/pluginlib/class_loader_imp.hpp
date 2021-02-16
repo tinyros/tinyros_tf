@@ -56,34 +56,12 @@ const std::string os_pathsep(";");
 const std::string os_pathsep(":");
 #endif
 
-namespace
-{
-std::vector<std::string> catkinFindLib() {
-  std::vector<std::string> lib_paths;
-  const char* env = std::getenv("CMAKE_PREFIX_PATH");
-  if (env) {
-    std::string env_catkin_prefix_paths(env);
-    std::vector<std::string> catkin_prefix_paths;
-    boost::split(catkin_prefix_paths, env_catkin_prefix_paths, boost::is_any_of(os_pathsep));
-    BOOST_FOREACH(std::string catkin_prefix_path, catkin_prefix_paths) {
-      boost::filesystem::path path(catkin_prefix_path);
-      boost::filesystem::path lib("lib");
-      lib_paths.push_back((path / lib).string());
-    }
-  }
-  return lib_paths;
-}
-
-}
-
 namespace pluginlib
 {
   template <class T>
-  ClassLoader<T>::ClassLoader(std::string package, std::string base_class, std::string attrib_name, std::vector<std::string> plugin_xml_paths) :
-  plugin_xml_paths_(plugin_xml_paths),
+  ClassLoader<T>::ClassLoader(std::string package, std::string base_class, std::string plugin_xml_name) :
   package_(package),
   base_class_(base_class),
-  attrib_name_(attrib_name),
   lowlevel_class_loader_(false) //NOTE: The parameter to the class loader enables/disables on-demand class loading/unloading. Leaving it off for now...libraries will be loaded immediately and won't be unloaded until class loader is destroyed or force unload.
   /***************************************************************************/
   {
@@ -92,10 +70,17 @@ namespace pluginlib
     {
       throw pluginlib::ClassLoaderException("Unable to find package: " + package_);
     }
+    
+    if (plugin_xml_name.empty())
+    {
+      throw pluginlib::ClassLoaderException("plugin_xml_name is empty");
+    }
+
+    plugin_xml_paths_.push_back(tinyros::package::getPath(package_) + plugin_xml_name);
 
     if (plugin_xml_paths_.size() == 0)
     {
-      plugin_xml_paths_ = getPluginXmlPaths(package_, attrib_name_);
+      throw pluginlib::ClassLoaderException("plugin_xml_paths is empty");
     }
     classes_available_ = determineAvailableClasses(plugin_xml_paths_);
     tinyros_log_debug("pluginlib.ClassLoader: Finished constructring ClassLoader, base = %s, address = %p", base_class.c_str(), this);
@@ -220,16 +205,6 @@ namespace pluginlib
   }
 
   template <class T>
-  std::vector<std::string> ClassLoader<T>::getPluginXmlPaths(const std::string& package, const std::string& attrib_name, bool force_recrawl)
-  /***************************************************************************/
-  {
-    //Pull possible files from manifests of packages which depend on this package and export class
-    std::vector<std::string> paths;
-    //tinyros::package::getPlugins(package, attrib_name, paths, force_recrawl);
-    return paths;
-  }
-
-  template <class T>
   std::map<std::string, ClassDesc> ClassLoader<T>::determineAvailableClasses(const std::vector<std::string>& plugin_xml_paths)
   /***************************************************************************/
   {
@@ -274,13 +249,6 @@ namespace pluginlib
   }
 
   template <class T>
-  std::vector<std::string> ClassLoader<T>::getCatkinLibraryPaths()
-  /***************************************************************************/
-  {
-    return(catkinFindLib());
-  }
-
-  template <class T>
   std::vector<std::string> ClassLoader<T>::getAllLibraryPathsToTry(const std::string& library_name, const std::string& exporting_package_name)
   /***************************************************************************/
   {
@@ -290,8 +258,9 @@ namespace pluginlib
     //3. Try export_pkg/library_name + extension
 
     std::vector<std::string> all_paths;
-    std::vector<std::string> all_paths_without_extension = getCatkinLibraryPaths();
-    all_paths_without_extension.push_back(getROSBuildLibraryPath(exporting_package_name));
+    std::vector<std::string> all_paths_without_extension;
+    all_paths_without_extension.push_back(tinyros::package::getExecPath());
+    all_paths_without_extension.push_back(tinyros::package::getPath(exporting_package_name));
     bool debug_library_suffix = (class_loader::systemLibrarySuffix().compare(0, 1, "d") == 0);
     std::string non_debug_suffix;
     if(debug_library_suffix) {
@@ -365,7 +334,7 @@ namespace pluginlib
     }
     ClassMapIterator it = classes_available_.find(lookup_name);
     std::string library_name = it->second.library_name_;
-    tinyros_log_debug("pluginlib.ClassLoader: Class %s maps to library %s in classes_available_.", lookup_name.c_str(), library_name.c_str());
+    tinyros_log_debug("pluginlib.ClassLoader: getClassLibraryPath %s maps to library %s in classes_available_.", lookup_name.c_str(), library_name.c_str());
 
     std::vector<std::string> paths_to_try = getAllLibraryPathsToTry(library_name, it->second.package_);
 
@@ -435,63 +404,6 @@ namespace pluginlib
   }
 
   template <class T>
-  std::string ClassLoader<T>::getPackageFromPluginXMLFilePath(const std::string & plugin_xml_file_path)
- /***************************************************************************/
-  {
-    //Note: This method takes an input a path to a plugin xml file and must determine which
-    //package the XML file came from. This is not necessariliy the same thing as the member
-    //variable "package_". The plugin xml file can be located anywhere in the source tree for a
-    //package
-
-    //rosbuild:
-    //1. Find nearest encasing manifest.xml
-    //2. Once found, the name of the folder containg the manifest should be the package name we are looking for
-    //3. Confirm package is findable with rospack
-
-    //catkin:
-    //1. Find nearest encasing package.xml
-    //2. Extract name of package from package.xml
-
-    std::string package_name;
-    boost::filesystem::path p(plugin_xml_file_path);
-    boost::filesystem::path parent = p.parent_path();
-
-    //Figure out exactly which package the passed XML file is exported by.
-    while (true)
-    {
-      if(boost::filesystem::exists(parent / "package.xml"))
-      {
-        std::string package_file_path = (boost::filesystem::path(parent / "package.xml")).string();
-        return(extractPackageNameFromPackageXML(package_file_path));
-      }
-      else if (boost::filesystem::exists(parent / "manifest.xml"))
-      {
-#if BOOST_FILESYSTEM_VERSION >= 3
-        std::string package = parent.filename().string();
-#else
-        std::string package = parent.filename();
-#endif
-        std::string package_path = tinyros::package::getPath(package);
-
-        if (plugin_xml_file_path.find(package_path) == 0) //package_path is a substr of passed plugin xml path
-        {
-          package_name = package;
-          break;
-        }
-      }
-
-      //Recursive case - hop one folder up
-      parent = parent.parent_path().string();
-
-      //Base case - reached root and cannot find what we're looking for
-      if (parent.string().empty())
-        return "";
-    }
-
-    return package_name;
-  }
-
-  template <class T>
   std::string ClassLoader<T>::getPathSeparator()
   /***************************************************************************/
   {
@@ -522,13 +434,6 @@ namespace pluginlib
   }
 
   template <class T>
-  std::string ClassLoader<T>::getROSBuildLibraryPath(const std::string& exporting_package_name)
-  /***************************************************************************/
-  {
-    return(tinyros::package::getPath(exporting_package_name));
-  }
-
-  template <class T>
   bool ClassLoader<T>::isClassAvailable(const std::string& lookup_name)
   /***************************************************************************/
   {
@@ -550,7 +455,7 @@ namespace pluginlib
     ClassMapIterator it = classes_available_.find(lookup_name);
     if (it == classes_available_.end())
     {
-      tinyros_log_debug("pluginlib.ClassLoader: Class %s has no mapping in classes_available_.", lookup_name.c_str());
+      tinyros_log_debug("pluginlib.ClassLoader: loadLibraryForClass %s has no mapping in classes_available_.", lookup_name.c_str());
       throw pluginlib::LibraryLoadException(getErrorStringForUnknownClass(lookup_name));
     }
 
@@ -611,10 +516,6 @@ namespace pluginlib
         continue;
       }
 
-      std::string package_name = getPackageFromPluginXMLFilePath(xml_file);
-      if (package_name == "")
-        tinyros_log_error("pluginlib.ClassLoader: Could not find package manifest (neither package.xml or deprecated manifest.xml) at same directory level as the plugin XML file %s. Plugins will likely not be exported properly.\n)", xml_file.c_str());
-
       TiXmlElement* class_element = library->FirstChildElement("class");
       while (class_element)
       {
@@ -654,8 +555,9 @@ namespace pluginlib
             description_str = description->GetText() ? description->GetText() : "";
           else
             description_str = "No 'description' tag for this plugin in plugin description file.";
-
-          classes_available.insert(std::pair<std::string, ClassDesc>(lookup_name, ClassDesc(lookup_name, derived_class, base_class_type, package_name, description_str, library_path, xml_file)));
+          tinyros_log_debug("pluginlib.ClassLoader: classes_available.insert(lookup_name: %s, derived_class: %s, base_class_type: %s)", 
+            lookup_name.c_str(), derived_class.c_str(), base_class_type.c_str());
+          classes_available.insert(std::pair<std::string, ClassDesc>(lookup_name, ClassDesc(lookup_name, derived_class, base_class_type, package_, description_str, library_path, xml_file)));
         }
 
         //step to next class_element
@@ -687,8 +589,6 @@ namespace pluginlib
       remove_classes.pop_front();
     }
 
-    // add new classes
-    plugin_xml_paths_ = getPluginXmlPaths(package_, attrib_name_, true);
     std::map<std::string, ClassDesc> updated_classes = determineAvailableClasses(plugin_xml_paths_);
     for (std::map<std::string, ClassDesc>::const_iterator it = updated_classes.begin(); it != updated_classes.end(); it++)
     {

@@ -59,7 +59,7 @@ private Q_SLOTS:
   void updateTopic();
 
 private:
-  tinyros::Publisher pub_;
+  tinyros::Publisher *pub_;
 
   StringProperty* topic_property_;
 };

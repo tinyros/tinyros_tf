@@ -31,10 +31,11 @@
 
 #include "rviz/visualizer_app.h"
 #include "tiny_ros/ros.h"
+#include "utils/utils.h"
 
 int main( int argc, char** argv )
 {
-  tinyros::init("tinyros_rviz");
+  tinyros::init(TINYROS_PACKAGE_NAME);
   QApplication qapp( argc, argv );
 
   rviz::VisualizerApp vapp;

@@ -148,7 +148,7 @@ private:
 
   boost::shared_ptr<rviz::InteractiveMarkerClient> im_client_;
 
-  tinyros::Publisher feedback_pub_;
+  tinyros::Publisher *feedback_pub_;
 
   std::string topic_ns_;
 };

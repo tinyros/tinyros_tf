@@ -5,6 +5,7 @@
 namespace tinyros {
 namespace package {
   std::string getPath(std::string package);
+  std::string getExecPath();
 }
 }
 #endif

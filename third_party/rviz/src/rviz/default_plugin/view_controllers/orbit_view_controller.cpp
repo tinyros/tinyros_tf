@@ -293,3 +293,5 @@ void OrbitViewController::move( float x, float y, float z )
 
 } // end namespace rviz
 
+#include <tiny_ros/pluginlib/class_list_macros.h>
+PLUGINLIB_EXPORT_CLASS( rviz::OrbitViewController, rviz::ViewController )

@@ -33,7 +33,7 @@
 #include "rviz/time_panel.h"
 #include "rviz/tool_properties_panel.h"
 #include "rviz/views_panel.h"
-
+#include "utils/utils.h"
 #include "rviz/panel_factory.h"
 
 namespace rviz
@@ -47,7 +47,7 @@ static Panel* newToolPropertiesPanel() { return new ToolPropertiesPanel(); }
 static Panel* newViewsPanel()          { return new ViewsPanel(); }
 
 PanelFactory::PanelFactory()
-  : PluginlibFactory<Panel>( "rviz", "rviz::Panel" )
+  : PluginlibFactory<Panel>( TINYROS_PACKAGE_NAME, "rviz::Panel" )
 {
   addBuiltInClass( "rviz", "Displays", "Show and edit the list of Displays", &newDisplaysPanel );
   addBuiltInClass( "rviz", "Help", "Show the key and mouse bindings", &newHelpPanel );

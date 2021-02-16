@@ -187,3 +187,5 @@ int SelectionTool::processKeyEvent( QKeyEvent* event, RenderPanel* panel )
 
 } // end namespace rviz
 
+#include <tiny_ros/pluginlib/class_list_macros.h>
+PLUGINLIB_EXPORT_CLASS( rviz::SelectionTool, rviz::Tool )

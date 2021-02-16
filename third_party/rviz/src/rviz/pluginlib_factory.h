@@ -62,7 +62,7 @@ private:
 public:
   PluginlibFactory( const QString& package, const QString& base_class_type )
     {
-      class_loader_ = new pluginlib::ClassLoader<Type>( package.toStdString(), base_class_type.toStdString() );
+      class_loader_ = new pluginlib::ClassLoader<Type>( package.toStdString(), base_class_type.toStdString(), "plugin_description.xml");
     }
   virtual ~PluginlibFactory()
     {

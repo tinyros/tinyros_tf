@@ -247,3 +247,5 @@ void ImageDisplay::processMessage(const tinyros::sensor_msgs::Image::ConstPtr& m
 
 } // namespace rviz
 
+#include <tiny_ros/pluginlib/class_list_macros.h>
+PLUGINLIB_EXPORT_CLASS( rviz::ImageDisplay, rviz::Display )

@@ -38,13 +38,13 @@ extern "C"
 {
   std::vector<std::string> availablePlugins(const std::string& package_name)
   {
-    pluginlib::ClassLoader<$> class_loader(package_name, "$");
+    pluginlib::ClassLoader<$> class_loader(package_name, "$", "plugin.xml");
     return(class_loader.getDeclaredClasses());
   }
 
   bool loadPlugin(const std::string& package_name, const std::string& class_name)
   {
-    pluginlib::ClassLoader<$> class_loader(package_name, "$");
+    pluginlib::ClassLoader<$> class_loader(package_name, "$", "plugin.xml");
     try
     {
       class_loader.createInstance(class_name);
@@ -58,7 +58,7 @@ extern "C"
 
   std::string whereIsPluginLocated(const std::string& package_name, const std::string& class_name)
   {
-    pluginlib::ClassLoader<$> class_loader(package_name, "$");
+    pluginlib::ClassLoader<$> class_loader(package_name, "$", "plugin.xml");
     try
     {
       return class_loader.getClassLibraryPath(class_name);

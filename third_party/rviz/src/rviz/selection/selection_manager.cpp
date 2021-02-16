@@ -758,7 +758,7 @@ void SelectionManager::publishDebugImage( const Ogre::PixelBox& pixel_box, const
   PublisherMap::const_iterator iter = debug_publishers_.find( label );
   if( iter == debug_publishers_.end() )
   {
-    pub = std::shared_ptr<tinyros::Publisher>(new tinyros::Publisher("/rviz_debug/" + label, new tinyros::sensor_msgs::Image));
+    pub = std::shared_ptr<tinyros::Publisher>(new tinyros::Publisher("/rviz_debug/" + label, new tinyros::sensor_msgs::Image()));
     tinyros::nh()->advertise(*pub);
     debug_publishers_[ label ] = pub;
   }

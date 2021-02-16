@@ -317,3 +317,9 @@ namespace rviz
 
 } // end namespace rviz
 
+// Tell pluginlib about this class.  It is important to do this in
+// global scope, outside our package's namespace.
+#include <tiny_ros/pluginlib/class_list_macros.h>
+PLUGINLIB_EXPORT_CLASS( rviz::EffortDisplay, rviz::Display )
+
+

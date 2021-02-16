@@ -148,3 +148,5 @@ void IlluminanceDisplay::reset()
 
 } // namespace rviz
 
+#include <tiny_ros/pluginlib/class_list_macros.h>
+PLUGINLIB_EXPORT_CLASS( rviz::IlluminanceDisplay, rviz::Display )

@@ -67,7 +67,6 @@ bool validateFloats(const tinyros::visualization_msgs::InteractiveMarker& msg)
 
 InteractiveMarkerDisplay::InteractiveMarkerDisplay()
   : Display()
-  , feedback_pub_("feedback", new tinyros::visualization_msgs::InteractiveMarkerFeedback())
 {
   marker_update_topic_property_ = new RosTopicProperty( "Update Topic", "",
                                                         tinyros::visualization_msgs::InteractiveMarkerUpdate::getTypeStatic().c_str(),
@@ -146,15 +145,17 @@ void InteractiveMarkerDisplay::subscribe()
     im_client_->subscribe(topic_ns_);
 
     std::string feedback_topic = topic_ns_+"/feedback";
-    feedback_pub_ = tinyros::Publisher(feedback_topic, new tinyros::visualization_msgs::InteractiveMarkerFeedback());
-    tinyros::nh()->advertise(feedback_pub_);
+    feedback_pub_ = new tinyros::Publisher(feedback_topic, new tinyros::visualization_msgs::InteractiveMarkerFeedback());
+    tinyros::nh()->advertise(*feedback_pub_);
   }
 }
 
 void InteractiveMarkerDisplay::publishFeedback(tinyros::visualization_msgs::InteractiveMarkerFeedback &feedback)
 {
   feedback.client_id = client_id_;
-  feedback_pub_.publish( &feedback );
+  if (feedback_pub_) {
+    feedback_pub_->publish( &feedback );
+  }
 }
 
 void InteractiveMarkerDisplay::onStatusUpdate( StatusProperty::Level level, const std::string& name, const std::string& text )
@@ -386,3 +387,5 @@ void InteractiveMarkerDisplay::updateEnableTransparency()
 
 } // namespace rviz
 
+#include <tiny_ros/pluginlib/class_list_macros.h>
+PLUGINLIB_EXPORT_CLASS( rviz::InteractiveMarkerDisplay, rviz::Display )

@@ -35,7 +35,7 @@
 #include "rviz/failed_tool.h"
 #include "rviz/properties/property.h"
 #include "rviz/properties/property_tree_model.h"
-
+#include "utils/utils.h"
 #include "rviz/tool_manager.h"
 
 namespace rviz
@@ -49,7 +49,7 @@ QString addSpaceToCamelCase( QString input )
 }
 
 ToolManager::ToolManager( DisplayContext* context )
-  : factory_( new PluginlibFactory<Tool>( "rviz", "rviz::Tool" ))
+  : factory_( new PluginlibFactory<Tool>( TINYROS_PACKAGE_NAME, "rviz::Tool" ))
   , property_tree_model_( new PropertyTreeModel( new Property() ))
   , context_( context )
   , current_tool_( NULL )

@@ -52,7 +52,7 @@ WaitForMasterDialog::WaitForMasterDialog( QWidget* parent )
   ss << "Could not contact ROS master at [" << master_uri << "], retrying...";
 
   setText( QString::fromStdString( ss.str() ));
-  setWindowTitle( "RViz: waiting for master" );
+  setWindowTitle( "TinyrosRViz: waiting for master" );
   setStandardButtons( QMessageBox::Cancel );
 
   QTimer* timer = new QTimer( this );

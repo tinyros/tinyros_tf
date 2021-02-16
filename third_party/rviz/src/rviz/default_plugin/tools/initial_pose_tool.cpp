@@ -40,7 +40,6 @@ namespace rviz
 {
 
 InitialPoseTool::InitialPoseTool()
-  : pub_("", new tinyros::geometry_msgs::PoseWithCovarianceStamped)
 {
   shortcut_key_ = 'p';
 
@@ -58,8 +57,8 @@ void InitialPoseTool::onInitialize()
 
 void InitialPoseTool::updateTopic()
 {
-  pub_ = tinyros::Publisher(topic_property_->getStdString(), new tinyros::geometry_msgs::PoseWithCovarianceStamped);
-  tinyros::nh()->advertise(pub_);
+  pub_ = new tinyros::Publisher(topic_property_->getStdString(), new tinyros::geometry_msgs::PoseWithCovarianceStamped());
+  tinyros::nh()->advertise(*pub_);
 }
 
 void InitialPoseTool::onPoseSet(double x, double y, double theta)
@@ -79,8 +78,12 @@ void InitialPoseTool::onPoseSet(double x, double y, double theta)
   pose.pose.covariance[6*1+1] = 0.5 * 0.5;
   pose.pose.covariance[6*5+5] = M_PI/12.0 * M_PI/12.0;
   tinyros_log_info("Setting pose: %.3f %.3f %.3f [frame=%s]", x, y, theta, fixed_frame.c_str());
-  pub_.publish(&pose);
+  if (pub_) {
+    pub_->publish(&pose);
+  }
 }
 
 } // end namespace rviz
 
+#include <tiny_ros/pluginlib/class_list_macros.h>
+PLUGINLIB_EXPORT_CLASS( rviz::InitialPoseTool, rviz::Tool )

@@ -171,7 +171,7 @@ VisualizationManager::VisualizationManager( RenderPanel* render_panel, WindowMan
                                                   global_options_, SLOT( updateBackgroundColor() ), this );
 
   fps_property_ = new IntProperty( "Frame Rate", 30,
-                                   "RViz will try to render this many frames per second.",
+                                   "TinyrosRViz will try to render this many frames per second.",
                                    global_options_, SLOT( updateFps() ), this );
 
   root_display_group_->initialize( this ); // only initialize() a Display after its sub-properties are created.
@@ -270,7 +270,7 @@ void VisualizationManager::stopUpdate()
 
 void createColorMaterial(const std::string& name, const Ogre::ColourValue& color, bool use_self_illumination)
 {
-  Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create( name, "rviz" );
+  Ogre::MaterialPtr mat = Ogre::MaterialManager::getSingleton().create( name, TINYROS_PACKAGE_NAME );
   mat->setAmbient(color * 0.5f);
   mat->setDiffuse(color);
   if( use_self_illumination )

@@ -22,7 +22,7 @@ WrenchStampedVisual::WrenchStampedVisual( Ogre::SceneManager* scene_manager, Ogr
     // is time to render.
     //
     // Here we create a node to store the pose of the WrenchStamped's header frame
-    // relative to the RViz fixed frame.
+    // relative to the TinyrosRViz fixed frame.
     frame_node_ = parent_node->createChildSceneNode();
     force_node_ = frame_node_->createChildSceneNode();
     torque_node_ = frame_node_->createChildSceneNode();

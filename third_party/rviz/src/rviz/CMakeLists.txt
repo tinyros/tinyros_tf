@@ -18,7 +18,7 @@ configure_file(env_config.cpp.in ${ENV_CONFIG_FILE} @ONLY)
 
 # We create one lib with the C++...
 
-add_library( ${PROJECT_NAME}
+add_library( ${PROJECT_NAME} SHARED
   bit_allocator.cpp
   config.cpp
   display.cpp
@@ -144,6 +144,7 @@ target_link_libraries(${PROJECT_NAME}
   tinyxml
   ${Poco_LIBRARIES}
   curl
+  urdfdom_model
 )
 if (UseQt5)
   target_link_libraries(${PROJECT_NAME} Qt5::Widgets)

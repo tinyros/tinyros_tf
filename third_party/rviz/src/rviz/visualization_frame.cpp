@@ -153,7 +153,7 @@ VisualizationFrame::VisualizationFrame( QWidget* parent )
   statusBar()->addPermanentWidget( fps_label_, 0 );
   original_status_bar_ = statusBar();
 
-  setWindowTitle( "RViz[*]" );
+  setWindowTitle( "TinyrosRViz[*]" );
 }
 
 VisualizationFrame::~VisualizationFrame()
@@ -360,7 +360,7 @@ void VisualizationFrame::initialize(const QString& display_config_file )
 
   manager_->startUpdate();
   initialized_ = true;
-  Q_EMIT statusUpdate( "RViz is ready." );
+  Q_EMIT statusUpdate( "TinyrosRViz is ready." );
 
   connect( manager_, SIGNAL( preUpdate() ), this, SLOT( updateFps() ) );
   connect( manager_, SIGNAL( statusUpdate( const QString& )), this, SIGNAL( statusUpdate( const QString& )));
@@ -732,11 +732,11 @@ void VisualizationFrame::setDisplayConfigFile( const std::string& path )
   std::string title;
   if( path == default_display_config_file_ )
   {
-    title = "RViz[*]";
+    title = "TinyrosRViz[*]";
   }
   else
   {
-    title = fs::path( path ).BOOST_FILENAME_STRING() + "[*] - RViz";
+    title = fs::path( path ).BOOST_FILENAME_STRING() + "[*] - TinyrosRViz";
   }
   setWindowTitle( QString::fromStdString( title ));
 }
@@ -953,7 +953,7 @@ void VisualizationFrame::onOpen()
   manager_->stopUpdate();
   QString filename = QFileDialog::getOpenFileName( this, "Choose a file to open",
                                                    QString::fromStdString( last_config_dir_ ),
-                                                   "RViz config files (" CONFIG_EXTENSION_WILDCARD ")" );
+                                                   "TinyrosRViz config files (" CONFIG_EXTENSION_WILDCARD ")" );
   manager_->startUpdate();
 
   if( !filename.isEmpty() )
@@ -1002,7 +1002,7 @@ void VisualizationFrame::onSaveAs()
   manager_->stopUpdate();
   QString q_filename = QFileDialog::getSaveFileName( this, "Choose a file to save to",
                                                      QString::fromStdString( last_config_dir_ ),
-                                                     "RViz config files (" CONFIG_EXTENSION_WILDCARD ")" );
+                                                     "TinyrosRViz config files (" CONFIG_EXTENSION_WILDCARD ")" );
   manager_->startUpdate();
 
   if( !q_filename.isEmpty() )
@@ -1160,7 +1160,7 @@ void VisualizationFrame::onHelpWiki()
 void VisualizationFrame::onHelpAbout()
 {
   QString about_text = QString(
-    "This is RViz version %1 (%2).\n"
+    "This is TinyrosRViz version %1 (%2).\n"
     "\n"
     "Compiled against Qt version %3."
     "\n"

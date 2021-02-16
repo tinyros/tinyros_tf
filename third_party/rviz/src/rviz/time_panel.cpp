@@ -59,7 +59,7 @@ TimePanel::TimePanel( QWidget* parent )
   experimental_cb_->setSizePolicy( QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum) );
 
   pause_button_ = new QPushButton( "Pause" );
-  pause_button_->setToolTip("Freeze ROS time.");
+  pause_button_->setToolTip("Freeze Tinyros time.");
   pause_button_->setCheckable(true);
 
   sync_mode_selector_ = new QComboBox(this);
@@ -87,7 +87,7 @@ TimePanel::TimePanel( QWidget* parent )
 
   old_widget_ = new QWidget(this);
   QHBoxLayout* old_layout = new QHBoxLayout(this);
-  old_layout->addWidget( new QLabel( "ROS Elapsed:" ));
+  old_layout->addWidget( new QLabel( "Tinyros Elapsed:" ));
   old_layout->addWidget( ros_elapsed_label_ );
   old_layout->addWidget( new QLabel( "Wall Time:" ));
   old_layout->addWidget( wall_time_label_ );
@@ -99,7 +99,7 @@ TimePanel::TimePanel( QWidget* parent )
   QHBoxLayout* layout = new QHBoxLayout(this);
 
   layout->addWidget(experimental_widget_);
-  layout->addWidget( new QLabel( "ROS Time:" ));
+  layout->addWidget( new QLabel( "Tinyros Time:" ));
   layout->addWidget( ros_time_label_ );
   layout->addWidget(old_widget_);
   layout->addStretch(100);

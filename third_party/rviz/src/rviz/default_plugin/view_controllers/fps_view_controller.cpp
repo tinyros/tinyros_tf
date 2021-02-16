@@ -241,3 +241,5 @@ void FPSViewController::move( float x, float y, float z )
 
 } // end namespace rviz
 
+#include <tiny_ros/pluginlib/class_list_macros.h>
+PLUGINLIB_EXPORT_CLASS( rviz::FPSViewController, rviz::ViewController )

@@ -69,7 +69,7 @@ protected:
   QCursor std_cursor_;
   QCursor hit_cursor_;
 
-  tinyros::Publisher pub_;
+  tinyros::Publisher *pub_;
 
   StringProperty* topic_property_;
   BoolProperty* auto_deactivate_property_;

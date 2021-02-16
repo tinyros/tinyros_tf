@@ -42,7 +42,7 @@ static Display* newDisplayGroup()
 }
 
 DisplayFactory::DisplayFactory()
-  : PluginlibFactory<Display>( "rviz", "rviz::Display" )
+  : PluginlibFactory<Display>( TINYROS_PACKAGE_NAME, "rviz::Display" )
 {
   addBuiltInClass( "rviz", "Group", "A container for Displays", &newDisplayGroup );
 }

@@ -146,7 +146,7 @@ bool Model::initString(const std::string& xml_string)
     try
     {
       if (!PARSER_PLUGIN_LOADER)
-        PARSER_PLUGIN_LOADER.reset(new pluginlib::ClassLoader<urdf::URDFParser>("urdf_parser_plugin", "urdf::URDFParser"));
+        PARSER_PLUGIN_LOADER.reset(new pluginlib::ClassLoader<urdf::URDFParser>("urdf_parser_plugin", "urdf::URDFParser", "plugin_description.xml"));
       const std::vector<std::string> &classes = PARSER_PLUGIN_LOADER->getDeclaredClasses();
       bool found = false;
       for (std::size_t i = 0 ; i < classes.size() ; ++i)

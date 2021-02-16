@@ -66,10 +66,10 @@ namespace pluginlib
          * @param package The package containing the base class
          * @param base_class The type of the base class for classes to be loaded
          * @param attrib_name The attribute to search for in manifext.xml files, defaults to "plugin"
-         * @param plugin_xml_paths The list of paths of plugin.xml files, defaults to be crawled via ros::package::getPlugins()
+         * @param plugin_xml_name The list of name of plugin.xml file
          * @exception pluginlib::ClassLoaderException Thrown if package manifest cannot be found
          */
-        ClassLoader(std::string package, std::string base_class, std::string attrib_name = std::string("plugin"), std::vector<std::string> plugin_xml_paths = std::vector<std::string>());
+        ClassLoader(std::string package, std::string base_class, std::string plugin_xml_name);
 
         /**
          * @brief  Destructor for ClassLoader
@@ -227,13 +227,6 @@ namespace pluginlib
       private:
 
         /**
-         * Returns the paths to plugin.xml files.
-         * @exception pluginlib::LibraryLoadException Thrown if package manifest cannot be found
-         * @return A vector of paths
-         */
-        std::vector<std::string> getPluginXmlPaths(const std::string& package, const std::string& attrib_name, bool force_recrawl=false);
-
-        /**
          * @brief  Returns the available classes
          * @param plugin_xml_paths The vector of paths of plugin.xml files
          * @exception pluginlib::LibraryLoadException Thrown if package manifest cannot be found
@@ -252,11 +245,6 @@ namespace pluginlib
         std::vector<std::string> getAllLibraryPathsToTry(const std::string& library_name, const std::string& exporting_package_name);
 
         /**
-         * Returns the paths where libraries are installed according to the Catkin build system.
-         */
-        std::vector<std::string> getCatkinLibraryPaths();
-
-        /**
          * @brief  Returns an error message for an unknown class
          * @param lookup_name The name of the class
          * @return The error message
@@ -267,16 +255,6 @@ namespace pluginlib
          * Gets the standard path separator for the native OS (e.g. "/" on *nix, "\" on windows)
          */
         std::string getPathSeparator();
-
-        /**
-         * Gets the path where rosbuild build system thinks plugins are installed
-         */
-        std::string getROSBuildLibraryPath(const std::string& exporting_package_name);
-
-        /**
-        * Gets the package name from a path to a plugin XML file
-        */
-        std::string getPackageFromPluginXMLFilePath(const std::string & path);
 
         /**
         * Joins two filesystem paths together utilzing appropriate path separator
@@ -306,7 +284,6 @@ namespace pluginlib
         std::map<std::string, ClassDesc> classes_available_; //Map from library to class's descriptions described in XML
         std::string package_;
         std::string base_class_;
-        std::string attrib_name_;
         class_loader::MultiLibraryClassLoader lowlevel_class_loader_; //The underlying classloader
     };
 };

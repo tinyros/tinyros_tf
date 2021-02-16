@@ -764,3 +764,5 @@ void MapDisplay::update( float wall_dt, float ros_dt ) {
 
 } // namespace rviz
 
+#include <tiny_ros/pluginlib/class_list_macros.h>
+PLUGINLIB_EXPORT_CLASS( rviz::MapDisplay, rviz::Display )
