@@ -10,8 +10,8 @@ include_directories(.)
 
 # Build the version number and other build-time constants into the
 # source for access at run-time.
-set(ENV_CONFIG_FILE ${TINYROS_GLOBAL_SHARE_DESTINATION}/env_config.cpp)
-set(RVIZ_VERSION ${rviz_VERSION})
+set(ENV_CONFIG_FILE ${PROJECT_SOURCE_DIR}/src/rviz/env_config.cpp)
+set(RVIZ_VERSION 1.0)
 message("making version ${RVIZ_VERSION}.")
 
 configure_file(env_config.cpp.in ${ENV_CONFIG_FILE} @ONLY)

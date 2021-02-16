@@ -291,8 +291,8 @@ namespace rviz
 
       //! Function used by the several forms of transformLaserScanToPointCloud_
       void transformLaserScanToPointCloud_ (const std::string &target_frame,
-                                            const sensor_msgs::LaserScan &scan_in,
-                                            sensor_msgs::PointCloud2 &cloud_out,
+                                            const tinyros::sensor_msgs::LaserScan &scan_in,
+                                            tinyros::sensor_msgs::PointCloud2 &cloud_out,
                                             tinyros::tf::Quaternion quat_start,
                                             tinyros::tf::Vector3 origin_start,
                                             tinyros::tf::Quaternion quat_end,

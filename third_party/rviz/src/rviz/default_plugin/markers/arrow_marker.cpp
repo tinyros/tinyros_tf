@@ -33,7 +33,7 @@
 #include <OgreSceneManager.h>
 #include <OgreEntity.h>
 
-#include <tf/transform_listener.h>
+#include <tiny_ros/tf/transform_listener.h>
 
 #include "rviz/default_plugin/marker_display.h"
 #include "rviz/default_plugin/markers/marker_selection_handler.h"
@@ -67,7 +67,7 @@ void ArrowMarker::setDefaultProportions()
 
 void ArrowMarker::onNewMessage(const MarkerConstPtr& old_message, const MarkerConstPtr& new_message)
 {
-  ROS_ASSERT(new_message->type == visualization_msgs::Marker::ARROW);
+  TINYROS_ASSERT(new_message->type == tinyros::visualization_msgs::Marker::ARROW);
 
   if (!new_message->points.empty() && new_message->points.size() < 2)
   {
@@ -77,7 +77,7 @@ void ArrowMarker::onNewMessage(const MarkerConstPtr& old_message, const MarkerCo
     {
       owner_->setMarkerStatus(getID(), StatusProperty::Error, ss.str());
     }
-    ROS_DEBUG("%s", ss.str().c_str());
+    tinyros_log_debug("%s", ss.str().c_str());
 
     delete arrow_;
     arrow_ = 0;

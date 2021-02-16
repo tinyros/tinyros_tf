@@ -301,7 +301,7 @@ void InteractiveMarkerServer::insert( const tinyros::visualization_msgs::Interac
   update_it->second.int_marker = int_marker;
 }
 
-void InteractiveMarkerServer::insert( const visualization_msgs::InteractiveMarker &int_marker,
+void InteractiveMarkerServer::insert( const tinyros::visualization_msgs::InteractiveMarker &int_marker,
     FeedbackCallback feedback_cb, uint8_t feedback_type)
 {
   insert( int_marker );

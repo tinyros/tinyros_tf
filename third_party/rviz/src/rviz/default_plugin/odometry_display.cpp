@@ -171,7 +171,7 @@ void OdometryDisplay::subscribe()
     tf_filter_->connectInput( topic_property_->getTopicStd() );
     setStatus( StatusProperty::Ok, "Topic", "OK" );
   }
-  catch( ros::Exception& e )
+  catch( std::exception& e )
   {
     setStatus( StatusProperty::Error, "Topic", QString( "Error subscribing: " ) + e.what() );
   }

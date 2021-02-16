@@ -88,7 +88,7 @@ public:
     : tf_filter_( NULL )
     , messages_received_( 0 )
     {
-      QString message_type = QString::fromStdString( typename MessageType::getTypeStatic() );
+      QString message_type = QString::fromStdString( tinyros::tf::message_traits::DataType<MessageType>::value() );
       topic_property_->setMessageType( message_type );
       topic_property_->setDescription( message_type + " topic to subscribe to." );
     }

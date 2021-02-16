@@ -67,10 +67,11 @@ bool validateFloats(const tinyros::visualization_msgs::InteractiveMarker& msg)
 
 InteractiveMarkerDisplay::InteractiveMarkerDisplay()
   : Display()
+  , feedback_pub_("feedback", new tinyros::visualization_msgs::InteractiveMarkerFeedback())
 {
   marker_update_topic_property_ = new RosTopicProperty( "Update Topic", "",
-                                                        tinyros::visualization_msgs::InteractiveMarkerUpdate::getTypeStatic(),
-                                                        "visualization_msgs::InteractiveMarkerUpdate topic to subscribe to.",
+                                                        tinyros::visualization_msgs::InteractiveMarkerUpdate::getTypeStatic().c_str(),
+                                                        "tinyros::visualization_msgs::InteractiveMarkerUpdate topic to subscribe to.",
                                                         this, SLOT( updateTopic() ));
 
   show_descriptions_property_ = new BoolProperty( "Show Descriptions", true,
@@ -167,7 +168,6 @@ void InteractiveMarkerDisplay::unsubscribe()
   {
     im_client_->shutdown();
   }
-  feedback_pub_.shutdown();
   Display::reset();
 }
 

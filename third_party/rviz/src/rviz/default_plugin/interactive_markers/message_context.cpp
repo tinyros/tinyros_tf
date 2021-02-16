@@ -90,7 +90,7 @@ bool MessageContext<MsgT>::getTransform( tinyros::std_msgs::Header& header, tiny
       }
     }
   }
-  catch ( tf::ExtrapolationException& e )
+  catch ( tinyros::tf::ExtrapolationException& e )
   {
     tinyros::Time latest_time;
     std::string error_string;
@@ -99,7 +99,7 @@ bool MessageContext<MsgT>::getTransform( tinyros::std_msgs::Header& header, tiny
 
     // if we have some tf info and it is newer than the requested time,
     // we are very unlikely to ever receive the old tf info in the future.
-    if ( latest_time != ros::Time(0) && latest_time > header.stamp )
+    if ( latest_time != tinyros::Time(0) && latest_time > header.stamp )
     {
       std::ostringstream s;
       s << "The init message contains an old timestamp and cannot be transformed ";
@@ -153,7 +153,7 @@ void MessageContext<MsgT>::getTfTransforms( std::vector<tinyros::visualization_m
   std::list<size_t>::iterator idx_it;
   for ( idx_it = indices.begin(); idx_it != indices.end(); )
   {
-    visualization_msgs::InteractiveMarkerPose& msg = msg_vec[ *idx_it ];
+    tinyros::visualization_msgs::InteractiveMarkerPose& msg = msg_vec[ *idx_it ];
     if ( getTransform( msg.header, msg.pose ) )
     {
       idx_it = indices.erase(idx_it);

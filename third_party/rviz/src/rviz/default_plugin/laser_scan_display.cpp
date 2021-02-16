@@ -30,7 +30,7 @@
 #include <OgreSceneNode.h>
 #include <OgreSceneManager.h>
 
-#include <ros/time.h>
+#include <tiny_ros/ros/time.h>
 
 #include "rviz/default_plugin/point_cloud_common.h"
 #include "rviz/display_context.h"
@@ -39,8 +39,8 @@
 #include "rviz/properties/int_property.h"
 #include "rviz/validate_floats.h"
 
-#include "laser_geometry.h"
-#include "laser_scan_display.h"
+#include "rviz/default_plugin/laser_geometry.h"
+#include "rviz/default_plugin/laser_scan_display.h"
 
 namespace rviz
 {
@@ -92,7 +92,7 @@ void LaserScanDisplay::processMessage( const tinyros::sensor_msgs::LaserScanCons
     projector_->transformLaserScanToPointCloud( fixed_frame_.toStdString(), *scan, *cloud, *context_->getTFClient(),
                                                 channel_option::Intensity );
   }
-  catch (tf::TransformException& e)
+  catch (tinyros::tf::TransformException& e)
   {
     tinyros_log_debug( "LaserScan [%s]: failed to transform scan: %s.  This message should not repeat (tolerance should now be set on our tf::MessageFilter).",
                qPrintable( getName() ), e.what() );

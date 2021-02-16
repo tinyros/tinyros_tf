@@ -503,7 +503,7 @@ void TFDisplay::updateFrame( FrameInfo* frame )
   if(( latest_time != frame->last_time_to_fixed_ ) ||
      ( latest_time == tinyros::Time() ))
   {
-    frame->last_update_ = ros::Time::now();
+    frame->last_update_ = tinyros::Time::now();
     frame->last_time_to_fixed_ = latest_time;
   }
 
@@ -588,7 +588,7 @@ void TFDisplay::updateFrame( FrameInfo* frame )
 
   std::string old_parent = frame->parent_;
   frame->parent_.clear();
-  bool has_parent = tf->getParent( frame->name_, ros::Time(), frame->parent_ );
+  bool has_parent = tf->getParent( frame->name_, tinyros::Time(), frame->parent_ );
   if( has_parent )
   {
     // If this frame has no tree property or the parent has changed,
@@ -615,7 +615,7 @@ void TFDisplay::updateFrame( FrameInfo* frame )
       }
     }
 
-    tf::StampedTransform transform;
+    tinyros::tf::StampedTransform transform;
     try {
       context_->getFrameManager()->getTFClientPtr()->lookupTransform(frame->parent_,frame->name_,tinyros::Time(0),transform);
     }

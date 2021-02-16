@@ -117,7 +117,7 @@ void PolygonDisplay::processMessage(const tinyros::geometry_msgs::PolygonStamped
     manual_object_->begin( "BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_STRIP );
     for( uint32_t i=0; i < num_points + 1; ++i )
     {
-      const geometry_msgs::Point32& msg_point = msg->polygon.points[ i % num_points ];
+      const tinyros::geometry_msgs::Point32& msg_point = msg->polygon.points[ i % num_points ];
       manual_object_->position( msg_point.x, msg_point.y, msg_point.z );
       manual_object_->colour( color );
     }

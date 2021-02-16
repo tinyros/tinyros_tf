@@ -31,6 +31,7 @@
 #include <OgreSceneManager.h>
 
 #include <tiny_ros/ros.h>
+#include "tiny_ros/tf/static_assert.h"
 
 #include "rviz/default_plugin/point_cloud_common.h"
 #include "rviz/default_plugin/point_cloud_transformers.h"

@@ -146,7 +146,7 @@ private:
    */
   void incomingMarker(const tinyros::visualization_msgs::Marker::ConstPtr& marker);
 
-  void failedMarker(const ros::MessageEvent<tinyros::visualization_msgs::Marker>& marker_evt, tinyros::tf::FilterFailureReason reason);
+  void failedMarker(const tinyros::tf::MessageEvent<tinyros::visualization_msgs::Marker>& marker_evt, tinyros::tf::FilterFailureReason reason);
 
   typedef std::map<MarkerID, MarkerBasePtr> M_IDToMarker;
   typedef std::set<MarkerBasePtr> S_MarkerBase;

@@ -63,15 +63,25 @@ set(SOURCE_FILES
   view_controllers/fps_view_controller.cpp
   wrench_display.cpp
   wrench_visual.cpp
+  ${tinyros_lib_SRC_LIST} 
+  ${tinyros_tf_SRC_LIST}
+  ${tinyros_param_SRC_LIST}
+  ${tinyros_package_SRC_LIST}
+  ${class_loader_SRC_LIST}
   ${MOC_FILES}
 )
 
 add_library(${rviz_DEFAULT_PLUGIN_LIBRARY_TARGET_NAME} ${SOURCE_FILES})
 target_link_libraries(${rviz_DEFAULT_PLUGIN_LIBRARY_TARGET_NAME}
-  ${PROJECT_NAME}
   ${Boost_LIBRARIES}
-  ${catkin_LIBRARIES}
   ${OGRE_OV_LIBRARIES_ABS}
   ${QT_LIBRARIES}
+  ${rviz_ADDITIONAL_LIBRARIES}
+  ${orocos_kdl_LIBRARIES}
+  assimp
+  yaml-cpp
+  X11
+  tinyxml
+  ${Poco_LIBRARIES}
 )
 

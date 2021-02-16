@@ -40,10 +40,10 @@
 #include <OgreQuaternion.h>
 #endif
 
-#include <visualization_msgs/InteractiveMarker.h>
-#include <visualization_msgs/InteractiveMarkerPose.h>
-#include <visualization_msgs/InteractiveMarkerFeedback.h>
-#include <geometry_msgs/Pose.h>
+#include <tiny_ros/visualization_msgs/InteractiveMarker.h>
+#include <tiny_ros/visualization_msgs/InteractiveMarkerPose.h>
+#include <tiny_ros/visualization_msgs/InteractiveMarkerFeedback.h>
+#include <tiny_ros/geometry_msgs/Pose.h>
 
 #include <tiny_ros/ros.h>
 
@@ -73,11 +73,11 @@ public:
 
   // reset contents to reflect the data from a new message
   // @return success
-  bool processMessage( const visualization_msgs::InteractiveMarker& message );
+  bool processMessage( const tinyros::visualization_msgs::InteractiveMarker& message );
 
   // reset contents to reflect the data from a new message
   // @return success
-  void processMessage( const visualization_msgs::InteractiveMarkerPose& message );
+  void processMessage( const tinyros::visualization_msgs::InteractiveMarkerPose& message );
 
   // called every frame update
   void update(float wall_dt);
@@ -137,7 +137,7 @@ public:
   void showMenu( ViewportMouseEvent& event, const std::string &control_name, const Ogre::Vector3 &three_d_point, bool valid_point );
 
   // fill in current marker pose & name, publish
-  void publishFeedback(visualization_msgs::InteractiveMarkerFeedback &feedback,
+  void publishFeedback(tinyros::visualization_msgs::InteractiveMarkerFeedback &feedback,
                        bool mouse_point_valid = false,
                        const Ogre::Vector3& mouse_point_rel_world = Ogre::Vector3(0,0,0) );
 
@@ -210,7 +210,7 @@ protected:
   // Helper to more simply represent the menu tree.
   struct MenuNode
   {
-    visualization_msgs::MenuEntry entry;
+    tinyros::visualization_msgs::MenuEntry entry;
     std::vector<uint32_t> child_ids;
   };
 

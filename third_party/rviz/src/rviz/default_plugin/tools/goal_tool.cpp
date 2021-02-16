@@ -39,7 +39,7 @@
 namespace rviz
 {
 
-GoalTool::GoalTool()
+GoalTool::GoalTool() : pub_("", new tinyros::geometry_msgs::PoseStamped)
 {
   shortcut_key_ = 'g';
 

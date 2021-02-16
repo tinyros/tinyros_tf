@@ -117,7 +117,7 @@ void RangeDisplay::updateBufferLength()
 
     Ogre::Vector3 position;
     Ogre::Quaternion orientation;
-    geometry_msgs::Pose pose;
+    tinyros::geometry_msgs::Pose pose;
     pose.orientation.w = 1;
     Ogre::Vector3 scale( 0, 0, 0 );
     cone->setScale( scale );

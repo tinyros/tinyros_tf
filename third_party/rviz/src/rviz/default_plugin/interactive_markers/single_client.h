@@ -112,7 +112,7 @@ private:
 
   // sequence number and time of last received update
   uint64_t last_update_seq_num_;
-  ros::Time last_update_time_;
+  tinyros::Time last_update_time_;
 
   // true if the last outgoing update is too long ago
   // and we've already sent a notification of that

@@ -38,7 +38,7 @@
 #ifndef INTERACTIVE_MARKERS_STATE_MACHINE_H_
 #define INTERACTIVE_MARKERS_STATE_MACHINE_H_
 
-#include <tinyros/ros.h>
+#include <tiny_ros/ros.h>
 
 namespace rviz
 {
@@ -51,7 +51,7 @@ public:
   StateMachine( std::string name, StateT init_state );
   StateMachine& operator=( StateT state );
   operator StateT();
-  ros::Duration getDuration();
+  tinyros::Duration getDuration();
 private:
   StateT state_;
   tinyros::Time chg_time_;
@@ -61,7 +61,7 @@ private:
 template<class StateT>
 StateMachine<StateT>::StateMachine( std::string name, StateT init_state )
 : state_(init_state)
-, chg_time_(ros::Time::now())
+, chg_time_(tinyros::Time::now())
 , name_(name)
 {
 };

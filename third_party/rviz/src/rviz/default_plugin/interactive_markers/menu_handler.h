@@ -121,7 +121,7 @@ private:
                         std::vector<tinyros::visualization_msgs::MenuEntry>& entries_out,
                         EntryHandle parent_handle );
 
-  visualization_msgs::MenuEntry makeEntry( EntryContext& context, EntryHandle handle, EntryHandle parent_handle );
+  tinyros::visualization_msgs::MenuEntry makeEntry( EntryContext& context, EntryHandle handle, EntryHandle parent_handle );
 
   // Insert without adding a top-level entry
   EntryHandle doInsert( const std::string &title,

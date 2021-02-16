@@ -36,6 +36,7 @@
 
 #include "rviz/display_context.h"
 #include "rviz/mesh_loader.h"
+#include "utils/utils.h"
 #include "marker_display.h"
 
 #include <OgreSceneNode.h>
@@ -146,7 +147,7 @@ void TriangleListMarker::onNewMessage(const MarkerConstPtr& old_message, const M
   bool has_face_colors = new_message->colors.size() == num_points / 3;
   bool any_vertex_has_alpha = false;
 
-  const std::vector<geometry_msgs::Point>& points = new_message->points; 
+  const std::vector<tinyros::geometry_msgs::Point>& points = new_message->points; 
   for(size_t i = 0; i < num_points; i += 3)
   {
     std::vector<Ogre::Vector3> corners(3);

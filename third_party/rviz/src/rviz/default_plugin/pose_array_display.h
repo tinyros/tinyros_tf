@@ -30,7 +30,7 @@
 #ifndef RVIZ_POSE_ARRAY_DISPLAY_H_
 #define RVIZ_POSE_ARRAY_DISPLAY_H_
 
-#include <tinyros::geometry_msgs/PoseArray.h>
+#include <tiny_ros/geometry_msgs/PoseArray.h>
 
 #include "rviz/message_filter_display.h"
 

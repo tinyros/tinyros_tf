@@ -51,6 +51,7 @@ namespace rviz
 
 PointTool::PointTool()
   : Tool()
+  , pub_("", new tinyros::geometry_msgs::PointStamped)
 {
   topic_property_ = new StringProperty( "Topic", "/clicked_point",
                                         "The topic on which to publish points.",
@@ -115,7 +116,7 @@ int PointTool::processMouseEvent( ViewportMouseEvent& event )
       ps.point.z = pos.z;
       ps.header.frame_id = context_->getFixedFrame().toStdString();
       ps.header.stamp = tinyros::Time::now();
-      pub_.publish( ps );
+      pub_.publish( &ps );
 
       if ( auto_deactivate_property_->getBool() )
       {

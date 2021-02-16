@@ -30,6 +30,7 @@
 #include "mesh_resource_marker.h"
 
 #include "marker_selection_handler.h"
+#include "utils/utils.h"
 #include "rviz/default_plugin/marker_display.h"
 #include "rviz/selection/selection_manager.h"
 

@@ -45,6 +45,7 @@
 #include "tiny_ros/tf/exceptions.h"
 #include "tiny_ros/tf/time_cache.h"
 #include "tiny_ros/tf/signals.h"
+#include "tiny_ros/tf/timer.h"
 #include "tiny_ros/geometry_msgs/TwistStamped.h"
 
 namespace tinyros
@@ -1481,6 +1482,120 @@ protected:
                        "Tf has two or more unconnected trees.");
   }
 };
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Versions of createTimer()
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * \brief Create a timer which will call a callback at the specified rate.  This variant allows
+ * the full range of TimerOptions.
+ *
+ * When the Timer (and all copies of it) returned goes out of scope, the timer will automatically
+ * be stopped, and the callback will no longer be called.
+ *
+ * \param ops The options to use when creating the timer
+ */
+Timer createTimer(TimerOptions& ops);
+
+/**
+ * \brief Create a timer which will call a callback at the specified rate.  This variant takes
+ * anything that can be bound to a Boost.Function, including a bare function
+ *
+ * When the Timer (and all copies of it) returned goes out of scope, the timer will automatically
+ * be stopped, and the callback will no longer be called.
+ *
+ * \param period The period at which to call the callback
+ * \param callback The function to call
+ * \param oneshot If true, this timer will only fire once
+ * \param autostart If true (default), return timer that is already started
+ */
+Timer createTimer(tinyros::Duration period, const TimerCallback& callback, bool oneshot = false,
+                  bool autostart = true);
+
+/**
+ * \brief Create a timer which will call a callback at the specified rate.  This variant takes
+ * a class member function, and a bare pointer to the object to call the method on.
+ *
+ * When the Timer (and all copies of it) returned goes out of scope, the timer will automatically
+ * be stopped, and the callback will no longer be called.
+ *
+ * \param r The rate at which to call the callback
+ * \param callback The method to call
+ * \param obj The object to call the method on
+ * \param oneshot If true, this timer will only fire once
+ * \param autostart If true (default), return timer that is already started
+ */
+template<class Handler, class Obj>
+Timer createTimer(double rate, Handler h, Obj o, bool oneshot = false, bool autostart = true)
+{
+  return createTimer(tinyros::Duration(1.0/rate), h, o, oneshot, autostart);
+}
+
+/**
+ * \brief Create a timer which will call a callback at the specified rate.  This variant takes
+ * a class member function, and a bare pointer to the object to call the method on.
+ *
+ * When the Timer (and all copies of it) returned goes out of scope, the timer will automatically
+ * be stopped, and the callback will no longer be called.
+ *
+ * \param period The period at which to call the callback
+ * \param callback The method to call
+ * \param obj The object to call the method on
+ * \param oneshot If true, this timer will only fire once
+ * \param autostart If true (default), return timer that is already started
+ */
+template<class T>
+Timer createTimer(tinyros::Duration period, void(T::*callback)(const TimerEvent&) const, T* obj, 
+                  bool oneshot = false, bool autostart = true)
+{
+  return createTimer(period, std::bind(callback, obj, std::placeholders::_1), oneshot, autostart);
+}
+  
+/**
+ * \brief Create a timer which will call a callback at the specified rate.  This variant takes
+ * a class member function, and a bare pointer to the object to call the method on.
+ *
+ * When the Timer (and all copies of it) returned goes out of scope, the timer will automatically
+ * be stopped, and the callback will no longer be called.
+ *
+ * \param period The period at which to call the callback
+ * \param callback The method to call
+ * \param obj The object to call the method on
+ * \param oneshot If true, this timer will only fire once
+ * \param autostart If true (default), return timer that is already started
+ */
+template<class T>
+Timer createTimer(tinyros::Duration period, void(T::*callback)(const TimerEvent&), T* obj, 
+                  bool oneshot = false, bool autostart = true)
+{
+  return createTimer(period, std::bind(callback, obj, std::placeholders::_1), oneshot, autostart);
+}
+
+/**
+ * \brief Create a timer which will call a callback at the specified rate.  This variant takes
+ * a class member function, and a shared pointer to the object to call the method on.
+ *
+ * When the Timer (and all copies of it) returned goes out of scope, the timer will automatically
+ * be stopped, and the callback will no longer be called.
+ *
+ * \param period The period at which to call the callback
+ * \param callback The method to call
+ * \param obj The object to call the method on.  Since this is a shared pointer, the object will
+ * automatically be tracked with a weak_ptr so that if it is deleted before the Timer goes out of
+ * scope the callback will no longer be called (and therefore will not crash).
+ * \param oneshot If true, this timer will only fire once
+ * \param autostart If true (default), return timer that is already started
+ */
+template<class T>
+Timer createTimer(tinyros::Duration period, void(T::*callback)(const TimerEvent&), const std::shared_ptr<T>& obj, 
+                  bool oneshot = false, bool autostart = true)
+{
+  TimerOptions ops(period, std::bind(callback, obj.get(), std::placeholders::_1), 0);
+  ops.tracked_object = obj;
+  ops.oneshot = oneshot;
+  ops.autostart = autostart;
+  return createTimer(ops);
+}
 
 }
 }

@@ -88,7 +88,7 @@ namespace pluginlib
   /***************************************************************************/
   {
     tinyros_log_debug("pluginlib.ClassLoader: Creating ClassLoader, base = %s, address = %p", base_class.c_str(), this);
-    if (tinyros::package::getPath().empty())
+    if (tinyros::package::getPath(package_).empty())
     {
       throw pluginlib::ClassLoaderException("Unable to find package: " + package_);
     }
@@ -471,7 +471,7 @@ namespace pluginlib
 #else
         std::string package = parent.filename();
 #endif
-        std::string package_path = tinyros::package::getPath();
+        std::string package_path = tinyros::package::getPath(package);
 
         if (plugin_xml_file_path.find(package_path) == 0) //package_path is a substr of passed plugin xml path
         {
@@ -525,7 +525,7 @@ namespace pluginlib
   std::string ClassLoader<T>::getROSBuildLibraryPath(const std::string& exporting_package_name)
   /***************************************************************************/
   {
-    return(tinyros::package::getPath());
+    return(tinyros::package::getPath(exporting_package_name));
   }
 
   template <class T>

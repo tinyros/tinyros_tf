@@ -206,8 +206,7 @@ private:
 
   // these are needed when spinning up a dedicated thread
   boost::scoped_ptr<boost::thread> spin_thread_;
-  ros::NodeHandle node_handle_;
-  ros::CallbackQueue callback_queue_;
+  tinyros::tf::CallbackQueue callback_queue_;
   volatile bool need_to_terminate_;
 
   // this is needed when running in non-threaded mode

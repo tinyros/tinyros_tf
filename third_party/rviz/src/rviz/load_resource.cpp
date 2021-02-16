@@ -32,6 +32,7 @@
 #include <boost/filesystem.hpp>
 #include <tiny_ros/ros.h>
 #include <tiny_ros/package.h>
+#include "utils/utils.h"
 
 #include <QPixmapCache>
 #include <QPainter>
@@ -47,7 +48,7 @@ boost::filesystem::path getPath( QString url )
   {
     QString package_name = url.section('/',2,2);
     QString file_name = url.section('/',3);
-    path = tinyros::package::getPath();
+    path = tinyros::package::getPath(TINYROS_PACKAGE_NAME);
     path = path / file_name.toStdString();
   }
   else if ( url.indexOf("file://", 0, Qt::CaseInsensitive) == 0 )

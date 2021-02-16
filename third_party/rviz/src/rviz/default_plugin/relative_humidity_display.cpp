@@ -53,10 +53,6 @@ RelativeHumidityDisplay::RelativeHumidityDisplay()
                                           " Increasing this is useful if your incoming TF data is delayed significantly "
                                           "from your RelativeHumidity data, but it can greatly increase memory usage if the messages are big.",
                                           this, SLOT( updateQueueSize() ));
-
-  // PointCloudCommon sets up a callback queue with a thread for each
-  // instance.  Use that for processing incoming messages.
-  update_nh_.setCallbackQueue( point_cloud_common_->getCallbackQueue() );
 }
 
 RelativeHumidityDisplay::~RelativeHumidityDisplay()

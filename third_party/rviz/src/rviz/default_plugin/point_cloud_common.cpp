@@ -180,7 +180,7 @@ void PointCloudSelectionHandler::createProperties( const Picked& obj, Property* 
         // Then add all other fields as well.
         for( size_t field = 0; field < message->fields.size(); ++field )
         {
-          const sensor_msgs::PointField& f = message->fields[ field ];
+          const tinyros::sensor_msgs::PointField& f = message->fields[ field ];
           const std::string& name = f.name;
 
           if( name == "x" || name == "y" || name == "z" || name == "X" || name == "Y" || name == "Z" )
@@ -641,7 +641,7 @@ void PointCloudCommon::setPropertiesHidden( const QList<Property*>& props, bool 
   }
 }
 
-void PointCloudCommon::updateTransformers( const sensor_msgs::PointCloud2ConstPtr& cloud )
+void PointCloudCommon::updateTransformers( const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud )
 {
   std::string xyz_name = xyz_transformer_property_->getStdString();
   std::string color_name = color_transformer_property_->getStdString();
@@ -717,11 +717,11 @@ void PointCloudCommon::updateStatus()
   display_->setStatusStd(StatusProperty::Ok, "Points", ss.str());
 }
 
-void PointCloudCommon::processMessage(const sensor_msgs::PointCloud2ConstPtr& cloud)
+void PointCloudCommon::processMessage(const tinyros::sensor_msgs::PointCloud2ConstPtr& cloud)
 {
   CloudInfoPtr info(new CloudInfo);
   info->message_ = cloud;
-  info->receive_time_ = ros::Time::now();
+  info->receive_time_ = tinyros::Time::now();
 
   if (transformCloud(info, true))
   {
@@ -882,7 +882,7 @@ bool convertPointCloudToPointCloud2(const tinyros::sensor_msgs::PointCloud& inpu
   for (size_t d = 0; d < output.fields.size (); ++d, offset += 4)
   {
     output.fields[d].offset = offset;
-    output.fields[d].datatype = sensor_msgs::PointField::FLOAT32;
+    output.fields[d].datatype = tinyros::sensor_msgs::PointField::FLOAT32;
   }
   output.point_step = offset;
   output.row_step   = output.point_step * output.width;

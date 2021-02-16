@@ -74,7 +74,7 @@ public:
    *
    * Just creates Ogre::SceneNodes and sets some defaults.  To
    * actually make it look like a
-   * visualization_msgs::InteractiveMarkerControl message specifies,
+   * tinyros::visualization_msgs::InteractiveMarkerControl message specifies,
    * call processMessage().
    */
   InteractiveMarkerControl( DisplayContext* context,
@@ -160,12 +160,12 @@ public:
   const QString& getDescription() { return description_; }
 
   /**
-   * @return the visualization_msgs::InteractiveMarkerControl interaction_mode for this control
+   * @return the tinyros::visualization_msgs::InteractiveMarkerControl interaction_mode for this control
    */
   int getInteractionMode() { return interaction_mode_; }
 
   /**
-   * @return the visualization_msgs::InteractiveMarkerControl orientation_mode for this control
+   * @return the tinyros::visualization_msgs::InteractiveMarkerControl orientation_mode for this control
    */
   int getOrientationMode() { return orientation_mode_; }
 

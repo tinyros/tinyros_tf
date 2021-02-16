@@ -64,13 +64,13 @@ void MarkerArrayDisplay::subscribe()
         if (array_sub_->topic_.empty()) {
           array_sub_->topic_ = topic;
         } else {
-          array_sub_->setEnable(false);
+          array_sub_->setEnabled(false);
           array_sub_ = new tinyros::Subscriber<tinyros::visualization_msgs::MarkerArray, MarkerDisplay> (
-            topic, &MarkerDisplay::incomingMarkerArray, this);
+            topic, &MarkerArrayDisplay::incomingMarkerArray, this);
         }
         tinyros::nh()->subscribe(*array_sub_);
       } 
-      array_sub_->setEnable(true);
+      array_sub_->setEnabled(true);
       
       setStatus( StatusProperty::Ok, "Topic", "OK" );
     }

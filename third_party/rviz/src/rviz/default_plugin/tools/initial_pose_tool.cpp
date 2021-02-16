@@ -40,6 +40,7 @@ namespace rviz
 {
 
 InitialPoseTool::InitialPoseTool()
+  : pub_("", new tinyros::geometry_msgs::PoseWithCovarianceStamped)
 {
   shortcut_key_ = 'p';
 

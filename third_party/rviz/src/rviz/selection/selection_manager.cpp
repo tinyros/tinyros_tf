@@ -816,7 +816,7 @@ void SelectionManager::renderQueueStarted( uint8_t queueGroupId,
   // This render queue listener function tells the scene manager to
   // skip every render step, so nothing actually gets drawn.
 
-//  ROS_DEBUG("SelectionManager renderQueueStarted(%d, '%s') returning skip = true.", (int)queueGroupId, invocation.c_str());
+//  tinyros_log_debug("SelectionManager renderQueueStarted(%d, '%s') returning skip = true.", (int)queueGroupId, invocation.c_str());
   skipThisInvocation = true;
 }
 

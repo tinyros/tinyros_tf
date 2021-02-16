@@ -74,7 +74,7 @@ void ImageView::showEvent( QShowEvent* event )
   QtOgreRenderWindow::showEvent( event );
 
   V_string paths;
-  paths.push_back(tinyros::package::getPath() + "tinyros_rviz/ogre_media/textures");
+  paths.push_back(tinyros::package::getPath("tinyros_rviz") + "ogre_media/textures");
   initializeResources(paths);
 
   setCamera( scene_manager_->createCamera( "Camera" ));
@@ -152,7 +152,7 @@ void ImageView::onTimer()
   }
 }
 
-void ImageView::textureCallback(const sensor_msgs::Image::ConstPtr& msg)
+void ImageView::textureCallback(const tinyros::sensor_msgs::Image::ConstPtr& msg)
 {
   if (texture_) {
     texture_->addMessage(msg);

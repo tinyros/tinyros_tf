@@ -106,7 +106,7 @@ RenderSystem::RenderSystem()
 {
   OgreLogging::configureLogging();
 
-  std::string rviz_path = tinyros::package::getPath();
+  std::string rviz_path = tinyros::package::getPath(TINYROS_PACKAGE_NAME);
 
   setupDummyWindowId();
   ogre_root_ = new Ogre::Root( rviz_path+"/ogre_media/plugins.cfg" );
@@ -261,7 +261,7 @@ void RenderSystem::setupRenderSystem()
 
 void RenderSystem::setupResources()
 {
-  std::string rviz_path = tinyros::package::getPath();
+  std::string rviz_path = tinyros::package::getPath(TINYROS_PACKAGE_NAME);
   Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media", "FileSystem", TINYROS_PACKAGE_NAME );
   Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/textures", "FileSystem", TINYROS_PACKAGE_NAME );
   Ogre::ResourceGroupManager::getSingleton().addResourceLocation( rviz_path + "/ogre_media/fonts", "FileSystem", TINYROS_PACKAGE_NAME );

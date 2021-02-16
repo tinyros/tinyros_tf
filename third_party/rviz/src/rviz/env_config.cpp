@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, Willow Garage, Inc.
+ * Copyright (c) 2011, Willow Garage, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,51 +26,30 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef RVIZ_LASER_SCAN_DISPLAY_H
-#define RVIZ_LASER_SCAN_DISPLAY_H
-
-#include <tiny_ros/sensor_msgs/LaserScan.h>
-
-#include "rviz/message_filter_display.h"
-#include "rviz/default_plugin/laser_geometry.h"
+#include "env_config.h"
 
 namespace rviz
 {
 
-class IntProperty;
-class PointCloudCommon;
-
-/** @brief Visualizes a laser scan, received as a sensor_msgs::LaserScan. */
-class LaserScanDisplay: public MessageFilterDisplay<tinyros::sensor_msgs::LaserScan>
+std::string get_version()
 {
-Q_OBJECT
-public:
-  LaserScanDisplay();
-  ~LaserScanDisplay();
+  // The return string here is replaced at compile time by
+  // CMakeLists.txt in this directory.
+  return "1.0";
+}
 
-  virtual void reset();
+std::string get_distro()
+{
+  // The return string here is replaced at compile time by
+  // CMakeLists.txt in this directory.
+  return "";
+}
 
-  virtual void update( float wall_dt, float ros_dt );
+std::string get_ogre_plugin_path()
+{
+  // The return string here is replaced at compile time by
+  // CMakeLists.txt in this directory.
+  return "/usr/lib/x86_64-linux-gnu/OGRE-1.8.0";
+}
 
-private Q_SLOTS:
-  void updateQueueSize();
-
-protected:
-  /** @brief Do initialization. Overridden from MessageFilterDisplay. */
-  virtual void onInitialize();
-
-  /** @brief Process a single message.  Overridden from MessageFilterDisplay. */
-  virtual void processMessage( const tinyros::sensor_msgs::LaserScanConstPtr& scan );
-
-  IntProperty* queue_size_property_;
-
-  PointCloudCommon* point_cloud_common_;
-
-  LaserProjection* projector_;
-  tinyros::Duration filter_tolerance_;
-};
-
-} // namespace rviz
-
-#endif
+}

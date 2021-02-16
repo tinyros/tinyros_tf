@@ -1,4 +1,6 @@
 #include "tiny_ros/tf/tf.h"
+#include "tiny_ros/tf/common.h"
+#include "tiny_ros/tf/timer.h"
 
 namespace tinyros
 {
@@ -75,6 +77,67 @@ namespace tf
       ss << "Quaternion malformed, magnitude: " << q.x*q.x + q.y*q.y + q.z*q.z + q.w*q.w << " should be 1.0" <<std::endl;
       throw tinyros::tf::InvalidArgument(ss.str());
     }  //  TINYROS_ASSERT(std::fabs(q.x()*q.x() + q.y()*q.y() + q.z*q.z() + q.w()*q.w() - 1 < 0.01));
+  }
+
+  void disableAllSignalsInThisThread()
+  {
+#if !defined(WIN32)
+    // pthreads_win32, despite having an implementation of pthread_sigmask,
+    // doesn't have an implementation of sigset_t, and also doesn't expose its
+    // pthread_sigmask externally.
+    sigset_t signal_set;
+  
+    /* block all signals */
+    sigfillset( &signal_set );
+    pthread_sigmask( SIG_BLOCK, &signal_set, NULL );
+#endif
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Versions of createTimer()
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   * \brief Create a timer which will call a callback at the specified rate.  This variant allows
+   * the full range of TimerOptions.
+   *
+   * When the Timer (and all copies of it) returned goes out of scope, the timer will automatically
+   * be stopped, and the callback will no longer be called.
+   *
+   * \param ops The options to use when creating the timer
+   */
+  Timer createTimer(TimerOptions& ops)
+  {
+    if (ops.callback_queue == 0)
+    {
+      ops.callback_queue = new CallbackQueue;
+    }
+  
+    Timer timer(ops);
+    if (ops.autostart)
+      timer.start();
+    return timer;
+  }
+  
+  /**
+   * \brief Create a timer which will call a callback at the specified rate.  This variant takes
+   * anything that can be bound to a Boost.Function, including a bare function
+   *
+   * When the Timer (and all copies of it) returned goes out of scope, the timer will automatically
+   * be stopped, and the callback will no longer be called.
+   *
+   * \param period The period at which to call the callback
+   * \param callback The function to call
+   * \param oneshot If true, this timer will only fire once
+   * \param autostart If true (default), return timer that is already started
+   */
+  Timer createTimer(tinyros::Duration period, const TimerCallback& callback, bool oneshot, bool autostart)
+  {
+    TimerOptions ops;
+    ops.period = period;
+    ops.callback = callback;
+    ops.oneshot = oneshot;
+    ops.autostart = autostart;
+    return createTimer(ops);
   }
 
 }

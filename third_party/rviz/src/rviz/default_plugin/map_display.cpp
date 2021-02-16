@@ -355,12 +355,12 @@ void MapDisplay::subscribe()
         if (map_sub_->topic_.empty()) {
           map_sub_->topic_ = topic;
         } else {
-          map_sub_->setEnable(false);
+          map_sub_->setEnabled(false);
           map_sub_ = new tinyros::Subscriber<tinyros::nav_msgs::OccupancyGrid, MapDisplay> (topic, &MapDisplay::incomingMap, this);
         }
         tinyros::nh()->subscribe(*map_sub_);
       } 
-      map_sub_->setEnable(true);
+      map_sub_->setEnabled(true);
       setStatus( StatusProperty::Ok, "Topic", "OK" );
     }
     catch( std::exception& e )
@@ -375,12 +375,12 @@ void MapDisplay::subscribe()
         if (update_sub_->topic_.empty()) {
           update_sub_->topic_ = topic;
         } else {
-          update_sub_->setEnable(false);
+          update_sub_->setEnabled(false);
           update_sub_ = new tinyros::Subscriber<tinyros::map_msgs::OccupancyGridUpdate, MapDisplay> (topic, &MapDisplay::incomingUpdate, this);
         }
         tinyros::nh()->subscribe(*update_sub_);
       } 
-      update_sub_->setEnable(true);
+      update_sub_->setEnabled(true);
       
       setStatus( StatusProperty::Ok, "Update Topic", "OK" );
     }
@@ -393,8 +393,8 @@ void MapDisplay::subscribe()
 
 void MapDisplay::unsubscribe()
 {
-  map_sub_->setEnable(false);
-  update_sub_->setEnable(false);
+  map_sub_->setEnabled(false);
+  update_sub_->setEnabled(false);
 }
 
 // helper class to set alpha parameter on all renderables.

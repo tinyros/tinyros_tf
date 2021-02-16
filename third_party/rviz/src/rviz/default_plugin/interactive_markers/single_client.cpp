@@ -91,7 +91,7 @@ void SingleClient::process(const tinyros::visualization_msgs::InteractiveMarkerU
     first_update_seq_num_ = msg->seq_num;
   }
 
-  last_update_time_ = ros::Time::now();
+  last_update_time_ = tinyros::Time::now();
 
   if ( msg->type == msg->KEEP_ALIVE )
   {

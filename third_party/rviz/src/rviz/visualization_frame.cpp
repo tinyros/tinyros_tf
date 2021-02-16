@@ -85,8 +85,8 @@
 #include "rviz/load_resource.h"
 #include "rviz/yaml_config_reader.h"
 #include "rviz/yaml_config_writer.h"
-
 #include "rviz/visualization_frame.h"
+#include "utils/utils.h"
 
 namespace fs = boost::filesystem;
 
@@ -133,7 +133,7 @@ VisualizationFrame::VisualizationFrame( QWidget* parent )
   post_load_timer_->setSingleShot( true );
   connect( post_load_timer_, SIGNAL( timeout() ), this, SLOT( markLoadingDone() ));
 
-  package_path_ = tinyros::package::getPath();
+  package_path_ = tinyros::package::getPath(TINYROS_PACKAGE_NAME);
   help_path_ = QString::fromStdString( (fs::path(package_path_) / "help/help.html").BOOST_FILE_STRING() );
   splash_path_ = QString::fromStdString( (fs::path(package_path_) / "images/splash.png").BOOST_FILE_STRING() );
 

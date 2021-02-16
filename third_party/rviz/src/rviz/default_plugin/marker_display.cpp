@@ -84,7 +84,7 @@ void MarkerDisplay::onInitialize()
                                                                   queue_size_property_->getInt());
   
   tf_filter_->registerCallback(std::bind(&MarkerDisplay::incomingMarker, this, std::placeholders::_1));
-  tf_filter_->registerFailureCallback(std::bind(&MarkerDisplay::failedMarker, this, std::placeholders::_1, std::palceholders::_2));
+  tf_filter_->registerFailureCallback(std::bind(&MarkerDisplay::failedMarker, this, std::placeholders::_1, std::placeholders::_2));
 
   namespace_config_enabled_state_.clear();
 }
@@ -168,13 +168,13 @@ void MarkerDisplay::subscribe()
         if (array_sub_->topic_.empty()) {
           array_sub_->topic_ = topic;
         } else {
-          array_sub_->setEnable(false);
+          array_sub_->setEnabled(false);
           array_sub_ = new tinyros::Subscriber<tinyros::visualization_msgs::MarkerArray, MarkerDisplay> (
             topic, &MarkerDisplay::incomingMarkerArray, this);
         }
         tinyros::nh()->subscribe(*array_sub_);
       } 
-      array_sub_->setEnable(true);
+      array_sub_->setEnabled(true);
       
       tf_filter_->connectInput(marker_topic);
       setStatus( StatusProperty::Ok, "Topic", "OK" );
@@ -312,11 +312,11 @@ void MarkerDisplay::processMessage( const tinyros::visualization_msgs::Marker::C
 
   switch ( message->action )
   {
-  case visualization_msgs::Marker::ADD:
+  case tinyros::visualization_msgs::Marker::ADD:
     processAdd( message );
     break;
 
-  case visualization_msgs::Marker::DELETE:
+  case tinyros::visualization_msgs::Marker::DELETE:
     processDelete( message );
     break;
 

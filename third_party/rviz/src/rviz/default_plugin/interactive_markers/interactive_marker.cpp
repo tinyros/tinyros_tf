@@ -38,7 +38,7 @@
 #include <OgreSubEntity.h>
 #include <OgreMath.h>
 #include <OgreRenderWindow.h>
-#include <tiny_rosvisualization_msgs/InteractiveMarkerPose.h>
+#include <tiny_ros/visualization_msgs/InteractiveMarkerPose.h>
 #include "rviz/frame_manager.h"
 #include "rviz/display_context.h"
 #include "rviz/selection/selection_manager.h"
@@ -622,7 +622,7 @@ void InteractiveMarker::handleMenuSelect( int menu_item_id )
       tinyros_log_warn("Running system command: %s", sys_cmd.c_str());
       sys_thread_ = boost::shared_ptr<boost::thread>( new boost::thread( boost::bind( &system, sys_cmd.c_str() ) ) );
     }
-    else if ( command_type == visualization_msgs::MenuEntry::ROSLAUNCH )
+    else if ( command_type == tinyros::visualization_msgs::MenuEntry::ROSLAUNCH )
     {
       std::string sys_cmd = "roslaunch " + command;
       tinyros_log_warn("Running system command: %s", sys_cmd.c_str());
@@ -632,7 +632,7 @@ void InteractiveMarker::handleMenuSelect( int menu_item_id )
 }
 
 
-void InteractiveMarker::publishFeedback(visualization_msgs::InteractiveMarkerFeedback &feedback,
+void InteractiveMarker::publishFeedback(tinyros::visualization_msgs::InteractiveMarkerFeedback &feedback,
                                         bool mouse_point_valid,
                                         const Ogre::Vector3& mouse_point_rel_world )
 {

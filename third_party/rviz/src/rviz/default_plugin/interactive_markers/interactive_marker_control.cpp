@@ -294,7 +294,7 @@ void InteractiveMarkerControl::processMessage( const tinyros::visualization_msgs
     break;
   }
 
-  if ( parent_->hasMenu() && interaction_mode_ != visualization_msgs::InteractiveMarkerControl::MENU )
+  if ( parent_->hasMenu() && interaction_mode_ != tinyros::visualization_msgs::InteractiveMarkerControl::MENU )
   {
     status_msg_ += "<b>Right-Click:</b> Show context menu.";
   }
@@ -635,7 +635,7 @@ void InteractiveMarkerControl::moveViewPlane( Ogre::Ray &mouse_ray, const Viewpo
 
 void InteractiveMarkerControl::movePlane( Ogre::Ray &mouse_ray )
 {
-  if( orientation_mode_ == visualization_msgs::InteractiveMarkerControl::VIEW_FACING &&
+  if( orientation_mode_ == tinyros::visualization_msgs::InteractiveMarkerControl::VIEW_FACING &&
       drag_viewport_ )
   {
     updateControlOrientationForViewFacing( drag_viewport_ );
@@ -654,7 +654,7 @@ void InteractiveMarkerControl::movePlane( Ogre::Ray &mouse_ray )
 
 void InteractiveMarkerControl::movePlane( const Ogre::Vector3& cursor_position_in_reference_frame )
 {
-  if( orientation_mode_ == visualization_msgs::InteractiveMarkerControl::VIEW_FACING &&
+  if( orientation_mode_ == tinyros::visualization_msgs::InteractiveMarkerControl::VIEW_FACING &&
       drag_viewport_ )
   {
     updateControlOrientationForViewFacing( drag_viewport_ );
@@ -1248,7 +1248,7 @@ void InteractiveMarkerControl::handleMouseEvent( ViewportMouseEvent& event )
     if ( event.leftDown() )
     {
       // aleeper: This line was causing badness
-      //orientation_mode_ = visualization_msgs::InteractiveMarkerControl::VIEW_FACING;
+      //orientation_mode_ = tinyros::visualization_msgs::InteractiveMarkerControl::VIEW_FACING;
       beginMouseMovement( event, false );
     }
     else if ( event.left() &&
@@ -1317,7 +1317,7 @@ void InteractiveMarkerControl::beginMouseMovement( ViewportMouseEvent& event, bo
   mouse_relative_to_absolute_y_ = absolute_mouse.y() - event.y;
   beginRelativeMouseMotion( event );
 
-  if( orientation_mode_ == visualization_msgs::InteractiveMarkerControl::VIEW_FACING &&
+  if( orientation_mode_ == tinyros::visualization_msgs::InteractiveMarkerControl::VIEW_FACING &&
       drag_viewport_ )
   {
     updateControlOrientationForViewFacing( drag_viewport_ );

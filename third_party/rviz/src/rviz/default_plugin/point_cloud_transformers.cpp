@@ -328,9 +328,9 @@ uint8_t RGB8PCTransformer::supports(const tinyros::sensor_msgs::PointCloud2Const
     return Support_None;
   }
 
-  if (cloud->fields[index].datatype == sensor_msgs::PointField::INT32 ||
-      cloud->fields[index].datatype == sensor_msgs::PointField::UINT32 ||
-      cloud->fields[index].datatype == sensor_msgs::PointField::FLOAT32)
+  if (cloud->fields[index].datatype == tinyros::sensor_msgs::PointField::INT32 ||
+      cloud->fields[index].datatype == tinyros::sensor_msgs::PointField::UINT32 ||
+      cloud->fields[index].datatype == tinyros::sensor_msgs::PointField::FLOAT32)
   {
     return Support_Color;
   }

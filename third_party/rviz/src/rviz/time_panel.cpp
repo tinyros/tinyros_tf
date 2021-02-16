@@ -165,7 +165,7 @@ void TimePanel::onDisplayAdded( Display* display )
   }
   else
   {
-    connect( display, SIGNAL( timeSignal( rviz::Display*, ros::Time ) ), this, SLOT( onTimeSignal( rviz::Display*, tinyros::Time ) ));
+    connect( display, SIGNAL( timeSignal( rviz::Display*, tinyros::Time ) ), this, SLOT( onTimeSignal( rviz::Display*, tinyros::Time ) ));
   }
 }
 

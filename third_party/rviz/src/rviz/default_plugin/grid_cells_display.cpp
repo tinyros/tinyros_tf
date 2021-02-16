@@ -73,7 +73,7 @@ GridCellsDisplay::GridCellsDisplay()
 
 void GridCellsDisplay::onInitialize()
 {
-  tf_filter_ = new tf::MessageFilter<tinyros::nav_msgs::GridCells>( *context_->getTFClient(), fixed_frame_.toStdString(), 10);
+  tf_filter_ = new tinyros::tf::MessageFilter<tinyros::nav_msgs::GridCells>( *context_->getTFClient(), fixed_frame_.toStdString(), 10);
   static int count = 0;
   std::stringstream ss;
   ss << "PolyLine" << count++;

@@ -157,8 +157,8 @@ public:
   float distance_to_parent_;
   Ogre::Quaternion arrow_orientation_;
 
-  ros::Time last_update_;
-  ros::Time last_time_to_fixed_;
+  tinyros::Time last_update_;
+  tinyros::Time last_time_to_fixed_;
 
   VectorProperty* rel_position_property_;
   QuaternionProperty* rel_orientation_property_;

@@ -4,7 +4,7 @@
 
 #include <rviz/ogre_helpers/shape.h>
 
-#include <ros/ros.h>
+#include <tiny_ros/ros.h>
 
 #include "point_visual.h"
 
@@ -39,7 +39,7 @@ namespace rviz
     }
 
 
-void PointStampedVisual::setMessage( const geometry_msgs::PointStamped::ConstPtr& msg )
+void PointStampedVisual::setMessage( const tinyros::geometry_msgs::PointStamped::ConstPtr& msg )
     {
         Ogre::Vector3 scale( radius_, radius_, radius_ );
         point_->setScale( scale );

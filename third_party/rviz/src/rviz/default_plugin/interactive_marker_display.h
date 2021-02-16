@@ -33,9 +33,9 @@
 #include <map>
 #include <set>
 
-#include <visualization_msgs/InteractiveMarker.h>
-#include <visualization_msgs/InteractiveMarkerUpdate.h>
-#include <visualization_msgs/InteractiveMarkerInit.h>
+#include <tiny_ros/visualization_msgs/InteractiveMarker.h>
+#include <tiny_ros/visualization_msgs/InteractiveMarkerUpdate.h>
+#include <tiny_ros/visualization_msgs/InteractiveMarkerInit.h>
 
 #ifndef Q_MOC_RUN
 #include <tiny_ros/tf/message_filter.h>
@@ -109,7 +109,7 @@ private:
 
   void resetCb( std::string server_id );
 
-  void statusCb(InteractiveMarkerDisplay::StatusT,
+  void statusCb(rviz::InteractiveMarkerClient::StatusT,
       const std::string& server_id,
       const std::string& msg );
 

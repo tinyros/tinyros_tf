@@ -42,6 +42,7 @@
 #include <deque>
 #include <chrono>
 #include <mutex>
+#include "tiny_ros/tf/static_assert.h"
 #include "tiny_ros/tf/callback_queue_interface.h"
 #include "tiny_ros/ros/time.h"
 #include "tiny_ros/tf/common.h"

@@ -33,6 +33,7 @@
 #include <tiny_ros/ros.h>
 
 #include <curl/curl.h>
+#include "utils/utils.h"
 
 namespace resource_retriever
 {
@@ -109,7 +110,7 @@ MemoryResource Retriever::get(const std::string& url)
 
     std::string package = mod_url.substr(0, pos);
     mod_url.erase(0, pos);
-    std::string package_path = tinyros::package::getPath();
+    std::string package_path = tinyros::package::getPath(TINYROS_PACKAGE_NAME);
 
     if (package_path.empty())
     {
