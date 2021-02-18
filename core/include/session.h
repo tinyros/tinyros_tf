@@ -597,6 +597,9 @@ private:
   void setup_publisher(tinyros::serialization::IStream& stream) {
     tinyros::tinyros_msgs::TopicInfo topic_info;
     tinyros::serialization::Serializer<tinyros::tinyros_msgs::TopicInfo>::read(stream, topic_info);
+    if (topic_info.topic_name[0] != '/') {
+      topic_info.topic_name = std::string("/") + topic_info.topic_name;
+    }
     if (!publishers_.count(topic_info.topic_id)) {
       spdlog_info("[{0}] setup_publisher(topic_id: {1}, topic_name: {2}, node_name: {3}, md5sum: {4})", 
         session_id_.c_str(), topic_info.topic_id, topic_info.topic_name.c_str(), topic_info.node.c_str(), topic_info.md5sum.c_str());
@@ -628,6 +631,9 @@ private:
   void setup_subscriber(tinyros::serialization::IStream& stream) {
     tinyros::tinyros_msgs::TopicInfo topic_info;
     tinyros::serialization::Serializer<tinyros::tinyros_msgs::TopicInfo>::read(stream, topic_info);
+    if (topic_info.topic_name[0] != '/') {
+      topic_info.topic_name = std::string("/") + topic_info.topic_name;
+    }
     if (!subscribers_.count(topic_info.topic_id)) {
       spdlog_info("[{0}] setup_subscriber(topic_id: {1}, topic_name: {2}, node_name: {3}, md5sum: {4})", 
         session_id_.c_str(), topic_info.topic_id, topic_info.topic_name.c_str(), topic_info.node.c_str(), topic_info.md5sum.c_str());
@@ -658,7 +664,9 @@ private:
   void setup_service_server(tinyros::serialization::IStream& stream) {
     tinyros::tinyros_msgs::TopicInfo topic_info;
     tinyros::serialization::Serializer<tinyros::tinyros_msgs::TopicInfo>::read(stream, topic_info);
-
+    if (topic_info.topic_name[0] != '/') {
+      topic_info.topic_name = std::string("/") + topic_info.topic_name;
+    }
     std::unique_lock<std::mutex> lock(ServiceServerCore::services_mutex_);
     if (!ServiceServerCore::services_.count(topic_info.topic_name)) {
       spdlog_info("[{0}] setup_service_server(topic_id: {1}, topic_name: {2}, node_name: {3}, md5sum: {4})", 
@@ -678,7 +686,9 @@ private:
   void setup_service_client(tinyros::serialization::IStream& stream) {
     tinyros::tinyros_msgs::TopicInfo topic_info;
     tinyros::serialization::Serializer<tinyros::tinyros_msgs::TopicInfo>::read(stream, topic_info);
-
+    if (topic_info.topic_name[0] != '/') {
+      topic_info.topic_name = std::string("/") + topic_info.topic_name;
+    }
     std::unique_lock<std::mutex> lock(ServiceServerCore::services_mutex_);
     if (ServiceServerCore::services_.count(topic_info.topic_name)) {
       if (!services_client_.count(topic_info.topic_id)) {

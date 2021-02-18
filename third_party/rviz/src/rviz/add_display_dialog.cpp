@@ -91,7 +91,7 @@ bool isSubtopic( const std::string &base, const std::string &topic )
   }
 
   std::string query = topic;
-  while ( query != "/" )
+  while ( query != "/" && !query.empty())
   {
     if ( query == base )
     {
@@ -576,12 +576,12 @@ void TopicDisplayWidget::findPlugins( DisplayFactory *factory )
   for (it = lookup_names.begin(); it != lookup_names.end(); ++it)
   {
     const QString &lookup_name = *it;
-    // ROS_INFO("Class: %s", lookup_name.toStdString().c_str());
+    //tinyros_log_debug("findPlugins Class: %s", lookup_name.toStdString().c_str());
 
     QSet<QString> topic_types = factory->getMessageTypes( lookup_name );
     Q_FOREACH( QString topic_type, topic_types )
     {
-      // ROS_INFO("Type: %s", topic_type.toStdString().c_str());
+      //tinyros_log_debug("findPlugins Type: %s", topic_type.toStdString().c_str());
       datatype_plugins_.insertMulti( topic_type, lookup_name );
     }
   }

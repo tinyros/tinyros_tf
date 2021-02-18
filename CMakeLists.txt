@@ -29,7 +29,6 @@ set(tinyros_lib_SRC_LIST
   ${ROSLIB_PATHS}/impl/ros.cpp
   ${ROSLIB_PATHS}/impl/time.cpp
   ${ROSLIB_PATHS}/impl/duration.cpp
-  ${ROSLIB_PATHS}/impl/tf.cpp
 )
 
 set(tinyros_param_SRC_LIST
