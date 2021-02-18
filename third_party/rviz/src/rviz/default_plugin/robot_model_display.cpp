@@ -30,7 +30,7 @@
 #include <OgreSceneNode.h>
 #include <OgreSceneManager.h>
 
-#include <urdf/model.h>
+#include "rviz/urdf/model.h"
 
 #include <tiny_ros/tf/transform_listener.h>
 #include <tiny_ros/param.h>

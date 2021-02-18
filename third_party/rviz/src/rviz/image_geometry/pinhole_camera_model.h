@@ -1,5 +1,5 @@
-#ifndef IMAGE_GEOMETRY_PINHOLE_CAMERA_MODEL_H
-#define IMAGE_GEOMETRY_PINHOLE_CAMERA_MODEL_H
+#ifndef RVIZ_IMAGE_GEOMETRY_PINHOLE_CAMERA_MODEL_H
+#define RVIZ_IMAGE_GEOMETRY_PINHOLE_CAMERA_MODEL_H
 
 #include <tiny_ros/ros.h>
 #include <tiny_ros/sensor_msgs/CameraInfo.h>
@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <boost/shared_ptr.hpp>
 
+namespace rviz {
 namespace image_geometry {
 
 class Exception : public std::runtime_error
@@ -336,5 +337,5 @@ inline double PinholeCameraModel::getDeltaY(double deltaV, double Z) const
 }
 
 } //namespace image_geometry
-
+}
 #endif

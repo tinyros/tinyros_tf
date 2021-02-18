@@ -32,7 +32,7 @@
 #include <boost/filesystem.hpp>
 #include <tiny_ros/ros.h>
 #include <tiny_ros/package.h>
-#include "utils/utils.h"
+#include "rviz/utils/utils.h"
 
 #include <QPixmapCache>
 #include <QPainter>

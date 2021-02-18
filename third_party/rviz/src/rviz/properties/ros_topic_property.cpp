@@ -28,7 +28,7 @@
  */
 
 #include "tiny_ros/ros.h"
-#include "utils/utils.h"
+#include "rviz/utils/utils.h"
 #include "rviz/properties/ros_topic_property.h"
 
 #include <QApplication>

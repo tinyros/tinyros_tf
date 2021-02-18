@@ -49,7 +49,7 @@
 #include "rviz/render_panel.h"
 #include "rviz/validate_floats.h"
 
-#include "utils/image_encodings.h"
+#include "rviz/utils/image_encodings.h"
 
 #include "image_display.h"
 

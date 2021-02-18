@@ -31,7 +31,7 @@
 
 #include "rviz/visualizer_app.h"
 #include "tiny_ros/ros.h"
-#include "utils/utils.h"
+#include "rviz/utils/utils.h"
 
 int main( int argc, char** argv )
 {

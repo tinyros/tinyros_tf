@@ -29,7 +29,7 @@
 
 #include "mesh_loader.h"
 #include "retriever.h"
-#include "utils/utils.h"
+#include "rviz/utils/utils.h"
 
 #include <boost/filesystem.hpp>
 

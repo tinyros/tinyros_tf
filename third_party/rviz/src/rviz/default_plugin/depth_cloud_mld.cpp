@@ -31,8 +31,8 @@
  *      Author: jkammerl
  */
 
-#include <utils/image_encodings.h>
-#include "image_geometry/pinhole_camera_model.h"
+#include <rviz/utils/image_encodings.h>
+#include <tiny_ros/sensor_msgs/CameraInfo.h>
 
 #include <string.h>
 #include <sstream>

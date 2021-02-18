@@ -31,7 +31,7 @@
 
 #include "rviz/display.h"
 #include "rviz/pluginlib_factory.h"
-#include "utils/utils.h"
+#include "rviz/utils/utils.h"
 
 #include <QIcon>
 #include <QSet>

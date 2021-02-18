@@ -7,7 +7,7 @@
 
 #include <tiny_ros/ros.h>
 
-#include <urdf/model.h>
+#include "rviz/urdf/model.h"
 #include "effort_visual.h"
 
 namespace rviz

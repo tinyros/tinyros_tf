@@ -35,7 +35,7 @@
 #include "rviz/failed_tool.h"
 #include "rviz/properties/property.h"
 #include "rviz/properties/property_tree_model.h"
-#include "utils/utils.h"
+#include "rviz/utils/utils.h"
 #include "rviz/tool_manager.h"
 
 namespace rviz

@@ -37,7 +37,7 @@
 #include "rviz/properties/property_tree_model.h"
 #include "rviz/render_panel.h"
 #include "rviz/view_controller.h"
-#include "utils/utils.h"
+#include "rviz/utils/utils.h"
 #include "rviz/view_manager.h"
 
 namespace rviz

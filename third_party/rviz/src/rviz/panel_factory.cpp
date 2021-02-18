@@ -33,7 +33,7 @@
 #include "rviz/time_panel.h"
 #include "rviz/tool_properties_panel.h"
 #include "rviz/views_panel.h"
-#include "utils/utils.h"
+#include "rviz/utils/utils.h"
 #include "rviz/panel_factory.h"
 
 namespace rviz

@@ -31,7 +31,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include "utils/utils.h"
+#include "rviz/utils/utils.h"
 #include <tiny_ros/ros.h>
 
 #include <QGroupBox>

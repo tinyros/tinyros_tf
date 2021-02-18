@@ -42,7 +42,7 @@
 #include <OgreMaterial.h>
 #include <OgreSharedPtr.h>
 
-#include <urdf/model.h> // can be replaced later by urdf_model/types.h
+#include "rviz/urdf/model.h" // can be replaced later by urdf_model/types.h
 #include <urdf_model/pose.h>
 #endif
 

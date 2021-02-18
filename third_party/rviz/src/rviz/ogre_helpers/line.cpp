@@ -28,7 +28,7 @@
  */
 
 #include "line.h"
-#include "utils/utils.h"
+#include "rviz/utils/utils.h"
 
 #include <sstream>
 

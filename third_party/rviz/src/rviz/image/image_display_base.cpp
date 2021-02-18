@@ -35,7 +35,7 @@
 
 #include "rviz/image/image_display_base.h"
 #include "tiny_ros/tf/tf.h"
-#include "utils/utils.h"
+#include "rviz/utils/utils.h"
 
 namespace rviz
 {

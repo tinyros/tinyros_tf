@@ -49,7 +49,7 @@
 #include <OgreTechnique.h>
 #include <OgreRectangle2D.h>
 
-#include "utils/image_encodings.h"
+#include "rviz/utils/image_encodings.h"
 #include <tiny_ros/sensor_msgs/Image.h>
 
 #include <tiny_ros/tf/static_assert.h>

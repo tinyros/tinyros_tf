@@ -1,7 +1,8 @@
-#include "image_geometry/pinhole_camera_model.h"
+#include "rviz/image_geometry/pinhole_camera_model.h"
 #include "utils/distortion_models.h"
 #include <boost/make_shared.hpp>
 
+namespace rviz {
 namespace image_geometry {
 
 enum DistortionState { NONE, CALIBRATED, UNKNOWN };
@@ -476,3 +477,4 @@ void PinholeCameraModel::initRectificationMaps() const
 }
 
 } //namespace image_geometry
+}

@@ -33,7 +33,7 @@
 #include <tiny_ros/ros.h>
 
 #include <curl/curl.h>
-#include "utils/utils.h"
+#include "rviz/utils/utils.h"
 
 namespace resource_retriever
 {

@@ -61,7 +61,7 @@
 
 #include "rviz/ogre_helpers/render_system.h"
 
-#include "utils/utils.h"
+#include "rviz/utils/utils.h"
 
 #include <QMessageBox>
 

@@ -40,7 +40,7 @@
 #include <string>
 #include <map>
 #include <urdf_model/model.h>
-#include <urdf/urdfdom_compatibility.h>
+#include "urdfdom_compatibility.h"
 #include <tinyxml.h>
 #include <tiny_ros/ros.h>
 

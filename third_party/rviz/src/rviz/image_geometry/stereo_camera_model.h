@@ -1,8 +1,8 @@
-#ifndef IMAGE_GEOMETRY_STEREO_CAMERA_MODEL_H
-#define IMAGE_GEOMETRY_STEREO_CAMERA_MODEL_H
+#ifndef RVIZ_IMAGE_GEOMETRY_STEREO_CAMERA_MODEL_H
+#define RVIZ_IMAGE_GEOMETRY_STEREO_CAMERA_MODEL_H
 
-#include "image_geometry/pinhole_camera_model.h"
-
+#include "rviz/image_geometry/pinhole_camera_model.h"
+namespace rviz {
 namespace image_geometry {
 
 /**
@@ -126,5 +126,5 @@ inline double StereoCameraModel::getDisparity(double Z) const
 }
 
 } //namespace image_geometry
-
+}
 #endif

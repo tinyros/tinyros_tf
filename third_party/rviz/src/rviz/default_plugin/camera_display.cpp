@@ -58,7 +58,7 @@
 #include "rviz/load_resource.h"
 
 #include "camera_display.h"
-#include "utils/utils.h"
+#include "rviz/utils/utils.h"
 
 namespace rviz
 {

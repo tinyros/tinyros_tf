@@ -42,8 +42,8 @@
 
 #include <tiny_ros/ros.h>
 
-#include "retriever.h"
-#include <utils/utils.h>
+#include "rviz/retriever.h"
+#include <rviz/utils/utils.h>
 
 #include <urdf_model/model.h>
 #include <urdf_model/link.h>

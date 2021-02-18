@@ -37,7 +37,7 @@
 
 #include <OgreTextureManager.h>
 
-#include "utils/image_encodings.h"
+#include "rviz/utils/image_encodings.h"
 
 #include "rviz/image/ros_image_texture.h"
 

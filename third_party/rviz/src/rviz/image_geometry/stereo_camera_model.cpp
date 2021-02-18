@@ -1,5 +1,6 @@
-#include "image_geometry/stereo_camera_model.h"
+#include "rviz/image_geometry/stereo_camera_model.h"
 
+namespace rviz {
 namespace image_geometry {
 
 StereoCameraModel::StereoCameraModel()
@@ -138,3 +139,4 @@ void StereoCameraModel::projectDisparityImageTo3d(const cv::Mat& disparity, cv::
 }
 
 } //namespace image_geometry
+}

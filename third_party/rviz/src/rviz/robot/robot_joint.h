@@ -41,7 +41,7 @@
 #include <OgreAny.h>
 #include <OgreMaterial.h>
 
-#include <urdf/model.h>
+#include "rviz/urdf/model.h"
 #include <urdf_model/pose.h>
 #endif
 

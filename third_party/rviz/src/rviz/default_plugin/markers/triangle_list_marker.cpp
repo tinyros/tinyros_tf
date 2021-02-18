@@ -36,7 +36,7 @@
 
 #include "rviz/display_context.h"
 #include "rviz/mesh_loader.h"
-#include "utils/utils.h"
+#include "rviz/utils/utils.h"
 #include "marker_display.h"
 
 #include <OgreSceneNode.h>

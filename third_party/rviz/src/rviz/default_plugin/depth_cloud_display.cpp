@@ -49,9 +49,9 @@
 #include <OgreSceneNode.h>
 #include <OgreSceneManager.h>
 
-#include "utils/image_encodings.h"
+#include "rviz/utils/image_encodings.h"
 
-#include "utils/utils.h"
+#include "rviz/utils/utils.h"
 
 #include "depth_cloud_mld.h"
 

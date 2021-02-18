@@ -60,8 +60,7 @@
 #include <OgreRenderWindow.h>
 #include <OgreMeshManager.h>
 
-#include <ogre_helpers/initialization.h>
-
+#include "rviz/ogre_helpers/initialization.h"
 #include "rviz/displays_panel.h"
 #include "rviz/env_config.h"
 #include "rviz/failed_panel.h"
@@ -86,7 +85,7 @@
 #include "rviz/yaml_config_reader.h"
 #include "rviz/yaml_config_writer.h"
 #include "rviz/visualization_frame.h"
-#include "utils/utils.h"
+#include "rviz/utils/utils.h"
 
 namespace fs = boost::filesystem;
 

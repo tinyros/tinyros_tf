@@ -39,7 +39,7 @@
 #include <OgreTextureManager.h>
 #include <OgreTechnique.h>
 #include <stdint.h>
-#include "utils/utils.h"
+#include "rviz/utils/utils.h"
 
 namespace rviz
 {

@@ -40,7 +40,7 @@
 #include <OgreAny.h>
 
 #ifndef Q_MOC_RUN
-#include <urdf/model.h> // can be replaced later by urdf_model/types.h
+#include "rviz/urdf/model.h" // can be replaced later by urdf_model/types.h
 #endif
 
 namespace Ogre

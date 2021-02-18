@@ -15,7 +15,7 @@
 
 #include "effort_display.h"
 
-#include <urdf/model.h>
+#include "rviz/urdf/model.h"
 #include <tiny_ros/param.h>
 
 namespace rviz
