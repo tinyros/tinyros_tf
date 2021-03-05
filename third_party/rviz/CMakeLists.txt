@@ -172,15 +172,15 @@ include_directories(SYSTEM
 add_subdirectory(src)
 
 execute_process(
-  COMMAND mkdir -p ${TINYROS_GLOBAL_SHARE_DESTINATION}/tinyros_rviz/ogre_media
-  COMMAND mkdir -p ${TINYROS_GLOBAL_SHARE_DESTINATION}/tinyros_rviz/icons
-  COMMAND mkdir -p ${TINYROS_GLOBAL_SHARE_DESTINATION}/tinyros_rviz/images
-  COMMAND mkdir -p ${TINYROS_GLOBAL_SHARE_DESTINATION}/tinyros_rviz/help
-  COMMAND cp -a ${PROJECT_SOURCE_DIR}/ogre_media/. ${TINYROS_GLOBAL_SHARE_DESTINATION}/tinyros_rviz/ogre_media
-  COMMAND cp -a ${PROJECT_SOURCE_DIR}/icons/. ${TINYROS_GLOBAL_SHARE_DESTINATION}/tinyros_rviz/icons
-  COMMAND cp -a ${PROJECT_SOURCE_DIR}/images/. ${TINYROS_GLOBAL_SHARE_DESTINATION}/tinyros_rviz/images
-  COMMAND cp -a ${PROJECT_SOURCE_DIR}/default.rviz ${TINYROS_GLOBAL_SHARE_DESTINATION}/tinyros_rviz
-  COMMAND cp -a ${PROJECT_SOURCE_DIR}/plugin_description.xml ${TINYROS_GLOBAL_SHARE_DESTINATION}/tinyros_rviz
-  COMMAND cp -a ${PROJECT_SOURCE_DIR}/help/. ${TINYROS_GLOBAL_SHARE_DESTINATION}/tinyros_rviz/help
+  COMMAND mkdir -p ${TINYROS_GLOBAL_BIN_DESTINATION}/pkg_tinyros_rviz/ogre_media
+  COMMAND mkdir -p ${TINYROS_GLOBAL_BIN_DESTINATION}/pkg_tinyros_rviz/icons
+  COMMAND mkdir -p ${TINYROS_GLOBAL_BIN_DESTINATION}/pkg_tinyros_rviz/images
+  COMMAND mkdir -p ${TINYROS_GLOBAL_BIN_DESTINATION}/pkg_tinyros_rviz/help
+  COMMAND cp -a ${PROJECT_SOURCE_DIR}/ogre_media/. ${TINYROS_GLOBAL_BIN_DESTINATION}/pkg_tinyros_rviz/ogre_media
+  COMMAND cp -a ${PROJECT_SOURCE_DIR}/icons/. ${TINYROS_GLOBAL_BIN_DESTINATION}/pkg_tinyros_rviz/icons
+  COMMAND cp -a ${PROJECT_SOURCE_DIR}/images/. ${TINYROS_GLOBAL_BIN_DESTINATION}/pkg_tinyros_rviz/images
+  COMMAND cp -a ${PROJECT_SOURCE_DIR}/default.rviz ${TINYROS_GLOBAL_BIN_DESTINATION}/pkg_tinyros_rviz
+  COMMAND cp -a ${PROJECT_SOURCE_DIR}/plugin_description.xml ${TINYROS_GLOBAL_BIN_DESTINATION}/pkg_tinyros_rviz
+  COMMAND cp -a ${PROJECT_SOURCE_DIR}/help/. ${TINYROS_GLOBAL_BIN_DESTINATION}/pkg_tinyros_rviz/help
 )
 
