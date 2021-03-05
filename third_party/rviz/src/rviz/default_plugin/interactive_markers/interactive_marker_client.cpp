@@ -245,17 +245,6 @@ void InteractiveMarkerClient::update()
   case INIT:
   case RUNNING:
   {
-    // check if one publisher has gone offline
-    if ( update_sub_.getNumPublishers() < last_num_publishers_ )
-    {
-      callbacks_.statusCb( ERROR, "General", "Server is offline. Resetting." );
-      shutdown();
-      subscribeUpdate();
-      subscribeInit();
-      return;
-    }
-    last_num_publishers_ = update_sub_.getNumPublishers();
-
     // check if all single clients are finished with the init channels
     bool initialized = true;
     boost::lock_guard<boost::mutex> lock(publisher_contexts_mutex_);
@@ -278,7 +267,7 @@ void InteractiveMarkerClient::update()
     }
     if ( state_ == INIT && initialized )
     {
-      init_sub_.shutdown();
+      init_sub_->setEnabled(false);
       state_ = RUNNING;
     }
     if ( state_ == RUNNING && !initialized )

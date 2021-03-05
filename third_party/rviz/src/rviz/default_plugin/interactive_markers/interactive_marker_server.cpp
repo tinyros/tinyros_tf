@@ -30,6 +30,7 @@
  */
 
 #include "interactive_marker_server.h"
+#include <tiny_ros/tf/tf.h>
 
 #include <tiny_ros/visualization_msgs/InteractiveMarkerInit.h>
 
@@ -54,7 +55,7 @@ InteractiveMarkerServer::InteractiveMarkerServer( const std::string &topic_ns, c
   tinyros::nh()->advertise(update_pub_);
   tinyros::nh()->subscribe(feedback_sub_);
 
-  keep_alive_timer_ =  tinyros::tf::createTimer(tinyros::Duration(0.5f), std::bind( &InteractiveMarkerServer::keepAlive, this ));
+  keep_alive_timer_ =  tinyros::tf::createTimer(tinyros::Duration(0.5f), std::bind( &InteractiveMarkerServer::keepAlive, this, std::placeholders::_1));
 
   publishInit();
 }
@@ -369,7 +370,7 @@ void InteractiveMarkerServer::publishInit()
     init.markers.push_back( it->second.int_marker );
   }
 
-  init_pub_.publish( init );
+  init_pub_.publish( &init );
 }
 
 void InteractiveMarkerServer::processFeedback( const FeedbackConstPtr& feedback )

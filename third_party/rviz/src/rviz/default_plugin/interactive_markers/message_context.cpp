@@ -50,7 +50,7 @@ MessageContext<MsgT>::MessageContext(
 , enable_autocomplete_transparency_(enable_autocomplete_transparency)
 {
   // copy message, as we will be modifying it
-  msg = boost::make_shared<MsgT>( *_msg );
+  msg = std::make_shared<MsgT>( *_msg );
 
   init();
 }
@@ -104,7 +104,7 @@ bool MessageContext<MsgT>::getTransform( tinyros::std_msgs::Header& header, tiny
       std::ostringstream s;
       s << "The init message contains an old timestamp and cannot be transformed ";
       s << "('" << header.frame_id << "' to '" << target_frame_
-        << "' at time " << header.stamp << ").";
+        << "' at time " << header.stamp.toSec() << ").";
       throw InitFailException( s.str() );
     }
     return false;

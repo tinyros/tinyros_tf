@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.11.2)
 project(tinyros_rviz)
 
+set(LIBRARY_OUTPUT_PATH "")
+
 if (POLICY CMP0042)
   cmake_policy(SET CMP0042 NEW)
 endif()

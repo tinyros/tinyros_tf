@@ -35,6 +35,7 @@
 
 #include "rviz/pluginlib_factory.h"
 #include "rviz/view_controller.h"
+#include "rviz/view_controller_factory.h"
 
 namespace Ogre
 {
@@ -94,7 +95,7 @@ public:
    * a Config and instantiating and loading a new one from that. */
   ViewController* copy( ViewController* source );
 
-  PluginlibFactory<ViewController>* getFactory() const { return factory_; }
+  ViewControllerFactory* getFactory() const { return factory_; }
 
   /** @brief Set the 3D view widget whose view will be controlled by
    * ViewController instances from by this ViewManager. */
@@ -133,7 +134,7 @@ private:
   DisplayContext* context_;
   ViewControllerContainer* root_property_;
   PropertyTreeModel* property_model_;
-  PluginlibFactory<ViewController>* factory_;
+  ViewControllerFactory* factory_;
   ViewController* current_;
   RenderPanel* render_panel_;
 };

@@ -88,5 +88,3 @@ void MarkerArrayDisplay::unsubscribe()
 
 } // end namespace rviz
 
-#include <tiny_ros/pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::MarkerArrayDisplay, rviz::Display )

@@ -231,7 +231,7 @@ void makeDisc( const tinyros::visualization_msgs::InteractiveMarker &msg,
   // rely on the auto-completion for the correct orientation
   marker.pose.orientation = control.orientation;
 
-  marker.type = visualization_msgs::Marker::TRIANGLE_LIST;
+  marker.type = tinyros::visualization_msgs::Marker::TRIANGLE_LIST;
   marker.scale.x = msg.scale;
   marker.scale.y = msg.scale;
   marker.scale.z = msg.scale;
@@ -244,7 +244,7 @@ void makeDisc( const tinyros::visualization_msgs::InteractiveMarker &msg,
   circle1.reserve(steps);
   circle2.reserve(steps);
 
-  geometry_msgs::Point v1,v2;
+  tinyros::geometry_msgs::Point v1,v2;
 
   for ( int i=0; i<steps; i++ )
   {
@@ -398,7 +398,7 @@ void assignDefaultColor(tinyros::visualization_msgs::Marker &marker, const tinyr
   tinyros::geometry_msgs::Vector3 v;
 
   tinyros::tf::Quaternion bt_quat( quat.x, quat.y, quat.z, quat.w );
-  tinyros::tf::Vector3 bt_x_axis = tf::Matrix3x3(bt_quat) * tf::Vector3(1,0,0);
+  tinyros::tf::Vector3 bt_x_axis = tinyros::tf::Matrix3x3(bt_quat) * tinyros::tf::Vector3(1,0,0);
 
   float x,y,z;
   x = fabs(bt_x_axis.x());

@@ -137,6 +137,3 @@ int MeasureTool::processMouseEvent( ViewportMouseEvent& event )
 
 } /* namespace rviz */
 
-
-#include <tiny_ros/pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::MeasureTool, rviz::Tool )

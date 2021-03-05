@@ -49,7 +49,7 @@ QString addSpaceToCamelCase( QString input )
 }
 
 ToolManager::ToolManager( DisplayContext* context )
-  : factory_( new PluginlibFactory<Tool>( TINYROS_PACKAGE_NAME, "rviz::Tool" ))
+  : factory_( new ToolFactory())
   , property_tree_model_( new PropertyTreeModel( new Property() ))
   , context_( context )
   , current_tool_( NULL )

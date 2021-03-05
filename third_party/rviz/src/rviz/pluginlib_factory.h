@@ -30,11 +30,14 @@
 #define PLUGINLIB_FACTORY_H
 
 #include <QHash>
+#include <QSet>
+#include <QMap>
 #include <QString>
 #include <QStringList>
 
 #include <string>
 #include <vector>
+#include <tinyxml.h>
 
 #ifndef Q_MOC_RUN
 #include <tiny_ros/pluginlib/class_loader.h>
@@ -62,21 +65,14 @@ private:
 public:
   PluginlibFactory( const QString& package, const QString& base_class_type )
     {
-      class_loader_ = new pluginlib::ClassLoader<Type>( package.toStdString(), base_class_type.toStdString(), "plugin_description.xml");
     }
   virtual ~PluginlibFactory()
     {
-      delete class_loader_;
     }
 
   virtual QStringList getDeclaredClassIds()
     {
       QStringList ids;
-      std::vector<std::string> std_ids = class_loader_->getDeclaredClasses();
-      for( size_t i = 0; i < std_ids.size(); i++ )
-      {
-        ids.push_back( QString::fromStdString( std_ids[ i ]));
-      }
       typename QHash<QString, BuiltInClassRecord>::const_iterator iter;
       for( iter = built_ins_.begin(); iter != built_ins_.end(); iter++ )
       {
@@ -92,7 +88,7 @@ public:
       {
         return iter->description_;
       }
-      return QString::fromStdString( class_loader_->getClassDescription( class_id.toStdString() ));
+      return "";
     }
 
   virtual QString getClassName( const QString& class_id ) const
@@ -102,7 +98,7 @@ public:
       {
         return iter->name_;
       }
-      return QString::fromStdString( class_loader_->getName( class_id.toStdString() ));
+      return "";
     }
 
   virtual QString getClassPackage( const QString& class_id ) const
@@ -112,17 +108,12 @@ public:
       {
         return iter->package_;
       }
-      return QString::fromStdString( class_loader_->getClassPackage( class_id.toStdString() ));
+      return "";
     }
 
   virtual QString getPluginManifestPath( const QString& class_id ) const
     {
-      typename QHash<QString, BuiltInClassRecord>::const_iterator iter = built_ins_.find( class_id );
-      if( iter != built_ins_.end() )
-      {
-        return "";
-      }
-      return QString::fromStdString( class_loader_->getPluginManifestPath( class_id.toStdString() ));
+      return "";
     }
 
   virtual QIcon getIcon( const QString& class_id ) const
@@ -142,7 +133,14 @@ public:
   }
 
   virtual void addBuiltInClass( const QString& package, const QString& name, const QString& description,
-                                Type* (*factory_function)() )
+                                Type* (*factory_function)())
+    {
+      QSet<QString> message_types = QSet<QString>();
+      addBuiltInClass(package, name, description, factory_function, message_types);
+    }
+
+  virtual void addBuiltInClass( const QString& package, const QString& name, const QString& description,
+                                Type* (*factory_function)(), const QSet<QString>& message_types)
     {
       BuiltInClassRecord record;
       record.class_id_ = package + "/" + name;
@@ -151,6 +149,106 @@ public:
       record.description_ = description;
       record.factory_function_ = factory_function;
       built_ins_[ record.class_id_ ] = record;
+
+      if (message_types.size() > 0) {
+        message_type_cache_[record.class_id_] = message_types;
+      }
+    }
+
+  /** @brief Get all supported message types for the given class id. */
+  virtual QSet<QString> getMessageTypes( const QString& class_id )
+    {
+      // lookup in cache
+      if ( message_type_cache_.find( class_id ) != message_type_cache_.end() )
+      {
+        return message_type_cache_[class_id];
+      }
+
+      // Always initialize cache as empty so if we don't find it, next time
+      // we won't look for it anymore either.
+      message_type_cache_[ class_id ] = QSet<QString>();
+
+      // parse xml plugin description to find out message types of all displays in it.
+      QString xml_file = getPluginManifestPath( class_id );
+
+      if ( !xml_file.isEmpty() )
+      {
+        tinyros_log_debug("Parsing %s", xml_file.toStdString().c_str());
+        TiXmlDocument document;
+        document.LoadFile(xml_file.toStdString());
+        TiXmlElement * config = document.RootElement();
+        if (config == NULL)
+        {
+          tinyros_log_error("Skipping XML Document \"%s\" which had no Root Element.  This likely means the XML is malformed or missing.", xml_file.toStdString().c_str());
+          return QSet<QString>();
+        }
+        if (config->ValueStr() != "library" &&
+            config->ValueStr() != "class_libraries")
+        {
+          tinyros_log_error("The XML document \"%s\" given to add must have either \"library\" or \
+              \"class_libraries\" as the root tag", xml_file.toStdString().c_str());
+          return QSet<QString>();
+        }
+        //Step into the filter list if necessary
+        if (config->ValueStr() == "class_libraries")
+        {
+          config = config->FirstChildElement("library");
+        }
+
+        TiXmlElement* library = config;
+        while ( library != NULL)
+        {
+          TiXmlElement* class_element = library->FirstChildElement("class");
+          while (class_element)
+          {
+            std::string derived_class = class_element->Attribute("type");
+
+            std::string current_class_id;
+            if(class_element->Attribute("name") != NULL)
+            {
+              current_class_id = class_element->Attribute("name");
+              tinyros_log_debug("XML file specifies lookup name (i.e. magic name) = %s.", current_class_id.c_str());
+            }
+            else
+            {
+              tinyros_log_debug("XML file has no lookup name (i.e. magic name) for class %s, assuming class_id == real class name.", derived_class.c_str());
+              current_class_id = derived_class;
+            }
+
+            QSet<QString> message_types;
+            TiXmlElement* message_type = class_element->FirstChildElement("message_type");
+
+            while ( message_type )
+            {
+              if ( message_type->GetText() )
+              {
+                const char* message_type_str = message_type->GetText();
+                tinyros_log_debug("%s supports message type %s", current_class_id.c_str(), message_type_str);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+                message_types.insert( QString::fromAscii( message_type_str ) );
+#else
+                message_types.insert( QString(message_type_str) );
+#endif
+              }
+              message_type = message_type->NextSiblingElement("message_type");
+            }
+
+            message_type_cache_[ QString::fromStdString(current_class_id) ] = message_types;
+
+            //step to next class_element
+            class_element = class_element->NextSiblingElement( "class" );
+          }
+          library = library->NextSiblingElement( "library" );
+        }
+      }
+
+      // search cache again.
+      if ( message_type_cache_.find( class_id ) != message_type_cache_.end() )
+      {
+        return message_type_cache_[class_id];
+      }
+
+      return QSet<QString>();
     }
 
 protected:
@@ -177,25 +275,12 @@ protected:
         }
         return instance;
       }
-      try
-      {
-        return class_loader_->createUnmanagedInstance( class_id.toStdString() );
-      }
-      catch( pluginlib::PluginlibException& ex )
-      {
-        tinyros_log_error( "PluginlibFactory: The plugin for class '%s' failed to load.  Error: %s",
-                   qPrintable( class_id ), ex.what() );
-        if( error_return )
-        {
-          *error_return = QString::fromStdString( ex.what() );
-        }
-        return NULL;
-      }
+      return NULL;
     }
 
 private:
-  pluginlib::ClassLoader<Type>* class_loader_;
   QHash<QString, BuiltInClassRecord> built_ins_;
+  QMap< QString, QSet<QString> > message_type_cache_;
 };
 
 } // end namespace rviz

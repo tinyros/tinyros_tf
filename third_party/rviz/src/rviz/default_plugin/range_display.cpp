@@ -163,5 +163,3 @@ void RangeDisplay::processMessage( const tinyros::sensor_msgs::Range::ConstPtr& 
 
 } // namespace rviz
 
-#include <tiny_ros/pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::RangeDisplay, rviz::Display )

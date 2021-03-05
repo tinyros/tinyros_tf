@@ -47,7 +47,7 @@ ViewManager::ViewManager( DisplayContext* context )
   : context_( context )
   , root_property_( new ViewControllerContainer )
   , property_model_( new PropertyTreeModel( root_property_ ))
-  , factory_( new PluginlibFactory<ViewController>( TINYROS_PACKAGE_NAME, "rviz::ViewController" ))
+  , factory_( new ViewControllerFactory())
   , current_( NULL )
   , render_panel_( NULL )
 {

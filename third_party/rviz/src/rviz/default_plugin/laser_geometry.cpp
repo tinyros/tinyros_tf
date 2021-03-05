@@ -190,8 +190,8 @@ const boost::numeric::ublas::matrix<double>& LaserProjection::getUnitVectors_(do
   {
     cloud_out.header = scan_in.header;
 
-    tinyros::tf::Stamped<tf::Point> pointIn;
-    tinyros::tf::Stamped<tf::Point> pointOut;
+    tinyros::tf::Stamped<tinyros::tf::Point> pointIn;
+    tinyros::tf::Stamped<tinyros::tf::Point> pointOut;
 
     //check if the user has requested the index field
     bool requested_index = false;
@@ -217,8 +217,8 @@ const boost::numeric::ublas::matrix<double>& LaserProjection::getUnitVectors_(do
     tinyros::tf::StampedTransform end_transform ;
     tinyros::tf::StampedTransform cur_transform ;
 
-    tinyros::tf.lookupTransform(target_frame, scan_in.header.frame_id, start_time, start_transform) ;
-    tinyros::tf.lookupTransform(target_frame, scan_in.header.frame_id, end_time, end_transform) ;
+    tf.lookupTransform(target_frame, scan_in.header.frame_id, start_time, start_transform) ;
+    tf.lookupTransform(target_frame, scan_in.header.frame_id, end_time, end_transform) ;
 
     //we need to find the index of the index channel
     int index_channel_idx = -1;

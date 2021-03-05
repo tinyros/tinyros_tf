@@ -26,34 +26,21 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef RVIZ_FACTORY_H
-#define RVIZ_FACTORY_H
+#ifndef TOOL_FACTORY_H
+#define TOOL_FACTORY_H
 
-#include <QString>
-#include <QStringList>
-#include <QIcon>
-#include <QSet>
+#include "rviz/tool.h"
+#include "rviz/pluginlib_factory.h"
 
 namespace rviz
 {
 
-/** @brief Abstract superclass representing the ability to get a list
- * of class IDs and the ability to get name, description, and package
- * strings for each.  Actually instantiating objects must be done by
- * subclasses specialized for specific types. */
-class Factory
+class ToolFactory: public PluginlibFactory<Tool>
 {
 public:
-  virtual ~Factory() {}
-
-  virtual QStringList getDeclaredClassIds() = 0;
-  virtual QString getClassDescription( const QString& class_id ) const = 0;
-  virtual QString getClassName( const QString& class_id ) const = 0;
-  virtual QString getClassPackage( const QString& class_id ) const = 0;
-  virtual QIcon getIcon( const QString& class_id ) const = 0;
-  virtual QSet<QString> getMessageTypes( const QString& class_id ) = 0;
+  ToolFactory();
 };
 
 } // end namespace rviz
 
-#endif // RVIZ_FACTORY_H
+#endif // PANEL_FACTORY_H

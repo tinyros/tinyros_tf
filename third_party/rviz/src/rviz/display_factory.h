@@ -46,14 +46,9 @@ class DisplayFactory: public PluginlibFactory<Display>
 public:
   DisplayFactory();
 
-  /** @brief Get all supported message types for the given class id. */
-  virtual QSet<QString> getMessageTypes( const QString& class_id );
-
 protected:
   /** @brief Overridden from PluginlibFactory<Display> to set the icon of the Display. */
   virtual Display* makeRaw( const QString& class_id, QString* error_return = NULL );
-
-  QMap< QString, QSet<QString> > message_type_cache_;
 };
 
 } // end namespace rviz

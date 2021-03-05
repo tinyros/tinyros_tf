@@ -247,7 +247,7 @@ protected Q_SLOTS:
   void updateFps();
 
 protected:
-  /** @brief Initialize the default config directory (~/.rviz) and set
+  /** @brief Initialize the default config directory (~/.tinyros_rviz) and set
    * up the persistent_settings_file_ and display_config_file_
    * variables. */
   void initConfigs();

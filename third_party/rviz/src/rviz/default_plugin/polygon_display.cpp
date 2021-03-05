@@ -128,5 +128,3 @@ void PolygonDisplay::processMessage(const tinyros::geometry_msgs::PolygonStamped
 
 } // namespace rviz
 
-#include <tiny_ros/pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::PolygonDisplay, rviz::Display )

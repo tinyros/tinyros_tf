@@ -531,5 +531,3 @@ void PathDisplay::processMessage( const tinyros::nav_msgs::Path::ConstPtr& msg )
 
 } // namespace rviz
 
-#include <tiny_ros/pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::PathDisplay, rviz::Display )

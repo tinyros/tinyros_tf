@@ -369,7 +369,7 @@ void VisualizationFrame::initConfigs()
 {
   home_dir_ = QDir::toNativeSeparators( QDir::homePath() ).toStdString();
 
-  config_dir_ = (fs::path(home_dir_) / ".rviz").BOOST_FILE_STRING();
+  config_dir_ = (fs::path(home_dir_) / ".tinyros_rviz").BOOST_FILE_STRING();
   persistent_settings_file_ = (fs::path(config_dir_) / "persistent_settings").BOOST_FILE_STRING();
   default_display_config_file_ = (fs::path(config_dir_) / "default." CONFIG_EXTENSION).BOOST_FILE_STRING();
 

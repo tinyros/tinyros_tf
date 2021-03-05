@@ -4,9 +4,13 @@ if(NEW_YAMLCPP_FOUND)
   add_definitions(-DRVIZ_HAVE_YAMLCPP_05)
 endif(NEW_YAMLCPP_FOUND)
 
-add_subdirectory(default_plugin)
+#add_subdirectory(default_plugin)
 
 include_directories(.)
+
+include_directories(default_plugin)
+
+include_directories(default_plugin/interactive_markers)
 
 # Build the version number and other build-time constants into the
 # source for access at run-time.
@@ -17,6 +21,75 @@ message("making version ${RVIZ_VERSION}.")
 configure_file(${PROJECT_SOURCE_DIR}/src/rviz/env_config.cpp.in ${ENV_CONFIG_FILE} @ONLY)
 
 set(RVIZ_SOURCES
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/axes_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/camera_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/depth_cloud_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/depth_cloud_mld.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/effort_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/effort_visual.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/fluid_pressure_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/grid_cells_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/grid_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/illuminance_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/image_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/interactive_marker_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/interactive_markers/integer_action.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/interactive_markers/interactive_marker_control.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/interactive_markers/interactive_marker.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/interactive_markers/interactive_marker_client.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/interactive_markers/menu_handler.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/interactive_markers/message_context.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/interactive_markers/single_client.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/interactive_markers/tools.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/interactive_markers/interactive_marker_server.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/laser_scan_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/laser_geometry.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/map_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/marker_array_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/marker_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/markers/arrow_marker.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/markers/line_list_marker.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/markers/line_strip_marker.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/markers/marker_base.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/markers/marker_selection_handler.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/markers/mesh_resource_marker.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/markers/points_marker.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/markers/shape_marker.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/markers/text_view_facing_marker.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/markers/triangle_list_marker.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/odometry_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/path_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/point_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/point_visual.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/point_cloud2_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/point_cloud_common.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/point_cloud_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/point_cloud_transformer.h
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/point_cloud_transformers.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/polygon_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/pose_array_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/pose_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/range_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/relative_humidity_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/robot_model_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/temperature_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/tf_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/tools/focus_tool.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/tools/measure_tool.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/tools/move_tool.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/tools/point_tool.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/tools/pose_tool.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/tools/goal_tool.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/tools/initial_pose_tool.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/tools/selection_tool.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/tools/interaction_tool.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/view_controllers/orbit_view_controller.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/view_controllers/xy_orbit_view_controller.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/view_controllers/third_person_follower_view_controller.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/view_controllers/fixed_orientation_ortho_view_controller.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/view_controllers/fps_view_controller.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/wrench_display.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/default_plugin/wrench_visual.cpp
   ${PROJECT_SOURCE_DIR}/src/rviz/bit_allocator.cpp
   ${PROJECT_SOURCE_DIR}/src/rviz/config.cpp
   ${PROJECT_SOURCE_DIR}/src/rviz/display.cpp
@@ -105,12 +178,15 @@ set(RVIZ_SOURCES
   ${PROJECT_SOURCE_DIR}/src/rviz/time_panel.cpp
   ${PROJECT_SOURCE_DIR}/src/rviz/tool.cpp
   ${PROJECT_SOURCE_DIR}/src/rviz/tool_manager.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/tool_factory.cpp
   ${PROJECT_SOURCE_DIR}/src/rviz/uniform_string_stream.cpp
   ${PROJECT_SOURCE_DIR}/src/rviz/view_controller.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/view_controller_factory.cpp
   ${PROJECT_SOURCE_DIR}/src/rviz/view_manager.cpp
   ${PROJECT_SOURCE_DIR}/src/rviz/views_panel.cpp
   ${PROJECT_SOURCE_DIR}/src/rviz/visualization_frame.cpp
   ${PROJECT_SOURCE_DIR}/src/rviz/visualization_manager.cpp
+  ${PROJECT_SOURCE_DIR}/src/rviz/visualizer_app.cpp
   ${PROJECT_SOURCE_DIR}/src/rviz/wait_for_master_dialog.cpp
   ${PROJECT_SOURCE_DIR}/src/rviz/widget_geometry_change_detector.cpp
   ${PROJECT_SOURCE_DIR}/src/rviz/tool_properties_panel.cpp
@@ -125,12 +201,12 @@ set(RVIZ_SOURCES
   ${tinyros_package_SRC_LIST}
   ${class_loader_SRC_LIST}
   ${ENV_CONFIG_FILE}
+  ${MOC_FILES}
 )
 
-########### The rviz executable ###########
-add_executable(tinyros_rviz main.cpp visualizer_app.cpp ${RVIZ_SOURCES} ${MOC_FILES})
+add_library( ${PROJECT_NAME} ${RVIZ_SOURCES})
 
-target_link_libraries(tinyros_rviz
+target_link_libraries(${PROJECT_NAME}
   ${Boost_LIBRARIES}
   ${OGRE_OV_LIBRARIES_ABS}
   ${OPENGL_LIBRARIES}
@@ -147,10 +223,25 @@ target_link_libraries(tinyros_rviz
 )
 
 if (UseQt5)
-  target_link_libraries(tinyros_rviz Qt5::Widgets)
+  target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
 endif()
 
 if(APPLE)
-  set_target_properties(tinyros_rviz PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 endif(APPLE)
+
+########### The tinyros_rviz executable ###########
+add_executable(tinyros_rviz_executable main.cpp)
+target_link_libraries(tinyros_rviz_executable ${PROJECT_NAME})
+
+if (UseQt5)
+  target_link_libraries(tinyros_rviz_executable Qt5::Widgets)
+endif()
+
+set_target_properties(tinyros_rviz_executable PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+
+########### The tinyros_image_view executable ###########
+add_executable(tinyros_image_view image_view/image_view.cpp image_view/main.cpp ${MOC_FILES})
+
+target_link_libraries(tinyros_image_view ${PROJECT_NAME} ${QT_LIBRARIES} ${OGRE_OV_LIBRARIES_ABS})
 

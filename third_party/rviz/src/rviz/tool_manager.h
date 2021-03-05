@@ -32,9 +32,8 @@
 #include <QList>
 #include <QObject>
 #include <QStringList>
-
-#include "rviz/pluginlib_factory.h"
 #include "rviz/tool.h"
+#include "rviz/tool_factory.h"
 
 class QKeyEvent;
 
@@ -115,7 +114,7 @@ public:
 
   void handleChar( QKeyEvent* event, RenderPanel* panel );
 
-  PluginlibFactory<Tool>* getFactory() { return factory_; }
+  ToolFactory* getFactory() { return factory_; }
 
 Q_SIGNALS:
   /** @brief Emitted when anything changes which will change the saved config file contents. */
@@ -141,7 +140,7 @@ private Q_SLOTS:
 private:
 
   bool toKey( QString const& str, uint& key_out );
-  PluginlibFactory<Tool>* factory_;
+  ToolFactory* factory_;
   PropertyTreeModel* property_tree_model_;
   QList<Tool*> tools_;
   DisplayContext* context_;

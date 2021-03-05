@@ -109,5 +109,3 @@ int FocusTool::processMouseEvent( ViewportMouseEvent& event )
 
 }
 
-#include <tiny_ros/pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS( rviz::FocusTool, rviz::Tool )
