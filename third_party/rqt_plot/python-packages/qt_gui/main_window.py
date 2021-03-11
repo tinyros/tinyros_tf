@@ -28,6 +28,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import os
 from python_qt_binding.QtCore import qDebug, Qt, Signal
 from python_qt_binding.QtGui import QToolBar
 
@@ -58,6 +59,7 @@ class MainWindow(DockableMainWindow):
             self._save_on_close_signaled = True
             self.save_settings_before_close_signal.emit(self._global_settings, self._perspective_settings)
             event.ignore()
+            os._exit(0)
         else:
             event.accept()
 

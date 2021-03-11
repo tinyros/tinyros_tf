@@ -386,6 +386,7 @@ class Main(object):
             def sigint_handler(*args):
                 qDebug('\nsigint_handler()')
                 main_window.close()
+                os._exit(0)
             signal.signal(signal.SIGINT, sigint_handler)
             # the timer enables triggering the sigint_handler
             timer = QTimer()
