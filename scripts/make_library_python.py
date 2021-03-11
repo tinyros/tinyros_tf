@@ -135,7 +135,7 @@ class PrimitiveDataType:
         f.write('\'%s\'%s' % (self.name, trailer))
 
     def make_declaration_type(self, f, trailer):
-        f.write('\'%s\'%s' % (self.type, trailer))
+        f.write('\'%s\'%s' % (self.type.replace('.msg.', '/'), trailer))
         
     def make_initializer(self, f, header):
         f.write('%sself.%s = %s\n' % (header, self.name, primitive_default_value(self.type)))
@@ -271,7 +271,7 @@ class MessageDataType(PrimitiveDataType):
         f.write('\'%s\'%s' % (self.name, trailer))
 
     def make_declaration_type(self, f, trailer):
-        f.write('\'%s\'%s' % (self.type, trailer))
+        f.write('\'%s\'%s' % (self.type.replace('.msg.', '/'), trailer))
 
     def make_initializer(self, f, header):
         f.write('%sself.%s = %s()\n' % (header, self.name, self.type))
@@ -305,7 +305,7 @@ class StringDataType(PrimitiveDataType):
         f.write('\'%s\'%s' % (self.name, trailer))
 
     def make_declaration_type(self, f, trailer):
-        f.write('\'%s\'%s' % (self.type, trailer))
+        f.write('\'%s\'%s' % (self.type.replace('.msg.', '/'), trailer))
 
     def make_initializer(self, f, header):
         f.write('%sself.%s = \'\'\n' % (header, self.name))
@@ -371,7 +371,7 @@ class TimeDataType(PrimitiveDataType):
         f.write('\'%s\'%s' % (self.name, trailer))
 
     def make_declaration_type(self, f, trailer):
-        f.write('\'%s\'%s' % (self.type, trailer))
+        f.write('\'%s\'%s' % (self.type.replace('.msg.', '/'), trailer))
 
     def make_initializer(self, f, header):
         f.write('%sself.%s = %s()\n' % (header, self.name, self.type))
@@ -411,7 +411,7 @@ class ArrayDataType(PrimitiveDataType):
 
     def make_declaration_type(self, f, trailer):
         if self.size == None:
-            f.write('\'%s[]\'%s' % (self.type, trailer))
+            f.write('\'%s[]\'%s' % (self.type.replace('.msg.', '/'), trailer))
         else:
             f.write('\'%s[%s]\'%s' % (self.type, self.size, trailer))
 
